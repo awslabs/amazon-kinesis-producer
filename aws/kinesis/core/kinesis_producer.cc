@@ -1,0 +1,253 @@
+// Copyright 2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//
+// Licensed under the Amazon Software License (the "License").
+// You may not use this file except in compliance with the License.
+// A copy of the License is located at
+//
+//  http://aws.amazon.com/asl
+//
+// or in the "license" file accompanying this file. This file is distributed
+// on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language governing
+// permissions and limitations under the License.
+
+#include <aws/kinesis/core/kinesis_producer.h>
+
+namespace aws {
+namespace kinesis {
+namespace core {
+
+namespace detail {
+
+void ProcessMessagesLoop::run() {
+  if (scheduled_callback_) {
+    scheduled_callback_->cancel();
+  }
+
+  int n = 0;
+  while (n < 64 && ipc_manager_->try_take(tmp_)) {
+    callback_(std::move(tmp_));
+    n++;
+  }
+
+  // Empty queue prolly means there's not much work, so we'll sleep for a
+  // while, otherwise we'll consume too much CPU polling the queue in a tight
+  // loop.
+  if (n == 0) {
+    auto delay = std::chrono::milliseconds(1);
+    if (!scheduled_callback_) {
+      executor_->schedule(run_, delay, &scheduled_callback_);
+    } else {
+      scheduled_callback_->reschedule(delay);
+    }
+  } else {
+    executor_->submit(run_);
+  }
+}
+
+} //namespace detail
+
+void KinesisProducer::create_metrics_manager() {
+  auto level = aws::metrics::constants::level(config_->metrics_level());
+  auto granularity =
+      aws::metrics::constants::granularity(config_->metrics_granularity());
+
+  std::list<
+      std::tuple<std::string,
+                 std::string,
+                 aws::metrics::constants::Granularity>> extra_dims;
+  for (auto t : config_->additional_metrics_dims()) {
+    extra_dims.push_back(
+        std::make_tuple(
+            std::get<0>(t),
+            std::get<1>(t),
+            aws::metrics::constants::granularity(std::get<2>(t))));
+  }
+
+  metrics_manager_ = std::make_shared<aws::metrics::MetricsManager>(
+              executor_,
+              socket_factory_,
+              creds_provider_,
+              region_,
+              config_->metrics_namespace(),
+              level,
+              granularity,
+              std::move(extra_dims));
+}
+
+void KinesisProducer::create_http_client() {
+  auto endpoint = config_->custom_endpoint();
+  auto port = config_->port();
+
+  if (endpoint.empty()) {
+    endpoint = "kinesis." + region_ + ".amazonaws.com";
+    port = 443;
+  }
+
+  http_client_ =
+      std::make_shared<aws::http::HttpClient>(
+          executor_,
+          socket_factory_,
+          endpoint,
+          port,
+          true,
+          config_->verify_certificate(),
+          config_->min_connections(),
+          config_->max_connections(),
+          std::chrono::milliseconds(config_->connect_timeout()),
+          std::chrono::milliseconds(config_->request_timeout()));
+}
+
+Pipeline* KinesisProducer::create_pipeline(const std::string& stream) {
+  LOG(INFO) << "Created pipeline for stream \"" << stream << "\"";
+  return new Pipeline(
+      region_,
+      stream,
+      config_,
+      executor_,
+      http_client_,
+      creds_provider_,
+      metrics_manager_,
+      [this](auto& ur) {
+        ipc_manager_->put(ur->to_put_record_result().SerializeAsString());
+      });
+}
+
+void KinesisProducer::start_message_loops() {
+  for (size_t i = 0; i < executor_->num_threads(); i++) {
+    message_loops_.push_back(
+        std::make_unique<detail::ProcessMessagesLoop>(
+            [this](auto&& msg) {
+              this->on_ipc_message(std::forward<decltype(msg)>(msg));
+            },
+            ipc_manager_,
+            executor_));
+  }
+}
+
+void KinesisProducer::on_ipc_message(std::string&& message) noexcept {
+  aws::kinesis::protobuf::Message m;
+  try {
+    m.ParseFromString(message);
+  } catch (const std::exception& ex) {
+    LOG(ERROR) << "Unexpected error parsing ipc message: " << ex.what();
+    return;
+  }
+  if (m.has_put_record()) {
+    on_put_record(m);
+  } else if (m.has_flush()) {
+    on_flush(m.flush());
+  } else if (m.has_metrics_request()) {
+    on_metrics_request(m);
+  } else {
+    LOG(ERROR) << "Received unknown message type";
+  }
+}
+
+void KinesisProducer::on_put_record(aws::kinesis::protobuf::Message& m) {
+  auto ur = std::make_shared<UserRecord>(m);
+  ur->set_deadline_from_now(
+      std::chrono::milliseconds(config_->record_max_buffered_time()));
+  ur->set_expiration_from_now(
+      std::chrono::milliseconds(config_->record_ttl()));
+  pipelines_[ur->stream()].put(ur);
+}
+
+void KinesisProducer::on_flush(const aws::kinesis::protobuf::Flush& flush_msg) {
+  if (flush_msg.has_stream_name()) {
+    pipelines_[flush_msg.stream_name()].flush();
+  } else {
+    pipelines_.foreach([](auto&, auto pipeline) { pipeline->flush(); });
+  }
+}
+
+void KinesisProducer::on_metrics_request(
+    const aws::kinesis::protobuf::Message& m) {
+  auto req = m.metrics_request();
+  std::vector<std::shared_ptr<aws::metrics::Metric>> metrics;
+
+  // filter by name, if necessary
+  if (req.has_name()) {
+    for (auto& metric : metrics_manager_->all_metrics()) {
+      auto dims = metric->all_dimensions();
+
+      assert(!dims.empty());
+      assert(dims.at(0).first == "MetricName");
+
+      if (dims.at(0).second == req.name()) {
+        metrics.push_back(metric);
+      }
+    }
+  } else {
+    metrics = metrics_manager_->all_metrics();
+  }
+
+  // convert the data into protobuf
+  aws::kinesis::protobuf::Message reply;
+  reply.set_id(::rand());
+  reply.set_source_id(m.id());
+  auto res = reply.mutable_metrics_response();
+
+  for (auto& metric : metrics) {
+    auto dims = metric->all_dimensions();
+
+    assert(!dims.empty());
+    assert(dims.at(0).first == "MetricName");
+
+    auto pm = res->add_metrics();
+    pm->set_name(dims.at(0).second);
+
+    for (size_t i = 1; i < dims.size(); i++) {
+      auto d = pm->add_dimensions();
+      d->set_key(dims[i].first);
+      d->set_value(dims[i].second);
+    }
+
+    auto& accum = metric->accumulator();
+    auto stats = pm->mutable_stats();
+
+    if (req.has_seconds()) {
+      auto s = req.seconds();
+      stats->set_count(accum.count(s));
+      stats->set_sum(accum.sum(s));
+      stats->set_min(accum.min(s));
+      stats->set_max(accum.max(s));
+      stats->set_mean(accum.mean(s));
+      pm->set_seconds(s);
+    } else {
+      stats->set_count(accum.count());
+      stats->set_sum(accum.sum());
+      stats->set_min(accum.min());
+      stats->set_max(accum.max());
+      stats->set_mean(accum.mean());
+      pm->set_seconds(accum.elapsed<std::chrono::seconds>());
+    }
+  }
+
+  ipc_manager_->put(reply.SerializeAsString());
+}
+
+void KinesisProducer::report_outstanding() {
+  pipelines_.foreach([this](auto& stream, auto pipeline) {
+    metrics_manager_
+        ->finder()
+        .set_name(aws::metrics::constants::Names::UserRecordsPending)
+        .set_stream(stream)
+        .find()
+        ->put(pipeline->outstanding_user_records());
+  });
+
+  auto delay = std::chrono::milliseconds(200);
+  if (!report_outstanding_) {
+    executor_->schedule(
+        [this] { this->report_outstanding(); },
+        delay,
+        &report_outstanding_);
+  } else {
+    report_outstanding_->reschedule(delay);
+  }
+}
+
+} //namespace core
+} //namespace kinesis
+} //namespace aws

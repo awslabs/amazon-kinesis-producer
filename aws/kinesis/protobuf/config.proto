@@ -1,0 +1,36 @@
+
+package aws.kinesis.protobuf;
+
+message AdditionalDimension {
+  required string key         = 1;
+  required string value       = 2;
+  required string granularity = 3;
+}
+
+message Configuration {
+  repeated AdditionalDimension additional_metric_dims = 128;
+
+  optional bool aggregation_enabled = 1 [default = true];
+  optional uint64 aggregation_max_count = 2 [default = 4294967295];
+  optional uint64 aggregation_max_size = 3 [default = 51200];
+  optional string aws_access_key_id = 4 [default = ""];
+  optional string aws_secret_key = 5 [default = ""];
+  optional uint64 collection_max_count = 6 [default = 500];
+  optional uint64 collection_max_size = 7 [default = 5242880];
+  optional uint64 connect_timeout = 8 [default = 6000];
+  optional string custom_endpoint = 9 [default = ""];
+  optional bool fail_if_throttled = 10 [default = false];
+  optional string log_level = 11 [default = "info"];
+  optional uint64 max_connections = 12 [default = 4];
+  optional string metrics_granularity = 13 [default = "shard"];
+  optional string metrics_level = 14 [default = "detailed"];
+  optional string metrics_namespace = 15 [default = "KinesisProducerLibrary"];
+  optional uint64 min_connections = 16 [default = 1];
+  optional uint64 port = 17 [default = 443];
+  optional uint64 rate_limit = 18 [default = 150];
+  optional uint64 record_max_buffered_time = 19 [default = 100];
+  optional uint64 record_ttl = 20 [default = 30000];
+  optional string region = 21 [default = ""];
+  optional uint64 request_timeout = 22 [default = 6000];
+  optional bool verify_certificate = 23 [default = true];
+}
