@@ -1099,6 +1099,27 @@ public class Configuration {
             throw new RuntimeException("Error loading config from properties file", e);
         }
 
+        return fromProperties(props);
+    }
+
+    /**
+     * Load configuration from a Properties object. Any fields not found in the
+     * target Properties object will take on default values.
+     *
+     * <p>
+     * The values loaded are checked against any constraints that each respective
+     * field may have. If there are invalid values an IllegalArgumentException
+     * will be thrown.
+     *
+     * @param props
+     *            Properties object containing KPL config.
+     * @return A {@link Configuration} instance containing values loaded from
+     *         the specified file.
+     * @throws IllegalArgumentException
+     *             If one or more config values are invalid.
+     */
+    public static Configuration fromProperties(Properties props) {
+
         Configuration config = new Configuration();
 
         String val = null;
