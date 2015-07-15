@@ -68,6 +68,11 @@ boost::optional<std::string> EnvVarAwsCredentialsProvider::get_secret_key() {
   return sk ? boost::optional<std::string>(sk) : boost::none;
 }
 
+boost::optional<std::string> EnvVarAwsCredentialsProvider::get_session_token() {
+  char* st = std::getenv("AWS_SESSION_TOKEN");
+  return st ? boost::optional<std::string>(st) : boost::none;
+}
+
 //------------------------------------------------------------------------------
 
 BasicAwsCredentialsProvider::BasicAwsCredentialsProvider(

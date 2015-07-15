@@ -68,6 +68,7 @@ class EnvVarAwsCredentialsProvider : public AwsCredentialsProvider {
  protected:
   boost::optional<std::string> get_akid() override;
   boost::optional<std::string> get_secret_key() override;
+  boost::optional<std::string> get_session_token() override;
 };
 
 //------------------------------------------------------------------------------
