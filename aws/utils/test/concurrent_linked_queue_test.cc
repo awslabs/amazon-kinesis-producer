@@ -16,7 +16,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <glog/logging.h>
+#include <aws/utils/logging.h>
 
 #include <aws/utils/concurrent_linked_queue.h>
 #include <aws/mutex.h>
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(Concurrent) {
   const size_t total_num_items = 1 << 22;
 
   auto f = [&](const size_t num_threads) {
-    LOG(INFO) << "Starting concurrent queue test for " << num_threads
+    LOG(info) << "Starting concurrent queue test for " << num_threads
               << " threads...";
 
     aws::utils::ConcurrentLinkedQueue<std::string> q;
@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE(Concurrent) {
       t.join();
     }
 
-    LOG(INFO) << "Done. Analyzing results...";
+    LOG(info) << "Done. Analyzing results...";
 
     std::vector<std::string> total;
     total.reserve(total_num_items);
@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE(Concurrent) {
       }
     }
 
-    LOG(INFO) << "Passed.";
+    LOG(info) << "Passed.";
     return end - start;
   };
 
@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE(Concurrent) {
     auto nanos =
         std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
     double seconds = nanos / 1e9;
-    LOG(INFO) << "ConcurrentLinkedQueue throughput ("
+    LOG(info) << "ConcurrentLinkedQueue throughput ("
               << num_threads << " threads): "
               << total_num_items << " items, "
               << seconds << " seconds, "

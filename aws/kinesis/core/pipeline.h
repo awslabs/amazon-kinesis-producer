@@ -73,6 +73,7 @@ class Pipeline : boost::noncopyable {
             std::make_shared<Limiter>(
                 executor_,
                 [this](auto& kr) { this->collector_put(kr); },
+                [this](auto& kr) { this->retrier_put_kr(kr); },
                 config_)),
         collector_(
             std::make_shared<Collector>(
@@ -149,7 +150,8 @@ class Pipeline : boost::noncopyable {
           request,
           [this](auto& result) { this->retrier_put(result); },
           prr,
-          prr->deadline());
+          prr->deadline(),
+          prr->expiration());
     } catch (const std::exception& e) {
       retrier_->put(std::make_shared<aws::http::HttpResult>(e.what(), prr));
     }
@@ -157,6 +159,14 @@ class Pipeline : boost::noncopyable {
 
   void retrier_put(const std::shared_ptr<aws::http::HttpResult>& result) {
     executor_->submit([=] { retrier_->put(result); });
+  }
+
+  void retrier_put_kr(const std::shared_ptr<KinesisRecord>& kr) {
+    executor_->submit([=] {
+      retrier_->put(kr,
+                    "Expired",
+                    "Expiration reached while waiting in limiter");
+    });
   }
 
   std::string region_;

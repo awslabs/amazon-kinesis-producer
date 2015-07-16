@@ -13,9 +13,10 @@
  * permissions and limitations under the License.
  */
 
-package com.amazonaws.kinesis.producer;
+package com.amazonaws.services.kinesis.producer;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,12 +38,12 @@ import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazonaws.kinesis.producer.protobuf.Messages;
-import com.amazonaws.kinesis.producer.protobuf.Messages.Flush;
-import com.amazonaws.kinesis.producer.protobuf.Messages.Message;
-import com.amazonaws.kinesis.producer.protobuf.Messages.MetricsRequest;
-import com.amazonaws.kinesis.producer.protobuf.Messages.MetricsResponse;
-import com.amazonaws.kinesis.producer.protobuf.Messages.PutRecord;
+import com.amazonaws.services.kinesis.producer.protobuf.Messages;
+import com.amazonaws.services.kinesis.producer.protobuf.Messages.Flush;
+import com.amazonaws.services.kinesis.producer.protobuf.Messages.Message;
+import com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsRequest;
+import com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsResponse;
+import com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecord;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
@@ -55,6 +56,7 @@ import com.google.protobuf.ByteString;
  * <p>
  * <b>Use a single instance within the application whenever possible:</b>
  * <p>
+ * <ul>
  * <li>One child process is spawned per instance of KinesisProducer. Additional
  * instances introduce overhead and reduce aggregation efficiency.</li>
  * <li>All streams within a region that can be accessed with the same
@@ -64,6 +66,7 @@ import com.google.protobuf.ByteString;
  * <li>Therefore, unless you need to put to multiple regions, or need to use
  * different credentials for different streams, you should avoid creating
  * multiple instances of KinesisProducer.</li>
+ * </ul>
  * <p>
  * 
  * @author chaodeng
@@ -74,7 +77,7 @@ public class KinesisProducer {
     
     private static final BigInteger UINT_128_MAX = new BigInteger(StringUtils.repeat("FF", 16), 16);
     
-    private final Configuration config;
+    private final KinesisProducerConfiguration config;
     private final Map<String, String> env;
     private final AtomicLong messageNumber = new AtomicLong(1);
     private final Map<Long, SettableFuture<?>> futures = new ConcurrentHashMap<>();
@@ -184,9 +187,9 @@ public class KinesisProducer {
      *            Configuration for the KinesisProducer. See the docs for that
      *            class for details.
      * 
-     * @see Configuration
+     * @see KinesisProducerConfiguration
      */
-    public KinesisProducer(Configuration config) {
+    public KinesisProducer(KinesisProducerConfiguration config) {
         this.config = config;
         
         extractBinaries();
@@ -210,14 +213,14 @@ public class KinesisProducer {
      * 
      * <p>
      * The KPL will use a set of default configurations. You can set custom
-     * configuration using the constructor that takes a {@link Configuration}
+     * configuration using the constructor that takes a {@link KinesisProducerConfiguration}
      * object.
      * 
      * <p>
      * All methods in KinesisProducer are thread-safe.
      */
     public KinesisProducer() {
-        this(new Configuration());
+        this(new KinesisProducerConfiguration());
     }
     
     /**
@@ -257,7 +260,7 @@ public class KinesisProducer {
      * </code>
      * <p>
      * where <code>callback</code> is an instance of
-     * {@link com.google.common.util.concurrent.FutureCallback}</code> and
+     * {@link com.google.common.util.concurrent.FutureCallback} and
      * <code>executor</code> is an instance of
      * {@link java.util.concurrent.Executor}.
      * 
@@ -275,7 +278,7 @@ public class KinesisProducer {
      *             if the child process is dead
      * @see ListenableFuture
      * @see UserRecordResult
-     * @see Configuration#setRecordTtl(long)
+     * @see KinesisProducerConfiguration#setRecordTtl(long)
      * @see UserRecordFailedException
      */
     public ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, ByteBuffer data) {
@@ -306,7 +309,7 @@ public class KinesisProducer {
      * </code>
      * <p>
      * where <code>callback</code> is an instance of
-     * {@link com.google.common.util.concurrent.FutureCallback}</code> and
+     * {@link com.google.common.util.concurrent.FutureCallback} and
      * <code>executor</code> is an instance of
      * {@link java.util.concurrent.Executor}.
      * 
@@ -329,7 +332,7 @@ public class KinesisProducer {
      *             if the child process is dead
      * @see ListenableFuture
      * @see UserRecordResult
-     * @see Configuration#setRecordTtl(long)
+     * @see KinesisProducerConfiguration#setRecordTtl(long)
      * @see UserRecordFailedException
      */
     public ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data) {
@@ -676,8 +679,8 @@ public class KinesisProducer {
      * @throws DaemonException
      *             if the child process is dead
      * 
-     * @see Configuration#setRecordTtl(long)
-     * @see Configuration#setRequestTimeout(long)
+     * @see KinesisProducerConfiguration#setRecordTtl(long)
+     * @see KinesisProducerConfiguration#setRequestTimeout(long)
      */
     public void flushSync() {
         while (getOutstandingRecordsCount() > 0) {
@@ -704,7 +707,7 @@ public class KinesisProducer {
         String root = "amazon-kinesis-producer-native-binaries";
         String tmpDir = config.getTempDirectory();
         if (tmpDir.trim().length() == 0) {
-            tmpDir = "/tmp";
+            tmpDir = System.getProperty("java.io.tmpdir");
         }
         tmpDir = Paths.get(tmpDir, root + "_" + Long.toString(System.nanoTime())).toString();
         pathToTmpDir = tmpDir;
@@ -715,6 +718,7 @@ public class KinesisProducer {
             log.warn("Using non-default native binary at " + pathToExecutable);
             pathToLibDir = "";
         } else {
+            log.info("Extracting binaries to " + tmpDir);
             try {
                 File tmpDirFile = new File(tmpDir);
                 if (!tmpDirFile.mkdirs()) {
@@ -722,8 +726,11 @@ public class KinesisProducer {
                 }
                 tmpDirFile.deleteOnExit();
                 
-                String tarFile = Paths.get(root, os, "bin.tar").toString();
+                String tarFile = root + "/" + os + "/bin.tar";
                 try (InputStream is = this.getClass().getClassLoader().getResourceAsStream(tarFile)) {
+                    if (is == null) {
+                        throw new FileNotFoundException(tarFile);
+                    }
                     TarArchiveInputStream tais = new TarArchiveInputStream(is);
                     TarArchiveEntry e = null;
                     while ((e = tais.getNextTarEntry()) != null) {
@@ -739,7 +746,11 @@ public class KinesisProducer {
                     }
                 }
                 
-                pathToExecutable = Paths.get(pathToTmpDir, "kinesis_producer").toString();
+                String executableName = "kinesis_producer";
+                if (os.equals("windows")) {
+                    executableName += ".exe";
+                }
+                pathToExecutable = Paths.get(pathToTmpDir, executableName).toString();
                 new File(pathToExecutable).setExecutable(true);
                 pathToLibDir = pathToTmpDir;
             } catch (Exception e) {

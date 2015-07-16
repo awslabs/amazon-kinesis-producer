@@ -11,12 +11,13 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-
-package com.amazonaws.kinesis.producer;
+package com.amazonaws.services.kinesis.producer;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
@@ -24,17 +25,22 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazonaws.kinesis.producer.protobuf.Config.AdditionalDimension;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension;
+import com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration;
+import com.amazonaws.services.kinesis.producer.protobuf.Messages.Message;
 
-// This class is generated with config_generator.py, do not edit by hand
 /**
  * Configuration for {@link KinesisProducer}. See each each individual set
  * method for details about each parameter.
  */
-public class Configuration {
-    private static final Logger log = LoggerFactory.getLogger(Configuration.class);
+public class KinesisProducerConfiguration {
+    private static final Logger log = LoggerFactory.getLogger(KinesisProducerConfiguration.class);
 
     private List<AdditionalDimension> additionalDims = new ArrayList<>();
+    private AWSCredentialsProvider credentialsProvider = new DefaultAWSCredentialsProviderChain();
+    private AWSCredentialsProvider metricsCredentialsProvider = null;
 
    /**
      * Add an additional, custom dimension to the metrics emitted by the KPL.
@@ -82,15 +88,153 @@ public class Configuration {
         }
         additionalDims.add(AdditionalDimension.newBuilder().setKey(key).setValue(value).setGranularity(granularity).build());
     }
+    
+    /**
+     * {@link AWSCredentialsProvider} that supplies credentials used to put
+     * records to Kinesis. These credentials will also be used to upload metrics
+     * to CloudWatch, unless {@link setMetricsCredentialsProvider} is used to
+     * provide separate credentials for that.
+     * 
+     * @see #setCredentialsProvider(AWSCredentialsProvider)
+     */
+    public AWSCredentialsProvider getCredentialsProvider() {
+        return credentialsProvider;
+    }
 
+    /**
+     * {@link AWSCredentialsProvider} that supplies credentials used to put
+     * records to Kinesis.
+     * <p>
+     * These credentials will also be used to upload metrics
+     * to CloudWatch, unless {@link setMetricsCredentialsProvider} is used to
+     * provide separate credentials for that.
+     * <p>
+     * Defaults to an instance of {@link DefaultAWSCredentialsProviderChain}
+     * 
+     * @see #setMetricsCredentialsProvider(AWSCredentialsProvider)
+     */
+    public KinesisProducerConfiguration setCredentialsProvider(AWSCredentialsProvider CredentialsProvider) {
+        this.credentialsProvider = CredentialsProvider;
+        return this;
+    }
+
+    /**
+     * {@link AWSCredentialsProvider} that supplies credentials used to upload
+     * metrics to CloudWatch. If not given, the credentials used to put records
+     * to Kinesis are also used for CloudWatch.
+     * 
+     * @see #setMetricsCredentialsProvider(AWSCredentialsProvider)
+     */
+    public AWSCredentialsProvider getMetricsCredentialsProvider() {
+        return metricsCredentialsProvider;
+    }
+    
+    /**
+     * {@link AWSCredentialsProvider} that supplies credentials used to upload
+     * metrics to CloudWatch.
+     * <p>
+     * If not given, the credentials used to put records
+     * to Kinesis are also used for CloudWatch.
+     * 
+     * @see #setCredentialsProvider(AWSCredentialsProvider)
+     */
+    public KinesisProducerConfiguration setMetricsCredentialsProvider(AWSCredentialsProvider metricsCredentialsProvider) {
+        this.metricsCredentialsProvider = metricsCredentialsProvider;
+        return this;
+    }
+    
+    /**
+     * Load configuration from a properties file. Any fields not found in the
+     * target file will take on default values.
+     *
+     * <p>
+     * The values loaded are checked against any constraints that each
+     * respective field may have. If there are invalid values an
+     * IllegalArgumentException will be thrown.
+     *
+     * @param path
+     *            Path to the properties file containing KPL config.
+     * @return A {@link KinesisProducerConfiguration} instance containing values
+     *         loaded from the specified file.
+     * @throws IllegalArgumentException
+     *             If one or more config values are invalid.
+     */
+    public static KinesisProducerConfiguration fromPropertiesFile(String path) {
+        log.info("Attempting to load config from file " + path);
+
+        Properties props = new Properties();
+        try (InputStream is = new FileInputStream(path)) {
+            props.load(is);
+        } catch (Exception e) {
+            throw new RuntimeException("Error loading config from properties file", e);
+        }
+
+        return fromProperties(props);
+    }
+
+    /**
+     * Load configuration from a {@link Properties} object. Any fields not found
+     * in the properties instance will take on default values.
+     *
+     * <p>
+     * The values loaded are checked against any constraints that each
+     * respective field may have. If there are invalid values an
+     * IllegalArgumentException will be thrown.
+     *
+     * @param props
+     *            {@link Properties} object containing KPL config.
+     * @return A {@link KinesisProducerConfiguration} instance containing values
+     *         loaded from the specified file.
+     * @throws IllegalArgumentException
+     *             If one or more config values are invalid.
+     */
+    public static KinesisProducerConfiguration fromProperties(Properties props) {
+        KinesisProducerConfiguration config = new KinesisProducerConfiguration();
+        Enumeration<?> propNames = props.propertyNames();
+        while (propNames.hasMoreElements()) {
+            boolean found = false;
+            String key = propNames.nextElement().toString();
+            String value = props.getProperty(key);
+            for (Method method : KinesisProducerConfiguration.class.getMethods()) {
+                if (method.getName().equals("set" + key)) {
+                    found = true;
+                    Class<?> type = method.getParameterTypes()[0];
+                    try {
+                        if (type == long.class) {
+                            method.invoke(config, Long.valueOf(value));
+                        } else if (type == boolean.class) {
+                            method.invoke(config, Boolean.valueOf(value));
+                        } else if (type == String.class) {
+                            method.invoke(config, value);
+                        }
+                    } catch (Exception e) {
+                        throw new IllegalArgumentException(String.format(
+                                "Error trying to set field %s with the value '%s'", "AggregationEnabled",
+                                key, value), e);
+                    }
+                }
+            }
+            if (!found) {
+                log.warn("Property " + key + " ignored as there is no corresponding set method in " +
+                        KinesisProducerConfiguration.class.getSimpleName());
+            }
+        }
+        
+        return config;
+    }
+    
+    protected Configuration.Builder additionalConfigsToProtobuf(Configuration.Builder builder) {
+        return builder.addAllAdditionalMetricDims(additionalDims);
+    }
+    
+    // __GENERATED_CODE__
     private boolean aggregationEnabled = true;
     private long aggregationMaxCount = 4294967295L;
     private long aggregationMaxSize = 51200L;
-    private String awsAccessKeyId = "";
-    private String awsSecretKey = "";
     private long collectionMaxCount = 500L;
     private long collectionMaxSize = 5242880L;
     private long connectTimeout = 6000L;
+    private long credentialsRefreshDelay = 5000L;
     private String customEndpoint = "";
     private boolean failIfThrottled = false;
     private String logLevel = "info";
@@ -98,6 +242,7 @@ public class Configuration {
     private String metricsGranularity = "shard";
     private String metricsLevel = "detailed";
     private String metricsNamespace = "KinesisProducerLibrary";
+    private long metricsUploadDelay = 60000L;
     private long minConnections = 1L;
     private String nativeExecutable = "";
     private long port = 443L;
@@ -159,32 +304,6 @@ public class Configuration {
     }
 
     /**
-     * Set explicit AWS credentials.
-     * 
-     * <p>
-     * You do not need to provide this if you are using an appropriate instance profile, or if you
-     * have the environment variable AWS_ACCESS_ID set.
-     * 
-     * <p><b>Expected pattern</b>: ^([A-Z0-9]{20})?$
-     */
-    public String getAwsAccessKeyId() {
-      return awsAccessKeyId;
-    }
-
-    /**
-     * Set explicit AWS credentials.
-     * 
-     * <p>
-     * You do not need to provide this if you are using an appropriate instance profile, or if you
-     * have the environment variable AWS_SECRET_KEY set.
-     * 
-     * <p><b>Expected pattern</b>: ^([A-Za-z0-9/+=]{40})?$
-     */
-    public String getAwsSecretKey() {
-      return awsSecretKey;
-    }
-
-    /**
      * Maximum number of items to pack into an PutRecords request.
      * 
      * <p>
@@ -229,7 +348,22 @@ public class Configuration {
     }
 
     /**
-     * Use a custom Kinesis endpoint.
+     * How often to refresh credentials (in milliseconds).
+     * 
+     * <p>
+     * During a refresh, credentials are retrieved from any SDK credentials providers attached to
+     * the wrapper and pushed to the core.
+     * 
+     * <p><b>Default</b>: 5000
+     * <p><b>Minimum</b>: 1
+     * <p><b>Maximum (inclusive)</b>: 300000
+     */
+    public long getCredentialsRefreshDelay() {
+      return credentialsRefreshDelay;
+    }
+
+    /**
+     * Use a custom Kinesis and CloudWatch endpoint.
      * 
      * <p>
      * Mostly for testing use. Note this does not accept protocols or paths, only host names or ip
@@ -363,6 +497,20 @@ public class Configuration {
     }
 
     /**
+     * Delay (in milliseconds) between each metrics upload.
+     * 
+     * <p>
+     * For testing only. There is no benefit in setting this lower or higher in production.
+     * 
+     * <p><b>Default</b>: 60000
+     * <p><b>Minimum</b>: 1
+     * <p><b>Maximum (inclusive)</b>: 60000
+     */
+    public long getMetricsUploadDelay() {
+      return metricsUploadDelay;
+    }
+
+    /**
      * Minimum number of connections to keep open to the backend.
      * 
      * <p>
@@ -445,7 +593,6 @@ public class Configuration {
      * Setting this too low can negatively impact throughput.
      * 
      * <p><b>Default</b>: 100
-     * <p><b>Minimum</b>: 100
      * <p><b>Maximum (inclusive)</b>: 9223372036854775807
      */
     public long getRecordMaxBufferedTime() {
@@ -465,7 +612,7 @@ public class Configuration {
      * If you do not wish to lose records and prefer to retry indefinitely, set record_ttl to a
      * large value like INT_MAX. This has the potential to cause head-of-line blocking if network
      * issues or throttling occur. You can respond to such situations by using the metrics
-     * reporting functions of the KPL. You may also set fail_if_thottled to true to prevent
+     * reporting functions of the KPL. You may also set fail_if_throttled to true to prevent
      * automatic retries in case of throttling.
      * 
      * <p><b>Default</b>: 30000
@@ -541,7 +688,7 @@ public class Configuration {
      * 
      * <p><b>Default</b>: true
      */
-    public Configuration setAggregationEnabled(boolean val) {
+    public KinesisProducerConfiguration setAggregationEnabled(boolean val) {
         aggregationEnabled = val;
         return this;
     }
@@ -557,7 +704,7 @@ public class Configuration {
      * <p><b>Minimum</b>: 1
      * <p><b>Maximum (inclusive)</b>: 9223372036854775807
      */
-    public Configuration setAggregationMaxCount(long val) {
+    public KinesisProducerConfiguration setAggregationMaxCount(long val) {
         if (val < 1L || val > 9223372036854775807L) {
             throw new IllegalArgumentException("aggregationMaxCount must be between 1 and 9223372036854775807, got " + val);
         }
@@ -581,45 +728,11 @@ public class Configuration {
      * <p><b>Minimum</b>: 64
      * <p><b>Maximum (inclusive)</b>: 1048576
      */
-    public Configuration setAggregationMaxSize(long val) {
+    public KinesisProducerConfiguration setAggregationMaxSize(long val) {
         if (val < 64L || val > 1048576L) {
             throw new IllegalArgumentException("aggregationMaxSize must be between 64 and 1048576, got " + val);
         }
         aggregationMaxSize = val;
-        return this;
-    }
-
-    /**
-     * Set explicit AWS credentials.
-     * 
-     * <p>
-     * You do not need to provide this if you are using an appropriate instance profile, or if you
-     * have the environment variable AWS_ACCESS_ID set.
-     * 
-     * <p><b>Expected pattern</b>: ^([A-Z0-9]{20})?$
-     */
-    public Configuration setAwsAccessKeyId(String val) {
-        if (!Pattern.matches("^([A-Z0-9]{20})?$", val)) {
-            throw new IllegalArgumentException("awsAccessKeyId must match the pattern ^([A-Z0-9]{20})?$, got " + val);
-        }
-        awsAccessKeyId = val;
-        return this;
-    }
-
-    /**
-     * Set explicit AWS credentials.
-     * 
-     * <p>
-     * You do not need to provide this if you are using an appropriate instance profile, or if you
-     * have the environment variable AWS_SECRET_KEY set.
-     * 
-     * <p><b>Expected pattern</b>: ^([A-Za-z0-9/+=]{40})?$
-     */
-    public Configuration setAwsSecretKey(String val) {
-        if (!Pattern.matches("^([A-Za-z0-9/+=]{40})?$", val)) {
-            throw new IllegalArgumentException("awsSecretKey must match the pattern ^([A-Za-z0-9/+=]{40})?$, got " + val);
-        }
-        awsSecretKey = val;
         return this;
     }
 
@@ -634,7 +747,7 @@ public class Configuration {
      * <p><b>Minimum</b>: 1
      * <p><b>Maximum (inclusive)</b>: 500
      */
-    public Configuration setCollectionMaxCount(long val) {
+    public KinesisProducerConfiguration setCollectionMaxCount(long val) {
         if (val < 1L || val > 500L) {
             throw new IllegalArgumentException("collectionMaxCount must be between 1 and 500, got " + val);
         }
@@ -656,7 +769,7 @@ public class Configuration {
      * <p><b>Minimum</b>: 52224
      * <p><b>Maximum (inclusive)</b>: 9223372036854775807
      */
-    public Configuration setCollectionMaxSize(long val) {
+    public KinesisProducerConfiguration setCollectionMaxSize(long val) {
         if (val < 52224L || val > 9223372036854775807L) {
             throw new IllegalArgumentException("collectionMaxSize must be between 52224 and 9223372036854775807, got " + val);
         }
@@ -671,7 +784,7 @@ public class Configuration {
      * <p><b>Minimum</b>: 100
      * <p><b>Maximum (inclusive)</b>: 300000
      */
-    public Configuration setConnectTimeout(long val) {
+    public KinesisProducerConfiguration setConnectTimeout(long val) {
         if (val < 100L || val > 300000L) {
             throw new IllegalArgumentException("connectTimeout must be between 100 and 300000, got " + val);
         }
@@ -680,7 +793,26 @@ public class Configuration {
     }
 
     /**
-     * Use a custom Kinesis endpoint.
+     * How often to refresh credentials (in milliseconds).
+     * 
+     * <p>
+     * During a refresh, credentials are retrieved from any SDK credentials providers attached to
+     * the wrapper and pushed to the core.
+     * 
+     * <p><b>Default</b>: 5000
+     * <p><b>Minimum</b>: 1
+     * <p><b>Maximum (inclusive)</b>: 300000
+     */
+    public KinesisProducerConfiguration setCredentialsRefreshDelay(long val) {
+        if (val < 1L || val > 300000L) {
+            throw new IllegalArgumentException("credentialsRefreshDelay must be between 1 and 300000, got " + val);
+        }
+        credentialsRefreshDelay = val;
+        return this;
+    }
+
+    /**
+     * Use a custom Kinesis and CloudWatch endpoint.
      * 
      * <p>
      * Mostly for testing use. Note this does not accept protocols or paths, only host names or ip
@@ -688,7 +820,7 @@ public class Configuration {
      * 
      * <p><b>Expected pattern</b>: ^([A-Za-z0-9-\\.]+)?$
      */
-    public Configuration setCustomEndpoint(String val) {
+    public KinesisProducerConfiguration setCustomEndpoint(String val) {
         if (!Pattern.matches("^([A-Za-z0-9-\\.]+)?$", val)) {
             throw new IllegalArgumentException("customEndpoint must match the pattern ^([A-Za-z0-9-\\.]+)?$, got " + val);
         }
@@ -710,7 +842,7 @@ public class Configuration {
      * 
      * <p><b>Default</b>: false
      */
-    public Configuration setFailIfThrottled(boolean val) {
+    public KinesisProducerConfiguration setFailIfThrottled(boolean val) {
         failIfThrottled = val;
         return this;
     }
@@ -722,7 +854,7 @@ public class Configuration {
      * <p><b>Default</b>: info
      * <p><b>Expected pattern</b>: info|warning|error
      */
-    public Configuration setLogLevel(String val) {
+    public KinesisProducerConfiguration setLogLevel(String val) {
         if (!Pattern.matches("info|warning|error", val)) {
             throw new IllegalArgumentException("logLevel must match the pattern info|warning|error, got " + val);
         }
@@ -742,7 +874,7 @@ public class Configuration {
      * <p><b>Minimum</b>: 1
      * <p><b>Maximum (inclusive)</b>: 128
      */
-    public Configuration setMaxConnections(long val) {
+    public KinesisProducerConfiguration setMaxConnections(long val) {
         if (val < 1L || val > 128L) {
             throw new IllegalArgumentException("maxConnections must be between 1 and 128, got " + val);
         }
@@ -780,7 +912,7 @@ public class Configuration {
      * <p><b>Default</b>: shard
      * <p><b>Expected pattern</b>: global|stream|shard
      */
-    public Configuration setMetricsGranularity(String val) {
+    public KinesisProducerConfiguration setMetricsGranularity(String val) {
         if (!Pattern.matches("global|stream|shard", val)) {
             throw new IllegalArgumentException("metricsGranularity must match the pattern global|stream|shard, got " + val);
         }
@@ -807,7 +939,7 @@ public class Configuration {
      * <p><b>Default</b>: detailed
      * <p><b>Expected pattern</b>: none|summary|detailed
      */
-    public Configuration setMetricsLevel(String val) {
+    public KinesisProducerConfiguration setMetricsLevel(String val) {
         if (!Pattern.matches("none|summary|detailed", val)) {
             throw new IllegalArgumentException("metricsLevel must match the pattern none|summary|detailed, got " + val);
         }
@@ -830,11 +962,29 @@ public class Configuration {
      * <p><b>Default</b>: KinesisProducerLibrary
      * <p><b>Expected pattern</b>: (?!AWS/).{1,255}
      */
-    public Configuration setMetricsNamespace(String val) {
+    public KinesisProducerConfiguration setMetricsNamespace(String val) {
         if (!Pattern.matches("(?!AWS/).{1,255}", val)) {
             throw new IllegalArgumentException("metricsNamespace must match the pattern (?!AWS/).{1,255}, got " + val);
         }
         metricsNamespace = val;
+        return this;
+    }
+
+    /**
+     * Delay (in milliseconds) between each metrics upload.
+     * 
+     * <p>
+     * For testing only. There is no benefit in setting this lower or higher in production.
+     * 
+     * <p><b>Default</b>: 60000
+     * <p><b>Minimum</b>: 1
+     * <p><b>Maximum (inclusive)</b>: 60000
+     */
+    public KinesisProducerConfiguration setMetricsUploadDelay(long val) {
+        if (val < 1L || val > 60000L) {
+            throw new IllegalArgumentException("metricsUploadDelay must be between 1 and 60000, got " + val);
+        }
+        metricsUploadDelay = val;
         return this;
     }
 
@@ -848,7 +998,7 @@ public class Configuration {
      * <p><b>Minimum</b>: 1
      * <p><b>Maximum (inclusive)</b>: 16
      */
-    public Configuration setMinConnections(long val) {
+    public KinesisProducerConfiguration setMinConnections(long val) {
         if (val < 1L || val > 16L) {
             throw new IllegalArgumentException("minConnections must be between 1 and 16, got " + val);
         }
@@ -861,7 +1011,7 @@ public class Configuration {
      * the native code.
      * 
      */
-    public Configuration setNativeExecutable(String val) {
+    public KinesisProducerConfiguration setNativeExecutable(String val) {
         nativeExecutable = val;
         return this;
     }
@@ -873,7 +1023,7 @@ public class Configuration {
      * <p><b>Minimum</b>: 1
      * <p><b>Maximum (inclusive)</b>: 65535
      */
-    public Configuration setPort(long val) {
+    public KinesisProducerConfiguration setPort(long val) {
         if (val < 1L || val > 65535L) {
             throw new IllegalArgumentException("port must be between 1 and 65535, got " + val);
         }
@@ -903,7 +1053,7 @@ public class Configuration {
      * <p><b>Minimum</b>: 1
      * <p><b>Maximum (inclusive)</b>: 9223372036854775807
      */
-    public Configuration setRateLimit(long val) {
+    public KinesisProducerConfiguration setRateLimit(long val) {
         if (val < 1L || val > 9223372036854775807L) {
             throw new IllegalArgumentException("rateLimit must be between 1 and 9223372036854775807, got " + val);
         }
@@ -934,12 +1084,11 @@ public class Configuration {
      * Setting this too low can negatively impact throughput.
      * 
      * <p><b>Default</b>: 100
-     * <p><b>Minimum</b>: 100
      * <p><b>Maximum (inclusive)</b>: 9223372036854775807
      */
-    public Configuration setRecordMaxBufferedTime(long val) {
-        if (val < 100L || val > 9223372036854775807L) {
-            throw new IllegalArgumentException("recordMaxBufferedTime must be between 100 and 9223372036854775807, got " + val);
+    public KinesisProducerConfiguration setRecordMaxBufferedTime(long val) {
+        if (val < 0L || val > 9223372036854775807L) {
+            throw new IllegalArgumentException("recordMaxBufferedTime must be between 0 and 9223372036854775807, got " + val);
         }
         recordMaxBufferedTime = val;
         return this;
@@ -958,14 +1107,14 @@ public class Configuration {
      * If you do not wish to lose records and prefer to retry indefinitely, set record_ttl to a
      * large value like INT_MAX. This has the potential to cause head-of-line blocking if network
      * issues or throttling occur. You can respond to such situations by using the metrics
-     * reporting functions of the KPL. You may also set fail_if_thottled to true to prevent
+     * reporting functions of the KPL. You may also set fail_if_throttled to true to prevent
      * automatic retries in case of throttling.
      * 
      * <p><b>Default</b>: 30000
      * <p><b>Minimum</b>: 100
      * <p><b>Maximum (inclusive)</b>: 9223372036854775807
      */
-    public Configuration setRecordTtl(long val) {
+    public KinesisProducerConfiguration setRecordTtl(long val) {
         if (val < 100L || val > 9223372036854775807L) {
             throw new IllegalArgumentException("recordTtl must be between 100 and 9223372036854775807, got " + val);
         }
@@ -985,7 +1134,7 @@ public class Configuration {
      * 
      * <p><b>Expected pattern</b>: ^([a-z]+-[a-z]+-[0-9])?$
      */
-    public Configuration setRegion(String val) {
+    public KinesisProducerConfiguration setRegion(String val) {
         if (!Pattern.matches("^([a-z]+-[a-z]+-[0-9])?$", val)) {
             throw new IllegalArgumentException("region must match the pattern ^([a-z]+-[a-z]+-[0-9])?$, got " + val);
         }
@@ -1006,7 +1155,7 @@ public class Configuration {
      * <p><b>Minimum</b>: 100
      * <p><b>Maximum (inclusive)</b>: 600000
      */
-    public Configuration setRequestTimeout(long val) {
+    public KinesisProducerConfiguration setRequestTimeout(long val) {
         if (val < 100L || val > 600000L) {
             throw new IllegalArgumentException("requestTimeout must be between 100 and 600000, got " + val);
         }
@@ -1022,7 +1171,7 @@ public class Configuration {
      * If not specified, defaults to /tmp in Unix. (Windows TBD)
      * 
      */
-    public Configuration setTempDirectory(String val) {
+    public KinesisProducerConfiguration setTempDirectory(String val) {
         tempDirectory = val;
         return this;
     }
@@ -1033,20 +1182,18 @@ public class Configuration {
      * 
      * <p><b>Default</b>: true
      */
-    public Configuration setVerifyCertificate(boolean val) {
+    public KinesisProducerConfiguration setVerifyCertificate(boolean val) {
         verifyCertificate = val;
         return this;
     }
 
 
-    protected com.amazonaws.kinesis.producer.protobuf.Messages.Message toProtobufMessage() {
-        com.amazonaws.kinesis.producer.protobuf.Config.Configuration c =
-            com.amazonaws.kinesis.producer.protobuf.Config.Configuration.newBuilder()
+    protected Message toProtobufMessage() {
+        Configuration c = this.additionalConfigsToProtobuf(
+            Configuration.newBuilder()
                 .setAggregationEnabled(aggregationEnabled)
                 .setAggregationMaxCount(aggregationMaxCount)
                 .setAggregationMaxSize(aggregationMaxSize)
-                .setAwsAccessKeyId(awsAccessKeyId)
-                .setAwsSecretKey(awsSecretKey)
                 .setCollectionMaxCount(collectionMaxCount)
                 .setCollectionMaxSize(collectionMaxSize)
                 .setConnectTimeout(connectTimeout)
@@ -1057,6 +1204,7 @@ public class Configuration {
                 .setMetricsGranularity(metricsGranularity)
                 .setMetricsLevel(metricsLevel)
                 .setMetricsNamespace(metricsNamespace)
+                .setMetricsUploadDelay(metricsUploadDelay)
                 .setMinConnections(minConnections)
                 .setPort(port)
                 .setRateLimit(rateLimit)
@@ -1065,296 +1213,10 @@ public class Configuration {
                 .setRegion(region)
                 .setRequestTimeout(requestTimeout)
                 .setVerifyCertificate(verifyCertificate)
-                .addAllAdditionalMetricDims(additionalDims)
-                .build();
-       return com.amazonaws.kinesis.producer.protobuf.Messages.Message.newBuilder()
+                ).build();
+       return Message.newBuilder()
                       .setConfiguration(c)
                       .setId(0)
                       .build();
     }
-
-    /**
-     * Load configuration from a properties file. Any fields not found in the
-     * target file will take on default values.
-     *
-     * <p>
-     * The values loaded are checked against any constraints that each respective
-     * field may have. If there are invalid values an IllegalArgumentException
-     * will be thrown.
-     *
-     * @param path
-     *            Path to the properties file containing KPL config.
-     * @return A {@link Configuration} instance containing values loaded from
-     *         the specified file.
-     * @throws IllegalArgumentException
-     *             If one or more config values are invalid.
-     */
-    public static Configuration fromPropertiesFile(String path) {
-        log.info("Attempting to load config from file " + path);
-
-        Properties props = new Properties();
-        try (InputStream is = new FileInputStream(path)) {
-            props.load(is);
-        } catch (Exception e) {
-            throw new RuntimeException("Error loading config from properties file", e);
-        }
-
-        return fromProperties(props);
-    }
-
-    /**
-     * Load configuration from a Properties object. Any fields not found in the
-     * target Properties object will take on default values.
-     *
-     * <p>
-     * The values loaded are checked against any constraints that each respective
-     * field may have. If there are invalid values an IllegalArgumentException
-     * will be thrown.
-     *
-     * @param props
-     *            Properties object containing KPL config.
-     * @return A {@link Configuration} instance containing values loaded from
-     *         the specified file.
-     * @throws IllegalArgumentException
-     *             If one or more config values are invalid.
-     */
-    public static Configuration fromProperties(Properties props) {
-
-        Configuration config = new Configuration();
-
-        String val = null;
-        
-        if ((val = props.getProperty("AggregationEnabled")) != null) {
-          try {
-            config.setAggregationEnabled(Boolean.parseBoolean(val));
-            log.info(String.format("Loaded value '%s' for %s", val, "AggregationEnabled"));
-          } catch (Exception e) {
-            throw new IllegalArgumentException(String.format(
-              "Error trying to set field %s with the value '%s'", "AggregationEnabled", val), e);
-          }
-        }
-    
-        if ((val = props.getProperty("AggregationMaxCount")) != null) {
-          try {
-            config.setAggregationMaxCount(Long.parseLong(val));
-            log.info(String.format("Loaded value '%s' for %s", val, "AggregationMaxCount"));
-          } catch (Exception e) {
-            throw new IllegalArgumentException(String.format(
-              "Error trying to set field %s with the value '%s'", "AggregationMaxCount", val), e);
-          }
-        }
-    
-        if ((val = props.getProperty("AggregationMaxSize")) != null) {
-          try {
-            config.setAggregationMaxSize(Long.parseLong(val));
-            log.info(String.format("Loaded value '%s' for %s", val, "AggregationMaxSize"));
-          } catch (Exception e) {
-            throw new IllegalArgumentException(String.format(
-              "Error trying to set field %s with the value '%s'", "AggregationMaxSize", val), e);
-          }
-        }
-    
-        if ((val = props.getProperty("AwsAccessKeyId")) != null) {
-          try {
-            config.setAwsAccessKeyId(val);
-            log.info(String.format("Loaded value '%s' for %s", "******", "AwsAccessKeyId"));
-          } catch (Exception e) {
-            throw new IllegalArgumentException(String.format(
-              "Error trying to set field %s with the value '%s'", "AwsAccessKeyId", val), e);
-          }
-        }
-    
-        if ((val = props.getProperty("AwsSecretKey")) != null) {
-          try {
-            config.setAwsSecretKey(val);
-            log.info(String.format("Loaded value '%s' for %s", "******", "AwsSecretKey"));
-          } catch (Exception e) {
-            throw new IllegalArgumentException(String.format(
-              "Error trying to set field %s with the value '%s'", "AwsSecretKey", val), e);
-          }
-        }
-    
-        if ((val = props.getProperty("CollectionMaxCount")) != null) {
-          try {
-            config.setCollectionMaxCount(Long.parseLong(val));
-            log.info(String.format("Loaded value '%s' for %s", val, "CollectionMaxCount"));
-          } catch (Exception e) {
-            throw new IllegalArgumentException(String.format(
-              "Error trying to set field %s with the value '%s'", "CollectionMaxCount", val), e);
-          }
-        }
-    
-        if ((val = props.getProperty("CollectionMaxSize")) != null) {
-          try {
-            config.setCollectionMaxSize(Long.parseLong(val));
-            log.info(String.format("Loaded value '%s' for %s", val, "CollectionMaxSize"));
-          } catch (Exception e) {
-            throw new IllegalArgumentException(String.format(
-              "Error trying to set field %s with the value '%s'", "CollectionMaxSize", val), e);
-          }
-        }
-    
-        if ((val = props.getProperty("ConnectTimeout")) != null) {
-          try {
-            config.setConnectTimeout(Long.parseLong(val));
-            log.info(String.format("Loaded value '%s' for %s", val, "ConnectTimeout"));
-          } catch (Exception e) {
-            throw new IllegalArgumentException(String.format(
-              "Error trying to set field %s with the value '%s'", "ConnectTimeout", val), e);
-          }
-        }
-    
-        if ((val = props.getProperty("CustomEndpoint")) != null) {
-          try {
-            config.setCustomEndpoint(val);
-            log.info(String.format("Loaded value '%s' for %s", val, "CustomEndpoint"));
-          } catch (Exception e) {
-            throw new IllegalArgumentException(String.format(
-              "Error trying to set field %s with the value '%s'", "CustomEndpoint", val), e);
-          }
-        }
-    
-        if ((val = props.getProperty("FailIfThrottled")) != null) {
-          try {
-            config.setFailIfThrottled(Boolean.parseBoolean(val));
-            log.info(String.format("Loaded value '%s' for %s", val, "FailIfThrottled"));
-          } catch (Exception e) {
-            throw new IllegalArgumentException(String.format(
-              "Error trying to set field %s with the value '%s'", "FailIfThrottled", val), e);
-          }
-        }
-    
-        if ((val = props.getProperty("LogLevel")) != null) {
-          try {
-            config.setLogLevel(val);
-            log.info(String.format("Loaded value '%s' for %s", val, "LogLevel"));
-          } catch (Exception e) {
-            throw new IllegalArgumentException(String.format(
-              "Error trying to set field %s with the value '%s'", "LogLevel", val), e);
-          }
-        }
-    
-        if ((val = props.getProperty("MaxConnections")) != null) {
-          try {
-            config.setMaxConnections(Long.parseLong(val));
-            log.info(String.format("Loaded value '%s' for %s", val, "MaxConnections"));
-          } catch (Exception e) {
-            throw new IllegalArgumentException(String.format(
-              "Error trying to set field %s with the value '%s'", "MaxConnections", val), e);
-          }
-        }
-    
-        if ((val = props.getProperty("MetricsGranularity")) != null) {
-          try {
-            config.setMetricsGranularity(val);
-            log.info(String.format("Loaded value '%s' for %s", val, "MetricsGranularity"));
-          } catch (Exception e) {
-            throw new IllegalArgumentException(String.format(
-              "Error trying to set field %s with the value '%s'", "MetricsGranularity", val), e);
-          }
-        }
-    
-        if ((val = props.getProperty("MetricsLevel")) != null) {
-          try {
-            config.setMetricsLevel(val);
-            log.info(String.format("Loaded value '%s' for %s", val, "MetricsLevel"));
-          } catch (Exception e) {
-            throw new IllegalArgumentException(String.format(
-              "Error trying to set field %s with the value '%s'", "MetricsLevel", val), e);
-          }
-        }
-    
-        if ((val = props.getProperty("MetricsNamespace")) != null) {
-          try {
-            config.setMetricsNamespace(val);
-            log.info(String.format("Loaded value '%s' for %s", val, "MetricsNamespace"));
-          } catch (Exception e) {
-            throw new IllegalArgumentException(String.format(
-              "Error trying to set field %s with the value '%s'", "MetricsNamespace", val), e);
-          }
-        }
-    
-        if ((val = props.getProperty("MinConnections")) != null) {
-          try {
-            config.setMinConnections(Long.parseLong(val));
-            log.info(String.format("Loaded value '%s' for %s", val, "MinConnections"));
-          } catch (Exception e) {
-            throw new IllegalArgumentException(String.format(
-              "Error trying to set field %s with the value '%s'", "MinConnections", val), e);
-          }
-        }
-    
-        if ((val = props.getProperty("Port")) != null) {
-          try {
-            config.setPort(Long.parseLong(val));
-            log.info(String.format("Loaded value '%s' for %s", val, "Port"));
-          } catch (Exception e) {
-            throw new IllegalArgumentException(String.format(
-              "Error trying to set field %s with the value '%s'", "Port", val), e);
-          }
-        }
-    
-        if ((val = props.getProperty("RateLimit")) != null) {
-          try {
-            config.setRateLimit(Long.parseLong(val));
-            log.info(String.format("Loaded value '%s' for %s", val, "RateLimit"));
-          } catch (Exception e) {
-            throw new IllegalArgumentException(String.format(
-              "Error trying to set field %s with the value '%s'", "RateLimit", val), e);
-          }
-        }
-    
-        if ((val = props.getProperty("RecordMaxBufferedTime")) != null) {
-          try {
-            config.setRecordMaxBufferedTime(Long.parseLong(val));
-            log.info(String.format("Loaded value '%s' for %s", val, "RecordMaxBufferedTime"));
-          } catch (Exception e) {
-            throw new IllegalArgumentException(String.format(
-              "Error trying to set field %s with the value '%s'", "RecordMaxBufferedTime", val), e);
-          }
-        }
-    
-        if ((val = props.getProperty("RecordTtl")) != null) {
-          try {
-            config.setRecordTtl(Long.parseLong(val));
-            log.info(String.format("Loaded value '%s' for %s", val, "RecordTtl"));
-          } catch (Exception e) {
-            throw new IllegalArgumentException(String.format(
-              "Error trying to set field %s with the value '%s'", "RecordTtl", val), e);
-          }
-        }
-    
-        if ((val = props.getProperty("Region")) != null) {
-          try {
-            config.setRegion(val);
-            log.info(String.format("Loaded value '%s' for %s", val, "Region"));
-          } catch (Exception e) {
-            throw new IllegalArgumentException(String.format(
-              "Error trying to set field %s with the value '%s'", "Region", val), e);
-          }
-        }
-    
-        if ((val = props.getProperty("RequestTimeout")) != null) {
-          try {
-            config.setRequestTimeout(Long.parseLong(val));
-            log.info(String.format("Loaded value '%s' for %s", val, "RequestTimeout"));
-          } catch (Exception e) {
-            throw new IllegalArgumentException(String.format(
-              "Error trying to set field %s with the value '%s'", "RequestTimeout", val), e);
-          }
-        }
-    
-        if ((val = props.getProperty("VerifyCertificate")) != null) {
-          try {
-            config.setVerifyCertificate(Boolean.parseBoolean(val));
-            log.info(String.format("Loaded value '%s' for %s", val, "VerifyCertificate"));
-          } catch (Exception e) {
-            throw new IllegalArgumentException(String.format(
-              "Error trying to set field %s with the value '%s'", "VerifyCertificate", val), e);
-          }
-        }
-    
-        return config;
-    }
-    
 }

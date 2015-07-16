@@ -16,7 +16,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <glog/logging.h>
+#include <aws/utils/logging.h>
 
 #include <aws/utils/token_bucket.h>
 #include <aws/mutex.h>

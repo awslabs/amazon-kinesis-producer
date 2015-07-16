@@ -1,10 +1,10 @@
-// Copyright 2010-2014 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
-// Licensed under the Apache License, Version 2.0 (the "License").
+// Licensed under the Amazon Software License (the "License").
 // You may not use this file except in compliance with the License.
 // A copy of the License is located at
 //
-//  http://aws.amazon.com/apache2.0
+//  http://aws.amazon.com/asl
 //
 // or in the "license" file accompanying this file. This file is distributed
 // on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
@@ -41,13 +41,16 @@ make_user_record(const std::string& partition_key,
   return r;
 }
 
-Fifo::Fifo()
-    : name_("__test_fifo_") {
+Fifo::Fifo() {
   auto ts = std::chrono::steady_clock::now().time_since_epoch().count();
-  name_ += std::to_string(ts) + "_delete_me";
+#if !BOOST_OS_WINDOWS
+  name_ = "__test_fifo_" + std::to_string(ts) + "_delete_me";
   std::string cmd = "mkfifo ";
   cmd += name_;
   std::system(cmd.c_str());
+#else
+  name_ = "\\\\.\\pipe\\__test_fifo_" + std::to_string(ts) + "_delete_me";
+#endif
 }
 
 Fifo::~Fifo() {

@@ -13,14 +13,14 @@
  * permissions and limitations under the License.
  */
 
-package com.amazonaws.kinesis.producer;
+package com.amazonaws.services.kinesis.producer;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.amazonaws.kinesis.producer.protobuf.Messages.Dimension;
-import com.amazonaws.kinesis.producer.protobuf.Messages.Stats;
+import com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension;
+import com.amazonaws.services.kinesis.producer.protobuf.Messages.Stats;
 
 /**
  * A metric consists of a name, a list of dimensions, a set of statistics, and
@@ -90,7 +90,7 @@ public class Metric {
         return duration;
     }
 
-    protected Metric(com.amazonaws.kinesis.producer.protobuf.Messages.Metric m) {
+    protected Metric(com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric m) {
         this.name = m.getName();
         this.duration = m.getSeconds();
         

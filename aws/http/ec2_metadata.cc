@@ -90,20 +90,19 @@ void Ec2Metadata::get_region(const Callback& callback) {
 }
 
 void Ec2Metadata::get_instance_profile_name(const Callback& callback) {
-  get(
-      "/latest/meta-data/iam/security-credentials/",
+  get("/latest/meta-data/iam/security-credentials/",
       [=](bool success, auto& result) {
-    if (!success) {
-      callback(false, result);
-      return;
-    }
+        if (!success) {
+          callback(false, result);
+          return;
+        }
 
-    try {
-      callback(true, get_first_line(result));
-    } catch (const std::exception& ex) {
-      callback(false, ex.what());
-    }
-  });
+        try {
+          callback(true, get_first_line(result));
+        } catch (const std::exception& ex) {
+          callback(false, ex.what());
+        }
+      });
 }
 
 void Ec2Metadata::get_instance_profile_credentials(const Callback& callback) {

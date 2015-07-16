@@ -27,15 +27,20 @@ class TokenStream {
  public:
   TokenStream(double max, double rate) noexcept
       : max_(max),
-        rate_(rate) {}
+        rate_(rate),
+        tokens_(0) {}
 
   double tokens() noexcept {
-    double nanos =
-        std::chrono::duration_cast<std::chrono::nanoseconds>(
-            Clock::now() - last_).count();
-    double growth = nanos == 0 ? 0 : (rate_ * nanos / 1e9);
-    tokens_ = std::min(max_, tokens_ + growth);
-    last_ = Clock::now();
+    auto now = Clock::now();
+    // We don't set the last_ timestamp if growth is zero because we might end
+    // up never growing the tokens if the invocations are so close together
+    // that growth is always zero. This can happen if the clock does not have
+    // enough resolution such that the number of seconds returned is 0.
+    double growth = rate_ * aws::utils::seconds_between(last_, now);
+    if (growth > 0) {
+      tokens_ = std::min(max_, tokens_ + growth);
+      last_ = now;
+    }
     return tokens_;
   }
 
@@ -51,8 +56,8 @@ class TokenStream {
 
   double max_;
   double rate_;
-  Clock::time_point last_;
   double tokens_;
+  Clock::time_point last_;
 };
 
 } //namespace detail

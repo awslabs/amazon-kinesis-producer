@@ -87,6 +87,8 @@ BOOST_AUTO_TEST_CASE(GetRegionSync) {
   auto region = metadata->get_region();
   BOOST_CHECK_MESSAGE(region, "Should've fetched region successfully");
   BOOST_CHECK_EQUAL(*region, "us-east-1");
+
+  aws::utils::sleep_for(std::chrono::milliseconds(200));
 }
 
 BOOST_AUTO_TEST_CASE(Timeout) {

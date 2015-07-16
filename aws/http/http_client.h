@@ -17,16 +17,17 @@
 #include <array>
 #include <atomic>
 #include <list>
-#include <mutex>
 #include <queue>
 
-#include <glog/logging.h>
+#include <aws/utils/logging.h>
 
 #include <aws/mutex.h>
 #include <aws/http/socket.h>
 #include <aws/http/http_result.h>
 #include <aws/http/http_request.h>
 #include <aws/utils/executor.h>
+#include <aws/utils/time_sensitive.h>
+#include <aws/utils/time_sensitive_queue.h>
 
 namespace aws {
 namespace http {
@@ -38,21 +39,24 @@ using ResponseCallback =
 
 namespace detail {
 
-class Task : boost::noncopyable {
+class Task : public aws::utils::TimeSensitive {
  public:
   using SocketReturn = std::function<void (const std::shared_ptr<Socket>&)>;
 
-  Task(HttpRequest& request,
+  Task(std::shared_ptr<aws::utils::Executor> executor,
+       HttpRequest& request,
        const std::shared_ptr<void>& context,
        const ResponseCallback& response_cb,
        const SocketReturn& socket_return,
-       TimePoint start_deadline,
+       TimePoint deadline,
+       TimePoint expiration,
        std::chrono::milliseconds timeout)
-      : raw_request_(request.to_string()),
+      : aws::utils::TimeSensitive(deadline, expiration),
+        executor_(executor),
+        raw_request_(request.to_string()),
         context_(context),
         response_cb_(response_cb),
         socket_return_(socket_return),
-        start_deadline_(start_deadline),
         timeout_(timeout),
         response_(std::make_unique<HttpResponse>()),
         finished_(false) {}
@@ -63,26 +67,22 @@ class Task : boost::noncopyable {
     return finished_;
   }
 
-  TimePoint deadline() {
-    return start_deadline_;
-  }
+  void fail(std::string reason);
 
  private:
   void write();
 
   void read();
 
-  void fail(std::string reason);
-
   void succeed();
 
   void finish(std::shared_ptr<HttpResult> result, bool close_socket = false);
 
+  std::shared_ptr<aws::utils::Executor> executor_;
   std::string raw_request_;
   std::shared_ptr<void> context_;
   ResponseCallback response_cb_;
   SocketReturn socket_return_;
-  TimePoint start_deadline_;
   std::chrono::milliseconds timeout_;
   std::unique_ptr<HttpResponse> response_;
 
@@ -90,6 +90,7 @@ class Task : boost::noncopyable {
   TimePoint start_;
   std::shared_ptr<Socket> socket_;
   bool finished_;
+  std::atomic_flag submitted_ = ATOMIC_FLAG_INIT;
   std::array<char, 64 * 1024> buffer_;
   std::atomic_flag started_ = ATOMIC_FLAG_INIT;
 };
@@ -122,19 +123,16 @@ class HttpClient {
         connect_timeout_(connect_timeout),
         request_timeout_(request_timeout),
         single_use_sockets_(single_use_sockets),
-        /*task_queue_([](auto& a, auto& b) {
-          return a->deadline() > b->deadline();
-        }),*/
-        task_queue_(TaskCmp()),
         pending_(0) {
     std::chrono::milliseconds poll_delay(3000);
-    executor_->schedule(
-        [=] {
-          this->run_tasks();
-          scheduled_callback_->reschedule(poll_delay);
-        },
-        poll_delay,
-        &scheduled_callback_);
+    scheduled_callback_ =
+        executor_->schedule(
+            [=] {
+              Lock lk(mutex_);
+              this->run_tasks();
+              scheduled_callback_->reschedule(poll_delay);
+            },
+            poll_delay);
     open_connections(min_connections);
   }
 
@@ -149,19 +147,13 @@ class HttpClient {
   void put(HttpRequest& request,
            const ResponseCallback& cb = [](auto&) {},
            const std::shared_ptr<void>& context = std::shared_ptr<void>(),
-           TimePoint deadline = Clock::now());
+           TimePoint deadline = Clock::now(),
+           TimePoint expiration = TimePoint::max());
 
  private:
   using Mutex = aws::recursive_mutex;
   using Lock = aws::lock_guard<Mutex>;
   using TaskPtr = std::shared_ptr<detail::Task>;
-  // Bug in gcc 5.10 prevents the use of the std::function
-  // using TaskCmp = std::function<bool (const TaskPtr& a, const TaskPtr& b)>;
-  struct TaskCmp {
-    bool operator()(const TaskPtr& a, const TaskPtr& b) {
-      return a->deadline() > b->deadline();
-    }
-  };
 
   void open_connection();
 
@@ -185,7 +177,7 @@ class HttpClient {
   Millis request_timeout_;
   bool single_use_sockets_;
 
-  std::priority_queue<TaskPtr, std::vector<TaskPtr>, TaskCmp> task_queue_;
+  aws::utils::TimeSensitiveQueue<detail::Task> task_queue_;
   std::list<TaskPtr> tasks_in_progress_;
   std::list<std::shared_ptr<Socket>> available_;
   std::atomic<size_t> pending_;

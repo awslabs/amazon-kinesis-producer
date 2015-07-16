@@ -21,15 +21,15 @@
 #include <boost/optional.hpp>
 
 #include <aws/kinesis/core/attempt.h>
-#include <aws/kinesis/core/time_sensitive.h>
 #include <aws/kinesis/protobuf/messages.pb.h>
+#include <aws/utils/time_sensitive.h>
 #include <aws/utils/utils.h>
 
 namespace aws {
 namespace kinesis {
 namespace core {
 
-class UserRecord : public TimeSensitive {
+class UserRecord : public aws::utils::TimeSensitive {
  public:
   using uint128_t = boost::multiprecision::uint128_t;
 

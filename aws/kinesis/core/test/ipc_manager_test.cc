@@ -17,25 +17,63 @@
 #include <aws/kinesis/core/ipc_manager.h>
 #include <aws/utils/utils.h>
 
+namespace {
+
+class Wrapper {
+ public:
+  Wrapper() {
+    reader_ =
+        std::make_unique<aws::kinesis::core::IpcManager>(
+            std::make_shared<aws::kinesis::core::detail::IpcChannel>(
+                pipe_,
+                nullptr));
+    aws::utils::sleep_for(std::chrono::milliseconds(100));
+    writer_ =
+        std::make_unique<aws::kinesis::core::IpcManager>(
+            std::make_shared<aws::kinesis::core::detail::IpcChannel>(
+                nullptr,
+                pipe_,
+                false));
+  }
+
+  ~Wrapper() {
+    writer_->shutdown();
+    reader_->shutdown();
+    writer_->close_write_channel();
+    aws::utils::sleep_for(std::chrono::milliseconds(100));
+  }
+
+  aws::kinesis::core::IpcManager& reader() {
+    return *reader_;
+  }
+
+  aws::kinesis::core::IpcManager& writer() {
+    return *writer_;
+  }
+
+  void put(std::string&& msg) {
+    writer_->put(std::move(msg));
+  }
+
+  bool try_take(std::string& target) {
+    return reader_->try_take(target);
+  }
+
+ private:
+  aws::kinesis::test::Fifo pipe_;
+  std::unique_ptr<aws::kinesis::core::IpcManager> reader_;
+  std::unique_ptr<aws::kinesis::core::IpcManager> writer_;
+};
+
+} //namespace
+
 BOOST_AUTO_TEST_SUITE(IpcManager)
 
 // We hook two IpcManagers up, sending data from one to the other. We check that
 // the data read is the same as the data wrote. We test different data sizes,
 // including those near and beyond the allowed range.
 BOOST_AUTO_TEST_CASE(DataIntegrity) {
-  aws::kinesis::test::Fifo pipe;
-
-  auto reader =
-    std::make_shared<aws::kinesis::core::IpcManager>(
-        std::make_shared<aws::kinesis::core::detail::IpcChannel>(
-            pipe,
-            nullptr));
-
-  auto writer =
-    std::make_shared<aws::kinesis::core::IpcManager>(
-        std::make_shared<aws::kinesis::core::detail::IpcChannel>(
-            nullptr,
-            pipe));
+  Wrapper wrapper;
 
   std::vector<std::string> read;
   std::vector<std::string> wrote;
@@ -43,7 +81,7 @@ BOOST_AUTO_TEST_CASE(DataIntegrity) {
   auto f = [&](size_t sz) {
     std::string data = aws::kinesis::test::random_string(sz);
     std::string data_copy = data;
-    writer->put(std::move(data));
+    wrapper.put(std::move(data));
     wrote.push_back(std::move(data_copy));
   };
 
@@ -67,7 +105,7 @@ BOOST_AUTO_TEST_CASE(DataIntegrity) {
   aws::utils::sleep_for(std::chrono::milliseconds(500));
 
   std::string s;
-  while (reader->try_take(s)) {
+  while (wrapper.try_take(s)) {
     read.push_back(s);
   }
 
@@ -75,28 +113,11 @@ BOOST_AUTO_TEST_CASE(DataIntegrity) {
   for (size_t i = 0; i < read.size(); i++) {
     BOOST_CHECK_EQUAL(read[i], wrote[i]);
   }
-
-  writer->shutdown();
-  reader->shutdown();
-  writer->close_write_channel();
-  aws::utils::sleep_for(std::chrono::milliseconds(50));
 }
 
 // Measure how many pairs of messages can be read/written per second.
 BOOST_AUTO_TEST_CASE(Throughput) {
-  aws::kinesis::test::Fifo pipe;
-
-  auto reader =
-    std::make_shared<aws::kinesis::core::IpcManager>(
-        std::make_shared<aws::kinesis::core::detail::IpcChannel>(
-            pipe,
-            nullptr));
-
-  auto writer =
-    std::make_shared<aws::kinesis::core::IpcManager>(
-        std::make_shared<aws::kinesis::core::detail::IpcChannel>(
-            nullptr,
-            pipe));
+  Wrapper wrapper;
 
   const size_t total_data = 64 * 1024 * 1024;
 
@@ -106,27 +127,20 @@ BOOST_AUTO_TEST_CASE(Throughput) {
     size_t N = total_data / size;
 
     for (size_t i = 0; i < N; i++) {
-      writer->put(std::string(size, 'a'));
+      wrapper.put(std::string(size, 'a'));
     }
 
     std::string s;
     size_t i = 0;
     while (i < N) {
-      i += reader->try_take(s) ? 1 : 0;
+      i += wrapper.try_take(s) ? 1 : 0;
     }
 
-    auto nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(
-        std::chrono::high_resolution_clock::now() - start).count();
-    double seconds = nanos / 1e9;
-    LOG(INFO) << size << " byte messages: "
+    double seconds = aws::utils::seconds_since(start);
+    LOG(info) << size << " byte messages: "
               << N / seconds << " messages per second, "
-              << (double) total_data / 1024 / 1024 / seconds << " MiB/s\n";
+              << (double) total_data / 1024 / 1024 / seconds << " MiB/s";
   }
-
-  writer->shutdown();
-  reader->shutdown();
-  writer->close_write_channel();
-  aws::utils::sleep_for(std::chrono::milliseconds(50));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

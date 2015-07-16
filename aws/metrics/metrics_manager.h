@@ -144,6 +144,10 @@ class MetricsManager {
         granularity_(granularity),
         upload_frequency_(upload_frequency),
         retry_frequency_(retry_frequency) {
+    if (level_ != constants::Level::None) {
+      LOG(info) << "Uploading metrics to " << endpoint_ << ":" << port;
+    }
+
     extra_dimensions_[constants::Granularity::Global];
     extra_dimensions_[constants::Granularity::Stream];
     extra_dimensions_[constants::Granularity::Shard];
@@ -154,21 +158,21 @@ class MetricsManager {
           std::move(std::get<1>(t)));
     }
 
-    executor_->schedule(
-        [this] {
-          scheduled_upload_->reschedule(upload_frequency_);
-          this->upload();
-        },
-        upload_frequency_,
-        &scheduled_upload_);
+    scheduled_upload_ =
+        executor_->schedule(
+            [this] {
+              scheduled_upload_->reschedule(upload_frequency_);
+              this->upload();
+            },
+            upload_frequency_);
 
-    executor_->schedule(
-        [=] {
-          scheduled_retry_->reschedule(retry_frequency_);
-          this->retry_uploads();
-        },
-        retry_frequency_,
-        &scheduled_retry_);
+    scheduled_retry_ =
+        executor_->schedule(
+            [=] {
+              scheduled_retry_->reschedule(retry_frequency_);
+              this->retry_uploads();
+            },
+            retry_frequency_);
   }
 
   virtual detail::MetricsFinderBuilder finder() {

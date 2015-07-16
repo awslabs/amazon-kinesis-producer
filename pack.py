@@ -3,6 +3,9 @@ import re
 import os
 import sys
 import platform
+import fnmatch
+import shutil
+import tarfile
 
 def split_lines(s):
   return [x.strip() for x in s.split('\n') if len(x.strip())]
@@ -25,6 +28,8 @@ def find_libs(kp, system):
     ldd = 'ldd'
     starting_line = 0
     extension = '.so'
+  else:
+    return []
 
   def get_names(path):
     if not os.path.isfile(path):
@@ -59,8 +64,16 @@ def find_libs(kp, system):
   return list(all_libs)
 
 def find_main_binary():
-  find = shell('find bin -name kinesis_producer')
-  paths = [f.split('/') for f in find]
+  bin_name = 'kinesis_producer'
+  if platform.system() == 'Windows':
+    bin_name += '.exe'
+
+  matches = []
+  for root, dirnames, filenames in os.walk('bin'):
+    for filename in fnmatch.filter(filenames, bin_name):
+      matches.append(os.path.join(root, filename))
+
+  paths = [f.split(os.sep) for f in matches]
   release = [p for p in paths if p[-2] == 'release']
 
   if len(release) > 1:
@@ -84,7 +97,7 @@ def find_main_binary():
 
 def main():
   system = platform.system()
-  supported_sys = ['Darwin', 'Linux']
+  supported_sys = ['Darwin', 'Linux', 'Windows']
   if not system in supported_sys:
     fatal('Error: Only the following platforms are supported:\n' +
       '\n'.join(supported_sys))
@@ -92,22 +105,30 @@ def main():
   kp = find_main_binary()
   libs = find_libs(kp, system)
 
-  bin_dir = 'java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/'
+  bin_dir = os.path.join('java', 'amazon-kinesis-producer', 'src', 'main',
+    'resources', 'amazon-kinesis-producer-native-binaries')
   if system == 'Darwin':
-    bin_dir += 'osx'
+    bin_dir = os.path.join(bin_dir, 'osx')
   elif system == 'Linux':
-    bin_dir += 'linux'
+    bin_dir = os.path.join(bin_dir, 'linux')
+  elif system == 'Windows':
+    bin_dir = os.path.join(bin_dir, 'windows')
 
-  shell('rm -rf ' + bin_dir)
-  shell('mkdir -p ' + bin_dir)
-  shell('cp %s %s/' % ('/'.join(kp), bin_dir))
+  shutil.rmtree(bin_dir, ignore_errors=True)
+  os.makedirs(bin_dir)
+  shutil.copy(os.sep.join(kp), bin_dir)
   for lib in libs:
-    shell('cp -L third_party/lib/%s %s/' % (lib, bin_dir))
+    shutil.copy(os.path.join('third_party', 'lib', lib), bin_dir)
 
   files = [lib for lib in libs]
-  files.append('kinesis_producer')
-  shell('tar cf %s/bin.tar -C %s %s' % (bin_dir, bin_dir, ' '.join(files)))
-  shell('rm -f %s' % ' '.join([bin_dir + '/' + f for f in files]))
+  files.append('kinesis_producer' + ('.exe' if system == 'Windows' else ''))
+
+  os.chdir(bin_dir)
+  with tarfile.open('bin.tar', 'w') as tar:
+    for f in files:
+      tar.add(f)
+  for f in files:
+    os.remove(f)
 
   print('*' * 80)
   print('Done. Do ' +

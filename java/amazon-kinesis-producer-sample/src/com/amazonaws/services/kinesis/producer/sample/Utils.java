@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-package com.amazonaws.kinesis.producer.sample;
+package com.amazonaws.services.kinesis.producer.sample;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;

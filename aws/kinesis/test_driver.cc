@@ -12,7 +12,6 @@
 // permissions and limitations under the License.
 
 #include <stdlib.h>
-#include <unistd.h>
 
 #include <thread>
 #include <chrono>
@@ -22,41 +21,42 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-#include <glog/logging.h>
-
-#include <gperftools/profiler.h>
-
-#include <aws/kinesis/protobuf/messages.pb.h>
-#include <aws/utils/utils.h>
 #include <aws/auth/credentials.h>
+#include <aws/http/io_service_socket.h>
 #include <aws/kinesis/core/configuration.h>
 #include <aws/kinesis/core/ipc_manager.h>
 #include <aws/kinesis/core/kinesis_producer.h>
-#include <aws/utils/io_service_executor.h>
-#include <aws/http/io_service_socket.h>
+#include <aws/kinesis/protobuf/messages.pb.h>
 #include <aws/metrics/metrics_manager.h>
+#include <aws/utils/io_service_executor.h>
+#include <aws/utils/logging.h>
+#include <aws/utils/utils.h>
 
 int main(int argc, char** argv) {
-  google::InitGoogleLogging("");
-  FLAGS_logtostderr = 1;
-  FLAGS_minloglevel = 0;
+  aws::utils::setup_logging();
 
   //ProfilerStart("test_driver.prof");
 
+#if BOOST_OS_WINDOWS
+  const char* to_child = "\\\\.\\pipe\\test_fifo2";
+  const char* from_child = "\\\\.\\pipe\\test_fifo";
+#else
   const char* to_child = "test_fifo2";
   const char* from_child = "test_fifo";
+#endif
+
   const auto start = std::chrono::steady_clock::now();
   const uint64_t window = 10;
   //const uint64_t num_streams = 10;
   const uint64_t data_size = 0;
   // const uint64_t key_size = 64;
-  const char* region = "us-west-2";
-  const char* stream_name = "test_b";
-  const uint64_t max_outstanding = 10000;
+  const char* region = "us-east-1";
+  const char* stream_name = "test";
+  const uint64_t max_outstanding = 1000;
   //const uint64_t max_outstanding = 10000;
 
   auto config = std::make_shared<aws::kinesis::core::Configuration>();
-  //config->record_max_buffered_time(0xFFFFFFF);
+  config->record_max_buffered_time(1500);
   config->record_ttl(0xFFFFFFF);
   //config->record_max_buffered_time(30000);
   //config->aggregation_max_size(1024);
@@ -64,9 +64,9 @@ int main(int argc, char** argv) {
   //config->metrics_level("summary");
   //config->verify_certificate(false);
   //config->custom_endpoint("54.183.89.5");
-  config->add_additional_metrics_dims("GlobalCustomMetric", "global", "global");
+  /*config->add_additional_metrics_dims("GlobalCustomMetric", "global", "global");
   config->add_additional_metrics_dims("StreamCustomMetric", "stream", "stream");
-  config->add_additional_metrics_dims("ShardCustomMetric", "shard", "shard");
+  config->add_additional_metrics_dims("ShardCustomMetric", "shard", "shard");*/
 
   std::atomic<uint64_t> id(0);
   std::atomic<uint64_t> sent(0);
@@ -86,25 +86,26 @@ int main(int argc, char** argv) {
   auto ec2_metadata = std::make_shared<aws::http::Ec2Metadata>(executor,
                                                                socket_factory);
   auto provider =
-      std::make_shared<aws::auth::DefaultAwsCredentialsProvider>(
+      std::make_shared<aws::auth::DefaultAwsCredentialsProviderChain>(
           executor,
           ec2_metadata);
 
-  aws::utils::sleep_for(std::chrono::milliseconds(150));
-  if (!provider->get_credentials()) {
-    throw std::runtime_error("Invalid credentials");
-  }
+  aws::utils::sleep_for(std::chrono::milliseconds(250));
+  // Make sure we have credentials
+  provider->get_credentials();
 
   auto ipc_channel2 =
       std::make_shared<aws::kinesis::core::detail::IpcChannel>(
           to_child,
-          from_child);
+          from_child,
+          false);
   auto ipc2 = std::make_shared<aws::kinesis::core::IpcManager>(ipc_channel2);
 
   aws::kinesis::core::KinesisProducer kp(
       ipc2,
       region,
       config,
+      provider,
       provider,
       executor,
       socket_factory);
@@ -125,7 +126,7 @@ int main(int argc, char** argv) {
             success++;
           } else {
             auto a = prr.attempts(prr.attempts_size() - 1);
-            LOG(ERROR) << a.error_code() << " : " << a.error_message();
+            LOG(error) << a.error_code() << " : " << a.error_message();
             fail++;
           }
         } else if (reply.has_metrics_response()) {
@@ -158,9 +159,9 @@ int main(int argc, char** argv) {
                << "Max: " << stats.max() << "; "
                << "Sum: " << stats.sum() << "; "
                << "Mean: " << stats.mean() << "; "
-               << "]\n";
+               << "]";
           }
-          // LOG(INFO) << ss.str();
+          // LOG(info) << ss.str();
         }
       } else {
         aws::utils::sleep_for(std::chrono::milliseconds(1));
@@ -203,12 +204,13 @@ int main(int argc, char** argv) {
       m.set_id(id++);
 
       auto r = m.mutable_metrics_request();
-      r->set_name("KinesisRecordsDataPut");
-      r->set_seconds(10);
+      if (::rand() % 2 == 0) {
+        r->set_seconds(::rand() % 80);
+      }
 
       ipc->put(m.SerializeAsString());
 
-      aws::utils::sleep_for(std::chrono::seconds(5));
+      aws::utils::sleep_for(std::chrono::seconds(1));
     }
   });
 
@@ -219,14 +221,13 @@ int main(int argc, char** argv) {
       double d_sent = sent - last_sent;
       last_sent.store(sent);
       last_success.store(success);
-      LOG(INFO) << seconds << ", "
+      LOG(info) << seconds << ", "
                 << success << " success ("
                 << (d_success / window / 1000) << " Krps), "
                 << fail << " fail, "
                 << (sent - success) << " outstanding, "
                 << sent << " attempted ("
-                << (d_sent / window / 1000) << " Krps)"
-                << "\n";
+                << (d_sent / window / 1000) << " Krps)";
       aws::utils::sleep_for(std::chrono::seconds(window));
       //ProfilerFlush();
     }

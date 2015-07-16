@@ -25,7 +25,7 @@
 #include <boost/accumulators/statistics/sum.hpp>
 #include <boost/accumulators/statistics/count.hpp>
 
-#include <glog/logging.h>
+#include <aws/utils/logging.h>
 
 #include <aws/mutex.h>
 

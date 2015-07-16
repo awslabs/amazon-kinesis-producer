@@ -187,7 +187,7 @@ void MetricsManager::handle_result(
   }
 
   if (failed) {
-    LOG(ERROR) << "Metrics upload failed: \n"
+    LOG(error) << "Metrics upload failed: \n"
                << err_msg << "\n"
                << "Request was: \n"
                << *result->template context<std::string>();

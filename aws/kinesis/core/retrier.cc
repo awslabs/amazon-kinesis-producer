@@ -56,14 +56,14 @@ void Retrier::handle_put_records_result(const Result& result) {
         // This is different from plain old PutRecord, where those come back
         // with code 400. As such, all the errors we want to retry on are
         // handled in the 200 case. All 400 codes are therefore not retryable.
-        LOG(ERROR) << "PutRecords failed: " << result->response_body();
+        LOG(error) << "PutRecords failed: " << result->response_body();
         fail(result);
       }
     } else {
       retry_not_expired(result);
     }
   } catch (const std::exception& ex) {
-    LOG(ERROR) << "Unexpected error encountered processing http result: "
+    LOG(error) << "Unexpected error encountered processing http result: "
                << ex.what();
     fail(result,
          "Unexpected Error",
@@ -90,7 +90,7 @@ void Retrier::on_200(const Result& result) {
     ss << "Count of records in PutRecords response differs from the number "
        << "sent: " << records.size() << "received, but " << prr->size()
        << " were sent.";
-    LOG(ERROR) << ss.str();
+    LOG(error) << ss.str();
     fail(result, "Record Count Mismatch", ss.str());
     return;
   }
@@ -254,7 +254,7 @@ void Retrier::succeed_if_correct_shard(const std::shared_ptr<UserRecord>& ur,
                                        const std::string& sequence_number) {
   if (ur->predicted_shard() &&
       *ur->predicted_shard() != ShardMap::shard_id_from_str(shard_id)) {
-    LOG(WARNING) << "Record went to shard " << shard_id << " instead of the "
+    LOG(warning) << "Record went to shard " << shard_id << " instead of the "
                  << "prediceted shard " << *ur->predicted_shard() << "; this "
                  << "usually means the sharp map has changed.";
     shard_map_invalidate_cb_(start);

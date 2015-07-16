@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-package com.amazonaws.kinesis.producer;
+package com.amazonaws.services.kinesis.producer;
 
 public class DaemonException extends RuntimeException {
     private static final long serialVersionUID = -1161618354800585162L;

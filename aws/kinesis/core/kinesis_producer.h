@@ -59,11 +59,23 @@ class KinesisProducer {
       std::string region,
       std::shared_ptr<Configuration>& config,
       std::shared_ptr<aws::auth::AwsCredentialsProvider> creds_provider,
+      std::shared_ptr<aws::auth::AwsCredentialsProvider> metrics_creds_provider,
       std::shared_ptr<aws::utils::Executor> executor,
       std::shared_ptr<aws::http::SocketFactory> socket_factory)
       : region_(std::move(region)),
         config_(std::move(config)),
-        creds_provider_(std::move(creds_provider)),
+        creds_chain_(
+            aws::auth::AwsCredentialsProviderChain::create(
+                {creds_provider})),
+        // If metrics_creds_provider points to the same instance as
+        // creds_provider, then the instances of AwsCredentialsProviderChain
+        // should be the same too, this way when we get an update for
+        // for creds_chain_, metrics_creds_chain_ is updated as well.
+        metrics_creds_chain_(
+            metrics_creds_provider == creds_provider
+                ? creds_chain_
+                : aws::auth::AwsCredentialsProviderChain::create(
+                      {metrics_creds_provider})),
         executor_(std::move(executor)),
         socket_factory_(std::move(socket_factory)),
         ipc_manager_(std::move(ipc_manager)),
@@ -99,12 +111,16 @@ class KinesisProducer {
 
   void on_metrics_request(const aws::kinesis::protobuf::Message& m);
 
+  void on_set_credentials(
+      const aws::kinesis::protobuf::SetCredentials& set_creds);
+
   void report_outstanding();
 
   std::string region_;
 
   std::shared_ptr<Configuration> config_;
-  std::shared_ptr<aws::auth::AwsCredentialsProvider> creds_provider_;
+  std::shared_ptr<aws::auth::AwsCredentialsProviderChain> creds_chain_;
+  std::shared_ptr<aws::auth::AwsCredentialsProviderChain> metrics_creds_chain_;
   std::shared_ptr<aws::utils::Executor> executor_;
   std::shared_ptr<aws::http::SocketFactory> socket_factory_;
 

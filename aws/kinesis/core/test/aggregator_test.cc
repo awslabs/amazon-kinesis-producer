@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE(Basic) {
   auto aggregator = make_aggregator();
 
   // allow shard map to update
-  aws::utils::sleep_for(std::chrono::milliseconds(100));
+  aws::utils::sleep_for(std::chrono::milliseconds(1500));
 
   for (uint64_t shard_id = 1; shard_id <= 3; shard_id++) {
     aws::kinesis::test::UserRecordSharedPtrVector v;
@@ -156,7 +156,8 @@ BOOST_AUTO_TEST_CASE(Basic) {
           aws::kinesis::test::make_user_record(
               "pk",
               std::to_string(::rand()),
-              get_hash_key(shard_id));
+              get_hash_key(shard_id),
+              10000 + i);
       kr = aggregator->put(ur);
       v.push_back(ur);
 
@@ -193,7 +194,7 @@ BOOST_AUTO_TEST_CASE(AggregationDisabled) {
   auto aggregator = make_aggregator([](auto){}, config);
 
   // allow shard map to update
-  aws::utils::sleep_for(std::chrono::milliseconds(100));
+  aws::utils::sleep_for(std::chrono::milliseconds(1500));
 
   for (int i = 0; i < 100; i++) {
     auto ur =
@@ -217,7 +218,7 @@ BOOST_AUTO_TEST_CASE(Concurrency) {
   });
 
   // allow shard map to update
-  aws::utils::sleep_for(std::chrono::milliseconds(100));
+  aws::utils::sleep_for(std::chrono::milliseconds(1500));
 
   const size_t N = 250;
 
@@ -251,11 +252,8 @@ BOOST_AUTO_TEST_CASE(Concurrency) {
     aggregator->flush();
 
     const size_t total_records = num_threads * N * kCountLimit;
-
-    auto nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(
-        std::chrono::high_resolution_clock::now() - go_time).count();
-    double seconds = nanos / 1e9;
-    LOG(INFO) << "Aggregator throughput (" << num_threads
+    double seconds = aws::utils::seconds_since(go_time);
+    LOG(info) << "Aggregator throughput (" << num_threads
               << " threads contending on a single shard): "
               << total_records / seconds / 1000 << " Krps";
 

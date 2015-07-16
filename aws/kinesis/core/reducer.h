@@ -16,7 +16,7 @@
 
 #include <mutex>
 
-#include <glog/logging.h>
+#include <aws/utils/logging.h>
 
 #include <aws/utils/executor.h>
 #include <aws/mutex.h>
@@ -24,8 +24,6 @@
 namespace aws {
 namespace kinesis {
 namespace core {
-
-static constexpr const uint64_t kMinBufferTime = 50;
 
 using Clock = std::chrono::steady_clock;
 using TimePoint = Clock::time_point;
@@ -65,12 +63,11 @@ class Reducer : boost::noncopyable {
         size_limit_(size_limit),
         count_limit_(count_limit),
         flush_predicate_(flush_predicate),
-        container_(std::make_shared<U>()) {
-    executor_->schedule(
-        [this] { this->deadline_reached(); },
-        TimePoint::max(),
-        &scheduled_callback_);
-  }
+        container_(std::make_shared<U>()),
+        scheduled_callback_(
+            executor_->schedule(
+                [this] { this->deadline_reached(); },
+                TimePoint::max())) {}
 
   // Put a record. If this triggers a flush, an instance of U will be returned,
   // otherwise null will be returned.
@@ -163,13 +160,9 @@ class Reducer : boost::noncopyable {
       return;
     }
 
-    TimePoint new_deadline =
-        std::max(
-            container_->deadline(),
-            Clock::now() + std::chrono::milliseconds(kMinBufferTime));
     if (scheduled_callback_->completed() ||
-        new_deadline < scheduled_callback_->expiration()) {
-      scheduled_callback_->reschedule(new_deadline);
+        container_->deadline() < scheduled_callback_->expiration()) {
+      scheduled_callback_->reschedule(container_->deadline());
     }
   }
 

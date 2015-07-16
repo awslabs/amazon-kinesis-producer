@@ -57,7 +57,7 @@ boost::optional<uint64_t> ShardMap::shard_id(const uint128_t& hash_key) {
     if (it != end_hash_key_to_shard_id_.end()) {
       return it->second;
     } else {
-      LOG(ERROR) << "Could not map hash key to shard id. Something's wrong"
+      LOG(error) << "Could not map hash key to shard id. Something's wrong"
                  << " with the shard map. Hash key = " << hash_key;
     }
   }
@@ -80,7 +80,7 @@ void ShardMap::update(const std::string& start_shard_id) {
 
   if (state_ != UPDATING) {
     state_ = UPDATING;
-    LOG(INFO) << "Updating shard map for stream \"" << stream_ << "\"";
+    LOG(info) << "Updating shard map for stream \"" << stream_ << "\"";
     end_hash_key_to_shard_id_.clear();
     if (scheduled_callback_) {
       scheduled_callback_->cancel();
@@ -160,7 +160,7 @@ void ShardMap::update_callback(
     state_ = READY;
     updated_at_ = std::chrono::steady_clock::now();
 
-    LOG(INFO) << "Successfully updated shard map for stream \""
+    LOG(info) << "Successfully updated shard map for stream \""
               << stream_ << "\" found " << end_hash_key_to_shard_id_.size()
               << " shards";
   } catch (const std::exception& ex) {
@@ -169,16 +169,17 @@ void ShardMap::update_callback(
 }
 
 void ShardMap::update_fail(const std::string& error) {
-  LOG(ERROR) << "Shard map update for stream \"" << stream_ << "\" failed: "
+  LOG(error) << "Shard map update for stream \"" << stream_ << "\" failed: "
              << error << "; retrying in " << backoff_.count() << " ms";
 
   WriteLock lock(mutex_);
   state_ = INVALID;
 
   if (!scheduled_callback_) {
-    executor_->schedule([this] { this->update(); },
-                        backoff_,
-                        &scheduled_callback_);
+    scheduled_callback_ =
+        executor_->schedule([
+            this] { this->update(); },
+            backoff_);
   } else {
     scheduled_callback_->reschedule(backoff_);
   }

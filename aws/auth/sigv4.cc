@@ -23,7 +23,7 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/find.hpp>
 
-#include <glog/logging.h>
+#include <aws/utils/logging.h>
 
 #include <openssl/hmac.h>
 #include <openssl/sha.h>
@@ -215,15 +215,11 @@ void RequestSigner::calculate_auth_header() {
 
 void RequestSigner::sign() {
   auto creds = sig_v4_ctx_.credentials_provider_->get_credentials();
-  if (!creds) {
-    throw std::runtime_error("Invalid credentials");
-  }
+  akid_ = creds.akid();
+  secret_key_ = creds.secret_key();
 
-  akid_ = creds->akid;
-  secret_key_ = creds->secret_key;
-
-  if (creds->session_token) {
-    req_.add_header("x-amz-security-token", creds->session_token.get());
+  if (creds.session_token()) {
+    req_.add_header("x-amz-security-token", creds.session_token().get());
   }
 
   req_.remove_headers("authorization");

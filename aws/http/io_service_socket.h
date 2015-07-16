@@ -15,11 +15,11 @@
 #define AWS_HTTP_IO_SERVICE_SOCKET_H_
 
 #include <boost/asio.hpp>
-#include <boost/asio/spawn.hpp>
 #include <boost/asio/ssl.hpp>
 #include <boost/asio/steady_timer.hpp>
 
-#include <glog/logging.h>
+#include <aws/utils/logging.h>
+#include <aws/utils/utils.h>
 
 #include <aws/auth/certs.h>
 #include <aws/http/socket.h>
@@ -44,6 +44,8 @@ class IoServiceSocket : public Socket {
 
   void open(const ConnectCallback& cb,
             std::chrono::milliseconds timeout) override {
+    connect_cb_ = cb;
+
     if (secure_) {
       ssl_ctx_.add_certificate_authority(
           boost::asio::buffer(
@@ -66,9 +68,14 @@ class IoServiceSocket : public Socket {
 
     set_timeout(timeout);
 
-    boost::asio::spawn(*io_service_, [=](auto& yield) {
-      this->open_coro(cb, yield);
+    resolver_ = std::make_shared<boost::asio::ip::tcp::resolver>(*io_service_);
+    boost::asio::ip::tcp::resolver::query query(endpoint_,
+                                                std::to_string(port_));
+    resolver_->async_resolve(query, [this](auto& ec, auto ep) {
+      this->on_resolve(ec, ep);
     });
+
+    last_use_ = std::chrono::steady_clock::now();
   }
 
   void write(const char* data,
@@ -82,6 +89,8 @@ class IoServiceSocket : public Socket {
     } else {
       throw std::runtime_error("Socket not initialized");
     }
+
+    last_use_ = std::chrono::steady_clock::now();
   }
 
   void read(char* dest,
@@ -95,15 +104,20 @@ class IoServiceSocket : public Socket {
     } else {
       throw std::runtime_error("Socket not initialized");
     }
+
+    last_use_ = std::chrono::steady_clock::now();
   }
 
   bool good() override {
+    bool is_open = false;
     if (ssl_socket_) {
-      return ssl_socket_->lowest_layer().is_open();
+      is_open = ssl_socket_->lowest_layer().is_open();
     } else if (tcp_socket_) {
-      return tcp_socket_->is_open();
+      is_open = tcp_socket_->is_open();
     }
-    return false;
+    bool idle_timed_out_ =
+        aws::utils::seconds_since(last_use_) > kIdleTimeoutSeconds;
+    return is_open && !idle_timed_out_;
   }
 
   void close() override {
@@ -117,6 +131,8 @@ class IoServiceSocket : public Socket {
   }
 
  private:
+  static constexpr const double kIdleTimeoutSeconds = 8;
+
   using TcpSocket = boost::asio::ip::tcp::socket;
 
   void set_timeout(std::chrono::milliseconds from_now) {
@@ -128,28 +144,43 @@ class IoServiceSocket : public Socket {
     });
   }
 
-  void open_coro(const ConnectCallback& cb,
-                 const boost::asio::yield_context& yield) {
-    boost::asio::ip::tcp::resolver resolver(*io_service_);
-    boost::asio::ip::tcp::resolver::query query(endpoint_,
-                                                std::to_string(port_));
-    try {
-      auto endpoint_iterator = resolver.async_resolve(query, yield);
-      if (secure_) {
-        boost::asio::async_connect(ssl_socket_->lowest_layer(),
-                                   endpoint_iterator,
-                                   yield);
-        ssl_socket_->async_handshake(boost::asio::ssl::stream_base::client,
-                                     yield);
-      } else {
-        boost::asio::async_connect(*tcp_socket_,
-                                   endpoint_iterator,
-                                   yield);
-      }
-      timer_.cancel();
-      cb(true, "");
-    } catch (const std::exception& e) {
-      cb(false, e.what());
+  void on_resolve(const boost::system::error_code& ec,
+                  boost::asio::ip::tcp::resolver::iterator endpoint_it) {
+    if (ec) {
+      on_connect_finish(ec);
+      return;
+    }
+
+    if (secure_) {
+      boost::asio::async_connect(
+          ssl_socket_->lowest_layer(),
+          endpoint_it,
+          [this](auto& ec, auto ep) { this->on_ssl_connect(ec); });
+    } else {
+      boost::asio::async_connect(
+          *tcp_socket_,
+          endpoint_it,
+          [this](auto& ec, auto ep) { this->on_connect_finish(ec); });
+    }
+  }
+
+  void on_ssl_connect(const boost::system::error_code& ec) {
+    if (ec) {
+      on_connect_finish(ec);
+      return;
+    }
+
+    ssl_socket_->async_handshake(
+        boost::asio::ssl::stream_base::client,
+        [this](auto& ec) { this->on_connect_finish(ec); });
+  }
+
+  void on_connect_finish(const boost::system::error_code& ec) {
+    timer_.cancel();
+    if (ec) {
+      connect_cb_(false, ec.message());
+    } else {
+      connect_cb_(true, "");
     }
   }
 
@@ -166,9 +197,9 @@ class IoServiceSocket : public Socket {
         [=](auto& ec, auto bytes_written) {
           timer_.cancel();
           if (ec) {
-            LOG(ERROR) << "Error during socket write: " << ec.message() << "; "
+            LOG(error) << "Error during socket write: " << ec.message() << "; "
                        << bytes_written << " bytes out of " << len
-                       << " written";
+                       << " written (" << endpoint_ << ":" << port_ << ")";
             this->close();
             cb(false, ec.message());
           } else {
@@ -177,74 +208,49 @@ class IoServiceSocket : public Socket {
         });
   }
 
-  // TODO document this, it's quite tricky
   template <typename SocketType>
   void read_impl(const std::shared_ptr<SocketType>& sock,
                  char* dest,
                  size_t max_len,
                  const ReadCallback& cb,
                  std::chrono::milliseconds timeout) {
-    auto start = std::chrono::steady_clock::now();
     set_timeout(timeout);
-    final_read_callback_ = []{};
     boost::asio::async_read(
         *sock,
         boost::asio::buffer(dest, max_len),
         [=](auto& ec, size_t bytes_transferred) -> size_t {
-          if (ec) {
-            timer_.cancel();
-            LOG(ERROR) << "Error during socket read: " << ec.message() << "; "
-                       << bytes_transferred << " bytes read so far";
-            cb(-1,
-               ec.message(),
-               [this](auto final_cb) { final_read_callback_ = final_cb; });
-            this->close();
-            final_read_callback_();
+          if (!ec && bytes_transferred == 0) {
+            return max_len;
+          } else if ((!ec || ec == boost::asio::error::eof) &&
+                     bytes_transferred > 0) {
+            cb((int) bytes_transferred, "");
             return 0;
           } else {
-            if (bytes_transferred == 0) {
-              return max_len;
-            }
-
-            bool read_more = true;
-            cb((int) bytes_transferred,
-                "",
-                [&](auto& final_cb) {
-                  read_more = false;
-                  final_read_callback_ = final_cb;
-                });
-
-            if (read_more) {
-              auto elapsed = std::chrono::steady_clock::now() - start;
-              auto time_left = timeout -
-                  std::chrono::duration_cast<std::chrono::milliseconds>(
-                      elapsed);
-              this->read_impl(sock, dest, max_len, cb, time_left);
-            } else {
-              timer_.cancel();
-              final_read_callback_();
-            }
-
+            LOG(error) << "Error during socket read: " << ec.message() << "; "
+                       << bytes_transferred << " bytes read so far ("
+                       << endpoint_ << ":" << port_ << ")";
+            this->close();
+            cb(-1, ec.message());
             return 0;
           }
         },
-        [](auto, auto) {});
+        [this](auto, auto) {
+          timer_.cancel();
+        });
   }
 
   std::shared_ptr<boost::asio::io_service> io_service_;
   boost::asio::steady_timer timer_;
-
   boost::asio::ssl::context ssl_ctx_;
   std::shared_ptr<boost::asio::ssl::stream<TcpSocket>> ssl_socket_;
-
   std::shared_ptr<TcpSocket> tcp_socket_;
-
-  std::function<void ()> final_read_callback_;
-
   std::string endpoint_;
   int port_;
   bool secure_;
   bool verify_cert_;
+  ConnectCallback connect_cb_;
+  std::shared_ptr<boost::asio::ip::tcp::resolver> resolver_;
+  std::chrono::steady_clock::time_point last_use_;
 };
 
 class IoServiceSocketFactory : public SocketFactory {

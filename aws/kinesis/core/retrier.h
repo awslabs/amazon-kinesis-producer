@@ -75,6 +75,13 @@ class Retrier {
     handle_put_records_result(result);
   }
 
+  void put(const std::shared_ptr<KinesisRecord>& kr,
+           const std::string& err_code,
+           const std::string& err_msg) {
+    auto now = std::chrono::steady_clock::now();
+    retry_not_expired(kr, now, now, err_code, err_msg);
+  }
+
  private:
   void handle_put_records_result(const Result& result);
 

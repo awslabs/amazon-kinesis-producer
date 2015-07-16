@@ -17,11 +17,21 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <glog/logging.h>
-
 #include <aws/metrics/accumulator.h>
 #include <aws/utils/utils.h>
+#include <aws/utils/logging.h>
 #include <aws/mutex.h>
+
+namespace {
+
+auto get_start_time() {
+  return aws::utils::round_down_time<
+      std::chrono::seconds,
+      std::chrono::high_resolution_clock>() +
+          std::chrono::seconds(2);
+}
+
+} //namespace
 
 BOOST_AUTO_TEST_SUITE(Accumulator)
 
@@ -48,21 +58,14 @@ BOOST_AUTO_TEST_CASE(Window) {
   const int num_samples = 100;
   const int last_val = num_buckets * num_samples - 1;
 
-  aws::metrics::detail::AccumulatorImpl<
-      double,
-      std::chrono::milliseconds,
-      num_buckets> a;
+  using Bucket = std::chrono::duration<uint64_t, std::ratio<1, 8>>;
+  aws::metrics::detail::AccumulatorImpl<double, Bucket, num_buckets> a;
 
-  auto tp =
-      std::chrono::steady_clock::time_point(
-          std::chrono::duration_cast<std::chrono::milliseconds>(
-              std::chrono::steady_clock::now().time_since_epoch()));
-  auto start = tp + std::chrono::milliseconds(2);
+  auto start = get_start_time();
 
   size_t v = 0;
   for (int i = 0; i < num_buckets; i += 1) {
-    while (std::chrono::steady_clock::now() <
-           start + std::chrono::milliseconds(i));
+    while (std::chrono::high_resolution_clock::now() < start + Bucket(i));
     for (int j = 0; j < num_samples; j++) {
       a(v++);
     }
@@ -106,23 +109,17 @@ BOOST_AUTO_TEST_CASE(Concurrency) {
   const int num_samples = 100;
   const int last_val = num_buckets * num_samples - 1;
 
-  using Bucket = std::chrono::duration<uint64_t, std::centi>;
-  aws::metrics::detail::AccumulatorImpl<double, Bucket, num_samples> a;
+  using Bucket = std::chrono::duration<uint64_t, std::ratio<1, 8>>;
+  aws::metrics::detail::AccumulatorImpl<double, Bucket, num_buckets> a;
 
-  auto tp =
-      std::chrono::steady_clock::time_point(
-          std::chrono::duration_cast<Bucket>(
-              std::chrono::steady_clock::now().time_since_epoch()));
-  auto start = tp + Bucket(2);
+  auto start = get_start_time();
 
   std::atomic<size_t> v(0);
   std::vector<aws::thread> threads;
   for (int i = 0; i < num_threads; i++) {
     threads.emplace_back([&] {
       for (int i = 0; i < num_buckets; i += 1) {
-        while (std::chrono::steady_clock::now() < start + Bucket(i)) {
-          aws::this_thread::yield();
-        }
+        aws::utils::sleep_until(start + Bucket(i));
         for (int j = 0; j < num_samples / num_threads; j++) {
           a(v++);
         }
@@ -172,19 +169,13 @@ BOOST_AUTO_TEST_CASE(WriteThroughput) {
   for (size_t num_threads = 1; num_threads <= 8; num_threads *= 2) {
     aws::metrics::Accumulator a;
 
-    auto tp =
-        aws::utils::round_down_time<
-            std::chrono::milliseconds,
-            std::chrono::high_resolution_clock>();
-    auto start = tp + std::chrono::milliseconds(5);
+    auto start = get_start_time();
 
     std::atomic<size_t> v(0);
     std::vector<aws::thread> threads;
     for (size_t i = 0; i < num_threads; i++) {
       threads.emplace_back([&] {
-        while (std::chrono::high_resolution_clock::now() < start) {
-          aws::this_thread::yield();
-        }
+        aws::utils::sleep_until(start);
         while (true) {
           size_t z = v++;
           if (z < N) {
@@ -200,12 +191,8 @@ BOOST_AUTO_TEST_CASE(WriteThroughput) {
       t.join();
     }
 
-    double seconds =
-        std::chrono::duration_cast<std::chrono::microseconds>(
-            std::chrono::high_resolution_clock::now() - start)
-                .count() / 1e6;
-    double rate = (double) N / seconds;
-    LOG(INFO) << "Accumulator tight loop put rate (" << num_threads
+    double rate = (double) N / aws::utils::seconds_since(start);
+    LOG(info) << "Accumulator tight loop put rate (" << num_threads
               << " threads): " << rate / 1000 << " K per second ";
   }
 }

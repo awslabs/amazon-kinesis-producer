@@ -13,6 +13,8 @@
 
 #include <aws/http/http_client.h>
 
+#include <boost/algorithm/string/case_conv.hpp>
+
 namespace aws {
 namespace http {
 
@@ -47,17 +49,18 @@ void Task::read() {
   socket_->read(
       buffer_.data(),
       buffer_.size(),
-      [this](int num_read,
-             const std::string& reason,
-             const Socket::StopReading& stop_reading) {
+      [this](int num_read, const std::string& reason) {
         if (num_read < 0) {
           this->fail(reason);
           return;
         }
 
         response_->update(buffer_.data(), num_read);
+
         if (response_->complete()) {
-          stop_reading([this] { this->succeed(); });
+          this->succeed();
+        } else {
+          this->read();
         }
       },
       std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -75,22 +78,37 @@ void Task::fail(std::string reason) {
 }
 
 void Task::succeed() {
+  bool close_socket = false;
+  for (auto h : response_->headers()) {
+    if (boost::to_lower_copy(h.first) == "connection" &&
+        boost::to_lower_copy(h.second) == "close") {
+      close_socket = true;
+      break;
+    }
+  }
+
   finish(
       std::make_shared<HttpResult>(
           std::move(response_),
           std::move(context_),
           start_,
-          Clock::now()));
+          Clock::now()),
+      close_socket);
 }
 
 void Task::finish(std::shared_ptr<HttpResult> result, bool close_socket) {
-  if (!finished_) {
-    response_cb_(result);
-    if (close_socket) {
-      socket_->close();
-    }
-    socket_return_(socket_);
-    finished_ = true;
+  started_.test_and_set();
+  if (!submitted_.test_and_set()) {
+    executor_->submit([=] {
+      response_cb_(result);
+      if (socket_) {
+        if (close_socket) {
+          socket_->close();
+        }
+        socket_return_(socket_);
+      }
+      finished_ = true;
+    });
   }
 }
 
@@ -99,17 +117,19 @@ void Task::finish(std::shared_ptr<HttpResult> result, bool close_socket) {
 void HttpClient::put(HttpRequest& request,
                      const ResponseCallback& cb ,
                      const std::shared_ptr<void>& context ,
-                     TimePoint deadline) {
-  auto task =
+                     TimePoint deadline,
+                     TimePoint expiration) {
+  Lock lk(mutex_);
+  task_queue_.insert(
       std::make_shared<detail::Task>(
+          executor_,
           request,
           context,
           cb,
           [this](auto& socket) { this->reuse_socket(socket); },
           deadline,
-          request_timeout_);
-  Lock lk(mutex_);
-  task_queue_.push(task);
+          expiration,
+          request_timeout_));
   run_tasks();
 }
 
@@ -117,7 +137,7 @@ void HttpClient::open_connection() {
   pending_++;
   auto s = socket_factory_->create(endpoint_, port_, secure_, verify_cert_);
   s->open(
-      [=](bool success, auto& reason) {
+      [=](bool success, auto& reason) mutable {
         pending_--;
         if (success) {
           Lock lk(mutex_);
@@ -125,10 +145,13 @@ void HttpClient::open_connection() {
           this->run_tasks();
         } else {
           if (endpoint_ != "169.254.169.254") {
-            LOG(ERROR) << "Failed to open connection to "
+            LOG(error) << "Failed to open connection to "
                        << endpoint_ << ":" << port_ << " : " << reason;
           }
         }
+        // We need to explicitly reset because there is a circular reference
+        // between s and this callback.
+        s.reset();
       },
       connect_timeout_);
 }
@@ -165,15 +188,23 @@ void HttpClient::run_tasks() {
     available_.pop_front();
   }
 
-  while (!task_queue_.empty() && !available_.empty()) {
+  task_queue_.consume_expired([this](const auto& t) {
+    tasks_in_progress_.push_back(t);
+    t->fail("Expired while waiting in HttpClient queue");
+  });
+
+  task_queue_.consume_by_deadline([this](const auto& t) {
+    if (available_.empty()) {
+      return false;
+    }
+
     pending_++;
     auto socket = available_.front();
     available_.pop_front();
-    auto task = task_queue_.top();
-    task_queue_.pop();
-    tasks_in_progress_.push_back(task);
-    task->run(socket);
-  }
+    tasks_in_progress_.push_back(t);
+    t->run(socket);
+    return true;
+  });
 
   if (task_queue_.size() > total_connections()) {
     open_connections(1);

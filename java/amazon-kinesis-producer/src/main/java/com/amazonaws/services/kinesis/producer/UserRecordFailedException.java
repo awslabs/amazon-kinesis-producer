@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-package com.amazonaws.kinesis.producer;
+package com.amazonaws.services.kinesis.producer;
 
 public class UserRecordFailedException extends Exception {
     private static final long serialVersionUID = 3168271192277927600L;

@@ -57,22 +57,12 @@ class Executor {
 
   virtual void submit(Func f) = 0;
 
-  virtual void schedule(Func f,
-                        TimePoint at,
-                        std::shared_ptr<ScheduledCallback>* container) = 0;
+  virtual std::shared_ptr<ScheduledCallback>
+  schedule(Func f, TimePoint at) = 0;
 
-  virtual void schedule(Func f,
-                        std::chrono::milliseconds from_now,
-                        std::shared_ptr<ScheduledCallback>* container) {
-    schedule(std::move(f), Clock::now() + from_now, container);
-  }
-
-  virtual void schedule(Func f, TimePoint at) {
-    schedule(std::move(f), at, nullptr);
-  }
-
-  virtual void schedule(Func f, std::chrono::milliseconds from_now) {
-    schedule(std::move(f), from_now, nullptr);
+  virtual std::shared_ptr<ScheduledCallback>
+  schedule(Func f, std::chrono::milliseconds from_now) {
+    return schedule(std::move(f), Clock::now() + from_now);
   }
 
   virtual size_t num_threads() const noexcept = 0;

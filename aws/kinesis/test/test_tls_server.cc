@@ -13,7 +13,7 @@
 
 #include <aws/kinesis/test/test_tls_server.h>
 
-#include <glog/logging.h>
+#include <aws/utils/logging.h>
 
 namespace aws {
 namespace kinesis {
@@ -50,71 +50,87 @@ void TestTLSServer::accept_one() {
       socket->lowest_layer(),
       [=](const auto& ec) {
         if (ec) {
-          LOG(WARNING) << "Test server error while accepting: "
+          LOG(warning) << "Test server error while accepting: "
                        << ec.message();
           delete socket;
           return;
         }
 
-        boost::asio::spawn(
-            io_service_,
-            [=](auto yield) {
-              this->session(std::shared_ptr<SslSocket>(socket), yield);
+        socket->async_handshake(
+            boost::asio::ssl::stream_base::server,
+            [=](auto& ec) {
+              this->read(ec, std::shared_ptr<SslSocket>(socket));
             });
 
         this->accept_one();
       });
 }
 
-void TestTLSServer::session(const std::shared_ptr<SslSocket>& socket,
-                            const boost::asio::yield_context& yield) {
-  try {
-    socket->async_handshake(boost::asio::ssl::stream_base::server, yield);
-  } catch (const std::exception& e) {
-    LOG(WARNING) << "Test server handshake error: " << e.what();
+void TestTLSServer::read(const boost::system::error_code& ec,
+                         std::shared_ptr<SslSocket> socket) {
+  if (ec) {
+    LOG(warning) << "Test server error while handshaking: " << ec.message();
     return;
   }
 
-  while (socket->lowest_layer().is_open()) {
-    aws::http::HttpRequest req;
-    std::vector<char> buf(64 * 1024);
-    try {
-      boost::asio::async_read(
-          *socket,
-          boost::asio::buffer(buf),
-          [&](auto& ec, auto n) -> size_t {
-            req.update(buf.data(), n);
-            if (req.complete()) {
-              return 0;
-            } else {
-              return buf.size();
-            }
-          },
-          yield);
-    } catch (const std::exception& e) {
-      LOG(WARNING) << "Test server error while reading request: " << e.what();
-      return;
-    }
+  auto req = std::make_shared<aws::http::HttpRequest>();
+  auto buf = std::make_shared<std::vector<char>>(64 * 1024);
 
-    RequestHandler handler = detail::kEchoHandler;
+  boost::asio::async_read(
+      *socket,
+      boost::asio::buffer(*buf),
+      [=](auto& ec, auto n) -> size_t {
+        if (ec) {
+          return 0;
+        }
 
-    {
-      Lock lk(mutex_);
-      if (!handlers_.empty()) {
-        handler = handlers_.front();
-        handlers_.pop_front();
-      }
-    }
+        req->update(buf->data(), n);
+        if (req->complete()) {
+          return 0;
+        } else {
+          return buf->size();
+        }
+      },
+      [=](auto& ec, auto num_read) {
+        this->write(ec, req, socket);
+      });
+}
 
-    auto response = handler(req).to_string();
-    try {
-      boost::asio::async_write(*socket, boost::asio::buffer(response), yield);
-    } catch (const std::exception& e) {
-      LOG(WARNING) << "Test server error while writing response: "
-                   << e.what();
-      return;
+void TestTLSServer::write(const boost::system::error_code& ec,
+                          std::shared_ptr<aws::http::HttpRequest> req,
+                          std::shared_ptr<SslSocket> socket) {
+  if (ec) {
+    LOG(warning) << "Test server error while reading request: " << ec.message();
+    socket->lowest_layer().close();
+    return;
+  }
+
+  RequestHandler handler = detail::kEchoHandler;
+
+  {
+    Lock lk(mutex_);
+    if (!handlers_.empty()) {
+      handler = handlers_.front();
+      handlers_.pop_front();
     }
   }
+
+  auto response = new std::string(handler(*req).to_string());
+
+  boost::asio::async_write(
+      *socket,
+      boost::asio::buffer(*response),
+      [=](auto& ec, auto num_wrote) {
+        delete response;
+
+        if (ec) {
+          LOG(warning) << "Test server error while writing response: "
+                       << ec.message();
+          socket->lowest_layer().close();
+        } else {
+          this->read(boost::system::error_code(), socket);
+        }
+      });
 }
 
 } //namespace test

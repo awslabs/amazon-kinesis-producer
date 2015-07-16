@@ -1,10 +1,10 @@
-// Copyright 2010-2014 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
-// Licensed under the Apache License, Version 2.0 (the "License").
+// Licensed under the Amazon Software License (the "License").
 // You may not use this file except in compliance with the License.
 // A copy of the License is located at
 //
-//  http://aws.amazon.com/apache2.0
+//  http://aws.amazon.com/asl
 //
 // or in the "license" file accompanying this file. This file is distributed
 // on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
@@ -31,26 +31,17 @@
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/condition_variable.hpp>
 
-// Hopefully the need for this file goes away eventually.
-// We don't just always the boost versions because the LLVM implementations show
-// better performance.
 namespace aws {
 
 #if BOOST_OS_WINDOWS
-
 namespace threading_namespace = boost;
-
-using shared_mutex = threading_namespace::shared_mutex;
-
 #else
-
 namespace threading_namespace = std;
-
-using shared_mutex = threading_namespace::shared_timed_mutex;
-
 #endif
 
 namespace this_thread = threading_namespace::this_thread;
+
+using shared_mutex = boost::shared_mutex;
 
 using thread = threading_namespace::thread;
 using condition_variable = threading_namespace::condition_variable;

@@ -15,6 +15,7 @@
 #define AWS_AUTH_CREDENTIALS_H_
 
 #include <chrono>
+#include <initializer_list>
 #include <mutex>
 #include <regex>
 #include <string>
@@ -24,66 +25,82 @@
 #include <aws/http/ec2_metadata.h>
 #include <aws/utils/executor.h>
 #include <aws/mutex.h>
+#include <aws/utils/spin_lock.h>
 
 namespace aws {
 namespace auth {
 
-struct AwsCredentials {
-  std::string akid;
-  std::string secret_key;
-  boost::optional<std::string> session_token;
+class AwsCredentials {
+ public:
+  AwsCredentials(std::string akid,
+                 std::string secret_key,
+                 boost::optional<std::string> session_token = boost::none)
+      : akid_(std::move(akid)),
+        secret_key_(std::move(secret_key)),
+        session_token_(std::move(session_token)) {}
+
+  const std::string& akid() const noexcept {
+    return akid_;
+  }
+
+  const std::string& access_key_id() const noexcept {
+    return akid_;
+  }
+
+  const std::string& secret_key() const noexcept {
+    return secret_key_;
+  }
+
+  const boost::optional<std::string>& session_token() const noexcept {
+    return session_token_;
+  }
+
+ private:
+  std::string akid_;
+  std::string secret_key_;
+  boost::optional<std::string> session_token_;
 };
 
 //------------------------------------------------------------------------------
 
 class AwsCredentialsProvider : private boost::noncopyable {
  public:
-  virtual boost::optional<AwsCredentials> get_credentials();
-
-  virtual void refresh() {}
+  virtual AwsCredentials get_credentials();
+  virtual boost::optional<AwsCredentials> try_get_credentials();
 
  protected:
-  virtual boost::optional<std::string> get_akid() {
-    return boost::none;
-  }
-
-  virtual boost::optional<std::string> get_secret_key() {
-    return boost::none;
-  }
-
-  virtual boost::optional<std::string> get_session_token() {
-    return boost::none;
-  }
-
- private:
   static const std::regex kAkidRegex;
   static const std::regex kSkRegex;
 
   static bool verify_credentials_format(const AwsCredentials& creds);
+
+  virtual AwsCredentials get_credentials_impl() = 0;
 };
 
 //------------------------------------------------------------------------------
 
 class EnvVarAwsCredentialsProvider : public AwsCredentialsProvider {
  protected:
-  boost::optional<std::string> get_akid() override;
-  boost::optional<std::string> get_secret_key() override;
+  AwsCredentials get_credentials_impl() override;
 };
 
 //------------------------------------------------------------------------------
 
 class BasicAwsCredentialsProvider : public AwsCredentialsProvider {
  public:
-  explicit BasicAwsCredentialsProvider(const std::string& akid,
-                                       const std::string& secret_key);
+  BasicAwsCredentialsProvider(
+      const std::string& akid,
+      const std::string& secret_key,
+      boost::optional<std::string> session_token = boost::none)
+      : creds_(akid, secret_key, session_token) {}
 
  protected:
-  boost::optional<std::string> get_akid() override;
-  boost::optional<std::string> get_secret_key() override;
+  AwsCredentials get_credentials_impl() override {
+    return creds_;
+  }
 
  private:
-  std::string akid_;
-  std::string secret_key_;
+  AwsCredentials creds_;
 };
 
 //------------------------------------------------------------------------------
@@ -94,12 +111,10 @@ class InstanceProfileAwsCredentialsProvider : public AwsCredentialsProvider {
       const std::shared_ptr<aws::utils::Executor>& executor,
       const std::shared_ptr<aws::http::Ec2Metadata>& ec2_metadata);
 
-  void refresh() override;
+  void refresh();
 
  protected:
-  boost::optional<std::string> get_akid() override;
-  boost::optional<std::string> get_secret_key() override;
-  boost::optional<std::string> get_session_token() override;
+  AwsCredentials get_credentials_impl() override;
 
  private:
   using Mutex = aws::mutex;
@@ -118,19 +133,45 @@ class InstanceProfileAwsCredentialsProvider : public AwsCredentialsProvider {
 
 //------------------------------------------------------------------------------
 
-class DefaultAwsCredentialsProvider : public AwsCredentialsProvider {
+class AwsCredentialsProviderChain : public AwsCredentialsProvider {
  public:
-  explicit DefaultAwsCredentialsProvider(
-      const std::shared_ptr<aws::utils::Executor>& executor,
-      const std::shared_ptr<aws::http::Ec2Metadata>& ec2_metadata);
+  static std::shared_ptr<AwsCredentialsProviderChain> create(
+      std::initializer_list<
+          std::shared_ptr<AwsCredentialsProvider>> providers);
 
-  boost::optional<AwsCredentials> get_credentials() override;
+  AwsCredentialsProviderChain() = default;
 
-  void refresh() override;
+  AwsCredentialsProviderChain(
+      std::initializer_list<std::shared_ptr<AwsCredentialsProvider>> providers)
+    : providers_(providers) {}
+
+  void reset(
+      std::initializer_list<
+          std::shared_ptr<AwsCredentialsProvider>> new_providers);
+
+ protected:
+  AwsCredentials get_credentials_impl() override;
 
  private:
-  std::unique_ptr<InstanceProfileAwsCredentialsProvider> profile_provider_;
-  EnvVarAwsCredentialsProvider env_var_provider_;
+  using Mutex = aws::utils::TicketSpinLock;
+  using Lock = aws::lock_guard<Mutex>;
+
+  Mutex mutex_;
+  std::vector<std::shared_ptr<AwsCredentialsProvider>> providers_;
+};
+
+//------------------------------------------------------------------------------
+
+class DefaultAwsCredentialsProviderChain : public AwsCredentialsProviderChain {
+ public:
+  DefaultAwsCredentialsProviderChain(
+      std::shared_ptr<aws::utils::Executor> executor,
+      std::shared_ptr<aws::http::Ec2Metadata> ec2_metadata)
+      : AwsCredentialsProviderChain({
+            std::make_shared<EnvVarAwsCredentialsProvider>(),
+            std::make_shared<InstanceProfileAwsCredentialsProvider>(
+                std::move(executor),
+                std::move(ec2_metadata))}) {}
 };
 
 } // namespace auth

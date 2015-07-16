@@ -13,35 +13,41 @@
  * permissions and limitations under the License.
  */
 
-package com.amazonaws.kinesis.producer;
+package com.amazonaws.services.kinesis.producer;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.lang.ProcessBuilder.Redirect;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazonaws.kinesis.producer.protobuf.Messages.Message;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.AWSSessionCredentials;
+import com.amazonaws.services.kinesis.producer.protobuf.Messages;
+import com.amazonaws.services.kinesis.producer.protobuf.Messages.Message;
 import com.google.protobuf.ByteString;
 
 /**
@@ -86,7 +92,7 @@ public class Daemon {
     private final String pathToExecutable;
     private final MessageHandler handler;
     private final String workingDir;
-    private final Configuration config;
+    private final KinesisProducerConfiguration config;
     private final Map<String, String> environmentVariables;
     
     /**
@@ -104,7 +110,7 @@ public class Daemon {
      *            KPL configuration.
      */
     public Daemon(String pathToExecutable, MessageHandler handler, String workingDir,
-            Configuration config, Map<String, String> environmentVariables) {
+            KinesisProducerConfiguration config, Map<String, String> environmentVariables) {
         this.pathToExecutable = pathToExecutable;
         this.handler = handler;
         this.workingDir = workingDir;
@@ -300,28 +306,82 @@ public class Daemon {
                 }
             }
         });
+        
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                while (!shutdown.get()) {
+                    try {
+                        updateCredentials();
+                        Thread.sleep(config.getCredentialsRefreshDelay());
+                    } catch (InterruptedException e) {
+                        log.warn("Exception during updateCredentials", e);
+                    }
+                }
+            }
+        });
     }
     
     private void connectToChild() throws IOException {
-        inChannel = FileChannel.open(Paths.get(inPipe.getAbsolutePath()), StandardOpenOption.READ);
-        outChannel = FileChannel.open(Paths.get(outPipe.getAbsolutePath()), StandardOpenOption.WRITE);
-        outStream = Channels.newOutputStream(outChannel);
+        long start = System.nanoTime();
+        while (true) {
+            try {
+                inChannel = FileChannel.open(Paths.get(inPipe.getAbsolutePath()), StandardOpenOption.READ);
+                outChannel = FileChannel.open(Paths.get(outPipe.getAbsolutePath()), StandardOpenOption.WRITE);
+                outStream = Channels.newOutputStream(outChannel);
+                break;
+            } catch (IOException e) {
+                if (inChannel != null && inChannel.isOpen()) {
+                    inChannel.close();
+                }
+                if (outChannel != null && outChannel.isOpen()) {
+                    outChannel.close();
+                }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e1) {}
+                if (System.nanoTime() - start > 2e9) {
+                    throw e;
+                }
+            }
+        }
     }
    
     private void createPipes() throws IOException {
+        if (SystemUtils.IS_OS_WINDOWS) {
+            createPipesWindows();
+        } else {
+            createPipesUnix();
+        }
+        
+        inPipe.deleteOnExit();
+        outPipe.deleteOnExit();
+    }
+    
+    private void createPipesWindows() {
+        do {
+            inPipe = Paths.get("\\\\.\\pipe\\amz-aws-kpl-in-pipe-" + uuid8Chars()).toFile();
+        } while (inPipe.exists());
+        
+        do {
+            outPipe = Paths.get("\\\\.\\pipe\\amz-aws-kpl-out-pipe-" + uuid8Chars()).toFile();
+        } while (inPipe.exists());
+    }
+    
+    private void createPipesUnix() {
         File dir = new File(this.workingDir);
         if (!dir.exists()) {
             dir.mkdirs();
         }
-         
+        
         do {
             inPipe = Paths.get(dir.getAbsolutePath(),
-                    "amz-aws-kpl-in-pipe-" + UUID.randomUUID().toString().substring(0, 8)).toFile();
+                    "amz-aws-kpl-in-pipe-" + uuid8Chars()).toFile();
         } while (inPipe.exists());
         
         do {
             outPipe = Paths.get(dir.getAbsolutePath(),
-                    "amz-aws-kpl-out-pipe-" + UUID.randomUUID().toString().substring(0, 8)).toFile();
+                    "amz-aws-kpl-out-pipe-" + uuid8Chars()).toFile();
         } while (inPipe.exists());
         
         try {
@@ -341,9 +401,6 @@ public class Daemon {
                 fatalError("Pipes did not show up after calling mkfifo", false);
             }
         }
-        
-        inPipe.deleteOnExit();
-        outPipe.deleteOnExit();
     }
     
     private void deletePipes() {
@@ -356,22 +413,30 @@ public class Daemon {
     }
     
     private void startChildProcess() throws IOException, InterruptedException {
-        String serializedConfig = DatatypeConverter.printHexBinary(
-                config.toProtobufMessage().toByteArray());
+        List<String> args = new ArrayList<>();
         
-        final ProcessBuilder pb = new ProcessBuilder(
-                pathToExecutable,
-                // Our out is the child's in, vice versa
-                outPipe.getAbsolutePath(),
-                inPipe.getAbsolutePath(),
-                serializedConfig);
+        args.add(pathToExecutable);
+        args.add(outPipe.getAbsolutePath());
+        args.add(inPipe.getAbsolutePath());
+        args.add(protobufToHex(config.toProtobufMessage()));
+        
+        if (config.getCredentialsProvider() != null) {
+            args.add(protobufToHex(makeSetCredentialsMessage(
+                    config.getCredentialsProvider(), false)));
+        }
+        
+        if (config.getMetricsCredentialsProvider() != null) {
+            args.add(protobufToHex(makeSetCredentialsMessage(
+                    config.getMetricsCredentialsProvider(), true)));
+        }
+           
+        final ProcessBuilder pb = new ProcessBuilder(args);
         for (Entry<String, String> e : environmentVariables.entrySet()) {
             pb.environment().put(e.getKey(), e.getValue());
         }
-        
-        pb.redirectErrorStream(true);
-        pb.redirectOutput();
-        
+        pb.redirectError(Redirect.INHERIT);
+        pb.redirectOutput(Redirect.INHERIT);
+
         executor.submit(new Runnable() {
             @Override
             public void run() {
@@ -390,29 +455,21 @@ public class Daemon {
             fatalError("Error starting child process", e, false);
         }
         
-        // Redirect child stdout to our stderr
-        final BufferedReader childStdout = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        final CountDownLatch outputComplete = new CountDownLatch(1);
-        executor.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    String s = "";
-                    while ((s = childStdout.readLine()) != null) {
-                        System.err.println(s);
-                    }
-                } catch (Exception e) {
-                    log.error("Unexpected error transferring child console output", e);
-                } finally {
-                    outputComplete.countDown();
-                }               
-            }
-        });
-        
         int code = process.waitFor();
-        outputComplete.await();
         deletePipes();
         fatalError("Child process exited with code " + code, code != 1);
+    }
+    
+    private void updateCredentials() throws InterruptedException {
+        if (config.getCredentialsProvider() != null) {
+            outgoingMessages.put(makeSetCredentialsMessage(
+                    config.getCredentialsProvider(), false));
+        }
+        
+        if (config.getMetricsCredentialsProvider() != null) {
+            outgoingMessages.put(makeSetCredentialsMessage(
+                    config.getMetricsCredentialsProvider(), true));
+        }
     }
     
     private void fatalError(String message) {
@@ -432,6 +489,9 @@ public class Daemon {
             if (process != null) {
                 process.destroy();
             }
+            try {
+                executor.awaitTermination(1, TimeUnit.SECONDS);
+            } catch (InterruptedException e) { }
             executor.shutdownNow();
             if (handler != null) {
                 if (retryable) {
@@ -460,5 +520,34 @@ public class Daemon {
             }
         }
         rcvBuf.rewind();
+    }
+    
+    private static String uuid8Chars() {
+        return UUID.randomUUID().toString().substring(0, 8);
+    }
+
+    private static Messages.Message makeSetCredentialsMessage(AWSCredentialsProvider provider, boolean forMetrics) {
+        AWSCredentials creds = provider.getCredentials();
+        
+        Messages.Credentials.Builder cb = Messages.Credentials.newBuilder()
+                .setAkid(creds.getAWSAccessKeyId())
+                .setSecretKey(creds.getAWSSecretKey());
+        if (creds instanceof AWSSessionCredentials) {
+            cb.setToken(((AWSSessionCredentials) creds).getSessionToken());
+        }
+   
+        Messages.SetCredentials setCreds = Messages.SetCredentials.newBuilder()
+                .setCredentials(cb.build())
+                .setForMetrics(forMetrics)
+                .build();
+        
+        return Messages.Message.newBuilder()
+            .setSetCredentials(setCreds)
+            .setId(Long.MAX_VALUE)
+            .build();
+    }
+    
+    private static String protobufToHex(com.google.protobuf.Message msg) {
+        return DatatypeConverter.printHexBinary(msg.toByteArray());
     }
 }

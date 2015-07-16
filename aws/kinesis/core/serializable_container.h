@@ -18,14 +18,14 @@
 #include <stack>
 #include <vector>
 
-#include <aws/kinesis/core/time_sensitive.h>
+#include <aws/utils/time_sensitive.h>
 
 namespace aws {
 namespace kinesis {
 namespace core {
 
 template <typename T>
-class SerializableContainer : public TimeSensitive {
+class SerializableContainer : public aws::utils::TimeSensitive {
  public:
   using TimePoint = std::chrono::steady_clock::time_point;
 

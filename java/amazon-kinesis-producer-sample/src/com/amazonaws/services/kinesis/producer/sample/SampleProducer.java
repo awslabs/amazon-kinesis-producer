@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-package com.amazonaws.kinesis.producer.sample;
+package com.amazonaws.services.kinesis.producer.sample;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.Executors;
@@ -24,11 +24,12 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazonaws.kinesis.producer.Attempt;
-import com.amazonaws.kinesis.producer.Configuration;
-import com.amazonaws.kinesis.producer.KinesisProducer;
-import com.amazonaws.kinesis.producer.UserRecordFailedException;
-import com.amazonaws.kinesis.producer.UserRecordResult;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.services.kinesis.producer.Attempt;
+import com.amazonaws.services.kinesis.producer.KinesisProducerConfiguration;
+import com.amazonaws.services.kinesis.producer.KinesisProducer;
+import com.amazonaws.services.kinesis.producer.UserRecordFailedException;
+import com.amazonaws.services.kinesis.producer.UserRecordResult;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -92,7 +93,7 @@ public class SampleProducer {
      * either they succeed or reach a TTL set in the KPL's configuration, at
      * which point the KPL will return failures for those records.
      * 
-     * @see {@link Configuration#setRecordTtl(long)}
+     * @see {@link KinesisProducerConfiguration#setRecordTtl(long)}
      */
     private static final int RECORDS_PER_SECOND = 2000;
     
@@ -103,9 +104,6 @@ public class SampleProducer {
     
     /**
      * Change this to the region you are using.
-     * 
-     * We do not use the SDK Regions enum because the KPL does not depend on the
-     * SDK.
      */
     public static final String REGION = "us-west-1";
 
@@ -118,23 +116,23 @@ public class SampleProducer {
     public static KinesisProducer getKinesisProducer() {
         // There are many configurable parameters in the KPL. See the javadocs
         // on each each set method for details.
-        Configuration config = new Configuration();
+        KinesisProducerConfiguration config = new KinesisProducerConfiguration();
         
         // You can also load config from file. A sample properties file is
         // included in the project folder.
-        // Configuration config = Configuration.fromPropertiesFile("default_config.properties");
+        // KinesisProducerConfiguration config =
+        //     KinesisProducerConfiguration.fromPropertiesFile("default_config.properties");
         
         // If you're running in EC2 and want to use the same Kinesis region as
         // the one your instance is in, you can simply leave out the region
         // configuration; the KPL will retrieve it from EC2 metadata.
         config.setRegion(REGION);
         
-        // You can pass credentials programmatically through the configuration.
-        // If you don't, the KPL will first look for them in environment
-        // variables (AWS_ACCESS_KEY_ID, AWS_SECRET_KEY), followed by EC2
-        // metadata (instance profile, i.e. IAM role).
-        //config.setAwsAccessKeyId("");
-        //config.setAwsSecretKey("");
+        // You can pass credentials programmatically through the configuration,
+        // similar to the AWS SDK. DefaultAWSCredentialsProviderChain is used
+        // by default, so this configuration can be omitted if that is all
+        // that is needed.
+        config.setCredentialsProvider(new DefaultAWSCredentialsProviderChain());
         
         // The maxConnections parameter can be used to control the degree of
         // parallelism when making HTTP requests. We're going to use only 1 here

@@ -44,6 +44,8 @@ class PutRecord;
 class Flush;
 class Attempt;
 class PutRecordResult;
+class Credentials;
+class SetCredentials;
 class Dimension;
 class Stats;
 class Metric;
@@ -414,6 +416,7 @@ class Message : public ::google::protobuf::Message {
     kConfiguration = 6,
     kMetricsRequest = 7,
     kMetricsResponse = 8,
+    kSetCredentials = 9,
     ACTUAL_MESSAGE_NOT_SET = 0,
   };
 
@@ -515,6 +518,15 @@ class Message : public ::google::protobuf::Message {
   inline ::aws::kinesis::protobuf::MetricsResponse* release_metrics_response();
   inline void set_allocated_metrics_response(::aws::kinesis::protobuf::MetricsResponse* metrics_response);
 
+  // optional .aws.kinesis.protobuf.SetCredentials set_credentials = 9;
+  inline bool has_set_credentials() const;
+  inline void clear_set_credentials();
+  static const int kSetCredentialsFieldNumber = 9;
+  inline const ::aws::kinesis::protobuf::SetCredentials& set_credentials() const;
+  inline ::aws::kinesis::protobuf::SetCredentials* mutable_set_credentials();
+  inline ::aws::kinesis::protobuf::SetCredentials* release_set_credentials();
+  inline void set_allocated_set_credentials(::aws::kinesis::protobuf::SetCredentials* set_credentials);
+
   inline ActualMessageCase actual_message_case() const;
   // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.Message)
  private:
@@ -528,6 +540,7 @@ class Message : public ::google::protobuf::Message {
   inline void set_has_configuration();
   inline void set_has_metrics_request();
   inline void set_has_metrics_response();
+  inline void set_has_set_credentials();
 
   inline bool has_actual_message();
   void clear_actual_message();
@@ -546,6 +559,7 @@ class Message : public ::google::protobuf::Message {
     ::aws::kinesis::protobuf::Configuration* configuration_;
     ::aws::kinesis::protobuf::MetricsRequest* metrics_request_;
     ::aws::kinesis::protobuf::MetricsResponse* metrics_response_;
+    ::aws::kinesis::protobuf::SetCredentials* set_credentials_;
   } actual_message_;
   ::google::protobuf::uint32 _oneof_case_[1];
 
@@ -1019,6 +1033,211 @@ class PutRecordResult : public ::google::protobuf::Message {
 
   void InitAsDefaultInstance();
   static PutRecordResult* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class Credentials : public ::google::protobuf::Message {
+ public:
+  Credentials();
+  virtual ~Credentials();
+
+  Credentials(const Credentials& from);
+
+  inline Credentials& operator=(const Credentials& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Credentials& default_instance();
+
+  void Swap(Credentials* other);
+
+  // implements Message ----------------------------------------------
+
+  Credentials* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const Credentials& from);
+  void MergeFrom(const Credentials& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required string akid = 1;
+  inline bool has_akid() const;
+  inline void clear_akid();
+  static const int kAkidFieldNumber = 1;
+  inline const ::std::string& akid() const;
+  inline void set_akid(const ::std::string& value);
+  inline void set_akid(const char* value);
+  inline void set_akid(const char* value, size_t size);
+  inline ::std::string* mutable_akid();
+  inline ::std::string* release_akid();
+  inline void set_allocated_akid(::std::string* akid);
+
+  // required string secret_key = 2;
+  inline bool has_secret_key() const;
+  inline void clear_secret_key();
+  static const int kSecretKeyFieldNumber = 2;
+  inline const ::std::string& secret_key() const;
+  inline void set_secret_key(const ::std::string& value);
+  inline void set_secret_key(const char* value);
+  inline void set_secret_key(const char* value, size_t size);
+  inline ::std::string* mutable_secret_key();
+  inline ::std::string* release_secret_key();
+  inline void set_allocated_secret_key(::std::string* secret_key);
+
+  // optional string token = 3;
+  inline bool has_token() const;
+  inline void clear_token();
+  static const int kTokenFieldNumber = 3;
+  inline const ::std::string& token() const;
+  inline void set_token(const ::std::string& value);
+  inline void set_token(const char* value);
+  inline void set_token(const char* value, size_t size);
+  inline ::std::string* mutable_token();
+  inline ::std::string* release_token();
+  inline void set_allocated_token(::std::string* token);
+
+  // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.Credentials)
+ private:
+  inline void set_has_akid();
+  inline void clear_has_akid();
+  inline void set_has_secret_key();
+  inline void clear_has_secret_key();
+  inline void set_has_token();
+  inline void clear_has_token();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* akid_;
+  ::std::string* secret_key_;
+  ::std::string* token_;
+  friend void  protobuf_AddDesc_messages_2eproto();
+  friend void protobuf_AssignDesc_messages_2eproto();
+  friend void protobuf_ShutdownFile_messages_2eproto();
+
+  void InitAsDefaultInstance();
+  static Credentials* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class SetCredentials : public ::google::protobuf::Message {
+ public:
+  SetCredentials();
+  virtual ~SetCredentials();
+
+  SetCredentials(const SetCredentials& from);
+
+  inline SetCredentials& operator=(const SetCredentials& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const SetCredentials& default_instance();
+
+  void Swap(SetCredentials* other);
+
+  // implements Message ----------------------------------------------
+
+  SetCredentials* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const SetCredentials& from);
+  void MergeFrom(const SetCredentials& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional bool for_metrics = 1;
+  inline bool has_for_metrics() const;
+  inline void clear_for_metrics();
+  static const int kForMetricsFieldNumber = 1;
+  inline bool for_metrics() const;
+  inline void set_for_metrics(bool value);
+
+  // required .aws.kinesis.protobuf.Credentials credentials = 2;
+  inline bool has_credentials() const;
+  inline void clear_credentials();
+  static const int kCredentialsFieldNumber = 2;
+  inline const ::aws::kinesis::protobuf::Credentials& credentials() const;
+  inline ::aws::kinesis::protobuf::Credentials* mutable_credentials();
+  inline ::aws::kinesis::protobuf::Credentials* release_credentials();
+  inline void set_allocated_credentials(::aws::kinesis::protobuf::Credentials* credentials);
+
+  // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.SetCredentials)
+ private:
+  inline void set_has_for_metrics();
+  inline void clear_has_for_metrics();
+  inline void set_has_credentials();
+  inline void clear_has_credentials();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::aws::kinesis::protobuf::Credentials* credentials_;
+  bool for_metrics_;
+  friend void  protobuf_AddDesc_messages_2eproto();
+  friend void protobuf_AssignDesc_messages_2eproto();
+  friend void protobuf_ShutdownFile_messages_2eproto();
+
+  void InitAsDefaultInstance();
+  static SetCredentials* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -2302,6 +2521,49 @@ inline void Message::set_allocated_metrics_response(::aws::kinesis::protobuf::Me
   }
 }
 
+// optional .aws.kinesis.protobuf.SetCredentials set_credentials = 9;
+inline bool Message::has_set_credentials() const {
+  return actual_message_case() == kSetCredentials;
+}
+inline void Message::set_has_set_credentials() {
+  _oneof_case_[0] = kSetCredentials;
+}
+inline void Message::clear_set_credentials() {
+  if (has_set_credentials()) {
+    delete actual_message_.set_credentials_;
+    clear_has_actual_message();
+  }
+}
+inline const ::aws::kinesis::protobuf::SetCredentials& Message::set_credentials() const {
+  return has_set_credentials() ? *actual_message_.set_credentials_
+                      : ::aws::kinesis::protobuf::SetCredentials::default_instance();
+}
+inline ::aws::kinesis::protobuf::SetCredentials* Message::mutable_set_credentials() {
+  if (!has_set_credentials()) {
+    clear_actual_message();
+    set_has_set_credentials();
+    actual_message_.set_credentials_ = new ::aws::kinesis::protobuf::SetCredentials;
+  }
+  return actual_message_.set_credentials_;
+}
+inline ::aws::kinesis::protobuf::SetCredentials* Message::release_set_credentials() {
+  if (has_set_credentials()) {
+    clear_has_actual_message();
+    ::aws::kinesis::protobuf::SetCredentials* temp = actual_message_.set_credentials_;
+    actual_message_.set_credentials_ = NULL;
+    return temp;
+  } else {
+    return NULL;
+  }
+}
+inline void Message::set_allocated_set_credentials(::aws::kinesis::protobuf::SetCredentials* set_credentials) {
+  clear_actual_message();
+  if (set_credentials) {
+    set_has_set_credentials();
+    actual_message_.set_credentials_ = set_credentials;
+  }
+}
+
 inline bool Message::has_actual_message() {
   return actual_message_case() != ACTUAL_MESSAGE_NOT_SET;
 }
@@ -3135,6 +3397,307 @@ inline void PutRecordResult::set_allocated_sequence_number(::std::string* sequen
     sequence_number_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
   // @@protoc_insertion_point(field_set_allocated:aws.kinesis.protobuf.PutRecordResult.sequence_number)
+}
+
+// -------------------------------------------------------------------
+
+// Credentials
+
+// required string akid = 1;
+inline bool Credentials::has_akid() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void Credentials::set_has_akid() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void Credentials::clear_has_akid() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void Credentials::clear_akid() {
+  if (akid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    akid_->clear();
+  }
+  clear_has_akid();
+}
+inline const ::std::string& Credentials::akid() const {
+  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.Credentials.akid)
+  return *akid_;
+}
+inline void Credentials::set_akid(const ::std::string& value) {
+  set_has_akid();
+  if (akid_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    akid_ = new ::std::string;
+  }
+  akid_->assign(value);
+  // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Credentials.akid)
+}
+inline void Credentials::set_akid(const char* value) {
+  set_has_akid();
+  if (akid_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    akid_ = new ::std::string;
+  }
+  akid_->assign(value);
+  // @@protoc_insertion_point(field_set_char:aws.kinesis.protobuf.Credentials.akid)
+}
+inline void Credentials::set_akid(const char* value, size_t size) {
+  set_has_akid();
+  if (akid_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    akid_ = new ::std::string;
+  }
+  akid_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:aws.kinesis.protobuf.Credentials.akid)
+}
+inline ::std::string* Credentials::mutable_akid() {
+  set_has_akid();
+  if (akid_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    akid_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:aws.kinesis.protobuf.Credentials.akid)
+  return akid_;
+}
+inline ::std::string* Credentials::release_akid() {
+  clear_has_akid();
+  if (akid_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = akid_;
+    akid_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void Credentials::set_allocated_akid(::std::string* akid) {
+  if (akid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete akid_;
+  }
+  if (akid) {
+    set_has_akid();
+    akid_ = akid;
+  } else {
+    clear_has_akid();
+    akid_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:aws.kinesis.protobuf.Credentials.akid)
+}
+
+// required string secret_key = 2;
+inline bool Credentials::has_secret_key() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void Credentials::set_has_secret_key() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void Credentials::clear_has_secret_key() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void Credentials::clear_secret_key() {
+  if (secret_key_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    secret_key_->clear();
+  }
+  clear_has_secret_key();
+}
+inline const ::std::string& Credentials::secret_key() const {
+  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.Credentials.secret_key)
+  return *secret_key_;
+}
+inline void Credentials::set_secret_key(const ::std::string& value) {
+  set_has_secret_key();
+  if (secret_key_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    secret_key_ = new ::std::string;
+  }
+  secret_key_->assign(value);
+  // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Credentials.secret_key)
+}
+inline void Credentials::set_secret_key(const char* value) {
+  set_has_secret_key();
+  if (secret_key_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    secret_key_ = new ::std::string;
+  }
+  secret_key_->assign(value);
+  // @@protoc_insertion_point(field_set_char:aws.kinesis.protobuf.Credentials.secret_key)
+}
+inline void Credentials::set_secret_key(const char* value, size_t size) {
+  set_has_secret_key();
+  if (secret_key_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    secret_key_ = new ::std::string;
+  }
+  secret_key_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:aws.kinesis.protobuf.Credentials.secret_key)
+}
+inline ::std::string* Credentials::mutable_secret_key() {
+  set_has_secret_key();
+  if (secret_key_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    secret_key_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:aws.kinesis.protobuf.Credentials.secret_key)
+  return secret_key_;
+}
+inline ::std::string* Credentials::release_secret_key() {
+  clear_has_secret_key();
+  if (secret_key_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = secret_key_;
+    secret_key_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void Credentials::set_allocated_secret_key(::std::string* secret_key) {
+  if (secret_key_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete secret_key_;
+  }
+  if (secret_key) {
+    set_has_secret_key();
+    secret_key_ = secret_key;
+  } else {
+    clear_has_secret_key();
+    secret_key_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:aws.kinesis.protobuf.Credentials.secret_key)
+}
+
+// optional string token = 3;
+inline bool Credentials::has_token() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void Credentials::set_has_token() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void Credentials::clear_has_token() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void Credentials::clear_token() {
+  if (token_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    token_->clear();
+  }
+  clear_has_token();
+}
+inline const ::std::string& Credentials::token() const {
+  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.Credentials.token)
+  return *token_;
+}
+inline void Credentials::set_token(const ::std::string& value) {
+  set_has_token();
+  if (token_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    token_ = new ::std::string;
+  }
+  token_->assign(value);
+  // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Credentials.token)
+}
+inline void Credentials::set_token(const char* value) {
+  set_has_token();
+  if (token_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    token_ = new ::std::string;
+  }
+  token_->assign(value);
+  // @@protoc_insertion_point(field_set_char:aws.kinesis.protobuf.Credentials.token)
+}
+inline void Credentials::set_token(const char* value, size_t size) {
+  set_has_token();
+  if (token_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    token_ = new ::std::string;
+  }
+  token_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:aws.kinesis.protobuf.Credentials.token)
+}
+inline ::std::string* Credentials::mutable_token() {
+  set_has_token();
+  if (token_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    token_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:aws.kinesis.protobuf.Credentials.token)
+  return token_;
+}
+inline ::std::string* Credentials::release_token() {
+  clear_has_token();
+  if (token_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = token_;
+    token_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void Credentials::set_allocated_token(::std::string* token) {
+  if (token_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete token_;
+  }
+  if (token) {
+    set_has_token();
+    token_ = token;
+  } else {
+    clear_has_token();
+    token_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:aws.kinesis.protobuf.Credentials.token)
+}
+
+// -------------------------------------------------------------------
+
+// SetCredentials
+
+// optional bool for_metrics = 1;
+inline bool SetCredentials::has_for_metrics() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void SetCredentials::set_has_for_metrics() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void SetCredentials::clear_has_for_metrics() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void SetCredentials::clear_for_metrics() {
+  for_metrics_ = false;
+  clear_has_for_metrics();
+}
+inline bool SetCredentials::for_metrics() const {
+  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.SetCredentials.for_metrics)
+  return for_metrics_;
+}
+inline void SetCredentials::set_for_metrics(bool value) {
+  set_has_for_metrics();
+  for_metrics_ = value;
+  // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.SetCredentials.for_metrics)
+}
+
+// required .aws.kinesis.protobuf.Credentials credentials = 2;
+inline bool SetCredentials::has_credentials() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void SetCredentials::set_has_credentials() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void SetCredentials::clear_has_credentials() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void SetCredentials::clear_credentials() {
+  if (credentials_ != NULL) credentials_->::aws::kinesis::protobuf::Credentials::Clear();
+  clear_has_credentials();
+}
+inline const ::aws::kinesis::protobuf::Credentials& SetCredentials::credentials() const {
+  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.SetCredentials.credentials)
+  return credentials_ != NULL ? *credentials_ : *default_instance_->credentials_;
+}
+inline ::aws::kinesis::protobuf::Credentials* SetCredentials::mutable_credentials() {
+  set_has_credentials();
+  if (credentials_ == NULL) credentials_ = new ::aws::kinesis::protobuf::Credentials;
+  // @@protoc_insertion_point(field_mutable:aws.kinesis.protobuf.SetCredentials.credentials)
+  return credentials_;
+}
+inline ::aws::kinesis::protobuf::Credentials* SetCredentials::release_credentials() {
+  clear_has_credentials();
+  ::aws::kinesis::protobuf::Credentials* temp = credentials_;
+  credentials_ = NULL;
+  return temp;
+}
+inline void SetCredentials::set_allocated_credentials(::aws::kinesis::protobuf::Credentials* credentials) {
+  delete credentials_;
+  credentials_ = credentials;
+  if (credentials) {
+    set_has_credentials();
+  } else {
+    clear_has_credentials();
+  }
+  // @@protoc_insertion_point(field_set_allocated:aws.kinesis.protobuf.SetCredentials.credentials)
 }
 
 // -------------------------------------------------------------------

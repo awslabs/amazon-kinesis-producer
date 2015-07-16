@@ -17,10 +17,11 @@
 #include <list>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include <boost/assign/list_of.hpp>
 
-#include <glog/logging.h>
+#include <aws/utils/logging.h>
 
 namespace aws {
 namespace metrics {

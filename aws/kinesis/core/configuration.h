@@ -70,26 +70,6 @@ class Configuration : private boost::noncopyable {
     return aggregation_max_size_;
   }
 
-  // Set explicit AWS credentials.
-  //
-  // You do not need to provide this if you are using an appropriate instance
-  // profile, or if you have the environment variable AWS_ACCESS_ID set.
-  //
-  // Expected pattern: ^([A-Z0-9]{20})?$
-  const std::string& aws_access_key_id() const noexcept {
-    return aws_access_key_id_;
-  }
-
-  // Set explicit AWS credentials.
-  //
-  // You do not need to provide this if you are using an appropriate instance
-  // profile, or if you have the environment variable AWS_SECRET_KEY set.
-  //
-  // Expected pattern: ^([A-Za-z0-9/+=]{40})?$
-  const std::string& aws_secret_key() const noexcept {
-    return aws_secret_key_;
-  }
-
   // Maximum number of items to pack into an PutRecords request.
   //
   // There should be normally no need to adjust this. If you want to limit the
@@ -126,7 +106,7 @@ class Configuration : private boost::noncopyable {
     return connect_timeout_;
   }
 
-  // Use a custom Kinesis endpoint.
+  // Use a custom Kinesis and CloudWatch endpoint.
   //
   // Mostly for testing use. Note this does not accept protocols or paths,
   // only host names or ip addresses. There is no way to disable TLS. The KPL
@@ -237,6 +217,18 @@ class Configuration : private boost::noncopyable {
     return metrics_namespace_;
   }
 
+  // Delay (in milliseconds) between each metrics upload.
+  //
+  // For testing only. There is no benefit in setting this lower or higher in
+  // production.
+  //
+  // Default: 60000
+  // Minimum: 1
+  // Maximum (inclusive): 60000
+  size_t metrics_upload_delay() const noexcept {
+    return metrics_upload_delay_;
+  }
+
   // Minimum number of connections to keep open to the backend.
   //
   // There should be no need to increase this in general.
@@ -300,7 +292,6 @@ class Configuration : private boost::noncopyable {
   // Setting this too low can negatively impact throughput.
   //
   // Default: 100
-  // Minimum: 100
   // Maximum (inclusive): 9223372036854775807
   uint64_t record_max_buffered_time() const noexcept {
     return record_max_buffered_time_;
@@ -318,7 +309,7 @@ class Configuration : private boost::noncopyable {
   // record_ttl to a large value like INT_MAX. This has the potential to cause
   // head-of-line blocking if network issues or throttling occur. You can
   // respond to such situations by using the metrics reporting functions of
-  // the KPL. You may also set fail_if_thottled to true to prevent automatic
+  // the KPL. You may also set fail_if_throttled to true to prevent automatic
   // retries in case of throttling.
   //
   // Default: 30000
@@ -420,46 +411,6 @@ class Configuration : private boost::noncopyable {
     return *this;
   }
 
-  // Set explicit AWS credentials.
-  //
-  // You do not need to provide this if you are using an appropriate instance
-  // profile, or if you have the environment variable AWS_ACCESS_ID set.
-  //
-  // Expected pattern: ^([A-Z0-9]{20})?$
-  Configuration& aws_access_key_id(std::string val) {
-    static std::regex pattern(
-        "^([A-Z0-9]{20})?$",
-        std::regex::ECMAScript | std::regex::optimize);
-    if (!std::regex_match(val, pattern)) {
-      std::string err;
-      err += "aws_access_key_id must match the pattern ^([A-Z0-9]{20})?$, got ";
-      err += val;
-      throw std::runtime_error(err);
-    }
-    aws_access_key_id_ = val;
-    return *this;
-  }
-
-  // Set explicit AWS credentials.
-  //
-  // You do not need to provide this if you are using an appropriate instance
-  // profile, or if you have the environment variable AWS_SECRET_KEY set.
-  //
-  // Expected pattern: ^([A-Za-z0-9/+=]{40})?$
-  Configuration& aws_secret_key(std::string val) {
-    static std::regex pattern(
-        "^([A-Za-z0-9/+=]{40})?$",
-        std::regex::ECMAScript | std::regex::optimize);
-    if (!std::regex_match(val, pattern)) {
-      std::string err;
-      err += "aws_secret_key must match the pattern ^([A-Za-z0-9/+=]{40})?$, got ";
-      err += val;
-      throw std::runtime_error(err);
-    }
-    aws_secret_key_ = val;
-    return *this;
-  }
-
   // Maximum number of items to pack into an PutRecords request.
   //
   // There should be normally no need to adjust this. If you want to limit the
@@ -517,7 +468,7 @@ class Configuration : private boost::noncopyable {
     return *this;
   }
 
-  // Use a custom Kinesis endpoint.
+  // Use a custom Kinesis and CloudWatch endpoint.
   //
   // Mostly for testing use. Note this does not accept protocols or paths,
   // only host names or ip addresses. There is no way to disable TLS. The KPL
@@ -686,6 +637,25 @@ class Configuration : private boost::noncopyable {
     return *this;
   }
 
+  // Delay (in milliseconds) between each metrics upload.
+  //
+  // For testing only. There is no benefit in setting this lower or higher in
+  // production.
+  //
+  // Default: 60000
+  // Minimum: 1
+  // Maximum (inclusive): 60000
+  Configuration& metrics_upload_delay(size_t val) {
+    if (val < 1ull || val > 60000ull) {
+      std::string err;
+      err += "metrics_upload_delay must be between 1 and 60000, got ";
+      err += std::to_string(val);
+      throw std::runtime_error(err);
+    }
+    metrics_upload_delay_ = val;
+    return *this;
+  }
+
   // Minimum number of connections to keep open to the backend.
   //
   // There should be no need to increase this in general.
@@ -770,12 +740,11 @@ class Configuration : private boost::noncopyable {
   // Setting this too low can negatively impact throughput.
   //
   // Default: 100
-  // Minimum: 100
   // Maximum (inclusive): 9223372036854775807
   Configuration& record_max_buffered_time(uint64_t val) {
-    if (val < 100ull || val > 9223372036854775807ull) {
+    if (val > 9223372036854775807ull) {
       std::string err;
-      err += "record_max_buffered_time must be between 100 and 9223372036854775807, got ";
+      err += "record_max_buffered_time must be between 0 and 9223372036854775807, got ";
       err += std::to_string(val);
       throw std::runtime_error(err);
     }
@@ -795,7 +764,7 @@ class Configuration : private boost::noncopyable {
   // record_ttl to a large value like INT_MAX. This has the potential to cause
   // head-of-line blocking if network issues or throttling occur. You can
   // respond to such situations by using the metrics reporting functions of
-  // the KPL. You may also set fail_if_thottled to true to prevent automatic
+  // the KPL. You may also set fail_if_throttled to true to prevent automatic
   // retries in case of throttling.
   //
   // Default: 30000
@@ -887,8 +856,6 @@ class Configuration : private boost::noncopyable {
     aggregation_enabled(c.aggregation_enabled());
     aggregation_max_count(c.aggregation_max_count());
     aggregation_max_size(c.aggregation_max_size());
-    aws_access_key_id(c.aws_access_key_id());
-    aws_secret_key(c.aws_secret_key());
     collection_max_count(c.collection_max_count());
     collection_max_size(c.collection_max_size());
     connect_timeout(c.connect_timeout());
@@ -899,6 +866,7 @@ class Configuration : private boost::noncopyable {
     metrics_granularity(c.metrics_granularity());
     metrics_level(c.metrics_level());
     metrics_namespace(c.metrics_namespace());
+    metrics_upload_delay(c.metrics_upload_delay());
     min_connections(c.min_connections());
     port(c.port());
     rate_limit(c.rate_limit());
@@ -920,8 +888,6 @@ class Configuration : private boost::noncopyable {
   bool aggregation_enabled_ = true;
   size_t aggregation_max_count_ = 4294967295;
   size_t aggregation_max_size_ = 51200;
-  std::string aws_access_key_id_ = "";
-  std::string aws_secret_key_ = "";
   size_t collection_max_count_ = 500;
   size_t collection_max_size_ = 5242880;
   uint64_t connect_timeout_ = 6000;
@@ -932,6 +898,7 @@ class Configuration : private boost::noncopyable {
   std::string metrics_granularity_ = "shard";
   std::string metrics_level_ = "detailed";
   std::string metrics_namespace_ = "KinesisProducerLibrary";
+  size_t metrics_upload_delay_ = 60000;
   size_t min_connections_ = 1;
   size_t port_ = 443;
   size_t rate_limit_ = 150;

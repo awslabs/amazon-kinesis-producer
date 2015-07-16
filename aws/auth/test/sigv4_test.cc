@@ -1,10 +1,10 @@
-// Copyright 2010-2014 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
-// Licensed under the Apache License, Version 2.0 (the "License").
+// Licensed under the Amazon Software License (the "License").
 // You may not use this file except in compliance with the License.
 // A copy of the License is located at
 //
-//  http://aws.amazon.com/apache2.0
+//  http://aws.amazon.com/asl
 //
 // or in the "license" file accompanying this file. This file is distributed
 // on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
@@ -23,7 +23,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <glog/logging.h>
+#include <aws/utils/logging.h>
 
 #include <aws/http/http_request.h>
 #include <aws/auth/sigv4.h>
@@ -37,9 +37,10 @@ const char* kAkid = "AKIDEXAMPLE";
 const char* kSecretKey = "wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY";
 
 std::string read_file(const std::string& path) {
-  std::ifstream t(path);
+  std::fstream fs;
+  fs.open(path, std::fstream::in | std::fstream::binary);
   std::stringstream buffer;
-  buffer << t.rdbuf();
+  buffer << fs.rdbuf();
   return buffer.str();
 }
 
@@ -64,19 +65,23 @@ aws::http::HttpRequest parse_request(std::string text) {
   std::vector<std::pair<std::string, std::string>> headers;
   // Iterate from the 2nd line onwards until we hit the empty one that marks the
   // end of headers.
-  auto last_header_it = lines.end();
+  auto last_line_it = lines.end();
   for (auto it = lines.begin() + 1; it != lines.end() && !it->empty(); ++it) {
     auto parts = aws::utils::split_on_first(*it, ":");
     if (parts.size() != 2) {
       throw std::runtime_error("Bad header");
     }
     headers.push_back(std::make_pair(parts[0], parts[1]));
-    last_header_it = it;
+    last_line_it = it;
   }
 
+  for (int i = 0;
+       i < 2 && last_line_it != lines.end();
+       i++, last_line_it++);
+
   std::string data;
-  if ((last_header_it + 2) != lines.end()) {
-    data = *(last_header_it + 2);
+  if (last_line_it != lines.end()) {
+    data = *last_line_it;
   }
 
   aws::http::HttpRequest req(method, path, http_version);
@@ -104,11 +109,13 @@ date_time_from_req(const aws::http::HttpRequest& req) {
 
 class TestCredsProvider : public aws::auth::AwsCredentialsProvider {
  public:
-  boost::optional<aws::auth::AwsCredentials> get_credentials() override {
-    aws::auth::AwsCredentials c;
-    c.akid = kAkid;
-    c.secret_key = kSecretKey;
-    return c;
+  aws::auth::AwsCredentials get_credentials() override {
+    return get_credentials_impl();
+  }
+
+ protected:
+  aws::auth::AwsCredentials get_credentials_impl() override {
+    return aws::auth::AwsCredentials(kAkid, kSecretKey);
   }
 };
 

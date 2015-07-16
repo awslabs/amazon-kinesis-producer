@@ -11,22 +11,28 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-#ifndef AWS_KINESIS_CORE_TIME_SENSITIVE_H_
-#define AWS_KINESIS_CORE_TIME_SENSITIVE_H_
+#ifndef AWS_UTILS_TIME_SENSITIVE_H_
+#define AWS_UTILS_TIME_SENSITIVE_H_
 
 #include <chrono>
 
 #include <boost/noncopyable.hpp>
 
 namespace aws {
-namespace kinesis {
-namespace core {
+namespace utils {
 
 class TimeSensitive : private boost::noncopyable {
  public:
-  using TimePoint = std::chrono::steady_clock::time_point;
+  using Clock = std::chrono::steady_clock;
+  using TimePoint = Clock::time_point;
 
-  TimeSensitive() : arrival_(std::chrono::steady_clock::now()) {}
+  TimeSensitive() : arrival_(Clock::now()) {}
+
+  TimeSensitive(TimePoint deadline, TimePoint expiration)
+      : arrival_(Clock::now()),
+        expiration_(expiration) {
+    set_deadline(deadline);
+  }
 
   TimePoint arrival() const noexcept {
     return arrival_;
@@ -52,15 +58,15 @@ class TimeSensitive : private boost::noncopyable {
   }
 
   void set_deadline_from_now(std::chrono::milliseconds ms) {
-    set_deadline(std::chrono::steady_clock::now() + ms);
+    set_deadline(Clock::now() + ms);
   }
 
   void set_expiration_from_now(std::chrono::milliseconds ms) {
-    expiration_ = std::chrono::steady_clock::now() + ms;
+    expiration_ = Clock::now() + ms;
   }
 
   bool expired() const noexcept {
-    return std::chrono::steady_clock::now() > expiration_;
+    return Clock::now() > expiration_;
   }
 
   void inherit_deadline_and_expiration(const TimeSensitive& other) {
@@ -81,8 +87,7 @@ class TimeSensitive : private boost::noncopyable {
   TimePoint expiration_;
 };
 
-} //namespace core
-} //namespace kinesis
+} //namespace utils
 } //namespace aws
 
-#endif //AWS_KINESIS_CORE_TIME_SENSITIVE_H_
+#endif //AWS_UTILS_TIME_SENSITIVE_H_

@@ -31,6 +31,7 @@ message Message {
     Configuration   configuration     = 6;
     MetricsRequest  metrics_request   = 7;
     MetricsResponse metrics_response  = 8;
+    SetCredentials  set_credentials   = 9;
   }
 }
 
@@ -58,6 +59,19 @@ message PutRecordResult {
   required bool    success         = 2;
   optional string  shard_id        = 3;
   optional string  sequence_number = 4;
+}
+
+// *********** Credentials ************
+
+message Credentials {
+  required string akid       = 1;
+  required string secret_key = 2;
+  optional string token      = 3;
+}
+
+message SetCredentials {
+  optional bool        for_metrics = 1;
+  required Credentials credentials = 2;
 }
 
 // *********** Metrics ************

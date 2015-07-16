@@ -58,7 +58,7 @@ bool filter(const std::vector<std::pair<std::string, std::string>>& dimensions,
   if (it != level_map.end()) {
     level = it->second;
   } else {
-    LOG(WARNING) << "Unknown metric \"" << dimensions.front().second
+    LOG(warning) << "Unknown metric \"" << dimensions.front().second
                  << "\", did you forget to add it to "
                  << "aws::metrics::constants::filter()?";
   }
@@ -110,7 +110,7 @@ std::string unit(const std::string& name) {
   if (it != unit_map.end()) {
     return it->second;
   }
-  LOG(WARNING) << "Unknown metric \"" << name << "\", did you forget to add it "
+  LOG(warning) << "Unknown metric \"" << name << "\", did you forget to add it "
                << "to aws::metrics::constants::unit()?";
   return Units::None;
 }

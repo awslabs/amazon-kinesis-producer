@@ -6,100 +6,142 @@ The Amazon Kinesis Producer Library (KPL) performs many tasks common to creating
 
 For detailed information and installation instructions, see the article [Developing Producer Applications for Amazon Kinesis Using the Amazon Kinesis Producer Library][amazon-kpl-docs] in the [Amazon Kinesis Developer Guide][kinesis-developer-guide].
 
+## Release Notes
+
+### 0.10.0
+
+Significant platform compatibility improvements and easier credentials configuration in the Java wrapper.
+
+#### General
+
++ The KPL now works on Windows (Server 2008 and later)
++ The lower bound on the `RecordMaxBufferedTime` config has been removed. You can now set it to 0, although this is discouraged
+
+#### Java
+
++ The java packages have been renamed to be consistent with the package names of the KCL (it's now com.amazonaws.__services__.kinesis.producer).
++ The `Configuration` class has been renamed `KinesisProducerConfiguration`.
++ `KinesisProducerConfiguration` now accepts the AWS Java SDK's `AWSCredentialsProvider` instances for configuring credentials.
++ In addition, a different set of credentials can now be provided for uploading metrics.
+
+#### C++ Core
+
++ Glibc version requirement has been reduced to 2.5 (from 2.17).
++ The binary is now mostly statically linked, such that configuring `(DY)LD_LIBRARY_PATH` should no longer be necessary.
++ No longer uses `std::shared_timed_mutex`, so updating libc++ on OS X is no longer necessary
++ Removed dependencies on glog, libunwind and gperftools.
+
+#### Bug Fixes
+
++ Error messages related to closing sockets ([Issue 3](https://github.com/awslabs/amazon-kinesis-producer/issues/3))
++ Queued requests can now expire ([Issue 4](https://github.com/awslabs/amazon-kinesis-producer/issues/4))
+
+### 0.9.0
++ First release
+
 ## Supported Platforms and Languages
 
 The KPL is written in C++ and runs as a child process to the main user process. Precompiled native binaries are bundled with the Java release and are managed by the Java wrapper.
 
-On the following operating systems the Java package runs without the need to install any additional libraries:
+The Java package should run without the need to install any additional native libraries on the following operating systems:
 
-+ Amazon Linux (2012.09, 2013.03, 2014.09, 2015.03)
-+ CentOs 7.0
-+ Fedora (2013, 2014, 2015)
-+ Gentoo (2014, 2015)
-+ OpenSuse 13 (2014)
-+ RedHat 7.1
-+ SUSE Linux Enterprise Server 12 x86_64
-+ Ubuntu Server (13.04, 14.04, 15.04)
-+ Apple OS X (10.9, 10.10)
++ Linux distributions with kernel 2.6.18 (September 2006) and later
++ Apple OS X 10.9 and later
++ Windows Server 2008 and later
 
 Note the release is 64-bit only.
-
-The release does not contain any GPL licensed code or binaries. The binaries were compiled with LLVM/clang and linked against LLVM's libc++ (which is included).
 
 [kinesis-developer-guide]: http://docs.aws.amazon.com/kinesis/latest/dev/introduction.html
 [amazon-kinesis]: http://aws.amazon.com/kinesis
 [amazon-kpl-docs]: http://docs.aws.amazon.com/kinesis/latest/dev/developing-producers-with-kpl.html
 
+## Sample Code
+
+A sample java project is available in `java/amazon-kinesis-sample`.
+
 ## Compiling the Native Code
 
-Java developers are encouraged to use the [KPL release in Maven](https://search.maven.org/#search%7Cga%7C1%7Camazon-kinesis-producer), which includes pre-compiled native binaries.
+Rather than compiling from source, Java developers are encouraged to use the [KPL release in Maven](https://search.maven.org/#search%7Cga%7C1%7Camazon-kinesis-producer), which includes pre-compiled native binaries for Linux, OSX and Windows.
 
-However, on older Linux distributions, it may be necessary to build the native code from source because the release is compiled with a minimum glibc version requirement of 2.17.
+### Building on OSX with Clang
 
-Currently only GCC is officially supported for building on Linux. Clang support for Linux will be added later. Advanced users can modify the build scripts themselves to use clang or other compilers.
+An upgrade to the latest xcode command line tools is recommended.
 
-The project uses [boost build](http://www.boost.org/build/).
-
-### Building on OSX
-
-An upgrade to the latest xcode command line tools is highly recommended.
-
-The code requires very recent libc++ headers. If compilation fails because of non-existant header files in the standard lib, you'll need to update the headers. You can get them from the LLVM sources.
-
-Once you have the repo checked out, run `bootstrap.sh`. This will download and compile all the dependencies. They will be installed into `{project_root}/third_party`. The script automatically downloads a `libc++.dylib` into that directory as well. At the time of writing the OSX system `libc++.dylib` is insufficiently recent.
+Once you have the repo checked out, run `bootstrap.sh`. This will download and compile all the dependencies. They will be installed into `{project_root}/third_party`.
 
 Run `./b2 -j 8` to build in debug mode.
 
 Run `./b2 release -j 8` to build release.
 
 Unit tests:
+
 ```
-./b2 release -j 8 && DYLD_LIBRARY_PATH=./third_party/lib ./bin/darwin-4.2.1/release/tests
+./b2 release -j 8 && ./bin/darwin-4.2.1/release/tests --report_level=detailed
 ```
 
 ### Building on Linux with GCC
 
-You will need gcc 4.9.x or 5.1.x.
+Currently only GCC is officially supported for building on Linux. Using other compilers may require modifying the build script (the project uses [boost build](http://www.boost.org/build/)).
 
-If you have a really old kernel (e.g. 2.6.18), you will most likely need 5.1.0 because gcc 4.9 fails to compile the project when we used RHEL5, potentially due to a [gcc bug](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=65147). You may also need to install or update other uilities needed by gcc 5.1.0 (e.g binutils). 
+You will need gcc 4.9.x (or above).
 
 After that, it's the same as above, i.e.
 
 ```
 ./bootstrap.sh
-./b2 -j 8
+./b2 release -j 8
 ```
 
 Unit tests:
 
 ```
-./b2 release -j 16 && LD_LIBRARY_PATH=./third_party/lib:/usr/local/lib64 ./bin/gcc-4.9.2/release/tests --report_level=detailed
+./b2 release -j 8 && ./bin/gcc-4.9.2/release/tests --report_level=detailed
 ```
 
-The above assumes you have the new libstdc++ (that came with the new gcc) installed in `/usr/local/lib64`. If you put it somewhere else, change the `LD_LIBRARY_PATH` as appropriate.
+Note that if you build on a newer distribution and then deploy to an older one, the program may fail to run because it was linked against a newer version of glibc that the old OS doesn't have. To avoid this problem, build on the same (or a similar) distribution as the one you'll be using in production. We build the official release with RHEL 5 (kernel 2.6.18, glibc 2.5).
 
-#### Ubuntu 15
+### Building on Windows with MinGW
 
-This script for Ubuntu 15 installs the necessary tools and performs the build.
+At the time of writing MSVC (14.0) is not able to compile the KPL native code. As such, we have to use MinGW.
+
+We have successfully built and tested the KPL using the nuwen.net MinGW release 13.0. You can get it [here](http://nuwen.net/mingw.html). Get the version that includes git.
+
+Once you have extracted MinGW, go to the MinGW root folder and run `open_distro_window.bat`. This opens a command prompt with the current directory set to the MinGW root folder.
+
+From that command prompt, run `git\git-bash`. This will turn the command prompt into a bash shell.
+
+From there on it's the same procedure as Linux and OSX, i.e.:
 
 ```
-sudo apt-get update
-sudo apt-get install -y g++ automake autoconf git make
-
+# You may wish to cd to another dir first
 git clone https://github.com/awslabs/amazon-kinesis-producer amazon-kinesis-producer
 
 cd amazon-kinesis-producer
 ./bootstrap.sh
-./b2 -j 8
+
+# We need to specify the toolset, otherwise boost will use MSVC by default, which won't work
+./b2 release -j 8 toolset=gcc
 ```
+
+If you encounter an error that says `File or path name too long`, try moving the project folder to `/c/` to shorten the paths.
+
+Unit tests:
+
+```
+./b2 release -j 8 toolset=gcc && bin/gcc-mingw-5.1.0/release/tests.exe --report_level=detailed
+```
+
+You may need to increase the command prompt's line and/or buffer size to see the whole test report.
 
 ### Using the Java Wrapper with the Compiled Native Binaries
 
 There are two options. You can either pack the binaries into the jar like we did for the official release, or you can deploy the native binaries separately and point the java code at it.
 
-#### Packing Native Binaries into Jar
+#### Packing Native Binaries into the Jar
 
-You will need JDK 1.7+, Apache Maven and Python 2.4+ installed.
+You will need JDK 1.7+, Apache Maven and Python 2.7 installed.
+
+If you're on Windows, do the following in the git bash shell we used for building. You will need to add `java` and `python` to the `PATH`, as well as set `JAVA_HOME` for maven to work. 
 
 Run `python pack.py`
 
@@ -116,8 +158,5 @@ The java wrapper contains logic that will extract and run the binaries during in
 
 #### Pointing the Java wrapper at a Custom Binary
 
-The `Configuration` class provides an option `setNativeExecutable(String val)`. You can use this to provide a path to the `kinesis_producer` executable you have built.
-
-Keep in mind that you need to configure `LD_LIBRARY_PATH` (`DYLD_LIBRARY_PATH` on OSX
-) correctly so that all the dependencies can be found. You can set it in the environment when launching the java program; the child process will inherit the environment. Alternatively, you can use a wrapper shell script and have `setNativeExecutable` point to the script instead.
+The `KinesisProducerConfiguration` class provides an option `setNativeExecutable(String val)`. You can use this to provide a path to the `kinesis_producer[.exe]` executable you have built. You have to use backslashes to delimit paths on Windows if giving a string literal.
 

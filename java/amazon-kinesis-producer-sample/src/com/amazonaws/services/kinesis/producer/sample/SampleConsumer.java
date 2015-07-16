@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-package com.amazonaws.kinesis.producer.sample;
+package com.amazonaws.services.kinesis.producer.sample;
 
 import java.util.ArrayList;
 import java.util.Collections;

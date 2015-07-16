@@ -28,9 +28,7 @@ class Socket : boost::noncopyable {
  public:
   using ConnectCallback = std::function<void (bool, const std::string&)>;
   using WriteCallback = std::function<void (bool, const std::string&)>;
-  using StopReading = std::function<void (const std::function<void ()>&)>;
-  using ReadCallback =
-      std::function<void (int, const std::string&, const StopReading&)>;
+  using ReadCallback = std::function<void (int, const std::string&)>;
 
   virtual void open(const ConnectCallback& cb,
                     std::chrono::milliseconds timeout) = 0;

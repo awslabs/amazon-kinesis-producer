@@ -1,36 +1,25 @@
 project : requirements
   <include>.
-  [ conditional <host-os>darwin :
-      <cxxflags>-g
-      <cxxflags>"-isystem ./third_party/include"
-      <cxxflags>-std=c++1y
-      <cxxflags>-mcx16
+  <include>./rapidjson/include
+  <cxxflags>-g
+  <cxxflags>"-isystem ./third_party/include"
+  <cxxflags>-std=c++1y
+  <linkflags>-L./third_party/lib
+  [ conditional <host-os>windows :
+      <linkflags>-lgdi32
+      <linkflags>-lwsock32
+      <linkflags>-lws2_32
+      <linkflags>-lmswsock
+      <linkflags>-lsecur32
+      <linkflags>-lz
   ]
   [ conditional <host-os>linux :
-      <cxxflags>-g
-      <cxxflags>"-isystem ./third_party/include"
-      <cxxflags>-std=c++1y
-      <cxxflags>-mcx16
       <linkflags>-lpthread
+      <linkflags>-ldl
+      <linkflags>-lrt
   ]
-  <linkflags>-L./third_party/lib
-  <linkflags>-lcrypto
-  <linkflags>-lssl
-  <linkflags>-lboost_regex
-  <linkflags>-lboost_thread
-  <linkflags>-lboost_system
-  <linkflags>-lboost_context
-  <linkflags>-lboost_random
-  <linkflags>-lboost_coroutine
-  <linkflags>-lboost_filesystem
-  <linkflags>-lglog
-  <linkflags>-lprotobuf
-  <linkflags>-lprofiler
-  <linkflags>-ltcmalloc
-  [ conditional <host-os>windows :
-      <include>./third_party/include
-      <cxxflags>-D_WIN32_WINNT=0x0601
-      <cxxflags>-DGLOG_NO_ABBREVIATED_SEVERITIES
+  [ conditional <toolset>gcc :
+      <linkflags>-static-libstdc++
   ]
   [ conditional <toolset>clang-linux :
       <cxxflags>-stdlib=libc++
@@ -42,6 +31,19 @@ project : requirements
       <linkflags>-lm
       <linkflags>-lgcc_s
   ] ;
+
+lib
+  crypto
+  ssl
+  boost_regex
+  boost_thread
+  boost_log
+  boost_system
+  boost_random
+  boost_filesystem
+  boost_chrono
+  protobuf
+  boost_unit_test_framework ;
 
 lib base64 :
   base64/lib/codec_avx2.c
@@ -55,9 +57,21 @@ lib http-parser :
   aws/http/http-parser/http_parser.c
   : <link>static ;
 
-lib core :
+alias deps :
+  crypto
+  ssl
+  boost_regex
+  boost_thread
+  boost_system
+  boost_random
+  boost_filesystem
+  boost_chrono
+  boost_log
+  protobuf
   base64
-  http-parser
+  http-parser ;
+
+lib core :
   aws/auth/credentials.cc
   aws/auth/sigv4.cc
   aws/http/ec2_metadata.cc
@@ -77,10 +91,13 @@ lib core :
   aws/metrics/metrics_constants.cc
   aws/metrics/metrics_index.cc
   aws/metrics/metrics_manager.cc
+  aws/utils/logging.cc
   aws/utils/utils.cc
   : <link>static ;
 
 exe tests :
+  boost_unit_test_framework
+  deps
   core
   aws/auth/test/credentials_test.cc
   aws/auth/test/sigv4_test.cc
@@ -88,6 +105,7 @@ exe tests :
   aws/http/test/http_client_test.cc
   aws/kinesis/core/test/aggregator_test.cc
   aws/kinesis/core/test/ipc_manager_test.cc
+  aws/kinesis/core/test/limiter_test.cc
   aws/kinesis/core/test/kinesis_record_test.cc
   aws/kinesis/core/test/put_records_request_test.cc
   aws/kinesis/core/test/reducer_test.cc
@@ -103,13 +121,15 @@ exe tests :
   aws/utils/test/concurrent_hash_map_test.cc
   aws/utils/test/concurrent_linked_queue_test.cc
   aws/utils/test/json_test.cc
-  aws/utils/test/token_bucket_test.cc
-  : <linkflags>-lboost_unit_test_framework ;
+  aws/utils/test/spin_lock_test.cc
+  aws/utils/test/token_bucket_test.cc ;
 
 exe kinesis_producer :
+  deps
   core
   aws/kinesis/main.cc ;
 
 exe test_driver :
+  deps
   core
   aws/kinesis/test_driver.cc ;

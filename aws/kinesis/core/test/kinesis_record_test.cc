@@ -341,7 +341,7 @@ BOOST_AUTO_TEST_CASE(AddAndEstimateThroughput) {
   auto nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(
       std::chrono::high_resolution_clock::now() - start).count();
   double seconds = nanos / 1e9;
-  LOG(INFO) << "KinesisRecord add and estimate rate: " << N / seconds << " rps";
+  LOG(info) << "KinesisRecord add and estimate rate: " << N / seconds << " rps";
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -24,19 +24,20 @@
 namespace aws {
 namespace auth {
 
-boost::optional<AwsCredentials> AwsCredentialsProvider::get_credentials() {
-  auto akid = get_akid();
-  auto sk = get_secret_key();
-  if (akid && sk) {
-    AwsCredentials c;
-    c.akid = akid.get();
-    c.secret_key = sk.get();
-    c.session_token = get_session_token();
-    if (verify_credentials_format(c)) {
-      return c;
-    }
+AwsCredentials AwsCredentialsProvider::get_credentials() {
+  AwsCredentials creds = get_credentials_impl();
+  if (!verify_credentials_format(creds)) {
+    throw std::runtime_error("Credentials did not match expected patterns");
   }
-  return boost::none;
+  return creds;
+}
+
+boost::optional<AwsCredentials> AwsCredentialsProvider::try_get_credentials() {
+  try {
+    return get_credentials();
+  } catch (const std::exception&) {
+    return boost::none;
+  }
 }
 
 const std::regex AwsCredentialsProvider::kAkidRegex(
@@ -47,41 +48,25 @@ const std::regex AwsCredentialsProvider::kSkRegex(
     "^[A-Za-z0-9/+=]{40}$",
     std::regex::ECMAScript | std::regex::optimize);
 
+// static
 bool AwsCredentialsProvider::verify_credentials_format(
     const AwsCredentials& creds) {
-  return std::regex_match(creds.akid, kAkidRegex) &&
-         std::regex_match(creds.secret_key, kSkRegex);
+  return std::regex_match(creds.akid(), kAkidRegex) &&
+         std::regex_match(creds.secret_key(), kSkRegex);
 }
 
 //------------------------------------------------------------------------------
 
-boost::optional<std::string> EnvVarAwsCredentialsProvider::get_akid() {
+AwsCredentials EnvVarAwsCredentialsProvider::get_credentials_impl() {
   char* akid = std::getenv("AWS_ACCESS_KEY_ID");
-  return akid ? boost::optional<std::string>(akid) : boost::none;
-}
-
-boost::optional<std::string> EnvVarAwsCredentialsProvider::get_secret_key() {
   char* sk = std::getenv("AWS_SECRET_KEY");
-  if (!sk) {
+  if (sk == nullptr) {
     sk = std::getenv("AWS_SECRET_ACCESS_KEY");
   }
-  return sk ? boost::optional<std::string>(sk) : boost::none;
-}
-
-//------------------------------------------------------------------------------
-
-BasicAwsCredentialsProvider::BasicAwsCredentialsProvider(
-    const std::string& akid,
-    const std::string& secret_key)
-    : akid_(akid),
-      secret_key_(secret_key) {}
-
-boost::optional<std::string> BasicAwsCredentialsProvider::get_akid() {
-  return akid_;
-}
-
-boost::optional<std::string> BasicAwsCredentialsProvider::get_secret_key() {
-  return secret_key_;
+  if (akid == nullptr || sk == nullptr) {
+    throw std::runtime_error("Could not get credentials from env vars");
+  }
+  return AwsCredentials(akid, sk);
 }
 
 //------------------------------------------------------------------------------
@@ -95,34 +80,13 @@ InstanceProfileAwsCredentialsProvider::InstanceProfileAwsCredentialsProvider(
   refresh();
 }
 
-boost::optional<std::string>
-InstanceProfileAwsCredentialsProvider::get_akid() {
+AwsCredentials InstanceProfileAwsCredentialsProvider::get_credentials_impl() {
   Lock lk(mutex_);
-  if (!akid_.empty()) {
-    return akid_;
-  } else {
-    return boost::none;
+  if (akid_.empty()) {
+    throw std::runtime_error(
+        "Instance profile credentials not loaded from ec2 metadata yet");
   }
-}
-
-boost::optional<std::string>
-InstanceProfileAwsCredentialsProvider::get_secret_key() {
-  Lock lk(mutex_);
-  if (!secret_key_.empty()) {
-    return secret_key_;
-  } else {
-    return boost::none;
-  }
-}
-
-boost::optional<std::string>
-InstanceProfileAwsCredentialsProvider::get_session_token() {
-  Lock lk(mutex_);
-  if (!session_token_.empty()) {
-    return session_token_;
-  } else {
-    return boost::none;
-  }
+  return AwsCredentials(akid_, secret_key_, session_token_);
 }
 
 void InstanceProfileAwsCredentialsProvider::refresh() {
@@ -140,7 +104,7 @@ void InstanceProfileAwsCredentialsProvider::handle_result(
   auto retry = [this] {
     attempt_++;
     if (attempt_ >= 10) {
-      LOG(ERROR) << "Could not fetch instance profile credentials after "
+      LOG(error) << "Could not fetch instance profile credentials after "
                  << attempt_ << " attempts.";
       return;
     }
@@ -166,7 +130,7 @@ void InstanceProfileAwsCredentialsProvider::handle_result(
     auto refresh_at = expires_at - std::chrono::minutes(3);
     executor_->schedule([this] { this->refresh(); }, refresh_at);
 
-    LOG(INFO) << "Got credentials from instance profile. Refreshing in "
+    LOG(info) << "Got credentials from instance profile. Refreshing in "
               << std::chrono::duration_cast<std::chrono::seconds>(
                     refresh_at - std::chrono::steady_clock::now()).count()
                         / 3600.0
@@ -174,7 +138,7 @@ void InstanceProfileAwsCredentialsProvider::handle_result(
 
     attempt_ = 0;
   } catch (const std::exception& ex) {
-    LOG(ERROR) << "Error parsing instance profile credentials json: "
+    LOG(error) << "Error parsing instance profile credentials json: "
                << ex.what();
     retry();
   }
@@ -182,27 +146,41 @@ void InstanceProfileAwsCredentialsProvider::handle_result(
 
 //------------------------------------------------------------------------------
 
-DefaultAwsCredentialsProvider::DefaultAwsCredentialsProvider(
-    const std::shared_ptr<aws::utils::Executor>& executor,
-    const std::shared_ptr<aws::http::Ec2Metadata>& ec2_metadata)
-    : profile_provider_(
-          std::make_unique<InstanceProfileAwsCredentialsProvider>(
-              executor,
-              ec2_metadata)) {}
-
-boost::optional<AwsCredentials>
-DefaultAwsCredentialsProvider::get_credentials() {
-  auto from_env_var = env_var_provider_.get_credentials();
-  if (from_env_var) {
-    return from_env_var;
-  } else {
-    return profile_provider_->get_credentials();
-  }
+// static
+std::shared_ptr<AwsCredentialsProviderChain>
+AwsCredentialsProviderChain::create(
+    std::initializer_list<
+        std::shared_ptr<AwsCredentialsProvider>> providers) {
+  auto c = std::make_shared<AwsCredentialsProviderChain>();
+  c->reset(providers);
+  return c;
 }
 
-void DefaultAwsCredentialsProvider::refresh() {
-  env_var_provider_.refresh();
-  profile_provider_->refresh();
+void AwsCredentialsProviderChain::reset(
+    std::initializer_list<
+        std::shared_ptr<AwsCredentialsProvider>> new_providers) {
+  Lock lk(mutex_);
+
+  providers_.clear();
+  providers_.insert(providers_.cend(), std::move(new_providers));
+}
+
+AwsCredentials AwsCredentialsProviderChain::get_credentials_impl() {
+  Lock lk(mutex_);
+
+  if (providers_.empty()) {
+    throw std::runtime_error("The AwsCredentialsProviderChain is empty");
+  }
+
+  for (auto p : providers_) {
+    auto creds = p->try_get_credentials();
+    if (creds) {
+      return *creds;
+    }
+  }
+
+  throw std::runtime_error("Could not get credentials from any of the "
+                           "providers in the AwsCredentialsProviderChain");
 }
 
 } // namespace auth

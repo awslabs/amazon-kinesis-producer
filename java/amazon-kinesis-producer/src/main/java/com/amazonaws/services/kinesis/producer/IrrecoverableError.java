@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-package com.amazonaws.kinesis.producer;
+package com.amazonaws.services.kinesis.producer;
 
 public class IrrecoverableError extends RuntimeException {
     private static final long serialVersionUID = 2657526423645068574L;

@@ -36,7 +36,7 @@ void ProcessMessagesLoop::run() {
   if (n == 0) {
     auto delay = std::chrono::milliseconds(1);
     if (!scheduled_callback_) {
-      executor_->schedule(run_, delay, &scheduled_callback_);
+      scheduled_callback_ = executor_->schedule(run_, delay);
     } else {
       scheduled_callback_->reschedule(delay);
     }
@@ -64,15 +64,19 @@ void KinesisProducer::create_metrics_manager() {
             aws::metrics::constants::granularity(std::get<2>(t))));
   }
 
-  metrics_manager_ = std::make_shared<aws::metrics::MetricsManager>(
-              executor_,
-              socket_factory_,
-              creds_provider_,
-              region_,
-              config_->metrics_namespace(),
-              level,
-              granularity,
-              std::move(extra_dims));
+  metrics_manager_ =
+      std::make_shared<aws::metrics::MetricsManager>(
+          executor_,
+          socket_factory_,
+          metrics_creds_chain_,
+          region_,
+          config_->metrics_namespace(),
+          level,
+          granularity,
+          std::move(extra_dims),
+          config_->custom_endpoint(),
+          config_->port(),
+          std::chrono::milliseconds(config_->metrics_upload_delay()));
 }
 
 void KinesisProducer::create_http_client() {
@@ -99,14 +103,14 @@ void KinesisProducer::create_http_client() {
 }
 
 Pipeline* KinesisProducer::create_pipeline(const std::string& stream) {
-  LOG(INFO) << "Created pipeline for stream \"" << stream << "\"";
+  LOG(info) << "Created pipeline for stream \"" << stream << "\"";
   return new Pipeline(
       region_,
       stream,
       config_,
       executor_,
       http_client_,
-      creds_provider_,
+      creds_chain_,
       metrics_manager_,
       [this](auto& ur) {
         ipc_manager_->put(ur->to_put_record_result().SerializeAsString());
@@ -130,7 +134,7 @@ void KinesisProducer::on_ipc_message(std::string&& message) noexcept {
   try {
     m.ParseFromString(message);
   } catch (const std::exception& ex) {
-    LOG(ERROR) << "Unexpected error parsing ipc message: " << ex.what();
+    LOG(error) << "Unexpected error parsing ipc message: " << ex.what();
     return;
   }
   if (m.has_put_record()) {
@@ -139,8 +143,10 @@ void KinesisProducer::on_ipc_message(std::string&& message) noexcept {
     on_flush(m.flush());
   } else if (m.has_metrics_request()) {
     on_metrics_request(m);
+  } else if (m.has_set_credentials()) {
+    on_set_credentials(m.set_credentials());
   } else {
-    LOG(ERROR) << "Received unknown message type";
+    LOG(error) << "Received unknown message type";
   }
 }
 
@@ -227,6 +233,30 @@ void KinesisProducer::on_metrics_request(
   ipc_manager_->put(reply.SerializeAsString());
 }
 
+void KinesisProducer::on_set_credentials(
+    const aws::kinesis::protobuf::SetCredentials& set_creds) {
+  // If the metrics_creds_chain_ is pointing to the same instance as the regular
+  // creds_chain_, and we receive a new set of creds just for metrics, we need
+  // to create a new instance of AwsCredentialsProviderChain for
+  // metrics_creds_chain_ to point to. Otherwise we'll wrongly override the
+  // regular credentials when setting the metrics credentials.
+  if (set_creds.for_metrics() && metrics_creds_chain_ == creds_chain_) {
+    metrics_creds_chain_ =
+        std::make_shared<aws::auth::AwsCredentialsProviderChain>();
+  }
+
+  (set_creds.for_metrics()
+      ? metrics_creds_chain_
+      : creds_chain_)->reset({
+          std::make_shared<aws::auth::BasicAwsCredentialsProvider>(
+              set_creds.credentials().akid(),
+              set_creds.credentials().secret_key(),
+              set_creds.credentials().has_token()
+                  ? boost::optional<std::string>(
+                        set_creds.credentials().token())
+                  : boost::none)});
+}
+
 void KinesisProducer::report_outstanding() {
   pipelines_.foreach([this](auto& stream, auto pipeline) {
     metrics_manager_
@@ -239,10 +269,10 @@ void KinesisProducer::report_outstanding() {
 
   auto delay = std::chrono::milliseconds(200);
   if (!report_outstanding_) {
-    executor_->schedule(
-        [this] { this->report_outstanding(); },
-        delay,
-        &report_outstanding_);
+    report_outstanding_ =
+        executor_->schedule(
+            [this] { this->report_outstanding(); },
+            delay);
   } else {
     report_outstanding_->reschedule(delay);
   }

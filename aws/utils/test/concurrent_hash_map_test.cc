@@ -17,9 +17,10 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <glog/logging.h>
+#include <aws/utils/logging.h>
 
 #include <aws/utils/concurrent_hash_map.h>
+#include <aws/mutex.h>
 
 BOOST_AUTO_TEST_SUITE(ConcurrentHashMap)
 
@@ -34,14 +35,19 @@ BOOST_AUTO_TEST_CASE(ConcurrentInsert) {
   std::chrono::high_resolution_clock::time_point start =
       std::chrono::high_resolution_clock::now() + std::chrono::milliseconds(50);
 
+  std::vector<std::string> results;
+  aws::mutex mutex;
+
+  const int num_threads = 16;
   std::vector<aws::thread> threads;
-  for (int i = 0; i < 16; i++) {
+  for (int i = 0; i < num_threads; i++) {
     threads.emplace_back([&] {
       while (std::chrono::high_resolution_clock::now() < start) {
         aws::this_thread::yield();
       }
       auto s = map["hello"];
-      BOOST_CHECK_EQUAL(s, "world");
+      aws::lock_guard<aws::mutex> lk(mutex);
+      results.push_back(s);
     });
   }
 
@@ -50,6 +56,10 @@ BOOST_AUTO_TEST_CASE(ConcurrentInsert) {
   }
 
   BOOST_CHECK_EQUAL(counter, 1);
+  BOOST_CHECK_EQUAL(results.size(), num_threads);
+  for (auto s : results) {
+    BOOST_CHECK_EQUAL(s, "world");
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

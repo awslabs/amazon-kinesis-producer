@@ -24,7 +24,7 @@
 #include <boost/random/random_device.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/chrono.hpp>
+#include <boost/chrono/include.hpp>
 #include <boost/thread.hpp>
 
 // Grab bag of misc convenience functions
@@ -87,6 +87,18 @@ round_down_time(typename Clock::time_point tp = Clock::now()) {
 
 uint64_t millis_since(const std::chrono::steady_clock::time_point& start);
 uint64_t millis_till(const std::chrono::steady_clock::time_point& end);
+
+template <typename Timepoint>
+double seconds_between(Timepoint start, Timepoint end) {
+  auto nanos =
+      std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+  return (double) nanos / 1e9;
+}
+
+template <typename Timepoint>
+double seconds_since(Timepoint start) {
+  return seconds_between<Timepoint>(start, Timepoint::clock::now());
+}
 
 // Doesn't overwrite the item being examined
 template <typename T>

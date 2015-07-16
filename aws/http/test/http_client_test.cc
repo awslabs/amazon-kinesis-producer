@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(MinConnection) {
     auto e = make_executor();
     auto f = make_socket_factory();
     aws::http::HttpClient client(e, f, "localhost", kPort, true, false, n, n);
-    aws::utils::sleep_for(std::chrono::milliseconds(100));
+    aws::utils::sleep_for(std::chrono::milliseconds(1500));
     BOOST_CHECK_EQUAL(n, client.available_connections());
     BOOST_CHECK_EQUAL(n, client.total_connections());
   }
@@ -65,11 +65,9 @@ BOOST_AUTO_TEST_CASE(NewConnections) {
     client.put(req);
   }
 
-  aws::utils::sleep_for(std::chrono::milliseconds(5));
+  aws::utils::sleep_for(std::chrono::milliseconds(1500));
   BOOST_CHECK_EQUAL(8, client.total_connections());
-  aws::utils::sleep_for(std::chrono::milliseconds(100));
 }
-
 // Test that a connection becomes available again after finishing a request
 BOOST_AUTO_TEST_CASE(ConnectionReuse) {
   aws::kinesis::test::TestTLSServer server;
@@ -78,12 +76,15 @@ BOOST_AUTO_TEST_CASE(ConnectionReuse) {
   auto f = make_socket_factory();
   aws::http::HttpClient client(e, f, "localhost", kPort, true, false, 1, 1);
 
+  aws::utils::sleep_for(std::chrono::milliseconds(1500));
+  BOOST_REQUIRE_EQUAL(1, client.available_connections());
+
   aws::http::HttpRequest req("GET", "/");
   client.put(req);
 
-  BOOST_CHECK_EQUAL(0, client.available_connections());
-  aws::utils::sleep_for(std::chrono::milliseconds(100));
-  BOOST_CHECK_EQUAL(1, client.available_connections());
+  BOOST_REQUIRE_EQUAL(0, client.available_connections());
+  aws::utils::sleep_for(std::chrono::milliseconds(1500));
+  BOOST_REQUIRE_EQUAL(1, client.available_connections());
 }
 
 // Make request to server and get an echo
@@ -102,7 +103,7 @@ BOOST_AUTO_TEST_CASE(Basic) {
   bool read = false;
   client.put(req, [&](const auto& result) {
     read = true;
-    LOG(INFO) << result->error();
+    LOG(info) << result->error();
     BOOST_REQUIRE(result->successful());
 
     BOOST_CHECK_EQUAL(result->status_code(), 200);
@@ -118,7 +119,7 @@ BOOST_AUTO_TEST_CASE(Basic) {
     BOOST_CHECK_EQUAL(headers[2].second, std::to_string(std::strlen(data)));
   });
 
-  aws::utils::sleep_for(std::chrono::milliseconds(150));
+  aws::utils::sleep_for(std::chrono::milliseconds(1500));
   BOOST_CHECK(read);
 }
 
@@ -144,7 +145,7 @@ BOOST_AUTO_TEST_CASE(Context) {
       std::move(ctx));
   BOOST_CHECK_MESSAGE(!ctx, "Shared pointer should have been moved");
 
-  aws::utils::sleep_for(std::chrono::milliseconds(150));
+  aws::utils::sleep_for(std::chrono::milliseconds(1500));
   BOOST_CHECK(read);
 }
 
@@ -181,7 +182,7 @@ BOOST_AUTO_TEST_CASE(Priority) {
       std::shared_ptr<void>(),
       std::chrono::steady_clock::now());
 
-  aws::utils::sleep_for(std::chrono::milliseconds(250));
+  aws::utils::sleep_for(std::chrono::milliseconds(1500));
   BOOST_CHECK_EQUAL(counter, 8);
 }
 
@@ -189,20 +190,27 @@ BOOST_AUTO_TEST_CASE(Priority) {
 BOOST_AUTO_TEST_CASE(RequestTimeout) {
   aws::kinesis::test::TestTLSServer server;
 
-  // Make the server delay response by 100ms
+  // Make the server delay response by 3000ms
   server.enqueue_handler([](const auto& request) {
-    aws::utils::sleep_for(std::chrono::milliseconds(100));
+    aws::utils::sleep_for(std::chrono::milliseconds(3000));
     aws::http::HttpResponse res(200);
     res.set_data("");
     return res;
   });
 
-  // Configure client with 50 ms request timeout
-  auto e = make_executor();
-  auto f = make_socket_factory();
-  auto fiddy = std::chrono::milliseconds(50);
+  // Configure client with 1500 ms request timeout
+  auto timeout = std::chrono::milliseconds(1500);
   aws::http::HttpClient client(
-      e, f, "localhost", kPort, true, false, 1, 1, fiddy, fiddy);
+      make_executor(),
+      make_socket_factory(),
+      "localhost",
+      kPort,
+      true,
+      false,
+      1,
+      1,
+      timeout,
+      timeout);
 
   auto ctx = std::make_shared<std::string>("hello");
   auto ctx_copy = ctx;
@@ -216,9 +224,89 @@ BOOST_AUTO_TEST_CASE(RequestTimeout) {
         BOOST_CHECK_EQUAL(result->successful(), false);
       });
 
-  aws::utils::sleep_for(std::chrono::milliseconds(150));
+  aws::utils::sleep_for(std::chrono::milliseconds(4000));
 
   BOOST_CHECK(timed_out);
+}
+
+// Test that requests that reach their expiration while sitting in the queue
+// are failed
+BOOST_AUTO_TEST_CASE(RequestExpiration) {
+  aws::kinesis::test::TestTLSServer server;
+
+  // Make the server delay responses by 100ms
+  for (int i = 0; i < 500; i++) {
+    server.enqueue_handler([](const auto& request) {
+      aws::utils::sleep_for(std::chrono::milliseconds(100));
+      aws::http::HttpResponse res(200);
+      res.set_data("");
+      return res;
+    });
+  }
+
+  auto timeout = std::chrono::minutes(5);
+  aws::http::HttpClient client(
+      make_executor(),
+      make_socket_factory(),
+      "localhost",
+      kPort,
+      true,
+      false,
+      1,
+      1,
+      timeout,
+      timeout);
+
+  aws::utils::SpinLock mutex;
+  std::vector<std::shared_ptr<aws::http::HttpRequest>>
+      expect_sent,
+      sent,
+      expect_expired,
+      expired;
+
+  auto put = [&](std::chrono::steady_clock::time_point expiration,
+                 bool should_expire) {
+    auto req = std::make_shared<aws::http::HttpRequest>("GET", "/");
+    {
+      aws::lock_guard<aws::utils::SpinLock> lock(mutex);
+      (should_expire ? expect_expired : expect_sent).push_back(req);
+    }
+    client.put(
+        *req,
+        [&](const auto& result) {
+          aws::lock_guard<aws::utils::SpinLock> lock(mutex);
+          auto r = result->template context<aws::http::HttpRequest>();
+          (result->successful() ? sent : expired).push_back(r);
+        },
+        std::shared_ptr<aws::http::HttpRequest>(req),
+        std::chrono::steady_clock::now(),
+        expiration);
+  };
+
+  // Fill up the queue
+  for (int i = 0; i < 50; i++) {
+    put(std::chrono::steady_clock::time_point::max(), false);
+  }
+
+  // Put some requests that are already expired
+  for (int i = 0; i < 50; i++) {
+    put(std::chrono::steady_clock::now() - std::chrono::seconds(1), true);
+  }
+
+  // Put some requests that will expire while sitting in the queue
+  for (int i = 0; i < 50; i++) {
+    put(std::chrono::steady_clock::now() + std::chrono::seconds(2), true);
+  }
+
+  while (sent.size() < expect_sent.size() ||
+         expired.size() < expect_expired.size()) {
+    aws::utils::sleep_for(std::chrono::milliseconds(1000));
+    LOG(info) << sent.size() << " / " << expect_sent.size() << "; "
+              << expired.size() << " / " << expect_expired.size();
+  }
+
+  BOOST_REQUIRE_EQUAL(expect_sent.size(), sent.size());
+  BOOST_REQUIRE_EQUAL(expect_expired.size(), expired.size());
 }
 
 // Measure the TPS to make sure it's not completely broken
@@ -237,7 +325,7 @@ BOOST_AUTO_TEST_CASE(Throughput) {
       std::chrono::steady_clock::now();
   std::chrono::steady_clock::time_point end;
 
-  LOG(INFO) << "Starting http client throughput test...";
+  LOG(info) << "Starting http client throughput test...";
 
   size_t N = 20000;
   for (size_t i = 0; i < N; i++) {
@@ -255,19 +343,16 @@ BOOST_AUTO_TEST_CASE(Throughput) {
 
   while (counter < N) {
     aws::utils::sleep_for(std::chrono::seconds(1));
-    LOG(INFO) << counter << " / " << N;
+    LOG(info) << counter << " / " << N;
   }
 
-  double seconds =
-      std::chrono::duration_cast<std::chrono::nanoseconds>(end - start)
-          .count() / 1e9;
-  double rate = (double) N / seconds;
-  LOG(INFO) << "Request/response rate: " << rate << " rps";
+  double rate = (double) N / aws::utils::seconds_between(start, end);
+  LOG(info) << "Request/response rate: " << rate << " rps";
 
   BOOST_CHECK_MESSAGE(
       rate >= 2000,
-      "TPS is below 2K, something's wrong. It should at least 3K in debug, and "
-      "8K in release (on a recent macbook).");
+      "TPS is below 2K, something's wrong. It should be at least 3K in debug, "
+      "and 7K in release (on a recent macbook).");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

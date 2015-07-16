@@ -76,8 +76,6 @@ HttpMessage::HttpMessage(bool no_parser, http_parser_type parse_type)
   settings_.on_message_complete = [](auto parser) {
     auto m = static_cast<HttpMessage*>(parser->data);
     m->complete_ = true;
-    // Add a nul so we can use the data as a C string (needed by rapidjson)
-    m->data_ += "\0";
     m->on_message_complete(parser);
     return 0;
   };

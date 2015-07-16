@@ -16,8 +16,10 @@
 
 #include <boost/asio/steady_timer.hpp>
 
-#include <aws/utils/executor.h>
 #include <aws/mutex.h>
+#include <aws/utils/executor.h>
+#include <aws/utils/concurrent_linked_queue.h>
+#include <aws/utils/spin_lock.h>
 
 namespace aws {
 namespace utils {
@@ -27,17 +29,15 @@ class SteadyTimerScheduledCallback : boost::noncopyable,
  public:
   SteadyTimerScheduledCallback(Executor::Func f,
                                boost::asio::io_service& io_svc,
-                               TimePoint at,
-                               bool self_destruct = false)
+                               TimePoint at)
       : completed_(false),
         f_(std::move(f)),
-        timer_(io_svc, at),
-        self_destruct_(self_destruct) {
-    schedule();
+        timer_(io_svc) {
+    reschedule(at);
   }
 
   void cancel() override {
-    timer_.expires_at(std::chrono::steady_clock::now());
+    timer_.cancel();
     completed_ = true;
   }
 
@@ -46,8 +46,14 @@ class SteadyTimerScheduledCallback : boost::noncopyable,
   }
 
   void reschedule(TimePoint at) override {
+    completed_ = false;
     timer_.expires_at(at);
-    schedule();
+    timer_.async_wait([this](auto& ec) {
+      if (ec != boost::asio::error::operation_aborted) {
+        f_();
+      }
+      completed_ = true;
+    });
   }
 
   TimePoint expiration() override {
@@ -55,24 +61,9 @@ class SteadyTimerScheduledCallback : boost::noncopyable,
   }
 
  private:
-  void schedule() {
-    completed_ = false;
-
-    timer_.async_wait([this](auto& ec) {
-      if (ec != boost::asio::error::operation_aborted) {
-        f_();
-      }
-      completed_ = true;
-      if (self_destruct_) {
-        delete this;
-      }
-    });
-  }
-
   bool completed_;
   Executor::Func f_;
   boost::asio::steady_timer timer_;
-  bool self_destruct_;
 };
 
 class IoServiceExecutor : boost::noncopyable,
@@ -80,7 +71,11 @@ class IoServiceExecutor : boost::noncopyable,
  public:
   IoServiceExecutor(size_t num_threads)
       : io_service_(std::make_shared<boost::asio::io_service>()),
-        w_(*io_service_) {
+        w_(*io_service_),
+        clean_up_cb_(
+            [this] { this->clean_up(); },
+            *io_service_,
+            Clock::now() + std::chrono::seconds(1)) {
     for (size_t i = 0; i < num_threads; i++) {
       threads_.emplace_back([this] { io_service_->run(); });
     }
@@ -92,24 +87,22 @@ class IoServiceExecutor : boost::noncopyable,
     for (auto& t : threads_) {
       t.join();
     }
+    clean_up();
   }
 
   void submit(Func f) override {
     io_service_->post(std::move(f));
   };
 
-  void schedule(Func f,
-                TimePoint at,
-                std::shared_ptr<ScheduledCallback>* container) override {
-    if (container != nullptr) {
-      *container =
-          std::make_shared<SteadyTimerScheduledCallback>(
-              std::move(f),
-              *io_service_,
-              at);
-    } else {
-      new SteadyTimerScheduledCallback(std::move(f), *io_service_, at, true);
-    }
+  std::shared_ptr<ScheduledCallback> schedule(Func f,
+                                              TimePoint at) override {
+    auto cb =
+      std::make_shared<SteadyTimerScheduledCallback>(
+          std::move(f),
+          *io_service_,
+          at);
+    callbacks_clq_.put(cb);
+    return cb;
   };
 
   const std::shared_ptr<boost::asio::io_service>& io_service() {
@@ -129,9 +122,40 @@ class IoServiceExecutor : boost::noncopyable,
   }
 
  private:
+  using CbPtr = std::shared_ptr<SteadyTimerScheduledCallback>;
+
+  void clean_up() {
+    if (!clean_up_mutex_.try_lock()) {
+      return;
+    }
+
+    CbPtr p;
+    while (callbacks_clq_.try_take(p)) {
+      if (!p->completed()) {
+        callbacks_.push_back(std::move(p));
+      }
+    }
+
+    for (auto it = callbacks_.begin(); it != callbacks_.end();) {
+      if ((*it)->completed()) {
+        it = callbacks_.erase(it);
+      } else {
+        it++;
+      }
+    }
+
+    clean_up_mutex_.unlock();
+
+    clean_up_cb_.reschedule(Clock::now() + std::chrono::seconds(1));
+  }
+
   std::shared_ptr<boost::asio::io_service> io_service_;
   boost::asio::io_service::work w_;
   std::vector<aws::thread> threads_;
+  std::list<CbPtr> callbacks_;
+  aws::utils::SpinLock clean_up_mutex_;
+  aws::utils::ConcurrentLinkedQueue<CbPtr> callbacks_clq_;
+  SteadyTimerScheduledCallback clean_up_cb_;
 };
 
 } //namespace utils

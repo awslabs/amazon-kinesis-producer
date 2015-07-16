@@ -18,7 +18,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <glog/logging.h>
+#include <aws/utils/logging.h>
 
 #include <aws/metrics/metric.h>
 #include <aws/metrics/metrics_finder.h>

@@ -15,7 +15,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <glog/logging.h>
+#include <aws/utils/logging.h>
 
 #include <aws/kinesis/core/put_records_request.h>
 #include <aws/utils/utils.h>
@@ -75,7 +75,7 @@ void verify(aws::kinesis::core::PutRecordsRequest& prr,
 
     BOOST_CHECK_EQUAL(i, krs.size());
   } catch (const std::exception& e) {
-    LOG(FATAL) << "Could not parse json, data was:\n" << prr.serialize();
+    LOG(fatal) << "Could not parse json, data was:\n" << prr.serialize();
   }
 }
 
@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_CASE(Throughput) {
       std::chrono::high_resolution_clock::now() - start).count();
   double seconds = nanos / 1e9;
   double mbs = (double) serialized_size / 1024 / 1024;
-  LOG(INFO) << "PutRecordsRequest serialization rate (500 records, "
+  LOG(info) << "PutRecordsRequest serialization rate (500 records, "
             << mbs << " MB json per req): " << N / seconds << " rps, "
             << N * mbs / seconds << " MB/s";
 }

@@ -22,10 +22,7 @@ namespace http {
 
 HttpRequest create_kinesis_request(const std::string& region,
                                    const std::string& api_method,
-                                   const std::string& data);
-
-HttpRequest create_kinesis_request(const std::string& region,
-                                   const std::string& api_method);
+                                   const std::string& data = "");
 
 } // namespace http
 } // namespace aws

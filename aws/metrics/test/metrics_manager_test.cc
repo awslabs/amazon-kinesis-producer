@@ -17,7 +17,7 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <glog/logging.h>
+#include <aws/utils/logging.h>
 
 #include <aws/metrics/metrics_manager.h>
 #include <aws/utils/io_service_executor.h>
@@ -26,6 +26,8 @@
 #include <aws/kinesis/test/test_tls_server.h>
 
 namespace {
+
+const constexpr size_t kUploadFreqMs = 1000;
 
 using ExtraDimensions = aws::metrics::detail::ExtraDimensions;
 
@@ -48,8 +50,8 @@ auto make_metrics_manager(ExtraDimensions dims = ExtraDimensions()) {
           dims,
           "localhost",
           aws::kinesis::test::TestTLSServer::kDefaultPort,
-          std::chrono::milliseconds(50),
-          std::chrono::milliseconds(25));
+          std::chrono::milliseconds(kUploadFreqMs),
+          std::chrono::milliseconds(100));
 }
 
 std::map<std::string, std::string> parse_query_args(const std::string& s) {
@@ -94,6 +96,7 @@ BOOST_AUTO_TEST_CASE(RequestGeneration) {
     BOOST_REQUIRE(headers.find("Host") != headers.end());
 
     aws::http::HttpResponse res(200);
+    res.set_data("ok");
     return res;
   });
 
@@ -120,7 +123,7 @@ BOOST_AUTO_TEST_CASE(RequestGeneration) {
     m3->put(i);
   }
 
-  aws::utils::sleep_for(std::chrono::milliseconds(125));
+  aws::utils::sleep_for(std::chrono::milliseconds(1500));
   metrics_manager->stop();
   aws::utils::sleep_for(std::chrono::milliseconds(200));
 
@@ -140,6 +143,10 @@ BOOST_AUTO_TEST_CASE(RequestGeneration) {
     }
   };
 
+  auto check_date = [&](auto& k) {
+    BOOST_CHECK(std::regex_match(args.at(k), date_regex));
+  };
+
   try {
     check("Action", "PutMetricData");
     check("Namespace", "TestNamespace");
@@ -152,8 +159,7 @@ BOOST_AUTO_TEST_CASE(RequestGeneration) {
     check("MetricData.member.1.StatisticValues.SampleCount", "300");
     check("MetricData.member.1.StatisticValues.Sum", "14850");
     check("MetricData.member.1.Unit", "Count");
-    BOOST_CHECK(std::regex_match(args.at("MetricData.member.2.Timestamp"),
-                                 date_regex));
+    check_date("MetricData.member.2.Timestamp");
 
     // Test -> MyStream
     check("MetricData.member.2.Dimensions.member.1.Name", "StreamName");
@@ -164,8 +170,7 @@ BOOST_AUTO_TEST_CASE(RequestGeneration) {
     check("MetricData.member.2.StatisticValues.SampleCount", "100");
     check("MetricData.member.2.StatisticValues.Sum", "4950");
     check("MetricData.member.2.Unit", "Count");
-    BOOST_CHECK(std::regex_match(args.at("MetricData.member.2.Timestamp"),
-                                 date_regex));
+    check_date("MetricData.member.2.Timestamp");
 
     // Test -> MyStream2
     check("MetricData.member.3.Dimensions.member.1.Name", "StreamName");
@@ -176,8 +181,7 @@ BOOST_AUTO_TEST_CASE(RequestGeneration) {
     check("MetricData.member.3.StatisticValues.SampleCount", "200");
     check("MetricData.member.3.StatisticValues.Sum", "9900");
     check("MetricData.member.3.Unit", "Count");
-    BOOST_CHECK(std::regex_match(args.at("MetricData.member.3.Timestamp"),
-                                 date_regex));
+    check_date("MetricData.member.3.Timestamp");
 
     // Test -> MyStream2 -> shard-0
     check("MetricData.member.4.Dimensions.member.1.Name", "StreamName");
@@ -190,8 +194,7 @@ BOOST_AUTO_TEST_CASE(RequestGeneration) {
     check("MetricData.member.4.StatisticValues.SampleCount", "100");
     check("MetricData.member.4.StatisticValues.Sum", "4950");
     check("MetricData.member.4.Unit", "Count");
-    BOOST_CHECK(std::regex_match(args.at("MetricData.member.4.Timestamp"),
-                                 date_regex));
+    check_date("MetricData.member.4.Timestamp");
 
     // Test -> MyStream2 -> shard-1
     check("MetricData.member.5.Dimensions.member.1.Name", "StreamName");
@@ -204,8 +207,7 @@ BOOST_AUTO_TEST_CASE(RequestGeneration) {
     check("MetricData.member.5.StatisticValues.SampleCount", "100");
     check("MetricData.member.5.StatisticValues.Sum", "4950");
     check("MetricData.member.5.Unit", "Count");
-    BOOST_CHECK(std::regex_match(args.at("MetricData.member.5.Timestamp"),
-                                 date_regex));
+    check_date("MetricData.member.5.Timestamp");
   } catch (const std::exception& e) {
     BOOST_FAIL(e.what());
   }
@@ -236,7 +238,7 @@ BOOST_AUTO_TEST_CASE(ExtraDimensions) {
     }
     mf.find()->put(0);
 
-    aws::utils::sleep_for(std::chrono::milliseconds(100));
+    aws::utils::sleep_for(std::chrono::milliseconds(1500));
     metrics_manager->stop();
     aws::utils::sleep_for(std::chrono::milliseconds(500));
 
@@ -446,11 +448,22 @@ BOOST_AUTO_TEST_CASE(UploadFrequency) {
       .find()
       ->put(0);
 
-  aws::utils::sleep_for(std::chrono::milliseconds(225));
-  metrics_manager->stop();
-  aws::utils::sleep_for(std::chrono::milliseconds(500));
+  std::chrono::high_resolution_clock::time_point start;
 
-  BOOST_CHECK_EQUAL(count, 4);
+  // Wait for 4 requests to be made
+  while (count < 4) {
+    if (count == 1 && start.time_since_epoch().count() == 0) {
+      start = std::chrono::high_resolution_clock::now();
+    }
+    aws::this_thread::yield();
+  }
+  metrics_manager->stop();
+
+  BOOST_CHECK_CLOSE(aws::utils::seconds_since(start),
+                    (double) kUploadFreqMs * 3 / 1000,
+                    10);
+
+  aws::utils::sleep_for(std::chrono::milliseconds(200));
 }
 
 BOOST_AUTO_TEST_CASE(Retry) {
@@ -458,7 +471,9 @@ BOOST_AUTO_TEST_CASE(Retry) {
 
   aws::kinesis::test::TestTLSServer server;
 
-  server.enqueue_handler([](auto& req) {
+  bool first_attempt = false;
+  server.enqueue_handler([&](auto& req) {
+    first_attempt = true;
     aws::http::HttpResponse res(500);
     res.set_data("test fail");
     return res;
@@ -481,7 +496,10 @@ BOOST_AUTO_TEST_CASE(Retry) {
       .find()
       ->put(0);
 
-  aws::utils::sleep_for(std::chrono::milliseconds(80));
+  while (!first_attempt) {
+    aws::this_thread::yield();
+  }
+  aws::utils::sleep_for(std::chrono::milliseconds(200));
   metrics_manager->stop();
   aws::utils::sleep_for(std::chrono::milliseconds(500));
 

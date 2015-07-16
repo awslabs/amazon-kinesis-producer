@@ -21,7 +21,7 @@
 #include <boost/asio.hpp>
 #include <boost/predef.h>
 
-#include <glog/logging.h>
+#include <aws/utils/logging.h>
 
 #include <aws/utils/io_service_executor.h>
 #include <aws/utils/concurrent_linked_queue.h>
@@ -43,9 +43,14 @@ template <typename StreamDescriptor,
           typename FileManager>
 class IpcChannelImpl : public boost::noncopyable {
  public:
-  IpcChannelImpl(const char* in_file, const char* out_file)
+  IpcChannelImpl(const char* in_file,
+                 const char* out_file,
+                 bool create_pipes = true)
       : in_file_(in_file),
-        out_file_(out_file) {}
+        out_file_(out_file),
+        create_pipes_(create_pipes),
+        in_handle_(0),
+        out_handle_(0) {}
 
   ~IpcChannelImpl() {
     close_write_channel();
@@ -53,41 +58,24 @@ class IpcChannelImpl : public boost::noncopyable {
   }
 
   int64_t read(void* buf, size_t count) {
-    if (!read_stream_) {
+    if (in_handle_ == 0) {
       return -1;
     }
-
-    try {
-      auto num_bytes = read_stream_->read_some(boost::asio::buffer(buf, count));
-      return num_bytes;
-    } catch (const boost::system::system_error& error) {
-      return -1;
-    }
+    return FileManager::read(in_handle_, buf, count);
   }
 
   int64_t write(void* buf, size_t count) {
-    if (!write_stream_) {
+    if (out_handle_ == 0) {
       return -1;
     }
-
-    try {
-      return write_stream_->write_some(boost::asio::buffer(buf, count));
-    } catch (const boost::system::system_error& error) {
-      return -1;
-    }
+    return FileManager::write(out_handle_, buf, count);
   }
 
   bool open_read_channel() {
     if (!in_file_) {
       return false;
     }
-
-    if (read_stream_) {
-      return true;
-    }
-
-    in_handle_ = FileManager::open_read(in_file_);
-    read_stream_ = std::make_unique<StreamDescriptor>(io_service_, in_handle_);
+    in_handle_ = FileManager::open_read(in_file_, create_pipes_);
     return true;
   }
 
@@ -95,79 +83,121 @@ class IpcChannelImpl : public boost::noncopyable {
     if (!out_file_) {
       return false;
     }
-
-    if (write_stream_) {
-      return true;
-    }
-
-    out_handle_ = FileManager::open_write(out_file_);
-    write_stream_ =
-        std::make_unique<StreamDescriptor>(io_service_, out_handle_);
+    out_handle_ = FileManager::open_write(out_file_, create_pipes_);
     return true;
   }
 
   void close_read_channel() {
-    if (read_stream_) {
-      read_stream_->close();
+    if (in_handle_ != 0) {
+      FileManager::close_read(in_handle_);
+      in_handle_ = 0;
     }
-    FileManager::close_read(in_handle_);
   }
 
   void close_write_channel() {
-    if (write_stream_) {
-      write_stream_->close();
+    if (out_handle_ != 0) {
+      FileManager::close_write(out_handle_);
+      out_handle_ = 0;
     }
-    FileManager::close_write(out_handle_);
   }
 
  private:
   const char* in_file_;
   const char* out_file_;
+  bool create_pipes_;
   NativeHandle in_handle_;
   NativeHandle out_handle_;
-  std::unique_ptr<StreamDescriptor> read_stream_;
-  std::unique_ptr<StreamDescriptor> write_stream_;
-  boost::asio::io_service io_service_;
 };
 
 #if BOOST_OS_WINDOWS
 
 #include <windows.h>
 
-constexpr const char* kPipePrefix = "\\\\.\\pipe\\";
-
 struct WindowsPipeManager {
-  static HANDLE open_read(const char* f) {
-    std::string name = kPipePrefix;
-    name += f;
-    return CreateNamedPipe(name.c_str(),
-                           PIPE_ACCESS_INBOUND,
-                           PIPE_TYPE_BYTE,
-                           1,
-                           0,
-                           8192,
-                           0,
-                           nullptr);
+  static HANDLE open_read(const char* f, bool create_pipe) {
+    return open(f, false, create_pipe);
   }
 
   static void close_read(HANDLE handle) {
-    CloseHandle(handle);
+    close(handle);
   }
 
-  static HANDLE open_write(const char* f) {
-    std::string name = kPipePrefix;
-    name += f;
-    return CreateNamedPipe(name.c_str(),
-                           PIPE_ACCESS_OUTBOUND,
-                           PIPE_TYPE_BYTE,
-                           1,
-                           8192,
-                           0,
-                           0,
-                           nullptr);
+  static HANDLE open_write(const char* f, bool create_pipe) {
+    return open(f, true, create_pipe);
   }
 
   static void close_write(HANDLE handle) {
+    close(handle);
+  }
+
+  static HANDLE open(const char* f, bool write, bool create_pipe) {
+    if (create_pipe) {
+      auto handle =
+          CreateNamedPipe(
+              f,
+              write ? PIPE_ACCESS_OUTBOUND : PIPE_ACCESS_INBOUND,
+              PIPE_TYPE_BYTE,
+              1,
+              8192,
+              8192,
+              0,
+              nullptr);
+
+      if (handle == INVALID_HANDLE_VALUE) {
+        error("Could not create pipe", f);
+      }
+
+      if (!ConnectNamedPipe(handle, nullptr)) {
+        error("Could not connect pipe", f);
+      }
+
+      return handle;
+    } else {
+      auto handle = CreateFile(f,
+                               write ? GENERIC_WRITE : GENERIC_READ,
+                               0,
+                               nullptr,
+                               OPEN_EXISTING,
+                               FILE_ATTRIBUTE_NORMAL,
+                               nullptr);
+
+      if (handle == INVALID_HANDLE_VALUE) {
+        error("Could not open file", f);
+      }
+
+      return handle;
+    }
+  }
+
+  static int64_t read(HANDLE handle, void* buf, size_t capacity) {
+    unsigned long int num_written = 0;
+    bool ok = ReadFile(handle, buf, capacity, &num_written, nullptr);
+    if (ok) {
+      return num_written;
+    } else {
+      return -1;
+    }
+  }
+
+  static int64_t write(HANDLE handle, const void* buf, size_t len) {
+    unsigned long int num_written = 0;
+    bool ok = WriteFile(handle, buf, len, &num_written, nullptr);
+    if (ok) {
+      return num_written;
+    } else {
+      return -1;
+    }
+  }
+
+  static error(const char* msg, const char* fname) {
+    std::stringstream ss;
+    ss << msg << " \"" << fname << "\", error code " << GetLastError();
+    throw std::runtime_error(ss.str().c_str());
+  }
+
+  static void close(HANDLE handle) {
+    FlushFileBuffers(handle);
+    DisconnectNamedPipe(handle);
     CloseHandle(handle);
   }
 };
@@ -179,20 +209,42 @@ using IpcChannel = IpcChannelImpl<boost::asio::windows::stream_handle,
 #else
 
 struct PosixFileManager {
-  static int open_read(const char* f) {
-    return ::open(f, O_RDONLY);
+  static int open_read(const char* f, bool /*create_pipe*/) {
+    return open(f, false);
   }
 
   static void close_read(int fd) {
     ::close(fd);
   }
 
-  static int open_write(const char* f) {
-    return ::open(f, O_WRONLY);
+  static int open_write(const char* f, bool /*create_pipe*/) {
+    return open(f, true);
   }
 
   static void close_write(int fd) {
     ::close(fd);
+  }
+
+  static int open(const char* f, bool write) {
+    auto res = ::open(f, write ? O_WRONLY : O_RDONLY);
+    if (res <= 0) {
+      error("Could not open file", f);
+    }
+    return res;
+  }
+
+  static int64_t read(int fd, void* buf, size_t capacity) {
+    return ::read(fd, buf, capacity);
+  }
+
+  static int64_t write(int fd, const void* buf, size_t len) {
+    return ::write(fd, buf, len);
+  }
+
+  static void error(const char* msg, const char* fname) {
+    std::stringstream ss;
+    ss << msg << " \"" << fname << "\", error code " << errno;
+    throw std::runtime_error(ss.str().c_str());
   }
 };
 

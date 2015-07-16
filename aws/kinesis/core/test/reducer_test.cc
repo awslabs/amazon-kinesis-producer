@@ -93,6 +93,7 @@ BOOST_AUTO_TEST_CASE(SizeLimit) {
   auto reducer = make_reducer(limit, 0xFFFFFFFF);
   std::vector<std::shared_ptr<aws::kinesis::core::UserRecord>> v;
 
+  int k = 0;
   for (int j = 0; j < 250; j++) {
     // Put records until flush happens.
     std::shared_ptr<aws::kinesis::core::KinesisRecord> kr;
@@ -101,7 +102,8 @@ BOOST_AUTO_TEST_CASE(SizeLimit) {
           aws::kinesis::test::make_user_record(
               "pk",
               std::to_string(::rand()),
-              "123");
+              "123",
+              10000 + k++);
       v.push_back(ur);
       kr = reducer->add(ur);
     } while (!kr);
@@ -148,7 +150,7 @@ BOOST_AUTO_TEST_CASE(Deadline) {
             "pk",
             std::to_string(::rand()),
             "123",
-            5000);
+            5000 + i);
     v.push_back(ur);
     reducer->add(ur);
   }
@@ -183,13 +185,14 @@ BOOST_AUTO_TEST_CASE(Deadline) {
 BOOST_AUTO_TEST_CASE(ResetTimeout) {
   std::shared_ptr<aws::kinesis::core::KinesisRecord> kr;
   auto reducer = make_reducer(
-      50000,
+      300,
       0xFFFFFFFF,
       [&](auto result) {
         kr = result;
       });
 
   std::vector<std::shared_ptr<aws::kinesis::core::UserRecord>> v;
+  int k = 0;
 
   for (int i = 0; i < 10; i++) {
     auto ur =
@@ -197,7 +200,7 @@ BOOST_AUTO_TEST_CASE(ResetTimeout) {
             "pk",
             std::to_string(::rand()),
             "123",
-            2000);
+            2000 + k++);
     v.push_back(ur);
     reducer->add(ur);
   }
@@ -224,21 +227,33 @@ BOOST_AUTO_TEST_CASE(ResetTimeout) {
               "pk",
               std::to_string(::rand()),
               "123",
-              2000);
+              2000 + k++);
       v.push_back(ur);
       kr2 = reducer->add(ur);
     } while (!kr2);
+  }
+
+  // Put a few more to make sure the buffer is not empty
+  for (int i = 0; i < 10; i++) {
+    auto ur =
+        aws::kinesis::test::make_user_record(
+            "pk",
+            std::to_string(::rand()),
+            "123",
+            2000 + k++);
+    v.push_back(ur);
+    reducer->add(ur);
   }
 
   // No flush should happen in the next second even though we had a record with
   // a 100ms deadline - that record should've gotten flushed by the size limit,
   // and its deadline should no longer apply.
   aws::utils::sleep_for(std::chrono::milliseconds(1000));
-  BOOST_CHECK_MESSAGE(!kr, "No flush due to deadline should have occured");
+  BOOST_REQUIRE_MESSAGE(!kr, "No flush due to deadline should have occured");
 
   // The timer should now be set to the min deadline of the remaining records.
-  // It should go off after another second
-  aws::utils::sleep_for(std::chrono::milliseconds(1100));
+  // It should go off after another second or so
+  aws::utils::sleep_for(std::chrono::milliseconds(1500));
   BOOST_REQUIRE_MESSAGE(kr, "Flush due to deadline should have occured");
 
   // Check data integrity
@@ -280,7 +295,7 @@ BOOST_AUTO_TEST_CASE(NonEmpty) {
 }
 
 BOOST_AUTO_TEST_CASE(Concurrency) {
-  LOG(INFO) << "Starting concurrency test. If this doesn't finish in 30 "
+  LOG(info) << "Starting concurrency test. If this doesn't finish in 30 "
             << "seconds or so it probably means there's a deadlock.";
 
   ConcurrentVector<std::shared_ptr<aws::kinesis::core::UserRecord>>
@@ -335,7 +350,7 @@ BOOST_AUTO_TEST_CASE(Concurrency) {
 
   BOOST_CHECK_EQUAL(reducer->size(), 0);
 
-  LOG(INFO) << "Finished putting data, " << counter << " records put. "
+  LOG(info) << "Finished putting data, " << counter << " records put. "
             << "Analyzing results...";
 
   // Check that all records made it out. Order is no longer guaranteed with

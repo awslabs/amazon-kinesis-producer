@@ -107,6 +107,77 @@ void enqueue_credentials_handler(
 
 BOOST_AUTO_TEST_SUITE(Credentials)
 
+BOOST_AUTO_TEST_CASE(BasicProvider) {
+  aws::auth::BasicAwsCredentialsProvider p(kDefaultAkid,
+                                           kDefaultSk,
+                                           kDefaultToken);
+  auto creds = p.get_credentials();
+  BOOST_CHECK_EQUAL(creds.akid(), kDefaultAkid);
+  BOOST_CHECK_EQUAL(creds.secret_key(), kDefaultSk);
+  BOOST_CHECK_EQUAL(*creds.session_token(), kDefaultToken);
+}
+
+BOOST_AUTO_TEST_CASE(ProviderChain) {
+  // Empty chain
+  try {
+    aws::auth::AwsCredentialsProviderChain p({});
+    p.get_credentials();
+    BOOST_FAIL("Empty provider chain should throw exception when "
+               "get_credentials() is called");
+  } catch (std::exception e) {
+    // ok
+  }
+
+  // Single provider in the chain
+  {
+    aws::auth::AwsCredentialsProviderChain p({
+        std::make_shared<aws::auth::BasicAwsCredentialsProvider>(
+            kDefaultAkid,
+            kDefaultSk,
+            kDefaultToken)});
+    auto creds = p.get_credentials();
+    BOOST_CHECK_EQUAL(creds.akid(), kDefaultAkid);
+    BOOST_CHECK_EQUAL(creds.secret_key(), kDefaultSk);
+    BOOST_CHECK_EQUAL(*creds.session_token(), kDefaultToken);
+  }
+
+  // Multiple providers in the chain,. If the first one works, then it should
+  // be the one used.
+  {
+    aws::auth::AwsCredentialsProviderChain p({
+        std::make_shared<aws::auth::BasicAwsCredentialsProvider>(
+            kDefaultAkid,
+            kDefaultSk,
+            kDefaultToken),
+        std::make_shared<aws::auth::BasicAwsCredentialsProvider>(
+            "asfasf",
+            "asfasf",
+            std::string("asfasf"))});
+    auto creds = p.get_credentials();
+    BOOST_CHECK_EQUAL(creds.akid(), kDefaultAkid);
+    BOOST_CHECK_EQUAL(creds.secret_key(), kDefaultSk);
+    BOOST_CHECK_EQUAL(*creds.session_token(), kDefaultToken);
+  }
+
+  // Multiple providers in the chain. If one or more of the providers don't
+  // work, we should try later ones.
+  {
+    aws::auth::AwsCredentialsProviderChain p({
+        std::make_shared<aws::auth::BasicAwsCredentialsProvider>(
+            "asfasf",
+            "asfasf",
+            std::string("asfasf")),
+        std::make_shared<aws::auth::BasicAwsCredentialsProvider>(
+            kDefaultAkid,
+            kDefaultSk,
+            kDefaultToken)});
+    auto creds = p.get_credentials();
+    BOOST_CHECK_EQUAL(creds.akid(), kDefaultAkid);
+    BOOST_CHECK_EQUAL(creds.secret_key(), kDefaultSk);
+    BOOST_CHECK_EQUAL(*creds.session_token(), kDefaultToken);
+  }
+}
+
 BOOST_AUTO_TEST_CASE(InstanceProfileNormal) {
   aws::kinesis::test::TestTLSServer server;
   enqueue_credentials_handler(server);
@@ -114,17 +185,16 @@ BOOST_AUTO_TEST_CASE(InstanceProfileNormal) {
   auto provider = make_provider();
   auto creds = provider->get_credentials();
 
-  BOOST_CHECK_MESSAGE(creds, "Should have succeeded getting creds");
-  BOOST_CHECK_EQUAL(creds->akid, kDefaultAkid);
-  BOOST_CHECK_EQUAL(creds->secret_key, kDefaultSk);
-  BOOST_CHECK_MESSAGE(creds->session_token,
+  BOOST_CHECK_EQUAL(creds.akid(), kDefaultAkid);
+  BOOST_CHECK_EQUAL(creds.secret_key(), kDefaultSk);
+  BOOST_CHECK_MESSAGE(creds.session_token(),
                       "Should have fetched session token");
-  BOOST_CHECK_EQUAL(creds->session_token.get(), kDefaultToken);
+  BOOST_CHECK_EQUAL(creds.session_token().get(), kDefaultToken);
 }
 
 BOOST_AUTO_TEST_CASE(InstanceProfileFail) {
   auto provider = make_provider();
-  auto creds = provider->get_credentials();
+  auto creds = provider->try_get_credentials();
   BOOST_CHECK(!creds);
 }
 
@@ -147,24 +217,22 @@ BOOST_AUTO_TEST_CASE(InstanceProfileRefresh) {
   auto provider = make_provider();
   auto creds = provider->get_credentials();
 
-  BOOST_CHECK_MESSAGE(creds, "Should have succeeded getting creds");
-  BOOST_CHECK_EQUAL(creds->akid, kDefaultAkid);
-  BOOST_CHECK_EQUAL(creds->secret_key, kDefaultSk);
-  BOOST_CHECK_MESSAGE(creds->session_token,
+  BOOST_CHECK_EQUAL(creds.akid(), kDefaultAkid);
+  BOOST_CHECK_EQUAL(creds.secret_key(), kDefaultSk);
+  BOOST_CHECK_MESSAGE(creds.session_token(),
                       "Should have fetched session token");
-  BOOST_CHECK_EQUAL(creds->session_token.get(), kDefaultToken);
+  BOOST_CHECK_EQUAL(creds.session_token().get(), kDefaultToken);
 
   // Wait for refresh
   aws::utils::sleep_for(std::chrono::milliseconds(2200));
 
   creds = provider->get_credentials();
 
-  BOOST_CHECK_MESSAGE(creds, "Should have succeeded getting creds");
-  BOOST_CHECK_EQUAL(creds->akid, alt_akid);
-  BOOST_CHECK_EQUAL(creds->secret_key, alt_sk);
-  BOOST_CHECK_MESSAGE(creds->session_token,
+  BOOST_CHECK_EQUAL(creds.akid(), alt_akid);
+  BOOST_CHECK_EQUAL(creds.secret_key(), alt_sk);
+  BOOST_CHECK_MESSAGE(creds.session_token(),
                       "Should have fetched session token");
-  BOOST_CHECK_EQUAL(creds->session_token.get(), alt_token);
+  BOOST_CHECK_EQUAL(creds.session_token().get(), alt_token);
 }
 
 BOOST_AUTO_TEST_CASE(InstanceProfileManualRefresh) {
@@ -183,24 +251,22 @@ BOOST_AUTO_TEST_CASE(InstanceProfileManualRefresh) {
   auto provider = make_provider();
   auto creds = provider->get_credentials();
 
-  BOOST_CHECK_MESSAGE(creds, "Should have succeeded getting creds");
-  BOOST_CHECK_EQUAL(creds->akid, kDefaultAkid);
-  BOOST_CHECK_EQUAL(creds->secret_key, kDefaultSk);
-  BOOST_CHECK_MESSAGE(creds->session_token,
+  BOOST_CHECK_EQUAL(creds.akid(), kDefaultAkid);
+  BOOST_CHECK_EQUAL(creds.secret_key(), kDefaultSk);
+  BOOST_CHECK_MESSAGE(creds.session_token(),
                       "Should have fetched session token");
-  BOOST_CHECK_EQUAL(creds->session_token.get(), kDefaultToken);
+  BOOST_CHECK_EQUAL(creds.session_token().get(), kDefaultToken);
 
   provider->refresh();
   aws::utils::sleep_for(std::chrono::milliseconds(150));
 
   creds = provider->get_credentials();
 
-  BOOST_CHECK_MESSAGE(creds, "Should have succeeded getting creds");
-  BOOST_CHECK_EQUAL(creds->akid, alt_akid);
-  BOOST_CHECK_EQUAL(creds->secret_key, alt_sk);
-  BOOST_CHECK_MESSAGE(creds->session_token,
+  BOOST_CHECK_EQUAL(creds.akid(), alt_akid);
+  BOOST_CHECK_EQUAL(creds.secret_key(), alt_sk);
+  BOOST_CHECK_MESSAGE(creds.session_token(),
                       "Should have fetched session token");
-  BOOST_CHECK_EQUAL(creds->session_token.get(), alt_token);
+  BOOST_CHECK_EQUAL(creds.session_token().get(), alt_token);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

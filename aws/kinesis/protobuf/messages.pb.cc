@@ -41,6 +41,7 @@ struct MessageOneofInstance {
   const ::aws::kinesis::protobuf::Configuration* configuration_;
   const ::aws::kinesis::protobuf::MetricsRequest* metrics_request_;
   const ::aws::kinesis::protobuf::MetricsResponse* metrics_response_;
+  const ::aws::kinesis::protobuf::SetCredentials* set_credentials_;
 }* Message_default_oneof_instance_ = NULL;
 const ::google::protobuf::Descriptor* PutRecord_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
@@ -54,6 +55,12 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* PutRecordResult_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   PutRecordResult_reflection_ = NULL;
+const ::google::protobuf::Descriptor* Credentials_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  Credentials_reflection_ = NULL;
+const ::google::protobuf::Descriptor* SetCredentials_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  SetCredentials_reflection_ = NULL;
 const ::google::protobuf::Descriptor* Dimension_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   Dimension_reflection_ = NULL;
@@ -131,7 +138,7 @@ void protobuf_AssignDesc_messages_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(AggregatedRecord));
   Message_descriptor_ = file->message_type(3);
-  static const int Message_offsets_[9] = {
+  static const int Message_offsets_[10] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Message, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Message, source_id_),
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(Message_default_oneof_instance_, put_record_),
@@ -140,6 +147,7 @@ void protobuf_AssignDesc_messages_2eproto() {
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(Message_default_oneof_instance_, configuration_),
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(Message_default_oneof_instance_, metrics_request_),
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(Message_default_oneof_instance_, metrics_response_),
+    PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(Message_default_oneof_instance_, set_credentials_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Message, actual_message_),
   };
   Message_reflection_ =
@@ -225,7 +233,40 @@ void protobuf_AssignDesc_messages_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(PutRecordResult));
-  Dimension_descriptor_ = file->message_type(8);
+  Credentials_descriptor_ = file->message_type(8);
+  static const int Credentials_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Credentials, akid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Credentials, secret_key_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Credentials, token_),
+  };
+  Credentials_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      Credentials_descriptor_,
+      Credentials::default_instance_,
+      Credentials_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Credentials, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Credentials, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(Credentials));
+  SetCredentials_descriptor_ = file->message_type(9);
+  static const int SetCredentials_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SetCredentials, for_metrics_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SetCredentials, credentials_),
+  };
+  SetCredentials_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      SetCredentials_descriptor_,
+      SetCredentials::default_instance_,
+      SetCredentials_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SetCredentials, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SetCredentials, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(SetCredentials));
+  Dimension_descriptor_ = file->message_type(10);
   static const int Dimension_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Dimension, key_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Dimension, value_),
@@ -241,7 +282,7 @@ void protobuf_AssignDesc_messages_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Dimension));
-  Stats_descriptor_ = file->message_type(9);
+  Stats_descriptor_ = file->message_type(11);
   static const int Stats_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Stats, count_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Stats, sum_),
@@ -260,7 +301,7 @@ void protobuf_AssignDesc_messages_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Stats));
-  Metric_descriptor_ = file->message_type(10);
+  Metric_descriptor_ = file->message_type(12);
   static const int Metric_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Metric, name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Metric, dimensions_),
@@ -278,7 +319,7 @@ void protobuf_AssignDesc_messages_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Metric));
-  MetricsRequest_descriptor_ = file->message_type(11);
+  MetricsRequest_descriptor_ = file->message_type(13);
   static const int MetricsRequest_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MetricsRequest, name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MetricsRequest, seconds_),
@@ -294,7 +335,7 @@ void protobuf_AssignDesc_messages_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(MetricsRequest));
-  MetricsResponse_descriptor_ = file->message_type(12);
+  MetricsResponse_descriptor_ = file->message_type(14);
   static const int MetricsResponse_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MetricsResponse, metrics_),
   };
@@ -338,6 +379,10 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     PutRecordResult_descriptor_, &PutRecordResult::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    Credentials_descriptor_, &Credentials::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    SetCredentials_descriptor_, &SetCredentials::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     Dimension_descriptor_, &Dimension::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     Stats_descriptor_, &Stats::default_instance());
@@ -369,6 +414,10 @@ void protobuf_ShutdownFile_messages_2eproto() {
   delete Attempt_reflection_;
   delete PutRecordResult::default_instance_;
   delete PutRecordResult_reflection_;
+  delete Credentials::default_instance_;
+  delete Credentials_reflection_;
+  delete SetCredentials::default_instance_;
+  delete SetCredentials_reflection_;
   delete Dimension::default_instance_;
   delete Dimension_reflection_;
   delete Stats::default_instance_;
@@ -397,7 +446,7 @@ void protobuf_AddDesc_messages_2eproto() {
     "s.protobuf.Tag\"\177\n\020AggregatedRecord\022\033\n\023pa"
     "rtition_key_table\030\001 \003(\t\022\037\n\027explicit_hash"
     "_key_table\030\002 \003(\t\022-\n\007records\030\003 \003(\0132\034.aws."
-    "kinesis.protobuf.Record\"\245\003\n\007Message\022\n\n\002i"
+    "kinesis.protobuf.Record\"\346\003\n\007Message\022\n\n\002i"
     "d\030\001 \002(\004\022\021\n\tsource_id\030\002 \001(\004\0225\n\nput_record"
     "\030\003 \001(\0132\037.aws.kinesis.protobuf.PutRecordH"
     "\000\022,\n\005flush\030\004 \001(\0132\033.aws.kinesis.protobuf."
@@ -407,26 +456,32 @@ void protobuf_AddDesc_messages_2eproto() {
     "f.ConfigurationH\000\022\?\n\017metrics_request\030\007 \001"
     "(\0132$.aws.kinesis.protobuf.MetricsRequest"
     "H\000\022A\n\020metrics_response\030\010 \001(\0132%.aws.kines"
-    "is.protobuf.MetricsResponseH\000B\020\n\016actual_"
-    "message\"`\n\tPutRecord\022\023\n\013stream_name\030\001 \002("
-    "\t\022\025\n\rpartition_key\030\002 \002(\t\022\031\n\021explicit_has"
-    "h_key\030\003 \001(\t\022\014\n\004data\030\004 \002(\014\"\034\n\005Flush\022\023\n\013st"
-    "ream_name\030\001 \001(\t\"f\n\007Attempt\022\r\n\005delay\030\001 \002("
-    "\r\022\020\n\010duration\030\002 \002(\r\022\017\n\007success\030\003 \002(\010\022\022\n\n"
-    "error_code\030\004 \001(\t\022\025\n\rerror_message\030\005 \001(\t\""
-    "~\n\017PutRecordResult\022/\n\010attempts\030\001 \003(\0132\035.a"
-    "ws.kinesis.protobuf.Attempt\022\017\n\007success\030\002"
-    " \002(\010\022\020\n\010shard_id\030\003 \001(\t\022\027\n\017sequence_numbe"
-    "r\030\004 \001(\t\"\'\n\tDimension\022\013\n\003key\030\001 \002(\t\022\r\n\005val"
-    "ue\030\002 \002(\t\"K\n\005Stats\022\r\n\005count\030\001 \002(\001\022\013\n\003sum\030"
-    "\002 \002(\001\022\014\n\004mean\030\003 \002(\001\022\013\n\003min\030\004 \002(\001\022\013\n\003max\030"
-    "\005 \002(\001\"\210\001\n\006Metric\022\014\n\004name\030\001 \002(\t\0223\n\ndimens"
-    "ions\030\002 \003(\0132\037.aws.kinesis.protobuf.Dimens"
-    "ion\022*\n\005stats\030\003 \002(\0132\033.aws.kinesis.protobu"
-    "f.Stats\022\017\n\007seconds\030\004 \002(\004\"/\n\016MetricsReque"
-    "st\022\014\n\004name\030\001 \001(\t\022\017\n\007seconds\030\002 \001(\004\"@\n\017Met"
-    "ricsResponse\022-\n\007metrics\030\001 \003(\0132\034.aws.kine"
-    "sis.protobuf.Metric", 1499);
+    "is.protobuf.MetricsResponseH\000\022\?\n\017set_cre"
+    "dentials\030\t \001(\0132$.aws.kinesis.protobuf.Se"
+    "tCredentialsH\000B\020\n\016actual_message\"`\n\tPutR"
+    "ecord\022\023\n\013stream_name\030\001 \002(\t\022\025\n\rpartition_"
+    "key\030\002 \002(\t\022\031\n\021explicit_hash_key\030\003 \001(\t\022\014\n\004"
+    "data\030\004 \002(\014\"\034\n\005Flush\022\023\n\013stream_name\030\001 \001(\t"
+    "\"f\n\007Attempt\022\r\n\005delay\030\001 \002(\r\022\020\n\010duration\030\002"
+    " \002(\r\022\017\n\007success\030\003 \002(\010\022\022\n\nerror_code\030\004 \001("
+    "\t\022\025\n\rerror_message\030\005 \001(\t\"~\n\017PutRecordRes"
+    "ult\022/\n\010attempts\030\001 \003(\0132\035.aws.kinesis.prot"
+    "obuf.Attempt\022\017\n\007success\030\002 \002(\010\022\020\n\010shard_i"
+    "d\030\003 \001(\t\022\027\n\017sequence_number\030\004 \001(\t\">\n\013Cred"
+    "entials\022\014\n\004akid\030\001 \002(\t\022\022\n\nsecret_key\030\002 \002("
+    "\t\022\r\n\005token\030\003 \001(\t\"]\n\016SetCredentials\022\023\n\013fo"
+    "r_metrics\030\001 \001(\010\0226\n\013credentials\030\002 \002(\0132!.a"
+    "ws.kinesis.protobuf.Credentials\"\'\n\tDimen"
+    "sion\022\013\n\003key\030\001 \002(\t\022\r\n\005value\030\002 \002(\t\"K\n\005Stat"
+    "s\022\r\n\005count\030\001 \002(\001\022\013\n\003sum\030\002 \002(\001\022\014\n\004mean\030\003 "
+    "\002(\001\022\013\n\003min\030\004 \002(\001\022\013\n\003max\030\005 \002(\001\"\210\001\n\006Metric"
+    "\022\014\n\004name\030\001 \002(\t\0223\n\ndimensions\030\002 \003(\0132\037.aws"
+    ".kinesis.protobuf.Dimension\022*\n\005stats\030\003 \002"
+    "(\0132\033.aws.kinesis.protobuf.Stats\022\017\n\007secon"
+    "ds\030\004 \002(\004\"/\n\016MetricsRequest\022\014\n\004name\030\001 \001(\t"
+    "\022\017\n\007seconds\030\002 \001(\004\"@\n\017MetricsResponse\022-\n\007"
+    "metrics\030\001 \003(\0132\034.aws.kinesis.protobuf.Met"
+    "ric", 1723);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "messages.proto", &protobuf_RegisterTypes);
   Tag::default_instance_ = new Tag();
@@ -438,6 +493,8 @@ void protobuf_AddDesc_messages_2eproto() {
   Flush::default_instance_ = new Flush();
   Attempt::default_instance_ = new Attempt();
   PutRecordResult::default_instance_ = new PutRecordResult();
+  Credentials::default_instance_ = new Credentials();
+  SetCredentials::default_instance_ = new SetCredentials();
   Dimension::default_instance_ = new Dimension();
   Stats::default_instance_ = new Stats();
   Metric::default_instance_ = new Metric();
@@ -451,6 +508,8 @@ void protobuf_AddDesc_messages_2eproto() {
   Flush::default_instance_->InitAsDefaultInstance();
   Attempt::default_instance_->InitAsDefaultInstance();
   PutRecordResult::default_instance_->InitAsDefaultInstance();
+  Credentials::default_instance_->InitAsDefaultInstance();
+  SetCredentials::default_instance_->InitAsDefaultInstance();
   Dimension::default_instance_->InitAsDefaultInstance();
   Stats::default_instance_->InitAsDefaultInstance();
   Metric::default_instance_->InitAsDefaultInstance();
@@ -1468,6 +1527,7 @@ const int Message::kPutRecordResultFieldNumber;
 const int Message::kConfigurationFieldNumber;
 const int Message::kMetricsRequestFieldNumber;
 const int Message::kMetricsResponseFieldNumber;
+const int Message::kSetCredentialsFieldNumber;
 #endif  // !_MSC_VER
 
 Message::Message()
@@ -1483,6 +1543,7 @@ void Message::InitAsDefaultInstance() {
   Message_default_oneof_instance_->configuration_ = const_cast< ::aws::kinesis::protobuf::Configuration*>(&::aws::kinesis::protobuf::Configuration::default_instance());
   Message_default_oneof_instance_->metrics_request_ = const_cast< ::aws::kinesis::protobuf::MetricsRequest*>(&::aws::kinesis::protobuf::MetricsRequest::default_instance());
   Message_default_oneof_instance_->metrics_response_ = const_cast< ::aws::kinesis::protobuf::MetricsResponse*>(&::aws::kinesis::protobuf::MetricsResponse::default_instance());
+  Message_default_oneof_instance_->set_credentials_ = const_cast< ::aws::kinesis::protobuf::SetCredentials*>(&::aws::kinesis::protobuf::SetCredentials::default_instance());
 }
 
 Message::Message(const Message& from)
@@ -1558,6 +1619,10 @@ void Message::clear_actual_message() {
     }
     case kMetricsResponse: {
       delete actual_message_.metrics_response_;
+      break;
+    }
+    case kSetCredentials: {
+      delete actual_message_.set_credentials_;
       break;
     }
     case ACTUAL_MESSAGE_NOT_SET: {
@@ -1702,6 +1767,19 @@ bool Message::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(74)) goto parse_set_credentials;
+        break;
+      }
+
+      // optional .aws.kinesis.protobuf.SetCredentials set_credentials = 9;
+      case 9: {
+        if (tag == 74) {
+         parse_set_credentials:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_set_credentials()));
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -1777,6 +1855,12 @@ void Message::SerializeWithCachedSizes(
       8, this->metrics_response(), output);
   }
 
+  // optional .aws.kinesis.protobuf.SetCredentials set_credentials = 9;
+  if (has_set_credentials()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      9, this->set_credentials(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -1837,6 +1921,13 @@ void Message::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         8, this->metrics_response(), target);
+  }
+
+  // optional .aws.kinesis.protobuf.SetCredentials set_credentials = 9;
+  if (has_set_credentials()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        9, this->set_credentials(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -1909,6 +2000,13 @@ int Message::ByteSize() const {
           this->metrics_response());
       break;
     }
+    // optional .aws.kinesis.protobuf.SetCredentials set_credentials = 9;
+    case kSetCredentials: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->set_credentials());
+      break;
+    }
     case ACTUAL_MESSAGE_NOT_SET: {
       break;
     }
@@ -1963,6 +2061,10 @@ void Message::MergeFrom(const Message& from) {
       mutable_metrics_response()->::aws::kinesis::protobuf::MetricsResponse::MergeFrom(from.metrics_response());
       break;
     }
+    case kSetCredentials: {
+      mutable_set_credentials()->::aws::kinesis::protobuf::SetCredentials::MergeFrom(from.set_credentials());
+      break;
+    }
     case ACTUAL_MESSAGE_NOT_SET: {
       break;
     }
@@ -2004,6 +2106,9 @@ bool Message::IsInitialized() const {
   }
   if (has_metrics_response()) {
     if (!this->metrics_response().IsInitialized()) return false;
+  }
+  if (has_set_credentials()) {
+    if (!this->set_credentials().IsInitialized()) return false;
   }
   return true;
 }
@@ -3495,6 +3600,640 @@ void PutRecordResult::Swap(PutRecordResult* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = PutRecordResult_descriptor_;
   metadata.reflection = PutRecordResult_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int Credentials::kAkidFieldNumber;
+const int Credentials::kSecretKeyFieldNumber;
+const int Credentials::kTokenFieldNumber;
+#endif  // !_MSC_VER
+
+Credentials::Credentials()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:aws.kinesis.protobuf.Credentials)
+}
+
+void Credentials::InitAsDefaultInstance() {
+}
+
+Credentials::Credentials(const Credentials& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:aws.kinesis.protobuf.Credentials)
+}
+
+void Credentials::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
+  _cached_size_ = 0;
+  akid_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  secret_key_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  token_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+Credentials::~Credentials() {
+  // @@protoc_insertion_point(destructor:aws.kinesis.protobuf.Credentials)
+  SharedDtor();
+}
+
+void Credentials::SharedDtor() {
+  if (akid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete akid_;
+  }
+  if (secret_key_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete secret_key_;
+  }
+  if (token_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete token_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void Credentials::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* Credentials::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return Credentials_descriptor_;
+}
+
+const Credentials& Credentials::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_messages_2eproto();
+  return *default_instance_;
+}
+
+Credentials* Credentials::default_instance_ = NULL;
+
+Credentials* Credentials::New() const {
+  return new Credentials;
+}
+
+void Credentials::Clear() {
+  if (_has_bits_[0 / 32] & 7) {
+    if (has_akid()) {
+      if (akid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        akid_->clear();
+      }
+    }
+    if (has_secret_key()) {
+      if (secret_key_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        secret_key_->clear();
+      }
+    }
+    if (has_token()) {
+      if (token_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        token_->clear();
+      }
+    }
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool Credentials::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:aws.kinesis.protobuf.Credentials)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // required string akid = 1;
+      case 1: {
+        if (tag == 10) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_akid()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->akid().data(), this->akid().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "akid");
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(18)) goto parse_secret_key;
+        break;
+      }
+
+      // required string secret_key = 2;
+      case 2: {
+        if (tag == 18) {
+         parse_secret_key:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_secret_key()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->secret_key().data(), this->secret_key().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "secret_key");
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(26)) goto parse_token;
+        break;
+      }
+
+      // optional string token = 3;
+      case 3: {
+        if (tag == 26) {
+         parse_token:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_token()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->token().data(), this->token().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "token");
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:aws.kinesis.protobuf.Credentials)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:aws.kinesis.protobuf.Credentials)
+  return false;
+#undef DO_
+}
+
+void Credentials::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:aws.kinesis.protobuf.Credentials)
+  // required string akid = 1;
+  if (has_akid()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->akid().data(), this->akid().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "akid");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      1, this->akid(), output);
+  }
+
+  // required string secret_key = 2;
+  if (has_secret_key()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->secret_key().data(), this->secret_key().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "secret_key");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      2, this->secret_key(), output);
+  }
+
+  // optional string token = 3;
+  if (has_token()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->token().data(), this->token().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "token");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      3, this->token(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:aws.kinesis.protobuf.Credentials)
+}
+
+::google::protobuf::uint8* Credentials::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:aws.kinesis.protobuf.Credentials)
+  // required string akid = 1;
+  if (has_akid()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->akid().data(), this->akid().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "akid");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        1, this->akid(), target);
+  }
+
+  // required string secret_key = 2;
+  if (has_secret_key()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->secret_key().data(), this->secret_key().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "secret_key");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        2, this->secret_key(), target);
+  }
+
+  // optional string token = 3;
+  if (has_token()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->token().data(), this->token().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "token");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        3, this->token(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:aws.kinesis.protobuf.Credentials)
+  return target;
+}
+
+int Credentials::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required string akid = 1;
+    if (has_akid()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->akid());
+    }
+
+    // required string secret_key = 2;
+    if (has_secret_key()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->secret_key());
+    }
+
+    // optional string token = 3;
+    if (has_token()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->token());
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void Credentials::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const Credentials* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const Credentials*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void Credentials::MergeFrom(const Credentials& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_akid()) {
+      set_akid(from.akid());
+    }
+    if (from.has_secret_key()) {
+      set_secret_key(from.secret_key());
+    }
+    if (from.has_token()) {
+      set_token(from.token());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void Credentials::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void Credentials::CopyFrom(const Credentials& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Credentials::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
+
+  return true;
+}
+
+void Credentials::Swap(Credentials* other) {
+  if (other != this) {
+    std::swap(akid_, other->akid_);
+    std::swap(secret_key_, other->secret_key_);
+    std::swap(token_, other->token_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata Credentials::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = Credentials_descriptor_;
+  metadata.reflection = Credentials_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int SetCredentials::kForMetricsFieldNumber;
+const int SetCredentials::kCredentialsFieldNumber;
+#endif  // !_MSC_VER
+
+SetCredentials::SetCredentials()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:aws.kinesis.protobuf.SetCredentials)
+}
+
+void SetCredentials::InitAsDefaultInstance() {
+  credentials_ = const_cast< ::aws::kinesis::protobuf::Credentials*>(&::aws::kinesis::protobuf::Credentials::default_instance());
+}
+
+SetCredentials::SetCredentials(const SetCredentials& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:aws.kinesis.protobuf.SetCredentials)
+}
+
+void SetCredentials::SharedCtor() {
+  _cached_size_ = 0;
+  for_metrics_ = false;
+  credentials_ = NULL;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+SetCredentials::~SetCredentials() {
+  // @@protoc_insertion_point(destructor:aws.kinesis.protobuf.SetCredentials)
+  SharedDtor();
+}
+
+void SetCredentials::SharedDtor() {
+  if (this != default_instance_) {
+    delete credentials_;
+  }
+}
+
+void SetCredentials::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* SetCredentials::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return SetCredentials_descriptor_;
+}
+
+const SetCredentials& SetCredentials::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_messages_2eproto();
+  return *default_instance_;
+}
+
+SetCredentials* SetCredentials::default_instance_ = NULL;
+
+SetCredentials* SetCredentials::New() const {
+  return new SetCredentials;
+}
+
+void SetCredentials::Clear() {
+  if (_has_bits_[0 / 32] & 3) {
+    for_metrics_ = false;
+    if (has_credentials()) {
+      if (credentials_ != NULL) credentials_->::aws::kinesis::protobuf::Credentials::Clear();
+    }
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool SetCredentials::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:aws.kinesis.protobuf.SetCredentials)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional bool for_metrics = 1;
+      case 1: {
+        if (tag == 8) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &for_metrics_)));
+          set_has_for_metrics();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(18)) goto parse_credentials;
+        break;
+      }
+
+      // required .aws.kinesis.protobuf.Credentials credentials = 2;
+      case 2: {
+        if (tag == 18) {
+         parse_credentials:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_credentials()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:aws.kinesis.protobuf.SetCredentials)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:aws.kinesis.protobuf.SetCredentials)
+  return false;
+#undef DO_
+}
+
+void SetCredentials::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:aws.kinesis.protobuf.SetCredentials)
+  // optional bool for_metrics = 1;
+  if (has_for_metrics()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(1, this->for_metrics(), output);
+  }
+
+  // required .aws.kinesis.protobuf.Credentials credentials = 2;
+  if (has_credentials()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, this->credentials(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:aws.kinesis.protobuf.SetCredentials)
+}
+
+::google::protobuf::uint8* SetCredentials::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:aws.kinesis.protobuf.SetCredentials)
+  // optional bool for_metrics = 1;
+  if (has_for_metrics()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(1, this->for_metrics(), target);
+  }
+
+  // required .aws.kinesis.protobuf.Credentials credentials = 2;
+  if (has_credentials()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        2, this->credentials(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:aws.kinesis.protobuf.SetCredentials)
+  return target;
+}
+
+int SetCredentials::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional bool for_metrics = 1;
+    if (has_for_metrics()) {
+      total_size += 1 + 1;
+    }
+
+    // required .aws.kinesis.protobuf.Credentials credentials = 2;
+    if (has_credentials()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->credentials());
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void SetCredentials::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const SetCredentials* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const SetCredentials*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void SetCredentials::MergeFrom(const SetCredentials& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_for_metrics()) {
+      set_for_metrics(from.for_metrics());
+    }
+    if (from.has_credentials()) {
+      mutable_credentials()->::aws::kinesis::protobuf::Credentials::MergeFrom(from.credentials());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void SetCredentials::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void SetCredentials::CopyFrom(const SetCredentials& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool SetCredentials::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
+
+  if (has_credentials()) {
+    if (!this->credentials().IsInitialized()) return false;
+  }
+  return true;
+}
+
+void SetCredentials::Swap(SetCredentials* other) {
+  if (other != this) {
+    std::swap(for_metrics_, other->for_metrics_);
+    std::swap(credentials_, other->credentials_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata SetCredentials::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = SetCredentials_descriptor_;
+  metadata.reflection = SetCredentials_reflection_;
   return metadata;
 }
 

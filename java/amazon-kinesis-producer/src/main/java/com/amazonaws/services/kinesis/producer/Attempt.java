@@ -13,9 +13,9 @@
  * permissions and limitations under the License.
  */
 
-package com.amazonaws.kinesis.producer;
+package com.amazonaws.services.kinesis.producer;
 
-import com.amazonaws.kinesis.producer.protobuf.Messages;
+import com.amazonaws.services.kinesis.producer.protobuf.Messages;
 
 /**
  * Represents one attempt at writing a record to the backend. The attempt may or

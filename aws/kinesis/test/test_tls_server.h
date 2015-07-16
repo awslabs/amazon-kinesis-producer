@@ -17,7 +17,6 @@
 #include <list>
 
 #include <boost/asio.hpp>
-#include <boost/asio/spawn.hpp>
 #include <boost/asio/ssl.hpp>
 
 #include <aws/http/http_request.h>
@@ -94,8 +93,12 @@ class TestTLSServer : boost::noncopyable {
 
   void accept_one();
 
-  void session(const std::shared_ptr<SslSocket>& socket,
-               const boost::asio::yield_context& yield);
+  void read(const boost::system::error_code& ec,
+            std::shared_ptr<SslSocket> socket);
+
+  void write(const boost::system::error_code& ec,
+             std::shared_ptr<aws::http::HttpRequest> req,
+             std::shared_ptr<SslSocket> socket);
 
   const int port_;
   std::list<RequestHandler> handlers_;

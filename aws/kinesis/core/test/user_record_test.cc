@@ -16,7 +16,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <glog/logging.h>
+#include <aws/utils/logging.h>
 
 #include <aws/kinesis/core/user_record.h>
 
@@ -80,7 +80,7 @@ void throughput_test(bool ehk) {
       std::chrono::duration_cast<std::chrono::nanoseconds>(end - start)
           .count() / 1e9;
   double rate = (double) N / seconds;
-  LOG(INFO) << "Message conversion rate (" << (ehk ? "with" : "no") << " EHK): "
+  LOG(info) << "Message conversion rate (" << (ehk ? "with" : "no") << " EHK): "
             << rate << " messages/s";
 }
 

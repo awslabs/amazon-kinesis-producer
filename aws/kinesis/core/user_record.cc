@@ -13,7 +13,7 @@
 
 #include <aws/kinesis/core/user_record.h>
 
-#include <glog/logging.h>
+#include <aws/utils/logging.h>
 
 namespace aws {
 namespace kinesis {

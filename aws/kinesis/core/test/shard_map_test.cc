@@ -26,7 +26,7 @@ const std::string kStreamName = "myStream";
 
 class Wrapper {
  public:
-  Wrapper(int delay = 100)
+  Wrapper(int delay = 1500)
       : socket_factory_(std::make_shared<aws::http::IoServiceSocketFactory>()),
         executor_(std::make_shared<aws::utils::IoServiceExecutor>(1)),
         http_client_(
@@ -427,7 +427,7 @@ BOOST_AUTO_TEST_CASE(Retry) {
   }
   )XXXX"));
 
-  Wrapper wrapper(500);
+  Wrapper wrapper(3000);
 
   BOOST_CHECK_EQUAL(
       *wrapper.shard_id("170141183460469231731687303715884105728"),
@@ -463,15 +463,28 @@ BOOST_AUTO_TEST_CASE(Backoff) {
 
   Wrapper wrapper(0);
 
-  // We have initial backoff = 100, growth factor = 1.5, so after 1317ms
-  // there should be 6 attempts.
-  aws::utils::sleep_for(std::chrono::milliseconds(1400));
-  BOOST_CHECK_EQUAL(count, 6);
+  // Wait for the first attempt to be made
+  while (count == 0) {
+    aws::this_thread::yield();
+  }
+
+  auto start = std::chrono::high_resolution_clock::now();
+
+  // We have initial backoff = 100, growth factor = 1.5, so the 6th attempt
+  // should happen 1317ms after the 1st attempt.
+  while (count < 6) {
+    aws::this_thread::yield();
+  }
+  BOOST_CHECK_CLOSE(aws::utils::seconds_since(start), 1.317, 20);
 
   // The backoff should reach a cap of 1000ms, so after 5 more seconds, there
   // should be 5 additional attempts, for a total of 11.
-  aws::utils::sleep_for(std::chrono::milliseconds(5100));
-  BOOST_CHECK_EQUAL(count, 11);
+  while (count < 11) {
+    aws::this_thread::yield();
+  }
+  BOOST_CHECK_CLOSE(aws::utils::seconds_since(start), 6.317, 20);
+
+  aws::utils::sleep_for(std::chrono::milliseconds(500));
 }
 
 BOOST_AUTO_TEST_CASE(Invalidate) {
@@ -563,14 +576,21 @@ BOOST_AUTO_TEST_CASE(Invalidate) {
       ]
     }
   }
-  )XXXX", "", 200, 50));
+  )XXXX", "", 200, 250));
+
+  server.enqueue_handler([=](auto& req) {
+    BOOST_FAIL("Extraneous request was made");
+    aws::http::HttpResponse res(400);
+    res.set_data("fail");
+    return res;
+  });
 
   Wrapper wrapper;
 
   // Calling invalidate with a timestamp that's before the last update should
   // not actually invalidate the shard map.
   wrapper.invalidate(
-      std::chrono::steady_clock::now() - std::chrono::milliseconds(500));
+      std::chrono::steady_clock::now() - std::chrono::seconds(15));
 
   // Shard map should continue working
   BOOST_CHECK_EQUAL(

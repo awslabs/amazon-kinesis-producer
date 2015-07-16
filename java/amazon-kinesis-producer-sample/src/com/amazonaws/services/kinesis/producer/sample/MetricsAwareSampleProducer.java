@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-package com.amazonaws.kinesis.producer.sample;
+package com.amazonaws.services.kinesis.producer.sample;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutionException;
@@ -22,12 +22,12 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazonaws.kinesis.producer.Attempt;
-import com.amazonaws.kinesis.producer.Configuration;
-import com.amazonaws.kinesis.producer.KinesisProducer;
-import com.amazonaws.kinesis.producer.Metric;
-import com.amazonaws.kinesis.producer.UserRecordFailedException;
-import com.amazonaws.kinesis.producer.UserRecordResult;
+import com.amazonaws.services.kinesis.producer.Attempt;
+import com.amazonaws.services.kinesis.producer.KinesisProducerConfiguration;
+import com.amazonaws.services.kinesis.producer.KinesisProducer;
+import com.amazonaws.services.kinesis.producer.Metric;
+import com.amazonaws.services.kinesis.producer.UserRecordFailedException;
+import com.amazonaws.services.kinesis.producer.UserRecordResult;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -66,7 +66,7 @@ public class MetricsAwareSampleProducer {
         final AtomicLong completed = new AtomicLong(0);
         final String timetstamp = Long.toString(System.currentTimeMillis());
         
-        Configuration config = new Configuration()
+        KinesisProducerConfiguration config = new KinesisProducerConfiguration()
                 .setRecordMaxBufferedTime(3000)
                 .setMaxConnections(1)
                 .setRequestTimeout(60000)

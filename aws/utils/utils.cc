@@ -25,7 +25,7 @@
 #include <boost/multiprecision/cpp_int.hpp>
 #include <boost/date_time.hpp>
 
-#include <glog/logging.h>
+#include <aws/utils/logging.h>
 
 #include <openssl/md5.h>
 

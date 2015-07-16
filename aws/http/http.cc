@@ -11,7 +11,41 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
+#include <sstream>
+
+#include <boost/predef.h>
+
 #include <aws/http/http.h>
+
+#if BOOST_OS_WINDOWS
+  #include <windows.h>
+#else
+  #include <sys/utsname.h>
+#endif
+
+namespace {
+
+const constexpr char* kVersion = "0.10.0";
+
+std::string user_agent() {
+  std::stringstream ss;
+  ss << "KinesisProducerLibrary/" << kVersion << " | ";
+#if BOOST_OS_WINDOWS
+  OSVERSIONINFO v;
+  v.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+  GetVersionEx(&v);
+  ss << "Windows | " << v.dwMajorVersion << "." << v.dwMinorVersion << "."
+     << v.dwBuildNumber << "." << v.dwPlatformId;
+#else
+  ::utsname un;
+  ::uname(&un);
+  ss << un.sysname << " | " << un.release << " | " << un.version << " | "
+     << un.machine;
+#endif
+  return ss.str();
+}
+
+} //namespace
 
 namespace aws {
 namespace http {
@@ -23,17 +57,12 @@ HttpRequest create_kinesis_request(const std::string& region,
   req.add_header("Host", "kinesis." + region + ".amazonaws.com");
   req.add_header("Connection", "Keep-Alive");
   req.add_header("X-Amz-Target", "Kinesis_20131202." + api_method);
-  req.add_header("User-Agent", "KinesisProducerLibrary_0.1");
+  req.add_header("User-Agent", user_agent());
   if (!data.empty()) {
     req.add_header("Content-Type", "application/x-amz-json-1.1");
   }
   req.set_data(data);
   return req;
-}
-
-HttpRequest create_kinesis_request(const std::string& region,
-                                   const std::string& api_method) {
-  return create_kinesis_request(region, api_method, "");
 }
 
 } // namespace http

@@ -13,12 +13,12 @@
  * permissions and limitations under the License.
  */
 
-package com.amazonaws.kinesis.producer;
+package com.amazonaws.services.kinesis.producer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.amazonaws.kinesis.producer.protobuf.Messages;
+import com.amazonaws.services.kinesis.producer.protobuf.Messages;
 import com.google.common.collect.ImmutableList;
 
 /**

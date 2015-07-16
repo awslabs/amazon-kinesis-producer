@@ -15,11 +15,18 @@
 #define AWS_KINESIS_CORE_LIMITER_H_
 
 #include <boost/noncopyable.hpp>
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/ordered_index.hpp>
+#include <boost/multi_index/tag.hpp>
 
-#include <aws/utils/executor.h>
-#include <aws/utils/token_bucket.h>
+#include <aws/kinesis/core/configuration.h>
+#include <aws/kinesis/core/kinesis_record.h>
 #include <aws/utils/concurrent_hash_map.h>
 #include <aws/utils/concurrent_linked_queue.h>
+#include <aws/utils/executor.h>
+#include <aws/utils/logging.h>
+#include <aws/utils/time_sensitive_queue.h>
+#include <aws/utils/token_bucket.h>
 
 namespace aws {
 namespace kinesis {
@@ -49,32 +56,33 @@ class ShardLimiter : boost::noncopyable {
           token_growth_multiplier * kBytesPerSecLimit);
   }
 
-  void put(std::shared_ptr<KinesisRecord> incoming, const Callback& callback) {
+  void put(std::shared_ptr<KinesisRecord> incoming,
+           const Callback& callback,
+           const Callback& expired_callback) {
     queue_.put(std::move(incoming));
-    drain(callback);
+    drain(callback, expired_callback);
   }
 
-  void drain(const Callback& callback) {
-    // skip if flag already set
+  void drain(const Callback& callback, const Callback& expired_callback) {
     if (draining_.test_and_set()) {
       return;
     }
 
     std::shared_ptr<KinesisRecord> kr;
-
     while (queue_.try_take(kr)) {
-      internal_queue_.push_back(std::move(kr));
+      internal_queue_.insert(std::move(kr));
     }
 
-    while (!internal_queue_.empty()) {
-      double bytes = internal_queue_.front()->accurate_size();
+    internal_queue_.consume_expired(expired_callback);
+
+    internal_queue_.consume_by_deadline([&](const auto& kr) {
+      double bytes = kr->accurate_size();
       if (token_bucket_.try_take({1, bytes})) {
-        callback(internal_queue_.front());
-        internal_queue_.pop_front();
-      } else {
-        break;
+        callback(kr);
+        return true;
       }
-    }
+      return false;
+    });
 
     draining_.clear();
   }
@@ -84,7 +92,7 @@ class ShardLimiter : boost::noncopyable {
   // only one thread can be performing drain at a time.
   std::atomic_flag draining_ = ATOMIC_FLAG_INIT;
   aws::utils::TokenBucket token_bucket_;
-  std::list<std::shared_ptr<KinesisRecord>> internal_queue_;
+  aws::utils::TimeSensitiveQueue<KinesisRecord> internal_queue_;
   aws::utils::ConcurrentLinkedQueue<std::shared_ptr<KinesisRecord>> queue_;
 };
 
@@ -94,9 +102,11 @@ class Limiter : boost::noncopyable {
  public:
   Limiter(std::shared_ptr<aws::utils::Executor> executor,
           detail::ShardLimiter::Callback callback,
+          detail::ShardLimiter::Callback expired_callback,
           std::shared_ptr<Configuration> config)
       : executor_(executor),
         callback_(callback),
+        expired_callback_(expired_callback),
         limiters_([=](auto) {
           return new detail::ShardLimiter(
               (double) config->rate_limit() / 100.0);
@@ -114,7 +124,7 @@ class Limiter : boost::noncopyable {
     if (!shard_id) {
       callback_(kr);
     } else {
-      limiters_[*shard_id].put(kr, callback_);
+      limiters_[*shard_id].put(kr, callback_, expired_callback_);
     }
   }
 
@@ -123,12 +133,12 @@ class Limiter : boost::noncopyable {
 
   void poll() {
     limiters_.foreach([this](auto, auto limiter) {
-      limiter->drain(callback_);
+      limiter->drain(callback_, expired_callback_);
     });
 
     std::chrono::milliseconds delay(kDrainDelayMillis);
     if (!scheduled_poll_) {
-      executor_->schedule([this] { this->poll(); }, delay, &scheduled_poll_);
+      scheduled_poll_ = executor_->schedule([this] { this->poll(); }, delay);
     } else {
       scheduled_poll_->reschedule(delay);
     }
@@ -136,6 +146,7 @@ class Limiter : boost::noncopyable {
 
   std::shared_ptr<aws::utils::Executor> executor_;
   detail::ShardLimiter::Callback callback_;
+  detail::ShardLimiter::Callback expired_callback_;
   aws::utils::ConcurrentHashMap<uint64_t, detail::ShardLimiter> limiters_;
   std::shared_ptr<aws::utils::ScheduledCallback> scheduled_poll_;
 };

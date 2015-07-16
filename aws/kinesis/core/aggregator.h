@@ -34,7 +34,7 @@ class Aggregator : boost::noncopyable {
   using DeadlineCallback = std::function<void (std::shared_ptr<KinesisRecord>)>;
   using ReducerMap =
       aws::utils::ConcurrentHashMap<uint64_t,
-                                       Reducer<UserRecord, KinesisRecord>>;
+                                    Reducer<UserRecord, KinesisRecord>>;
 
   Aggregator(
       const std::shared_ptr<aws::utils::Executor>& executor,
@@ -48,15 +48,7 @@ class Aggregator : boost::noncopyable {
         deadline_callback_(deadline_callback),
         config_(config),
         metrics_manager_(metrics_manager),
-        // Allocate space for 16K shards so we never have to grow the map
-        reducers_(
-            [this](auto) {
-              return new Reducer<UserRecord, KinesisRecord>(
-                  executor_,
-                  deadline_callback_,
-                  config_->aggregation_max_size(),
-                  config_->aggregation_max_count());
-            }) {}
+        reducers_([this](auto) { return this->make_reducer(); }) {}
 
   std::shared_ptr<KinesisRecord> put(const std::shared_ptr<UserRecord>& ur) {
     // If shard map is not available, or aggregation is disabled, just send the
@@ -81,6 +73,15 @@ class Aggregator : boost::noncopyable {
   }
 
  private:
+  // This cannot be inlined in the lambda because msvc cannot compile that
+  Reducer<UserRecord, KinesisRecord>* make_reducer() {
+    return new Reducer<UserRecord, KinesisRecord>(
+        executor_,
+        deadline_callback_,
+        config_->aggregation_max_size(),
+        config_->aggregation_max_count());
+  }
+
   std::shared_ptr<aws::utils::Executor> executor_;
   std::shared_ptr<ShardMap> shard_map_;
   DeadlineCallback deadline_callback_;
