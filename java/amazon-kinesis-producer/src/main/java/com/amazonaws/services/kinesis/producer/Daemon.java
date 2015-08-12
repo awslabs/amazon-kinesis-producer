@@ -365,7 +365,7 @@ public class Daemon {
         
         do {
             outPipe = Paths.get("\\\\.\\pipe\\amz-aws-kpl-out-pipe-" + uuid8Chars()).toFile();
-        } while (inPipe.exists());
+        } while (outPipe.exists());
     }
     
     private void createPipesUnix() {
@@ -382,7 +382,7 @@ public class Daemon {
         do {
             outPipe = Paths.get(dir.getAbsolutePath(),
                     "amz-aws-kpl-out-pipe-" + uuid8Chars()).toFile();
-        } while (inPipe.exists());
+        } while (outPipe.exists());
         
         try {
             Runtime.getRuntime().exec("mkfifo " + inPipe.getAbsolutePath() + " " + outPipe.getAbsolutePath());
