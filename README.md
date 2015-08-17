@@ -8,6 +8,19 @@ For detailed information and installation instructions, see the article [Develop
 
 ## Release Notes
 
+### 0.10.1
+
+Bug fixes and improved temp file management in Java wrapper.
+
+#### Java
+
++ The wrapper no longer creates unique a copy of the native binary on disk per instance of KinesisProducer. Multiple instances can now share the same file. Clobbering between versions is prevented by adding the hash of the contents to the file name.
+
+#### C++ Core
+
++ Idle CPU usage has been reduced (Issue [15](https://github.com/awslabs/amazon-kinesis-producer/issues/15))
++ The native process should now terminate when the wrapper process is killed (Issues [14](https://github.com/awslabs/amazon-kinesis-producer/issues/14), [16](https://github.com/awslabs/amazon-kinesis-producer/issues/16))
+
 ### 0.10.0
 
 Significant platform compatibility improvements and easier credentials configuration in the Java wrapper.

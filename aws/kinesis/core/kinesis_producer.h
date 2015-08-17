@@ -21,36 +21,7 @@ namespace aws {
 namespace kinesis {
 namespace core {
 
-namespace detail {
-
-class ProcessMessagesLoop : boost::noncopyable {
- public:
-  using Callback = std::function<void (std::string&&) noexcept>;
-
-  ProcessMessagesLoop(Callback callback,
-                      std::shared_ptr<IpcManager> ipc_manager,
-                      std::shared_ptr<aws::utils::Executor> executor)
-      : run_([this] { this->run(); }),
-        callback_(std::move(callback)),
-        ipc_manager_(std::move(ipc_manager)),
-        executor_(std::move(executor)) {
-    run_();
-  }
-
- private:
-  void run();
-
-  std::string tmp_;
-  std::function<void ()> run_;
-  Callback callback_;
-  std::shared_ptr<IpcManager> ipc_manager_;
-  std::shared_ptr<aws::utils::Executor> executor_;
-  std::shared_ptr<aws::utils::ScheduledCallback> scheduled_callback_;
-};
-
-} //namespace detail
-
-class KinesisProducer {
+class KinesisProducer : boost::noncopyable {
  public:
   using Configuration = aws::kinesis::core::Configuration;
 
@@ -81,27 +52,35 @@ class KinesisProducer {
         ipc_manager_(std::move(ipc_manager)),
         pipelines_([this](auto& stream) {
           return this->create_pipeline(stream);
-        }) {
+        }),
+        shutdown_(false) {
     create_metrics_manager();
     create_http_client();
-    start_message_loops();
     report_outstanding();
+    message_drainer_ = aws::thread([this] { this->drain_messages(); });
   }
 
-  KinesisProducer(const KinesisProducer&) = delete;
+  ~KinesisProducer() {
+    shutdown_ = true;
+    message_drainer_.join();
+  }
 
   void join() {
     executor_->join();
   }
 
  private:
+  static const std::chrono::microseconds kMessageDrainMinBackoff;
+  static const std::chrono::microseconds kMessageDrainMaxBackoff;
+  static constexpr const size_t kMessageMaxBatchSize = 16;
+
   void create_metrics_manager();
 
   void create_http_client();
 
   Pipeline* create_pipeline(const std::string& stream);
 
-  void start_message_loops();
+  void drain_messages();
 
   void on_ipc_message(std::string&& message) noexcept;
 
@@ -129,7 +108,8 @@ class KinesisProducer {
   std::shared_ptr<aws::metrics::MetricsManager> metrics_manager_;
 
   aws::utils::ConcurrentHashMap<std::string, Pipeline> pipelines_;
-  std::vector<std::unique_ptr<detail::ProcessMessagesLoop>> message_loops_;
+  bool shutdown_;
+  aws::thread message_drainer_;
 
   std::shared_ptr<aws::utils::ScheduledCallback> report_outstanding_;
 };

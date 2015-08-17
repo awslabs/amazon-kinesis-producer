@@ -15,6 +15,7 @@ package com.amazonaws.services.kinesis.producer;
 
 import static com.confluex.mock.http.matchers.HttpMatchers.anyRequest;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -23,6 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.StringUtils;
@@ -159,6 +163,30 @@ public class KinesisProducerTest {
         assertTrue(counts.get(AKID_D).get() > 1);
     }
     
+    @Test
+    public void multipleInstances() throws Exception {
+        int N = 8;
+        final KinesisProducer[] kps = new KinesisProducer[N];
+        ExecutorService exec = Executors.newFixedThreadPool(N);
+        for (int i = 0; i < N; i++) {
+            final int n = i;
+            exec.submit(new Runnable() {
+                @Override
+                public void run() {
+                    kps[n] = getProducer(null, null);
+                }
+            });
+        }
+        exec.shutdown();
+        exec.awaitTermination(30, TimeUnit.SECONDS);
+        Thread.sleep(10000);
+        for (int i = 0; i < N; i++) {
+            assertNotNull(kps[i]);
+            assertNotNull(kps[i].getMetrics());
+            kps[i].destroy();
+        }
+    }
+ 
     private KinesisProducer getProducer(AWSCredentialsProvider provider, AWSCredentialsProvider metrics_creds_provider) {
         final KinesisProducerConfiguration cfg = new KinesisProducerConfiguration()
                 .setCustomEndpoint("localhost")

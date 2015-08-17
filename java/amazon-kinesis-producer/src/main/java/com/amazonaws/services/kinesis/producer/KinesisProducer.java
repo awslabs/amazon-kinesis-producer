@@ -16,22 +16,24 @@
 package com.amazonaws.services.kinesis.producer;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileLock;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import javax.xml.bind.DatatypeConverter;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
@@ -76,6 +78,7 @@ public class KinesisProducer {
     private static final Logger log = LoggerFactory.getLogger(KinesisProducer.class);
     
     private static final BigInteger UINT_128_MAX = new BigInteger(StringUtils.repeat("FF", 16), 16);
+    private static final Object EXTRACT_BIN_MUTEX = new Object();
     
     private final KinesisProducerConfiguration config;
     private final Map<String, String> env;
@@ -692,69 +695,74 @@ public class KinesisProducer {
     }
     
     private void extractBinaries() {
-        String os = SystemUtils.OS_NAME;
-        if (SystemUtils.IS_OS_WINDOWS) {
-            os = "windows";
-        } else if (SystemUtils.IS_OS_LINUX) {
-            os = "linux";
-        } else if (SystemUtils.IS_OS_MAC_OSX) {
-            os = "osx";
-        } else {
-            throw new RuntimeException("Your operation system is not supported (" +
-                    os + "), the KPL only supports Linux, OSX and Windows");
-        }
-        
-        String root = "amazon-kinesis-producer-native-binaries";
-        String tmpDir = config.getTempDirectory();
-        if (tmpDir.trim().length() == 0) {
-            tmpDir = System.getProperty("java.io.tmpdir");
-        }
-        tmpDir = Paths.get(tmpDir, root + "_" + Long.toString(System.nanoTime())).toString();
-        pathToTmpDir = tmpDir;
-        
-        String binPath = config.getNativeExecutable();
-        if (binPath != null && !binPath.trim().isEmpty()) {
-            pathToExecutable = binPath.trim();
-            log.warn("Using non-default native binary at " + pathToExecutable);
-            pathToLibDir = "";
-        } else {
-            log.info("Extracting binaries to " + tmpDir);
-            try {
-                File tmpDirFile = new File(tmpDir);
-                if (!tmpDirFile.mkdirs()) {
-                    throw new IOException("Could not create dir " + tmpDir);
-                }
-                tmpDirFile.deleteOnExit();
-                
-                String tarFile = root + "/" + os + "/bin.tar";
-                try (InputStream is = this.getClass().getClassLoader().getResourceAsStream(tarFile)) {
-                    if (is == null) {
-                        throw new FileNotFoundException(tarFile);
+        synchronized (EXTRACT_BIN_MUTEX) {
+            String os = SystemUtils.OS_NAME;
+            if (SystemUtils.IS_OS_WINDOWS) {
+                os = "windows";
+            } else if (SystemUtils.IS_OS_LINUX) {
+                os = "linux";
+            } else if (SystemUtils.IS_OS_MAC_OSX) {
+                os = "osx";
+            } else {
+                throw new RuntimeException("Your operation system is not supported (" +
+                        os + "), the KPL only supports Linux, OSX and Windows");
+            }
+            
+            String root = "amazon-kinesis-producer-native-binaries";
+            String tmpDir = config.getTempDirectory();
+            if (tmpDir.trim().length() == 0) {
+                tmpDir = System.getProperty("java.io.tmpdir");
+            }
+            tmpDir = Paths.get(tmpDir, root).toString();
+            pathToTmpDir = tmpDir;
+            
+            String binPath = config.getNativeExecutable();
+            if (binPath != null && !binPath.trim().isEmpty()) {
+                pathToExecutable = binPath.trim();
+                log.warn("Using non-default native binary at " + pathToExecutable);
+                pathToLibDir = "";
+            } else {
+                log.info("Extracting binaries to " + tmpDir);
+                try {
+                    File tmpDirFile = new File(tmpDir);
+                    if (!tmpDirFile.exists() && !tmpDirFile.mkdirs()) {
+                        throw new IOException("Could not create tmp dir " + tmpDir);
                     }
-                    TarArchiveInputStream tais = new TarArchiveInputStream(is);
-                    TarArchiveEntry e = null;
-                    while ((e = tais.getNextTarEntry()) != null) {
-                        long n = e.getSize();
-                        byte[] buf = new byte[(int) n];
-                        IOUtils.readFully(tais, buf);
-                        File f = Paths.get(tmpDir, e.getName()).toFile();
-                        f.createNewFile();
-                        f.deleteOnExit();
-                        try (FileOutputStream fs = new FileOutputStream(f)) {
-                            IOUtils.write(buf, fs);
+                    
+                    String extension = os.equals("windows") ? ".exe" : "";
+                    String executableName = "kinesis_producer" + extension;
+                    byte[] bin = IOUtils.toByteArray(
+                            this.getClass().getClassLoader().getResourceAsStream(root + "/" + os + "/" + executableName));
+                    MessageDigest md = MessageDigest.getInstance("SHA1");
+                    String mdHex = DatatypeConverter.printHexBinary(md.digest(bin)).toLowerCase();
+                    
+                    pathToExecutable = Paths.get(pathToTmpDir, "kinesis_producer_" + mdHex + extension).toString();
+                    File extracted = new File(pathToExecutable);
+                    if (extracted.exists()) {
+                        try (FileInputStream fis = new FileInputStream(extracted);
+                                FileLock lock = fis.getChannel().lock(0, Long.MAX_VALUE, true)) {
+                            boolean contentEqual = false;
+                            if (extracted.length() == bin.length) {
+                                byte[] existingBin = IOUtils.toByteArray(new FileInputStream(extracted));
+                                contentEqual = Arrays.equals(bin, existingBin);
+                            }
+                            if (!contentEqual) {
+                                throw new SecurityException("The contents of the binary " + extracted.getAbsolutePath()
+                                        + " is not what it's expected to be.");
+                            }
                         }
+                    } else {
+                        try (FileOutputStream fos = new FileOutputStream(extracted);
+                                FileLock lock = fos.getChannel().lock()) {
+                            IOUtils.write(bin, fos);
+                        }
+                        extracted.setExecutable(true);
                     }
+     
+                    pathToLibDir = pathToTmpDir;
+                } catch (Exception e) {
+                    throw new RuntimeException("Could not copy native binaries to temp directory " + tmpDir, e);
                 }
-                
-                String executableName = "kinesis_producer";
-                if (os.equals("windows")) {
-                    executableName += ".exe";
-                }
-                pathToExecutable = Paths.get(pathToTmpDir, executableName).toString();
-                new File(pathToExecutable).setExecutable(true);
-                pathToLibDir = pathToTmpDir;
-            } catch (Exception e) {
-                throw new RuntimeException("Could not copy native binaries to temp directory " + tmpDir, e);
             }
         }
     }

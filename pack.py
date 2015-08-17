@@ -103,7 +103,7 @@ def main():
       '\n'.join(supported_sys))
 
   kp = find_main_binary()
-  libs = find_libs(kp, system)
+  #libs = find_libs(kp, system)
 
   bin_dir = os.path.join('java', 'amazon-kinesis-producer', 'src', 'main',
     'resources', 'amazon-kinesis-producer-native-binaries')
@@ -117,18 +117,19 @@ def main():
   shutil.rmtree(bin_dir, ignore_errors=True)
   os.makedirs(bin_dir)
   shutil.copy(os.sep.join(kp), bin_dir)
-  for lib in libs:
-    shutil.copy(os.path.join('third_party', 'lib', lib), bin_dir)
+  #for lib in libs:
+  #  shutil.copy(os.path.join('third_party', 'lib', lib), bin_dir)
 
-  files = [lib for lib in libs]
+  #files = [lib for lib in libs]
+  files = []
   files.append('kinesis_producer' + ('.exe' if system == 'Windows' else ''))
 
-  os.chdir(bin_dir)
-  with tarfile.open('bin.tar', 'w') as tar:
-    for f in files:
-      tar.add(f)
-  for f in files:
-    os.remove(f)
+  #os.chdir(bin_dir)
+  #with tarfile.open('bin.tar', 'w') as tar:
+  #  for f in files:
+  #    tar.add(f)
+  #for f in files:
+  #  os.remove(f)
 
   print('*' * 80)
   print('Done. Do ' +

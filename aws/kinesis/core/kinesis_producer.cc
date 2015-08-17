@@ -17,35 +17,8 @@ namespace aws {
 namespace kinesis {
 namespace core {
 
-namespace detail {
-
-void ProcessMessagesLoop::run() {
-  if (scheduled_callback_) {
-    scheduled_callback_->cancel();
-  }
-
-  int n = 0;
-  while (n < 64 && ipc_manager_->try_take(tmp_)) {
-    callback_(std::move(tmp_));
-    n++;
-  }
-
-  // Empty queue prolly means there's not much work, so we'll sleep for a
-  // while, otherwise we'll consume too much CPU polling the queue in a tight
-  // loop.
-  if (n == 0) {
-    auto delay = std::chrono::milliseconds(1);
-    if (!scheduled_callback_) {
-      scheduled_callback_ = executor_->schedule(run_, delay);
-    } else {
-      scheduled_callback_->reschedule(delay);
-    }
-  } else {
-    executor_->submit(run_);
-  }
-}
-
-} //namespace detail
+const std::chrono::microseconds KinesisProducer::kMessageDrainMinBackoff(100);
+const std::chrono::microseconds KinesisProducer::kMessageDrainMaxBackoff(10000);
 
 void KinesisProducer::create_metrics_manager() {
   auto level = aws::metrics::constants::level(config_->metrics_level());
@@ -117,15 +90,30 @@ Pipeline* KinesisProducer::create_pipeline(const std::string& stream) {
       });
 }
 
-void KinesisProducer::start_message_loops() {
-  for (size_t i = 0; i < executor_->num_threads(); i++) {
-    message_loops_.push_back(
-        std::make_unique<detail::ProcessMessagesLoop>(
-            [this](auto&& msg) {
-              this->on_ipc_message(std::forward<decltype(msg)>(msg));
-            },
-            ipc_manager_,
-            executor_));
+void KinesisProducer::drain_messages() {
+  std::string s;
+  std::vector<std::string> buf;
+  std::chrono::microseconds backoff = kMessageDrainMinBackoff;
+
+  while (!shutdown_) {
+    // The checks must be in this order because try_take has a side effect
+    while (buf.size() < kMessageMaxBatchSize && ipc_manager_->try_take(s)) {
+      buf.push_back(std::move(s));
+    }
+
+    if (!buf.empty()) {
+      std::vector<std::string> batch;
+      std::swap(batch, buf);
+      executor_->submit([batch = std::move(batch), this]() mutable {
+        for (auto& s : batch) {
+          this->on_ipc_message(std::move(s));
+        }
+      });
+      backoff = kMessageDrainMinBackoff;
+    } else {
+      aws::utils::sleep_for(backoff);
+      backoff = std::min(backoff * 2, kMessageDrainMaxBackoff);
+    }
   }
 }
 

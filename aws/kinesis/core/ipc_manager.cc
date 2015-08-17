@@ -10,6 +10,7 @@
 // on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
+
 #include <aws/kinesis/core/ipc_manager.h>
 
 #include <aws/utils/utils.h>
@@ -53,10 +54,14 @@ bool IpcReader::read(size_t len) {
   while (read < len) {
     auto num_read = channel_->read(buffer_.data() + read, len - read);
 
-    if (num_read < 0) {
+    if (num_read <= 0) {
       if (!shutdown_) {
         std::stringstream ss;
-        ss << "IO error reading from ipc channel.";
+        if (num_read < 0) {
+          ss << "IO error reading from ipc channel, errno = " << errno;
+        } else if (num_read == 0) {
+          ss << "EOF reached while reading from ipc channel";
+        }
         throw std::runtime_error(ss.str().c_str());
       } else {
         return false;
@@ -98,7 +103,7 @@ void IpcWriter::write(size_t len) {
     if (num_written < 0) {
       if (!shutdown_) {
         std::stringstream ss;
-        ss << "IO error writing to ipc channel.";
+        ss << "IO error writing to ipc channel, errno = " << errno;
         throw std::runtime_error(ss.str().c_str());
       }
       return;
