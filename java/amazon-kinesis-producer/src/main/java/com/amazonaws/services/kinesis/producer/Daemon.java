@@ -315,7 +315,10 @@ public class Daemon {
                         updateCredentials();
                         Thread.sleep(config.getCredentialsRefreshDelay());
                     } catch (InterruptedException e) {
-                        log.warn("Exception during updateCredentials", e);
+
+                        if (!shutdown.get()) { // Don't log InterruptedException raised during shutdown process
+                            log.warn("Exception during updateCredentials", e);
+                        }
                     }
                 }
             }

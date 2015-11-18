@@ -16,6 +16,7 @@
 package com.amazonaws.services.kinesis.producer;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -708,15 +709,15 @@ public class KinesisProducer {
                         os + "), the KPL only supports Linux, OSX and Windows");
             }
             
-            String root = "amazon-kinesis-producer-native-binaries";
             String tmpDir = config.getTempDirectory();
+            final String root = "amazon-kinesis-producer-native-binaries";
             if (tmpDir.trim().length() == 0) {
                 tmpDir = System.getProperty("java.io.tmpdir");
             }
             tmpDir = Paths.get(tmpDir, root).toString();
             pathToTmpDir = tmpDir;
             
-            String binPath = config.getNativeExecutable();
+            final String binPath = config.getNativeExecutable();
             if (binPath != null && !binPath.trim().isEmpty()) {
                 pathToExecutable = binPath.trim();
                 log.warn("Using non-default native binary at " + pathToExecutable);
@@ -724,20 +725,25 @@ public class KinesisProducer {
             } else {
                 log.info("Extracting binaries to " + tmpDir);
                 try {
-                    File tmpDirFile = new File(tmpDir);
+                    final File tmpDirFile = new File(tmpDir);
                     if (!tmpDirFile.exists() && !tmpDirFile.mkdirs()) {
                         throw new IOException("Could not create tmp dir " + tmpDir);
                     }
                     
-                    String extension = os.equals("windows") ? ".exe" : "";
-                    String executableName = "kinesis_producer" + extension;
-                    byte[] bin = IOUtils.toByteArray(
-                            this.getClass().getClassLoader().getResourceAsStream(root + "/" + os + "/" + executableName));
-                    MessageDigest md = MessageDigest.getInstance("SHA1");
-                    String mdHex = DatatypeConverter.printHexBinary(md.digest(bin)).toLowerCase();
+                    final String extension = os.equals("windows") ? ".exe" : "";
+                    final String executableName = "kinesis_producer" + extension;
+                    final String resourceName = root + "/" + os + "/" + executableName;
+                    final InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(resourceName);
+                    if (inputStream == null) {
+                        throw new IOException("Could not load resource: " + resourceName);
+                    }
+
+                    final byte[] bin = IOUtils.toByteArray(inputStream);
+                    final MessageDigest md = MessageDigest.getInstance("SHA1");
+                    final String mdHex = DatatypeConverter.printHexBinary(md.digest(bin)).toLowerCase();
                     
                     pathToExecutable = Paths.get(pathToTmpDir, "kinesis_producer_" + mdHex + extension).toString();
-                    File extracted = new File(pathToExecutable);
+                    final File extracted = new File(pathToExecutable);
                     if (extracted.exists()) {
                         try (FileInputStream fis = new FileInputStream(extracted);
                                 FileLock lock = fis.getChannel().lock(0, Long.MAX_VALUE, true)) {
