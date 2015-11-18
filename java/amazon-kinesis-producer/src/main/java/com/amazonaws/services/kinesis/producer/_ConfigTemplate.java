@@ -210,7 +210,7 @@ class _ConfigTemplate {
                         }
                     } catch (Exception e) {
                         throw new IllegalArgumentException(String.format(
-                                "Error trying to set field %s with the value '%s'", "AggregationEnabled",
+                                "Error trying to set field %s with the value '%s'",
                                 key, value), e);
                     }
                 }
