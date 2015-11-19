@@ -30,6 +30,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.xml.bind.DatatypeConverter;
@@ -49,6 +55,7 @@ import com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecord;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.protobuf.ByteString;
 
 /**
@@ -80,41 +87,75 @@ public class KinesisProducer {
     private static final BigInteger UINT_128_MAX = new BigInteger(StringUtils.repeat("FF", 16), 16);
     private static final Object EXTRACT_BIN_MUTEX = new Object();
     
+    private static final AtomicInteger callbackCompletionPoolNumber = new AtomicInteger(0);
+    
     private final KinesisProducerConfiguration config;
     private final Map<String, String> env;
     private final AtomicLong messageNumber = new AtomicLong(1);
     private final Map<Long, SettableFuture<?>> futures = new ConcurrentHashMap<>();
+      
+    private final ExecutorService callbackCompletionExecutor = new ThreadPoolExecutor(
+            1,
+            Runtime.getRuntime().availableProcessors() * 4,
+            5,
+            TimeUnit.MINUTES,
+            new LinkedBlockingQueue<Runnable>(),
+            new ThreadFactoryBuilder()
+                    .setDaemon(true)
+                    .setNameFormat("kpl-callback-pool-" + callbackCompletionPoolNumber.getAndIncrement() + "-thread-%d")
+                    .build(),
+            new RejectedExecutionHandler() {
+                /**
+                 * Execute the runnable inline if we can't submit it to the
+                 * executor. This shouldn't happen since we're using a linked
+                 * queue which doesn't have a bound; but it's here just in case.
+                 */
+                @Override
+                public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+                    r.run();
+                }
+            });
 
     private String pathToExecutable;
     private String pathToLibDir;
     private String pathToTmpDir;
     
-    private Daemon child;
-    private long lastChild = System.nanoTime();
-    private boolean destroyed = false;
+    private volatile Daemon child;
+    private volatile long lastChild = System.nanoTime();
+    private volatile boolean destroyed = false;
 
     private class MessageHandler implements Daemon.MessageHandler {
         @Override
-        public void onMessage(Message m) {
-            if (m.hasPutRecordResult()) {
-                onPutRecordResult(m);
-            } else if (m.hasMetricsResponse()) {
-                onMetricsResponse(m);
-            } else {
-                log.error("Unexpected message type from child process");
-            }
+        public void onMessage(final Message m) {
+            callbackCompletionExecutor.submit(new Runnable() {
+                @Override
+                public void run() {
+                    if (m.hasPutRecordResult()) {
+                        onPutRecordResult(m);
+                    } else if (m.hasMetricsResponse()) {
+                        onMetricsResponse(m);
+                    } else {
+                        log.error("Unexpected message type from child process");
+                    }
+                }
+            });
         }
 
         @Override
-        public void onError(Throwable t) {
+        public void onError(final Throwable t) {
             // Don't log error if the user called destroy
             if (!destroyed) {
                 log.error("Error in child process", t);
             }
 
             // Fail all outstanding futures
-            for (Map.Entry<Long, SettableFuture<?>> entry : futures.entrySet()) {
-                entry.getValue().setException(t);
+            for (final Map.Entry<Long, SettableFuture<?>> entry : futures.entrySet()) {
+                callbackCompletionExecutor.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        entry.getValue().setException(t);
+                    }
+                });
             }
             futures.clear();
 
@@ -138,16 +179,9 @@ public class KinesisProducer {
          * 
          * @param msg
          */
-        @SuppressWarnings("unchecked")
         private void onPutRecordResult(Message msg) {
-            long id = msg.getSourceId();
-            if (!futures.containsKey(id)) {
-                throw new RuntimeException("Future for message id " + id + " not found");
-            }
-            
+            SettableFuture<UserRecordResult> f = getFuture(msg);
             UserRecordResult result = UserRecordResult.fromProtobufMessage(msg.getPutRecordResult());
-            SettableFuture<UserRecordResult> f = (SettableFuture<UserRecordResult>) futures.get(id);
-            futures.remove(id);
             if (result.isSuccessful()) {
                 f.set(result);
             } else {
@@ -155,12 +189,8 @@ public class KinesisProducer {
             }
         }
         
-        @SuppressWarnings("unchecked")
         private void onMetricsResponse(Message msg) {
-            long id = msg.getSourceId();
-            if (!futures.containsKey(id)) {
-                throw new RuntimeException("Future for message id " + id + " not found");
-            }
+            SettableFuture<List<Metric>> f = getFuture(msg);
             
             List<Metric> userMetrics = new ArrayList<>();
             MetricsResponse res = msg.getMetricsResponse();
@@ -168,9 +198,17 @@ public class KinesisProducer {
                 userMetrics.add(new Metric(metric));
             }
             
-            SettableFuture<List<Metric>> f = (SettableFuture<List<Metric>>) futures.get(id);
-            futures.remove(id);
             f.set(userMetrics);
+        }
+        
+        private <T> SettableFuture<T> getFuture(Message msg) {
+            long id = msg.getSourceId();
+            @SuppressWarnings("unchecked")
+            SettableFuture<T> f = (SettableFuture<T>) futures.remove(id);
+            if (f == null) {
+                throw new RuntimeException("Future for message id " + id + " not found");
+            }
+            return f;
         }
     }
     
@@ -258,7 +296,7 @@ public class KinesisProducer {
      * To add a listener to the future:
      * <p>
      * <code>
-     * ListenableFuture&lt;PutRecordResult&gt; f = myKinesisProducer.putRecord(...);
+     * ListenableFuture&lt;PutRecordResult&gt; f = myKinesisProducer.addUserRecord(...);
      * com.google.common.util.concurrent.Futures.addCallback(f, callback, executor);
      * </code>
      * <p>
@@ -266,6 +304,18 @@ public class KinesisProducer {
      * {@link com.google.common.util.concurrent.FutureCallback} and
      * <code>executor</code> is an instance of
      * {@link java.util.concurrent.Executor}.
+     * <p>
+     * <b>Important:</b>
+     * <p>
+     * If long-running tasks are performed in the callbacks, it is recommended
+     * that a custom executor be provided when registering callbacks to ensure
+     * that there are enough threads to achieve the desired level of
+     * parallelism. By default, the KPL will use an internal thread pool to
+     * execute callbacks, but this pool may not have a sufficient number of
+     * threads if a large number is desired.
+     * <p>
+     * Another option would be to hand the result off to a different component
+     * for processing and keep the callback routine fast.
      * 
      * @param stream
      *            Stream to put to.
@@ -307,7 +357,7 @@ public class KinesisProducer {
      * To add a listener to the future:
      * <p>
      * <code>
-     * ListenableFuture&lt;PutRecordResult&gt; f = myKinesisProducer.putRecord(...);
+     * ListenableFuture&lt;PutRecordResult&gt; f = myKinesisProducer.addUserRecord(...);
      * com.google.common.util.concurrent.Futures.addCallback(f, callback, executor);
      * </code>
      * <p>
@@ -315,6 +365,18 @@ public class KinesisProducer {
      * {@link com.google.common.util.concurrent.FutureCallback} and
      * <code>executor</code> is an instance of
      * {@link java.util.concurrent.Executor}.
+     * <p>
+     * <b>Important:</b>
+     * <p>
+     * If long-running tasks are performed in the callbacks, it is recommended
+     * that a custom executor be provided when registering callbacks to ensure
+     * that there are enough threads to achieve the desired level of
+     * parallelism. By default, the KPL will use an internal thread pool to
+     * execute callbacks, but this pool may not have a sufficient number of
+     * threads if a large number is desired.
+     * <p>
+     * Another option would be to hand the result off to a different component
+     * for processing and keep the callback routine fast.
      * 
      * @param stream
      *            Stream to put to.

@@ -132,7 +132,7 @@ void protobuf_AddDesc_config_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\014config.proto\022\024aws.kinesis.protobuf\"F\n\023"
     "AdditionalDimension\022\013\n\003key\030\001 \002(\t\022\r\n\005valu"
-    "e\030\002 \002(\t\022\023\n\013granularity\030\003 \002(\t\"\242\006\n\rConfigu"
+    "e\030\002 \002(\t\022\023\n\013granularity\030\003 \002(\t\"\243\006\n\rConfigu"
     "ration\022J\n\026additional_metric_dims\030\200\001 \003(\0132"
     ").aws.kinesis.protobuf.AdditionalDimensi"
     "on\022!\n\023aggregation_enabled\030\001 \001(\010:\004true\022)\n"
@@ -142,17 +142,17 @@ void protobuf_AddDesc_config_2eproto() {
     "ection_max_size\030\005 \001(\004:\0075242880\022\035\n\017connec"
     "t_timeout\030\006 \001(\004:\0046000\022\031\n\017custom_endpoint"
     "\030\007 \001(\t:\000\022 \n\021fail_if_throttled\030\010 \001(\010:\005fal"
-    "se\022\027\n\tlog_level\030\t \001(\t:\004info\022\032\n\017max_conne"
-    "ctions\030\n \001(\004:\0014\022\"\n\023metrics_granularity\030\013"
-    " \001(\t:\005shard\022\037\n\rmetrics_level\030\014 \001(\t:\010deta"
-    "iled\0221\n\021metrics_namespace\030\r \001(\t:\026Kinesis"
-    "ProducerLibrary\022#\n\024metrics_upload_delay\030"
-    "\016 \001(\004:\00560000\022\032\n\017min_connections\030\017 \001(\004:\0011"
-    "\022\021\n\004port\030\020 \001(\004:\003443\022\027\n\nrate_limit\030\021 \001(\004:"
-    "\003150\022%\n\030record_max_buffered_time\030\022 \001(\004:\003"
-    "100\022\031\n\nrecord_ttl\030\023 \001(\004:\00530000\022\020\n\006region"
-    "\030\024 \001(\t:\000\022\035\n\017request_timeout\030\025 \001(\004:\0046000\022"
-    " \n\022verify_certificate\030\026 \001(\010:\004true", 913);
+    "se\022\027\n\tlog_level\030\t \001(\t:\004info\022\033\n\017max_conne"
+    "ctions\030\n \001(\004:\00224\022\"\n\023metrics_granularity\030"
+    "\013 \001(\t:\005shard\022\037\n\rmetrics_level\030\014 \001(\t:\010det"
+    "ailed\0221\n\021metrics_namespace\030\r \001(\t:\026Kinesi"
+    "sProducerLibrary\022#\n\024metrics_upload_delay"
+    "\030\016 \001(\004:\00560000\022\032\n\017min_connections\030\017 \001(\004:\001"
+    "1\022\021\n\004port\030\020 \001(\004:\003443\022\027\n\nrate_limit\030\021 \001(\004"
+    ":\003150\022%\n\030record_max_buffered_time\030\022 \001(\004:"
+    "\003100\022\031\n\nrecord_ttl\030\023 \001(\004:\00530000\022\020\n\006regio"
+    "n\030\024 \001(\t:\000\022\035\n\017request_timeout\030\025 \001(\004:\0046000"
+    "\022 \n\022verify_certificate\030\026 \001(\010:\004true", 914);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "config.proto", &protobuf_RegisterTypes);
   AdditionalDimension::default_instance_ = new AdditionalDimension();
@@ -601,7 +601,7 @@ void Configuration::SharedCtor() {
   custom_endpoint_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   fail_if_throttled_ = false;
   log_level_ = const_cast< ::std::string*>(_default_log_level_);
-  max_connections_ = GOOGLE_ULONGLONG(4);
+  max_connections_ = GOOGLE_ULONGLONG(24);
   metrics_granularity_ = const_cast< ::std::string*>(_default_metrics_granularity_);
   metrics_level_ = const_cast< ::std::string*>(_default_metrics_level_);
   metrics_namespace_ = const_cast< ::std::string*>(_default_metrics_namespace_);
@@ -687,7 +687,7 @@ void Configuration::Clear() {
         log_level_->assign(*_default_log_level_);
       }
     }
-    max_connections_ = GOOGLE_ULONGLONG(4);
+    max_connections_ = GOOGLE_ULONGLONG(24);
     if (has_metrics_granularity()) {
       if (metrics_granularity_ != _default_metrics_granularity_) {
         metrics_granularity_->assign(*_default_metrics_granularity_);
@@ -872,7 +872,7 @@ bool Configuration::MergePartialFromCodedStream(
         break;
       }
 
-      // optional uint64 max_connections = 10 [default = 4];
+      // optional uint64 max_connections = 10 [default = 24];
       case 10: {
         if (tag == 80) {
          parse_max_connections:
@@ -1169,7 +1169,7 @@ void Configuration::SerializeWithCachedSizes(
       9, this->log_level(), output);
   }
 
-  // optional uint64 max_connections = 10 [default = 4];
+  // optional uint64 max_connections = 10 [default = 24];
   if (has_max_connections()) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt64(10, this->max_connections(), output);
   }
@@ -1327,7 +1327,7 @@ void Configuration::SerializeWithCachedSizes(
         9, this->log_level(), target);
   }
 
-  // optional uint64 max_connections = 10 [default = 4];
+  // optional uint64 max_connections = 10 [default = 24];
   if (has_max_connections()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(10, this->max_connections(), target);
   }
@@ -1496,7 +1496,7 @@ int Configuration::ByteSize() const {
           this->log_level());
     }
 
-    // optional uint64 max_connections = 10 [default = 4];
+    // optional uint64 max_connections = 10 [default = 24];
     if (has_max_connections()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt64Size(

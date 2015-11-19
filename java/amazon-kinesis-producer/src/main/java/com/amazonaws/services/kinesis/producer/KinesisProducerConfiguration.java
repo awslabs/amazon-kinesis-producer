@@ -208,9 +208,8 @@ public class KinesisProducerConfiguration {
                             method.invoke(config, value);
                         }
                     } catch (Exception e) {
-                        throw new IllegalArgumentException(String.format(
-                                "Error trying to set field %s with the value '%s'",
-                                key, value), e);
+                        throw new IllegalArgumentException(
+                                String.format("Error trying to set field %s with the value '%s'", key, value), e);
                     }
                 }
             }
@@ -238,7 +237,7 @@ public class KinesisProducerConfiguration {
     private String customEndpoint = "";
     private boolean failIfThrottled = false;
     private String logLevel = "info";
-    private long maxConnections = 4L;
+    private long maxConnections = 24L;
     private String metricsGranularity = "shard";
     private String metricsLevel = "detailed";
     private String metricsNamespace = "KinesisProducerLibrary";
@@ -412,9 +411,9 @@ public class KinesisProducerConfiguration {
      * Setting this too high may impact latency and consume additional resources without
      * increasing throughput.
      * 
-     * <p><b>Default</b>: 4
+     * <p><b>Default</b>: 24
      * <p><b>Minimum</b>: 1
-     * <p><b>Maximum (inclusive)</b>: 128
+     * <p><b>Maximum (inclusive)</b>: 256
      */
     public long getMaxConnections() {
       return maxConnections;
@@ -870,13 +869,13 @@ public class KinesisProducerConfiguration {
      * Setting this too high may impact latency and consume additional resources without
      * increasing throughput.
      * 
-     * <p><b>Default</b>: 4
+     * <p><b>Default</b>: 24
      * <p><b>Minimum</b>: 1
-     * <p><b>Maximum (inclusive)</b>: 128
+     * <p><b>Maximum (inclusive)</b>: 256
      */
     public KinesisProducerConfiguration setMaxConnections(long val) {
-        if (val < 1L || val > 128L) {
-            throw new IllegalArgumentException("maxConnections must be between 1 and 128, got " + val);
+        if (val < 1L || val > 256L) {
+            throw new IllegalArgumentException("maxConnections must be between 1 and 256, got " + val);
         }
         maxConnections = val;
         return this;

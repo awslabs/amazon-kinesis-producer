@@ -942,11 +942,11 @@ public final class Config {
         getLogLevelBytes();
 
     /**
-     * <code>optional uint64 max_connections = 10 [default = 4];</code>
+     * <code>optional uint64 max_connections = 10 [default = 24];</code>
      */
     boolean hasMaxConnections();
     /**
-     * <code>optional uint64 max_connections = 10 [default = 4];</code>
+     * <code>optional uint64 max_connections = 10 [default = 24];</code>
      */
     long getMaxConnections();
 
@@ -1524,13 +1524,13 @@ public final class Config {
     public static final int MAX_CONNECTIONS_FIELD_NUMBER = 10;
     private long maxConnections_;
     /**
-     * <code>optional uint64 max_connections = 10 [default = 4];</code>
+     * <code>optional uint64 max_connections = 10 [default = 24];</code>
      */
     public boolean hasMaxConnections() {
       return ((bitField0_ & 0x00000200) == 0x00000200);
     }
     /**
-     * <code>optional uint64 max_connections = 10 [default = 4];</code>
+     * <code>optional uint64 max_connections = 10 [default = 24];</code>
      */
     public long getMaxConnections() {
       return maxConnections_;
@@ -1835,7 +1835,7 @@ public final class Config {
       customEndpoint_ = "";
       failIfThrottled_ = false;
       logLevel_ = "info";
-      maxConnections_ = 4L;
+      maxConnections_ = 24L;
       metricsGranularity_ = "shard";
       metricsLevel_ = "detailed";
       metricsNamespace_ = "KinesisProducerLibrary";
@@ -2180,7 +2180,7 @@ public final class Config {
         bitField0_ = (bitField0_ & ~0x00000100);
         logLevel_ = "info";
         bitField0_ = (bitField0_ & ~0x00000200);
-        maxConnections_ = 4L;
+        maxConnections_ = 24L;
         bitField0_ = (bitField0_ & ~0x00000400);
         metricsGranularity_ = "shard";
         bitField0_ = (bitField0_ & ~0x00000800);
@@ -3100,21 +3100,21 @@ public final class Config {
         return this;
       }
 
-      private long maxConnections_ = 4L;
+      private long maxConnections_ = 24L;
       /**
-       * <code>optional uint64 max_connections = 10 [default = 4];</code>
+       * <code>optional uint64 max_connections = 10 [default = 24];</code>
        */
       public boolean hasMaxConnections() {
         return ((bitField0_ & 0x00000400) == 0x00000400);
       }
       /**
-       * <code>optional uint64 max_connections = 10 [default = 4];</code>
+       * <code>optional uint64 max_connections = 10 [default = 24];</code>
        */
       public long getMaxConnections() {
         return maxConnections_;
       }
       /**
-       * <code>optional uint64 max_connections = 10 [default = 4];</code>
+       * <code>optional uint64 max_connections = 10 [default = 24];</code>
        */
       public Builder setMaxConnections(long value) {
         bitField0_ |= 0x00000400;
@@ -3123,11 +3123,11 @@ public final class Config {
         return this;
       }
       /**
-       * <code>optional uint64 max_connections = 10 [default = 4];</code>
+       * <code>optional uint64 max_connections = 10 [default = 24];</code>
        */
       public Builder clearMaxConnections() {
         bitField0_ = (bitField0_ & ~0x00000400);
-        maxConnections_ = 4L;
+        maxConnections_ = 24L;
         onChanged();
         return this;
       }
@@ -3725,7 +3725,7 @@ public final class Config {
       "\n\014config.proto\0220com.amazonaws.services.k" +
       "inesis.producer.protobuf\"F\n\023AdditionalDi" +
       "mension\022\013\n\003key\030\001 \002(\t\022\r\n\005value\030\002 \002(\t\022\023\n\013g" +
-      "ranularity\030\003 \002(\t\"\276\006\n\rConfiguration\022f\n\026ad" +
+      "ranularity\030\003 \002(\t\"\277\006\n\rConfiguration\022f\n\026ad" +
       "ditional_metric_dims\030\200\001 \003(\0132E.com.amazon" +
       "aws.services.kinesis.producer.protobuf.A" +
       "dditionalDimension\022!\n\023aggregation_enable" +
@@ -3736,17 +3736,17 @@ public final class Config {
       "242880\022\035\n\017connect_timeout\030\006 \001(\004:\0046000\022\031\n" +
       "\017custom_endpoint\030\007 \001(\t:\000\022 \n\021fail_if_thro" +
       "ttled\030\010 \001(\010:\005false\022\027\n\tlog_level\030\t \001(\t:\004i" +
-      "nfo\022\032\n\017max_connections\030\n \001(\004:\0014\022\"\n\023metri" +
-      "cs_granularity\030\013 \001(\t:\005shard\022\037\n\rmetrics_l" +
-      "evel\030\014 \001(\t:\010detailed\0221\n\021metrics_namespac" +
-      "e\030\r \001(\t:\026KinesisProducerLibrary\022#\n\024metri" +
-      "cs_upload_delay\030\016 \001(\004:\00560000\022\032\n\017min_conn" +
-      "ections\030\017 \001(\004:\0011\022\021\n\004port\030\020 \001(\004:\003443\022\027\n\nr",
-      "ate_limit\030\021 \001(\004:\003150\022%\n\030record_max_buffe" +
-      "red_time\030\022 \001(\004:\003100\022\031\n\nrecord_ttl\030\023 \001(\004:" +
-      "\00530000\022\020\n\006region\030\024 \001(\t:\000\022\035\n\017request_time" +
-      "out\030\025 \001(\004:\0046000\022 \n\022verify_certificate\030\026 " +
-      "\001(\010:\004true"
+      "nfo\022\033\n\017max_connections\030\n \001(\004:\00224\022\"\n\023metr" +
+      "ics_granularity\030\013 \001(\t:\005shard\022\037\n\rmetrics_" +
+      "level\030\014 \001(\t:\010detailed\0221\n\021metrics_namespa" +
+      "ce\030\r \001(\t:\026KinesisProducerLibrary\022#\n\024metr" +
+      "ics_upload_delay\030\016 \001(\004:\00560000\022\032\n\017min_con" +
+      "nections\030\017 \001(\004:\0011\022\021\n\004port\030\020 \001(\004:\003443\022\027\n\n",
+      "rate_limit\030\021 \001(\004:\003150\022%\n\030record_max_buff" +
+      "ered_time\030\022 \001(\004:\003100\022\031\n\nrecord_ttl\030\023 \001(\004" +
+      ":\00530000\022\020\n\006region\030\024 \001(\t:\000\022\035\n\017request_tim" +
+      "eout\030\025 \001(\004:\0046000\022 \n\022verify_certificate\030\026" +
+      " \001(\010:\004true"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {

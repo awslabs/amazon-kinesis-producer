@@ -149,9 +149,9 @@ class Configuration : private boost::noncopyable {
   // Setting this too high may impact latency and consume additional resources
   // without increasing throughput.
   //
-  // Default: 4
+  // Default: 24
   // Minimum: 1
-  // Maximum (inclusive): 128
+  // Maximum (inclusive): 256
   size_t max_connections() const noexcept {
     return max_connections_;
   }
@@ -532,13 +532,13 @@ class Configuration : private boost::noncopyable {
   // Setting this too high may impact latency and consume additional resources
   // without increasing throughput.
   //
-  // Default: 4
+  // Default: 24
   // Minimum: 1
-  // Maximum (inclusive): 128
+  // Maximum (inclusive): 256
   Configuration& max_connections(size_t val) {
-    if (val < 1ull || val > 128ull) {
+    if (val < 1ull || val > 256ull) {
       std::string err;
-      err += "max_connections must be between 1 and 128, got ";
+      err += "max_connections must be between 1 and 256, got ";
       err += std::to_string(val);
       throw std::runtime_error(err);
     }
@@ -894,7 +894,7 @@ class Configuration : private boost::noncopyable {
   std::string custom_endpoint_ = "";
   bool fail_if_throttled_ = false;
   std::string log_level_ = "info";
-  size_t max_connections_ = 4;
+  size_t max_connections_ = 24;
   std::string metrics_granularity_ = "shard";
   std::string metrics_level_ = "detailed";
   std::string metrics_namespace_ = "KinesisProducerLibrary";

@@ -8,6 +8,28 @@ For detailed information and installation instructions, see the article [Develop
 
 ## Release Notes
 
+### 0.10.2
+
+Misc bug fixes and improvements.
+
+__Important__: Becuase the slf4j-simple dependency has been made optional, you will now need to have a logging implementation in your dependencies before the Java logs will show up. For details about slf4j, see the [manual](http://www.slf4j.org/manual.html). For a quick walkthrough on how to get basic logging, see [this page](http://saltnlight5.blogspot.com/2013/08/how-to-configure-slf4j-with-different.html).
+
+#### General
+
++ The default value of the maxConnections setting has been increased from 4 to 24.
+
+#### Java
+
++ slf4j-simple dependency is now optional.
++ `aws-java-sdk-core` version increased to `1.10.34`. Please ensure your AWS SDK components all have the same major version.
++ Record completion callbacks are now executed in a threadpool rather than on the IPC thread.
+
+#### C++ Core
+
++ Fixed bug that produced invalidly signed requests on the latest version of OSX.
+
+--------------
+
 ### 0.10.1
 
 Bug fixes and improved temp file management in Java wrapper.
@@ -20,6 +42,8 @@ Bug fixes and improved temp file management in Java wrapper.
 
 + Idle CPU usage has been reduced (Issue [15](https://github.com/awslabs/amazon-kinesis-producer/issues/15))
 + The native process should now terminate when the wrapper process is killed (Issues [14](https://github.com/awslabs/amazon-kinesis-producer/issues/14), [16](https://github.com/awslabs/amazon-kinesis-producer/issues/16))
+
+--------------
 
 ### 0.10.0
 
@@ -48,6 +72,8 @@ Significant platform compatibility improvements and easier credentials configura
 
 + Error messages related to closing sockets ([Issue 3](https://github.com/awslabs/amazon-kinesis-producer/issues/3))
 + Queued requests can now expire ([Issue 4](https://github.com/awslabs/amazon-kinesis-producer/issues/4))
+
+--------------
 
 ### 0.9.0
 + First release

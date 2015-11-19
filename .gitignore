@@ -2,4 +2,3 @@
 /bin
 /third_party
 /java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/**/*
-*.o

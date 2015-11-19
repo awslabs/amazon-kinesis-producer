@@ -15,6 +15,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <unordered_set>
 #include <sstream>
 
 #include <boost/algorithm/string/case_conv.hpp>
@@ -30,7 +31,27 @@
 
 namespace {
 
-static const char* ALGO = "AWS4-HMAC-SHA256";
+static const char* kAlgo = "AWS4-HMAC-SHA256";
+
+std::unordered_set<std::string> canon_header_blacklist() {
+  std::unordered_set<std::string> s;
+  // The implementation exepects headers to be properly formatted and does not
+  // handle special cases like consecutive spaces. A recent OSX update added
+  // consecutive spaces to the kernel name, which we include in the user-agent
+  // header, which then led to invalid signatures. The user-agent header does
+  // not need to be part of the signature, so the easiest fix is to simply
+  // exlucde it.
+  s.emplace("user-agent");
+  return s;
+}
+
+static const std::unordered_set<std::string> kCanonHeaderBlacklist =
+    canon_header_blacklist();
+
+bool should_include_in_canon_headers(
+    const std::pair<std::string, std::string>& h) {
+  return kCanonHeaderBlacklist.find(h.first) == kCanonHeaderBlacklist.end();
+}
 
 template <typename Key, typename Data, typename Output>
 void hmac_sha256(const Key& key, const Data& data, Output& output) {
@@ -149,7 +170,9 @@ void RequestSigner::calculate_headers() {
 void RequestSigner::calculate_canon_headers() {
   std::stringstream ss;
   for (const auto& h : headers_) {
-    ss << h.first << ":" << h.second << "\n";
+    if (should_include_in_canon_headers(h)) {
+      ss << h.first << ":" << h.second << "\n";
+    }
   }
   canon_headers_ = ss.str();
 }
@@ -166,9 +189,11 @@ void RequestSigner::calculate_credential_scope() {
 void RequestSigner::calculate_signed_headers() {
   std::stringstream ss;
   for (auto it = headers_.begin(); it != headers_.end(); ++it) {
-    ss << it->first;
-    if ((it + 1) != headers_.end()) {
-      ss << ";";
+    if (should_include_in_canon_headers(*it)) {
+      ss << it->first;
+      if ((it + 1) != headers_.end()) {
+        ss << ";";
+      }
     }
   }
   signed_headers_ = ss.str();
@@ -187,7 +212,7 @@ void RequestSigner::calculate_canon_request() {
 
 void RequestSigner::calculate_str_to_sign() {
   std::stringstream ss;
-  ss << ALGO << "\n"
+  ss << kAlgo << "\n"
      << date_time_ << "\n"
      << credential_scope_ << "\n"
      << sha256_hex(canon_request_);
@@ -206,7 +231,7 @@ void RequestSigner::calculate_auth_header() {
   std::string signature = aws::utils::hex(buff_1.data(), buff_1.size());
 
   std::stringstream ss;
-  ss << ALGO << " "
+  ss << kAlgo << " "
      << "Credential=" << akid_ << "/" << credential_scope_ << ", "
      << "SignedHeaders=" << signed_headers_ << ", "
      << "Signature=" << signature;

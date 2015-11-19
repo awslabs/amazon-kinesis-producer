@@ -292,7 +292,7 @@ class Configuration : public ::google::protobuf::Message {
   inline ::std::string* release_log_level();
   inline void set_allocated_log_level(::std::string* log_level);
 
-  // optional uint64 max_connections = 10 [default = 4];
+  // optional uint64 max_connections = 10 [default = 24];
   inline bool has_max_connections() const;
   inline void clear_max_connections();
   static const int kMaxConnectionsFieldNumber = 10;
@@ -1077,7 +1077,7 @@ inline void Configuration::set_allocated_log_level(::std::string* log_level) {
   // @@protoc_insertion_point(field_set_allocated:aws.kinesis.protobuf.Configuration.log_level)
 }
 
-// optional uint64 max_connections = 10 [default = 4];
+// optional uint64 max_connections = 10 [default = 24];
 inline bool Configuration::has_max_connections() const {
   return (_has_bits_[0] & 0x00000400u) != 0;
 }
@@ -1088,7 +1088,7 @@ inline void Configuration::clear_has_max_connections() {
   _has_bits_[0] &= ~0x00000400u;
 }
 inline void Configuration::clear_max_connections() {
-  max_connections_ = GOOGLE_ULONGLONG(4);
+  max_connections_ = GOOGLE_ULONGLONG(24);
   clear_has_max_connections();
 }
 inline ::google::protobuf::uint64 Configuration::max_connections() const {

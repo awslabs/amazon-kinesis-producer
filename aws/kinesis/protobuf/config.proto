@@ -19,7 +19,7 @@ message Configuration {
   optional string custom_endpoint = 7 [default = ""];
   optional bool fail_if_throttled = 8 [default = false];
   optional string log_level = 9 [default = "info"];
-  optional uint64 max_connections = 10 [default = 4];
+  optional uint64 max_connections = 10 [default = 24];
   optional string metrics_granularity = 11 [default = "shard"];
   optional string metrics_level = 12 [default = "detailed"];
   optional string metrics_namespace = 13 [default = "KinesisProducerLibrary"];

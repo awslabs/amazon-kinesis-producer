@@ -25,7 +25,7 @@
 
 namespace {
 
-const constexpr char* kVersion = "0.10.1";
+const constexpr char* kVersion = "0.10.2";
 
 std::string user_agent() {
   std::stringstream ss;
