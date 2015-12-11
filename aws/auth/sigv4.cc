@@ -20,6 +20,7 @@
 
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/algorithm/string/trim_all.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/find.hpp>
@@ -150,7 +151,7 @@ void RequestSigner::calculate_headers() {
   for (auto& p : headers_) {
     boost::to_lower(p.first);
     boost::trim(p.first);
-    boost::trim(p.second);
+    boost::trim_all(p.second);
   }
 
   std::sort(headers_.begin(), headers_.end());
