@@ -170,6 +170,8 @@ class IoServiceSocket : public Socket {
       return;
     }
 
+    SSL_set_tlsext_host_name(ssl_socket_->native_handle(), endpoint_.c_str());
+
     ssl_socket_->async_handshake(
         boost::asio::ssl::stream_base::client,
         [this](auto& ec) { this->on_connect_finish(ec); });
