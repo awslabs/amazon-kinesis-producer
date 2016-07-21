@@ -60,6 +60,7 @@ Significant platform compatibility improvements and easier credentials configura
 + The `Configuration` class has been renamed `KinesisProducerConfiguration`.
 + `KinesisProducerConfiguration` now accepts the AWS Java SDK's `AWSCredentialsProvider` instances for configuring credentials.
 + In addition, a different set of credentials can now be provided for uploading metrics.
++ For working with China region, set BOTH customEndpoint (e.g: kinesis.cn-north-1.amazonaws.com.cn) and region (e.g: cn-north-1) properties in KinesisProducerConfiguration.
 
 #### C++ Core
 

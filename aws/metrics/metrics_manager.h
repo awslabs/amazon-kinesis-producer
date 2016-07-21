@@ -128,7 +128,7 @@ class MetricsManager {
       : executor_(std::move(executor)),
         endpoint_(custom_endpoint.empty()
                       ? "monitoring." + region + ".amazonaws.com"
-                      : custom_endpoint),
+                      : custom_endpoint.replace(0,7,"monitoring")),
         http_client_(
             std::make_shared<aws::http::HttpClient>(
                 executor_,
