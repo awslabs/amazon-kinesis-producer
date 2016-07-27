@@ -252,6 +252,7 @@ public class KinesisProducerConfiguration {
     private long requestTimeout = 6000L;
     private String tempDirectory = "";
     private boolean verifyCertificate = true;
+    private String libraryPath;
 
     /**
      * Enable aggregation. With aggregation, multiple user records are packed into a single
@@ -675,6 +676,17 @@ public class KinesisProducerConfiguration {
      */
     public boolean isVerifyCertificate() {
       return verifyCertificate;
+    }
+
+    /**
+     * Library path (only useful for Unix-like systems).
+     * Will be propagated to LD_LIBRARY_PATH and DYLD_LIBRARY_PATH environment variables of the child process.
+     *
+     * <p><b>Default</b>: null
+     */
+
+    public String getLibraryPath() {
+        return libraryPath;
     }
 
     /**
@@ -1186,6 +1198,16 @@ public class KinesisProducerConfiguration {
         return this;
     }
 
+    /**
+     * Library path (only useful for Unix-like systems).
+     * Will be propagated to LD_LIBRARY_PATH and DYLD_LIBRARY_PATH environment variables of the child process.
+     *
+     * <p><b>Default</b>: null
+     */
+    public KinesisProducerConfiguration setLibraryPath(String val) {
+        libraryPath = val;
+        return this;
+    }
 
     protected Message toProtobufMessage() {
         Configuration c = this.additionalConfigsToProtobuf(

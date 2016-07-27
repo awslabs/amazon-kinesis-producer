@@ -782,7 +782,7 @@ public class KinesisProducer {
             if (binPath != null && !binPath.trim().isEmpty()) {
                 pathToExecutable = binPath.trim();
                 log.warn("Using non-default native binary at " + pathToExecutable);
-                pathToLibDir = "";
+                pathToLibDir = config.getLibraryPath() == null ? "" : config.getLibraryPath();
             } else {
                 log.info("Extracting binaries to " + tmpDir);
                 try {
@@ -820,8 +820,8 @@ public class KinesisProducer {
                         }
                         extracted.setExecutable(true);
                     }
-     
-                    pathToLibDir = pathToTmpDir;
+
+                    pathToLibDir = config.getLibraryPath() == null ? pathToTmpDir : config.getLibraryPath();
                 } catch (Exception e) {
                     throw new RuntimeException("Could not copy native binaries to temp directory " + tmpDir, e);
                 }
