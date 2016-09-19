@@ -12,89 +12,129 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <aws/core/utils/json/JsonSerializer.h>
 #include <aws/kinesis/core/shard_map.h>
-#include <aws/kinesis/test/test_tls_server.h>
-#include <aws/utils/json.h>
+#include <aws/kinesis/model/DescribeStreamRequest.h>
 #include <aws/utils/io_service_executor.h>
-#include <aws/http/io_service_socket.h>
 #include <aws/utils/utils.h>
+#include <aws/core/auth/AWSCredentialsProvider.h>
+#include <aws/core/Aws.h>
 
 namespace {
 
-const int kPort = aws::kinesis::test::TestTLSServer::kDefaultPort;
 const std::string kStreamName = "myStream";
+
+Aws::Client::ClientConfiguration fake_client_cfg() {
+  Aws::Client::ClientConfiguration cfg;
+  cfg.region = "us-west-1";
+  cfg.endpointOverride = "localhost:61666";
+  return cfg;
+}
+
+const Aws::Auth::AWSCredentials kEmptyCreds("", "");
+
+template <typename T>
+void pop(const std::list<T>* q) {
+  ((std::list<T>*) q)->pop_front();
+}
+
+class MockKinesisClient : public Aws::Kinesis::KinesisClient {
+ public:
+  MockKinesisClient(
+      std::list<Aws::Kinesis::Model::DescribeStreamOutcome> outcomes,
+      std::function<void ()> callback = []{})
+      : Aws::Kinesis::KinesisClient(kEmptyCreds, fake_client_cfg()),
+        outcomes_(std::move(outcomes)),
+        callback_(callback),
+        executor_(std::make_shared<aws::utils::IoServiceExecutor>(1)) {}
+
+  virtual void DescribeStreamAsync(
+      const Aws::Kinesis::Model::DescribeStreamRequest& request,
+      const Aws::Kinesis::DescribeStreamResponseReceivedHandler& handler,
+      const std::shared_ptr<const Aws::Client::AsyncCallerContext>& context
+          = nullptr) const override {
+    executor_->schedule([=] {
+      if (outcomes_.size() == 0) {
+        throw std::runtime_error("No outcomes enqueued in the mock");
+      }
+      auto outcome = outcomes_.front();
+      pop(&outcomes_);
+      handler(this, request, outcome, context);
+      callback_();
+    }, std::chrono::milliseconds(20));
+  }
+
+ private:
+  std::list<Aws::Kinesis::Model::DescribeStreamOutcome> outcomes_;
+  std::function<void ()> callback_;
+  std::shared_ptr<aws::utils::Executor> executor_;
+};
 
 class Wrapper {
  public:
-  Wrapper(int delay = 1500)
-      : socket_factory_(std::make_shared<aws::http::IoServiceSocketFactory>()),
-        executor_(std::make_shared<aws::utils::IoServiceExecutor>(1)),
-        http_client_(
-            std::make_shared<aws::http::HttpClient>(
-                executor_,
-                socket_factory_,
-                "localhost",
-                kPort,
-                true,
-                false)),
-        creds_(
-            std::make_shared<aws::auth::BasicAwsCredentialsProvider>(
-                "AKIAAAAAAAAAAAAAAAAA",
-                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")),
-        shard_map_(executor_,
-                   http_client_,
-                   creds_,
-                   "us-west-1",
-                   kStreamName,
-                   std::make_shared<aws::metrics::NullMetricsManager>(),
-                   std::chrono::milliseconds(100),
-                   std::chrono::milliseconds(1000)) {
+  Wrapper(std::list<Aws::Kinesis::Model::DescribeStreamOutcome> outcomes,
+          int delay = 1500)
+      : num_req_received_(0) {
+    shard_map_ =
+        std::make_shared<aws::kinesis::core::ShardMap>(
+            std::make_shared<aws::utils::IoServiceExecutor>(1),
+            std::make_shared<MockKinesisClient>(
+                outcomes,
+                [this] { num_req_received_++; }),
+            kStreamName,
+            std::make_shared<aws::metrics::NullMetricsManager>(),
+            std::chrono::milliseconds(100),
+            std::chrono::milliseconds(1000));
+
     aws::utils::sleep_for(std::chrono::milliseconds(delay));
   }
 
   boost::optional<uint64_t> shard_id(const char* key) {
-    return
-        shard_map_.shard_id(boost::multiprecision::uint128_t(std::string(key)));
+    return shard_map_->shard_id(
+        boost::multiprecision::uint128_t(std::string(key)));
+  }
+
+  size_t num_req_received() const {
+    return num_req_received_;
   }
 
   void invalidate(std::chrono::steady_clock::time_point tp) {
-    shard_map_.invalidate(tp);
+    shard_map_->invalidate(tp);
   }
 
  private:
-  std::shared_ptr<aws::http::SocketFactory> socket_factory_;
-  std::shared_ptr<aws::utils::Executor> executor_;
-  std::shared_ptr<aws::http::HttpClient> http_client_;
-  std::shared_ptr<aws::auth::BasicAwsCredentialsProvider> creds_;
-  aws::kinesis::core::ShardMap shard_map_;
+  size_t num_req_received_;
+  std::shared_ptr<aws::kinesis::core::ShardMap> shard_map_;
 };
 
-auto make_handler(std::string content,
-                  std::string expected_sid = "",
-                  int code = 200,
-                  int delay = 3) {
-  return [=](auto& req) {
-    auto json = aws::utils::Json(req.data());
 
-    BOOST_CHECK_EQUAL((std::string) json["StreamName"], kStreamName);
-    if (!expected_sid.empty()) {
-      BOOST_CHECK_EQUAL((std::string) json["ExclusiveStartShardId"],
-                        expected_sid);
-    }
+void init_sdk_if_needed() {
+  static bool sdk_initialized = false;
+  if (!sdk_initialized) {
+    Aws::SDKOptions options;
+    options.loggingOptions.logLevel = Aws::Utils::Logging::LogLevel::Info;
+    Aws::InitAPI(options);
+    sdk_initialized = true;
+  }
+}
 
-    bool has_signature = false;
-    for (const auto& header : req.headers()) {
-      if (header.first == "Authorization") {
-        has_signature = true;
-      }
-    }
-    BOOST_CHECK_MESSAGE(has_signature, "Request should've been signed");
+Aws::Kinesis::Model::DescribeStreamOutcome success_outcome(std::string json) {
+  init_sdk_if_needed();
+  Aws::Utils::Json::JsonValue j(json);
+  Aws::Http::HeaderValueCollection h;
+  Aws::AmazonWebServiceResult<Aws::Utils::Json::JsonValue> awsr(j, h);
+  Aws::Kinesis::Model::DescribeStreamResult dsr(awsr);
+  Aws::Kinesis::Model::DescribeStreamOutcome o(dsr);
+  return o;
+}
 
-    aws::http::HttpResponse res(code);
-    res.set_data(content);
-    aws::utils::sleep_for(std::chrono::milliseconds(delay));
-    return res;
-  };
+Aws::Kinesis::Model::DescribeStreamOutcome error_outcome() {
+  init_sdk_if_needed();
+  Aws::Kinesis::Model::DescribeStreamOutcome o(
+      Aws::Client::AWSError<Aws::Kinesis::KinesisErrors>(
+          Aws::Kinesis::KinesisErrors::UNKNOWN,
+          "test"));
+  return o;
 }
 
 } //namespace
@@ -102,9 +142,8 @@ auto make_handler(std::string content,
 BOOST_AUTO_TEST_SUITE(ShardMap)
 
 BOOST_AUTO_TEST_CASE(Basic) {
-  aws::kinesis::test::TestTLSServer server;
-
-  server.enqueue_handler(make_handler(R"XXXX(
+  std::list<Aws::Kinesis::Model::DescribeStreamOutcome> outcomes;
+  outcomes.push_back(success_outcome(R"XXXX(
   {
     "StreamDescription": {
       "StreamStatus": "ACTIVE",
@@ -148,7 +187,7 @@ BOOST_AUTO_TEST_CASE(Basic) {
   }
   )XXXX"));
 
-  Wrapper wrapper;
+  Wrapper wrapper(outcomes);
 
   BOOST_CHECK_EQUAL(
       *wrapper.shard_id("170141183460469231731687303715884105728"),
@@ -171,9 +210,8 @@ BOOST_AUTO_TEST_CASE(Basic) {
 }
 
 BOOST_AUTO_TEST_CASE(ClosedShards) {
-  aws::kinesis::test::TestTLSServer server;
-
-  server.enqueue_handler(make_handler(R"XXXX(
+  std::list<Aws::Kinesis::Model::DescribeStreamOutcome> outcomes;
+  outcomes.push_back(success_outcome(R"XXXX(
   {
     "StreamDescription": {
       "StreamStatus": "ACTIVE",
@@ -240,7 +278,7 @@ BOOST_AUTO_TEST_CASE(ClosedShards) {
   }
   )XXXX"));
 
-  Wrapper wrapper;
+  Wrapper wrapper(outcomes);
 
   BOOST_CHECK_EQUAL(
       *wrapper.shard_id("0"),
@@ -266,9 +304,8 @@ BOOST_AUTO_TEST_CASE(ClosedShards) {
 }
 
 BOOST_AUTO_TEST_CASE(PaginatedResults) {
-  aws::kinesis::test::TestTLSServer server;
-
-  server.enqueue_handler(make_handler(R"XXXX(
+  std::list<Aws::Kinesis::Model::DescribeStreamOutcome> outcomes;
+  outcomes.push_back(success_outcome(R"XXXX(
   {
     "StreamDescription": {
       "HasMoreShards": true,
@@ -303,7 +340,7 @@ BOOST_AUTO_TEST_CASE(PaginatedResults) {
   }
   )XXXX"));
 
-  auto body = R"XXXX(
+  outcomes.push_back(success_outcome(R"XXXX(
   {
     "StreamDescription": {
       "HasMoreShards": false,
@@ -347,10 +384,9 @@ BOOST_AUTO_TEST_CASE(PaginatedResults) {
       ]
     }
   }
-  )XXXX";
-  server.enqueue_handler(make_handler(body, "shardId-000000000002"));
+  )XXXX"));
 
-  Wrapper wrapper;
+  Wrapper wrapper(outcomes);
 
   BOOST_CHECK_EQUAL(
       *wrapper.shard_id("0"),
@@ -376,14 +412,11 @@ BOOST_AUTO_TEST_CASE(PaginatedResults) {
 }
 
 BOOST_AUTO_TEST_CASE(Retry) {
-  aws::kinesis::test::TestTLSServer server;
+  std::list<Aws::Kinesis::Model::DescribeStreamOutcome> outcomes;
 
-  server.enqueue_handler(make_handler("expected, don't be alarmed", "", 500));
+  outcomes.push_back(error_outcome());
 
-  // This will cause an exception during parsing
-  server.enqueue_handler(make_handler(".."));
-
-  server.enqueue_handler(make_handler(R"XXXX(
+  outcomes.push_back(success_outcome(R"XXXX(
   {
     "StreamDescription": {
       "StreamStatus": "ACTIVE",
@@ -427,7 +460,7 @@ BOOST_AUTO_TEST_CASE(Retry) {
   }
   )XXXX"));
 
-  Wrapper wrapper(3000);
+  Wrapper wrapper(outcomes);
 
   BOOST_CHECK_EQUAL(
       *wrapper.shard_id("170141183460469231731687303715884105728"),
@@ -450,36 +483,25 @@ BOOST_AUTO_TEST_CASE(Retry) {
 }
 
 BOOST_AUTO_TEST_CASE(Backoff) {
-  aws::kinesis::test::TestTLSServer server;
-
-  std::atomic<int> count(0);
-
+  std::list<Aws::Kinesis::Model::DescribeStreamOutcome> outcomes;
   for (int i = 0; i < 25; i++) {
-    server.enqueue_handler([&](auto& req) {
-      count++;
-      return make_handler("expected, don't be alarmed", "", 500)(req);
-    });
+    outcomes.push_back(error_outcome());
   }
 
-  Wrapper wrapper(0);
-
-  // Wait for the first attempt to be made
-  while (count == 0) {
-    aws::this_thread::yield();
-  }
+  Wrapper wrapper(outcomes, 0);
 
   auto start = std::chrono::high_resolution_clock::now();
 
   // We have initial backoff = 100, growth factor = 1.5, so the 6th attempt
   // should happen 1317ms after the 1st attempt.
-  while (count < 6) {
+  while (wrapper.num_req_received() < 6) {
     aws::this_thread::yield();
   }
   BOOST_CHECK_CLOSE(aws::utils::seconds_since(start), 1.317, 20);
 
   // The backoff should reach a cap of 1000ms, so after 5 more seconds, there
   // should be 5 additional attempts, for a total of 11.
-  while (count < 11) {
+  while (wrapper.num_req_received() < 11) {
     aws::this_thread::yield();
   }
   BOOST_CHECK_CLOSE(aws::utils::seconds_since(start), 6.317, 20);
@@ -488,9 +510,9 @@ BOOST_AUTO_TEST_CASE(Backoff) {
 }
 
 BOOST_AUTO_TEST_CASE(Invalidate) {
-  aws::kinesis::test::TestTLSServer server;
+  std::list<Aws::Kinesis::Model::DescribeStreamOutcome> outcomes;
 
-  server.enqueue_handler(make_handler(R"XXXX(
+  outcomes.push_back(success_outcome(R"XXXX(
   {
     "StreamDescription": {
       "StreamStatus": "ACTIVE",
@@ -534,7 +556,7 @@ BOOST_AUTO_TEST_CASE(Invalidate) {
   }
   )XXXX"));
 
-  server.enqueue_handler(make_handler(R"XXXX(
+  outcomes.push_back(success_outcome(R"XXXX(
   {
     "StreamDescription": {
       "StreamStatus": "ACTIVE",
@@ -576,16 +598,9 @@ BOOST_AUTO_TEST_CASE(Invalidate) {
       ]
     }
   }
-  )XXXX", "", 200, 250));
+  )XXXX"));
 
-  server.enqueue_handler([=](auto& req) {
-    BOOST_FAIL("Extraneous request was made");
-    aws::http::HttpResponse res(400);
-    res.set_data("fail");
-    return res;
-  });
-
-  Wrapper wrapper;
+  Wrapper wrapper(outcomes);
 
   // Calling invalidate with a timestamp that's before the last update should
   // not actually invalidate the shard map.
@@ -611,6 +626,7 @@ BOOST_AUTO_TEST_CASE(Invalidate) {
   BOOST_CHECK_EQUAL(
       *wrapper.shard_id("170141183460469231731687303715884105727"),
       3);
+
 
   // On the other hand, calling invalidate with a timestamp after the last
   // update should actually invalidate it and trigger an update.

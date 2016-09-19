@@ -19,15 +19,14 @@
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 
+#include <aws/core/client/AsyncCallerContext.h>
 #include <aws/metrics/metric.h>
-#include <aws/utils/executor.h>
-#include <aws/utils/utils.h>
-#include <aws/http/http_client.h>
 #include <aws/metrics/metrics_constants.h>
-#include <aws/auth/credentials.h>
-#include <aws/auth/sigv4.h>
 #include <aws/metrics/metrics_finder.h>
 #include <aws/metrics/metrics_index.h>
+#include <aws/monitoring/CloudWatchClient.h>
+#include <aws/utils/executor.h>
+#include <aws/utils/utils.h>
 
 namespace aws {
 namespace metrics {
@@ -107,47 +106,35 @@ class MetricsFinderBuilder {
   MetricsFinder mf_;
 };
 
+struct UploadContext : public Aws::Client::AsyncCallerContext {
+  UploadContext() :
+      created(std::chrono::steady_clock::now()),
+      attempts(0) {}
+  std::chrono::steady_clock::time_point created;
+  size_t attempts;
+};
+
 } //namespace detail
 
 class MetricsManager {
  public:
   MetricsManager(
       std::shared_ptr<aws::utils::Executor> executor,
-      std::shared_ptr<aws::http::SocketFactory> socket_factory,
-      std::shared_ptr<aws::auth::AwsCredentialsProvider> creds,
-      std::string region,
+      std::shared_ptr<Aws::CloudWatch::CloudWatchClient> cw_client,
       std::string cw_namespace = "KinesisProducerLib",
       constants::Level level = constants::Level::Detailed,
       constants::Granularity granularity = constants::Granularity::Shard,
       const detail::ExtraDimensions& extra_dimensions =
           detail::ExtraDimensions(),
-      std::string custom_endpoint = "",
-      int port = 443,
       std::chrono::milliseconds upload_frequency = std::chrono::minutes(1),
-      std::chrono::milliseconds retry_frequency = std::chrono::seconds(10))
+      std::chrono::milliseconds retry_delay = std::chrono::seconds(10))
       : executor_(std::move(executor)),
-        endpoint_(custom_endpoint.empty()
-                      ? "monitoring." + region + ".amazonaws.com"
-                      : custom_endpoint),
-        http_client_(
-            std::make_shared<aws::http::HttpClient>(
-                executor_,
-                std::move(socket_factory),
-                endpoint_,
-                port,
-                true,
-                custom_endpoint.empty())),
-        creds_(std::move(creds)),
-        region_(std::move(region)),
+        cw_client_(std::move(cw_client)),
         cw_namespace_(std::move(cw_namespace)),
         level_(level),
         granularity_(granularity),
         upload_frequency_(upload_frequency),
-        retry_frequency_(retry_frequency) {
-    if (level_ != constants::Level::None) {
-      LOG(info) << "Uploading metrics to " << endpoint_ << ":" << port;
-    }
-
+        retry_delay_(retry_delay) {
     extra_dimensions_[constants::Granularity::Global];
     extra_dimensions_[constants::Granularity::Stream];
     extra_dimensions_[constants::Granularity::Shard];
@@ -165,14 +152,6 @@ class MetricsManager {
               this->upload();
             },
             upload_frequency_);
-
-    scheduled_retry_ =
-        executor_->schedule(
-            [=] {
-              scheduled_retry_->reschedule(retry_frequency_);
-              this->retry_uploads();
-            },
-            retry_frequency_);
   }
 
   virtual detail::MetricsFinderBuilder finder() {
@@ -189,7 +168,6 @@ class MetricsManager {
 
   virtual void stop() {
     scheduled_upload_->cancel();
-    scheduled_retry_->cancel();
   }
 
  protected:
@@ -204,46 +182,23 @@ class MetricsManager {
     bool operator()(std::shared_ptr<Metric>& a, std::shared_ptr<Metric>& b);
   };
 
-  static inline std::string escape(const std::string& s) {
-    return aws::utils::url_encode(s);
-  }
-
-  static inline std::string escape(double d) {
-    return escape(std::to_string(d));
-  }
-
-  static boost::optional<std::string>
-  generate_query_args(const Metric& m, int idx, boost::posix_time::ptime tp);
-
   void upload();
 
-  void upload_one_batch(const std::string& query_str);
-
-  void upload_with_path(const std::shared_ptr<std::string>& path);
-
-  void handle_result(const std::shared_ptr<aws::http::HttpResult>& result);
-
-  void retry_uploads();
+  void upload_one(const Aws::CloudWatch::Model::PutMetricDataRequest& pmdr,
+                  const std::shared_ptr<detail::UploadContext>& ctx);
 
   std::shared_ptr<aws::utils::Executor> executor_;
-  std::string endpoint_;
-  std::shared_ptr<aws::http::HttpClient> http_client_;
-  std::shared_ptr<aws::auth::AwsCredentialsProvider> creds_;
-  std::string region_;
+  std::shared_ptr<Aws::CloudWatch::CloudWatchClient> cw_client_;
   std::string cw_namespace_;
   constants::Level level_;
   constants::Granularity granularity_;
   detail::ExtraDimMap extra_dimensions_;
   std::chrono::milliseconds upload_frequency_;
-  std::chrono::milliseconds retry_frequency_;
+  std::chrono::milliseconds retry_delay_;
 
   MetricsIndex metrics_index_;
 
   std::shared_ptr<aws::utils::ScheduledCallback> scheduled_upload_;
-  std::shared_ptr<aws::utils::ScheduledCallback> scheduled_retry_;
-
-  Mutex mutex_;
-  std::list<std::shared_ptr<std::string>> retryable_requests_;
 };
 
 class NullMetricsManager : public MetricsManager {

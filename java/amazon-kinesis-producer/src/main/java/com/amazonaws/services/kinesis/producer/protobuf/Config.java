@@ -878,203 +878,235 @@ public final class Config {
     long getAggregationMaxSize();
 
     /**
-     * <code>optional uint64 collection_max_count = 4 [default = 500];</code>
+     * <code>optional string cloudwatch_endpoint = 4 [default = ""];</code>
+     */
+    boolean hasCloudwatchEndpoint();
+    /**
+     * <code>optional string cloudwatch_endpoint = 4 [default = ""];</code>
+     */
+    java.lang.String getCloudwatchEndpoint();
+    /**
+     * <code>optional string cloudwatch_endpoint = 4 [default = ""];</code>
+     */
+    com.google.protobuf.ByteString
+        getCloudwatchEndpointBytes();
+
+    /**
+     * <code>optional uint64 cloudwatch_port = 5 [default = 443];</code>
+     */
+    boolean hasCloudwatchPort();
+    /**
+     * <code>optional uint64 cloudwatch_port = 5 [default = 443];</code>
+     */
+    long getCloudwatchPort();
+
+    /**
+     * <code>optional uint64 collection_max_count = 6 [default = 500];</code>
      */
     boolean hasCollectionMaxCount();
     /**
-     * <code>optional uint64 collection_max_count = 4 [default = 500];</code>
+     * <code>optional uint64 collection_max_count = 6 [default = 500];</code>
      */
     long getCollectionMaxCount();
 
     /**
-     * <code>optional uint64 collection_max_size = 5 [default = 5242880];</code>
+     * <code>optional uint64 collection_max_size = 7 [default = 5242880];</code>
      */
     boolean hasCollectionMaxSize();
     /**
-     * <code>optional uint64 collection_max_size = 5 [default = 5242880];</code>
+     * <code>optional uint64 collection_max_size = 7 [default = 5242880];</code>
      */
     long getCollectionMaxSize();
 
     /**
-     * <code>optional uint64 connect_timeout = 6 [default = 6000];</code>
+     * <code>optional uint64 connect_timeout = 8 [default = 6000];</code>
      */
     boolean hasConnectTimeout();
     /**
-     * <code>optional uint64 connect_timeout = 6 [default = 6000];</code>
+     * <code>optional uint64 connect_timeout = 8 [default = 6000];</code>
      */
     long getConnectTimeout();
 
     /**
-     * <code>optional string custom_endpoint = 7 [default = ""];</code>
+     * <code>optional bool enable_core_dumps = 9 [default = false];</code>
      */
-    boolean hasCustomEndpoint();
+    boolean hasEnableCoreDumps();
     /**
-     * <code>optional string custom_endpoint = 7 [default = ""];</code>
+     * <code>optional bool enable_core_dumps = 9 [default = false];</code>
      */
-    java.lang.String getCustomEndpoint();
-    /**
-     * <code>optional string custom_endpoint = 7 [default = ""];</code>
-     */
-    com.google.protobuf.ByteString
-        getCustomEndpointBytes();
+    boolean getEnableCoreDumps();
 
     /**
-     * <code>optional bool fail_if_throttled = 8 [default = false];</code>
+     * <code>optional bool fail_if_throttled = 10 [default = false];</code>
      */
     boolean hasFailIfThrottled();
     /**
-     * <code>optional bool fail_if_throttled = 8 [default = false];</code>
+     * <code>optional bool fail_if_throttled = 10 [default = false];</code>
      */
     boolean getFailIfThrottled();
 
     /**
-     * <code>optional string log_level = 9 [default = "info"];</code>
+     * <code>optional string kinesis_endpoint = 11 [default = ""];</code>
+     */
+    boolean hasKinesisEndpoint();
+    /**
+     * <code>optional string kinesis_endpoint = 11 [default = ""];</code>
+     */
+    java.lang.String getKinesisEndpoint();
+    /**
+     * <code>optional string kinesis_endpoint = 11 [default = ""];</code>
+     */
+    com.google.protobuf.ByteString
+        getKinesisEndpointBytes();
+
+    /**
+     * <code>optional uint64 kinesis_port = 12 [default = 443];</code>
+     */
+    boolean hasKinesisPort();
+    /**
+     * <code>optional uint64 kinesis_port = 12 [default = 443];</code>
+     */
+    long getKinesisPort();
+
+    /**
+     * <code>optional string log_level = 13 [default = "info"];</code>
      */
     boolean hasLogLevel();
     /**
-     * <code>optional string log_level = 9 [default = "info"];</code>
+     * <code>optional string log_level = 13 [default = "info"];</code>
      */
     java.lang.String getLogLevel();
     /**
-     * <code>optional string log_level = 9 [default = "info"];</code>
+     * <code>optional string log_level = 13 [default = "info"];</code>
      */
     com.google.protobuf.ByteString
         getLogLevelBytes();
 
     /**
-     * <code>optional uint64 max_connections = 10 [default = 24];</code>
+     * <code>optional uint64 max_connections = 14 [default = 24];</code>
      */
     boolean hasMaxConnections();
     /**
-     * <code>optional uint64 max_connections = 10 [default = 24];</code>
+     * <code>optional uint64 max_connections = 14 [default = 24];</code>
      */
     long getMaxConnections();
 
     /**
-     * <code>optional string metrics_granularity = 11 [default = "shard"];</code>
+     * <code>optional string metrics_granularity = 15 [default = "shard"];</code>
      */
     boolean hasMetricsGranularity();
     /**
-     * <code>optional string metrics_granularity = 11 [default = "shard"];</code>
+     * <code>optional string metrics_granularity = 15 [default = "shard"];</code>
      */
     java.lang.String getMetricsGranularity();
     /**
-     * <code>optional string metrics_granularity = 11 [default = "shard"];</code>
+     * <code>optional string metrics_granularity = 15 [default = "shard"];</code>
      */
     com.google.protobuf.ByteString
         getMetricsGranularityBytes();
 
     /**
-     * <code>optional string metrics_level = 12 [default = "detailed"];</code>
+     * <code>optional string metrics_level = 16 [default = "detailed"];</code>
      */
     boolean hasMetricsLevel();
     /**
-     * <code>optional string metrics_level = 12 [default = "detailed"];</code>
+     * <code>optional string metrics_level = 16 [default = "detailed"];</code>
      */
     java.lang.String getMetricsLevel();
     /**
-     * <code>optional string metrics_level = 12 [default = "detailed"];</code>
+     * <code>optional string metrics_level = 16 [default = "detailed"];</code>
      */
     com.google.protobuf.ByteString
         getMetricsLevelBytes();
 
     /**
-     * <code>optional string metrics_namespace = 13 [default = "KinesisProducerLibrary"];</code>
+     * <code>optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];</code>
      */
     boolean hasMetricsNamespace();
     /**
-     * <code>optional string metrics_namespace = 13 [default = "KinesisProducerLibrary"];</code>
+     * <code>optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];</code>
      */
     java.lang.String getMetricsNamespace();
     /**
-     * <code>optional string metrics_namespace = 13 [default = "KinesisProducerLibrary"];</code>
+     * <code>optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];</code>
      */
     com.google.protobuf.ByteString
         getMetricsNamespaceBytes();
 
     /**
-     * <code>optional uint64 metrics_upload_delay = 14 [default = 60000];</code>
+     * <code>optional uint64 metrics_upload_delay = 18 [default = 60000];</code>
      */
     boolean hasMetricsUploadDelay();
     /**
-     * <code>optional uint64 metrics_upload_delay = 14 [default = 60000];</code>
+     * <code>optional uint64 metrics_upload_delay = 18 [default = 60000];</code>
      */
     long getMetricsUploadDelay();
 
     /**
-     * <code>optional uint64 min_connections = 15 [default = 1];</code>
+     * <code>optional uint64 min_connections = 19 [default = 1];</code>
      */
     boolean hasMinConnections();
     /**
-     * <code>optional uint64 min_connections = 15 [default = 1];</code>
+     * <code>optional uint64 min_connections = 19 [default = 1];</code>
      */
     long getMinConnections();
 
     /**
-     * <code>optional uint64 port = 16 [default = 443];</code>
-     */
-    boolean hasPort();
-    /**
-     * <code>optional uint64 port = 16 [default = 443];</code>
-     */
-    long getPort();
-
-    /**
-     * <code>optional uint64 rate_limit = 17 [default = 150];</code>
+     * <code>optional uint64 rate_limit = 20 [default = 150];</code>
      */
     boolean hasRateLimit();
     /**
-     * <code>optional uint64 rate_limit = 17 [default = 150];</code>
+     * <code>optional uint64 rate_limit = 20 [default = 150];</code>
      */
     long getRateLimit();
 
     /**
-     * <code>optional uint64 record_max_buffered_time = 18 [default = 100];</code>
+     * <code>optional uint64 record_max_buffered_time = 21 [default = 100];</code>
      */
     boolean hasRecordMaxBufferedTime();
     /**
-     * <code>optional uint64 record_max_buffered_time = 18 [default = 100];</code>
+     * <code>optional uint64 record_max_buffered_time = 21 [default = 100];</code>
      */
     long getRecordMaxBufferedTime();
 
     /**
-     * <code>optional uint64 record_ttl = 19 [default = 30000];</code>
+     * <code>optional uint64 record_ttl = 22 [default = 30000];</code>
      */
     boolean hasRecordTtl();
     /**
-     * <code>optional uint64 record_ttl = 19 [default = 30000];</code>
+     * <code>optional uint64 record_ttl = 22 [default = 30000];</code>
      */
     long getRecordTtl();
 
     /**
-     * <code>optional string region = 20 [default = ""];</code>
+     * <code>optional string region = 23 [default = ""];</code>
      */
     boolean hasRegion();
     /**
-     * <code>optional string region = 20 [default = ""];</code>
+     * <code>optional string region = 23 [default = ""];</code>
      */
     java.lang.String getRegion();
     /**
-     * <code>optional string region = 20 [default = ""];</code>
+     * <code>optional string region = 23 [default = ""];</code>
      */
     com.google.protobuf.ByteString
         getRegionBytes();
 
     /**
-     * <code>optional uint64 request_timeout = 21 [default = 6000];</code>
+     * <code>optional uint64 request_timeout = 24 [default = 6000];</code>
      */
     boolean hasRequestTimeout();
     /**
-     * <code>optional uint64 request_timeout = 21 [default = 6000];</code>
+     * <code>optional uint64 request_timeout = 24 [default = 6000];</code>
      */
     long getRequestTimeout();
 
     /**
-     * <code>optional bool verify_certificate = 22 [default = true];</code>
+     * <code>optional bool verify_certificate = 25 [default = true];</code>
      */
     boolean hasVerifyCertificate();
     /**
-     * <code>optional bool verify_certificate = 22 [default = true];</code>
+     * <code>optional bool verify_certificate = 25 [default = true];</code>
      */
     boolean getVerifyCertificate();
   }
@@ -1145,104 +1177,120 @@ public final class Config {
               aggregationMaxSize_ = input.readUInt64();
               break;
             }
-            case 32: {
+            case 34: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000008;
-              collectionMaxCount_ = input.readUInt64();
+              cloudwatchEndpoint_ = bs;
               break;
             }
             case 40: {
               bitField0_ |= 0x00000010;
-              collectionMaxSize_ = input.readUInt64();
+              cloudwatchPort_ = input.readUInt64();
               break;
             }
             case 48: {
               bitField0_ |= 0x00000020;
-              connectTimeout_ = input.readUInt64();
+              collectionMaxCount_ = input.readUInt64();
               break;
             }
-            case 58: {
-              com.google.protobuf.ByteString bs = input.readBytes();
+            case 56: {
               bitField0_ |= 0x00000040;
-              customEndpoint_ = bs;
+              collectionMaxSize_ = input.readUInt64();
               break;
             }
             case 64: {
               bitField0_ |= 0x00000080;
-              failIfThrottled_ = input.readBool();
+              connectTimeout_ = input.readUInt64();
               break;
             }
-            case 74: {
-              com.google.protobuf.ByteString bs = input.readBytes();
+            case 72: {
               bitField0_ |= 0x00000100;
-              logLevel_ = bs;
+              enableCoreDumps_ = input.readBool();
               break;
             }
             case 80: {
               bitField0_ |= 0x00000200;
-              maxConnections_ = input.readUInt64();
+              failIfThrottled_ = input.readBool();
               break;
             }
             case 90: {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000400;
-              metricsGranularity_ = bs;
+              kinesisEndpoint_ = bs;
               break;
             }
-            case 98: {
-              com.google.protobuf.ByteString bs = input.readBytes();
+            case 96: {
               bitField0_ |= 0x00000800;
-              metricsLevel_ = bs;
+              kinesisPort_ = input.readUInt64();
               break;
             }
             case 106: {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00001000;
-              metricsNamespace_ = bs;
+              logLevel_ = bs;
               break;
             }
             case 112: {
               bitField0_ |= 0x00002000;
-              metricsUploadDelay_ = input.readUInt64();
+              maxConnections_ = input.readUInt64();
               break;
             }
-            case 120: {
+            case 122: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00004000;
-              minConnections_ = input.readUInt64();
+              metricsGranularity_ = bs;
               break;
             }
-            case 128: {
+            case 130: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00008000;
-              port_ = input.readUInt64();
+              metricsLevel_ = bs;
               break;
             }
-            case 136: {
+            case 138: {
+              com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00010000;
-              rateLimit_ = input.readUInt64();
+              metricsNamespace_ = bs;
               break;
             }
             case 144: {
               bitField0_ |= 0x00020000;
-              recordMaxBufferedTime_ = input.readUInt64();
+              metricsUploadDelay_ = input.readUInt64();
               break;
             }
             case 152: {
               bitField0_ |= 0x00040000;
-              recordTtl_ = input.readUInt64();
+              minConnections_ = input.readUInt64();
               break;
             }
-            case 162: {
-              com.google.protobuf.ByteString bs = input.readBytes();
+            case 160: {
               bitField0_ |= 0x00080000;
-              region_ = bs;
+              rateLimit_ = input.readUInt64();
               break;
             }
             case 168: {
               bitField0_ |= 0x00100000;
-              requestTimeout_ = input.readUInt64();
+              recordMaxBufferedTime_ = input.readUInt64();
               break;
             }
             case 176: {
               bitField0_ |= 0x00200000;
+              recordTtl_ = input.readUInt64();
+              break;
+            }
+            case 186: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00400000;
+              region_ = bs;
+              break;
+            }
+            case 192: {
+              bitField0_ |= 0x00800000;
+              requestTimeout_ = input.readUInt64();
+              break;
+            }
+            case 200: {
+              bitField0_ |= 0x01000000;
               verifyCertificate_ = input.readBool();
               break;
             }
@@ -1377,64 +1425,19 @@ public final class Config {
       return aggregationMaxSize_;
     }
 
-    public static final int COLLECTION_MAX_COUNT_FIELD_NUMBER = 4;
-    private long collectionMaxCount_;
+    public static final int CLOUDWATCH_ENDPOINT_FIELD_NUMBER = 4;
+    private java.lang.Object cloudwatchEndpoint_;
     /**
-     * <code>optional uint64 collection_max_count = 4 [default = 500];</code>
+     * <code>optional string cloudwatch_endpoint = 4 [default = ""];</code>
      */
-    public boolean hasCollectionMaxCount() {
+    public boolean hasCloudwatchEndpoint() {
       return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
-     * <code>optional uint64 collection_max_count = 4 [default = 500];</code>
+     * <code>optional string cloudwatch_endpoint = 4 [default = ""];</code>
      */
-    public long getCollectionMaxCount() {
-      return collectionMaxCount_;
-    }
-
-    public static final int COLLECTION_MAX_SIZE_FIELD_NUMBER = 5;
-    private long collectionMaxSize_;
-    /**
-     * <code>optional uint64 collection_max_size = 5 [default = 5242880];</code>
-     */
-    public boolean hasCollectionMaxSize() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
-    }
-    /**
-     * <code>optional uint64 collection_max_size = 5 [default = 5242880];</code>
-     */
-    public long getCollectionMaxSize() {
-      return collectionMaxSize_;
-    }
-
-    public static final int CONNECT_TIMEOUT_FIELD_NUMBER = 6;
-    private long connectTimeout_;
-    /**
-     * <code>optional uint64 connect_timeout = 6 [default = 6000];</code>
-     */
-    public boolean hasConnectTimeout() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
-    }
-    /**
-     * <code>optional uint64 connect_timeout = 6 [default = 6000];</code>
-     */
-    public long getConnectTimeout() {
-      return connectTimeout_;
-    }
-
-    public static final int CUSTOM_ENDPOINT_FIELD_NUMBER = 7;
-    private java.lang.Object customEndpoint_;
-    /**
-     * <code>optional string custom_endpoint = 7 [default = ""];</code>
-     */
-    public boolean hasCustomEndpoint() {
-      return ((bitField0_ & 0x00000040) == 0x00000040);
-    }
-    /**
-     * <code>optional string custom_endpoint = 7 [default = ""];</code>
-     */
-    public java.lang.String getCustomEndpoint() {
-      java.lang.Object ref = customEndpoint_;
+    public java.lang.String getCloudwatchEndpoint() {
+      java.lang.Object ref = cloudwatchEndpoint_;
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
@@ -1442,53 +1445,185 @@ public final class Config {
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
-          customEndpoint_ = s;
+          cloudwatchEndpoint_ = s;
         }
         return s;
       }
     }
     /**
-     * <code>optional string custom_endpoint = 7 [default = ""];</code>
+     * <code>optional string cloudwatch_endpoint = 4 [default = ""];</code>
      */
     public com.google.protobuf.ByteString
-        getCustomEndpointBytes() {
-      java.lang.Object ref = customEndpoint_;
+        getCloudwatchEndpointBytes() {
+      java.lang.Object ref = cloudwatchEndpoint_;
       if (ref instanceof java.lang.String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
-        customEndpoint_ = b;
+        cloudwatchEndpoint_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
       }
     }
 
-    public static final int FAIL_IF_THROTTLED_FIELD_NUMBER = 8;
-    private boolean failIfThrottled_;
+    public static final int CLOUDWATCH_PORT_FIELD_NUMBER = 5;
+    private long cloudwatchPort_;
     /**
-     * <code>optional bool fail_if_throttled = 8 [default = false];</code>
+     * <code>optional uint64 cloudwatch_port = 5 [default = 443];</code>
      */
-    public boolean hasFailIfThrottled() {
+    public boolean hasCloudwatchPort() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    /**
+     * <code>optional uint64 cloudwatch_port = 5 [default = 443];</code>
+     */
+    public long getCloudwatchPort() {
+      return cloudwatchPort_;
+    }
+
+    public static final int COLLECTION_MAX_COUNT_FIELD_NUMBER = 6;
+    private long collectionMaxCount_;
+    /**
+     * <code>optional uint64 collection_max_count = 6 [default = 500];</code>
+     */
+    public boolean hasCollectionMaxCount() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
+    }
+    /**
+     * <code>optional uint64 collection_max_count = 6 [default = 500];</code>
+     */
+    public long getCollectionMaxCount() {
+      return collectionMaxCount_;
+    }
+
+    public static final int COLLECTION_MAX_SIZE_FIELD_NUMBER = 7;
+    private long collectionMaxSize_;
+    /**
+     * <code>optional uint64 collection_max_size = 7 [default = 5242880];</code>
+     */
+    public boolean hasCollectionMaxSize() {
+      return ((bitField0_ & 0x00000040) == 0x00000040);
+    }
+    /**
+     * <code>optional uint64 collection_max_size = 7 [default = 5242880];</code>
+     */
+    public long getCollectionMaxSize() {
+      return collectionMaxSize_;
+    }
+
+    public static final int CONNECT_TIMEOUT_FIELD_NUMBER = 8;
+    private long connectTimeout_;
+    /**
+     * <code>optional uint64 connect_timeout = 8 [default = 6000];</code>
+     */
+    public boolean hasConnectTimeout() {
       return ((bitField0_ & 0x00000080) == 0x00000080);
     }
     /**
-     * <code>optional bool fail_if_throttled = 8 [default = false];</code>
+     * <code>optional uint64 connect_timeout = 8 [default = 6000];</code>
+     */
+    public long getConnectTimeout() {
+      return connectTimeout_;
+    }
+
+    public static final int ENABLE_CORE_DUMPS_FIELD_NUMBER = 9;
+    private boolean enableCoreDumps_;
+    /**
+     * <code>optional bool enable_core_dumps = 9 [default = false];</code>
+     */
+    public boolean hasEnableCoreDumps() {
+      return ((bitField0_ & 0x00000100) == 0x00000100);
+    }
+    /**
+     * <code>optional bool enable_core_dumps = 9 [default = false];</code>
+     */
+    public boolean getEnableCoreDumps() {
+      return enableCoreDumps_;
+    }
+
+    public static final int FAIL_IF_THROTTLED_FIELD_NUMBER = 10;
+    private boolean failIfThrottled_;
+    /**
+     * <code>optional bool fail_if_throttled = 10 [default = false];</code>
+     */
+    public boolean hasFailIfThrottled() {
+      return ((bitField0_ & 0x00000200) == 0x00000200);
+    }
+    /**
+     * <code>optional bool fail_if_throttled = 10 [default = false];</code>
      */
     public boolean getFailIfThrottled() {
       return failIfThrottled_;
     }
 
-    public static final int LOG_LEVEL_FIELD_NUMBER = 9;
-    private java.lang.Object logLevel_;
+    public static final int KINESIS_ENDPOINT_FIELD_NUMBER = 11;
+    private java.lang.Object kinesisEndpoint_;
     /**
-     * <code>optional string log_level = 9 [default = "info"];</code>
+     * <code>optional string kinesis_endpoint = 11 [default = ""];</code>
      */
-    public boolean hasLogLevel() {
-      return ((bitField0_ & 0x00000100) == 0x00000100);
+    public boolean hasKinesisEndpoint() {
+      return ((bitField0_ & 0x00000400) == 0x00000400);
     }
     /**
-     * <code>optional string log_level = 9 [default = "info"];</code>
+     * <code>optional string kinesis_endpoint = 11 [default = ""];</code>
+     */
+    public java.lang.String getKinesisEndpoint() {
+      java.lang.Object ref = kinesisEndpoint_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          kinesisEndpoint_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string kinesis_endpoint = 11 [default = ""];</code>
+     */
+    public com.google.protobuf.ByteString
+        getKinesisEndpointBytes() {
+      java.lang.Object ref = kinesisEndpoint_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        kinesisEndpoint_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int KINESIS_PORT_FIELD_NUMBER = 12;
+    private long kinesisPort_;
+    /**
+     * <code>optional uint64 kinesis_port = 12 [default = 443];</code>
+     */
+    public boolean hasKinesisPort() {
+      return ((bitField0_ & 0x00000800) == 0x00000800);
+    }
+    /**
+     * <code>optional uint64 kinesis_port = 12 [default = 443];</code>
+     */
+    public long getKinesisPort() {
+      return kinesisPort_;
+    }
+
+    public static final int LOG_LEVEL_FIELD_NUMBER = 13;
+    private java.lang.Object logLevel_;
+    /**
+     * <code>optional string log_level = 13 [default = "info"];</code>
+     */
+    public boolean hasLogLevel() {
+      return ((bitField0_ & 0x00001000) == 0x00001000);
+    }
+    /**
+     * <code>optional string log_level = 13 [default = "info"];</code>
      */
     public java.lang.String getLogLevel() {
       java.lang.Object ref = logLevel_;
@@ -1505,7 +1640,7 @@ public final class Config {
       }
     }
     /**
-     * <code>optional string log_level = 9 [default = "info"];</code>
+     * <code>optional string log_level = 13 [default = "info"];</code>
      */
     public com.google.protobuf.ByteString
         getLogLevelBytes() {
@@ -1521,31 +1656,31 @@ public final class Config {
       }
     }
 
-    public static final int MAX_CONNECTIONS_FIELD_NUMBER = 10;
+    public static final int MAX_CONNECTIONS_FIELD_NUMBER = 14;
     private long maxConnections_;
     /**
-     * <code>optional uint64 max_connections = 10 [default = 24];</code>
+     * <code>optional uint64 max_connections = 14 [default = 24];</code>
      */
     public boolean hasMaxConnections() {
-      return ((bitField0_ & 0x00000200) == 0x00000200);
+      return ((bitField0_ & 0x00002000) == 0x00002000);
     }
     /**
-     * <code>optional uint64 max_connections = 10 [default = 24];</code>
+     * <code>optional uint64 max_connections = 14 [default = 24];</code>
      */
     public long getMaxConnections() {
       return maxConnections_;
     }
 
-    public static final int METRICS_GRANULARITY_FIELD_NUMBER = 11;
+    public static final int METRICS_GRANULARITY_FIELD_NUMBER = 15;
     private java.lang.Object metricsGranularity_;
     /**
-     * <code>optional string metrics_granularity = 11 [default = "shard"];</code>
+     * <code>optional string metrics_granularity = 15 [default = "shard"];</code>
      */
     public boolean hasMetricsGranularity() {
-      return ((bitField0_ & 0x00000400) == 0x00000400);
+      return ((bitField0_ & 0x00004000) == 0x00004000);
     }
     /**
-     * <code>optional string metrics_granularity = 11 [default = "shard"];</code>
+     * <code>optional string metrics_granularity = 15 [default = "shard"];</code>
      */
     public java.lang.String getMetricsGranularity() {
       java.lang.Object ref = metricsGranularity_;
@@ -1562,7 +1697,7 @@ public final class Config {
       }
     }
     /**
-     * <code>optional string metrics_granularity = 11 [default = "shard"];</code>
+     * <code>optional string metrics_granularity = 15 [default = "shard"];</code>
      */
     public com.google.protobuf.ByteString
         getMetricsGranularityBytes() {
@@ -1578,16 +1713,16 @@ public final class Config {
       }
     }
 
-    public static final int METRICS_LEVEL_FIELD_NUMBER = 12;
+    public static final int METRICS_LEVEL_FIELD_NUMBER = 16;
     private java.lang.Object metricsLevel_;
     /**
-     * <code>optional string metrics_level = 12 [default = "detailed"];</code>
+     * <code>optional string metrics_level = 16 [default = "detailed"];</code>
      */
     public boolean hasMetricsLevel() {
-      return ((bitField0_ & 0x00000800) == 0x00000800);
+      return ((bitField0_ & 0x00008000) == 0x00008000);
     }
     /**
-     * <code>optional string metrics_level = 12 [default = "detailed"];</code>
+     * <code>optional string metrics_level = 16 [default = "detailed"];</code>
      */
     public java.lang.String getMetricsLevel() {
       java.lang.Object ref = metricsLevel_;
@@ -1604,7 +1739,7 @@ public final class Config {
       }
     }
     /**
-     * <code>optional string metrics_level = 12 [default = "detailed"];</code>
+     * <code>optional string metrics_level = 16 [default = "detailed"];</code>
      */
     public com.google.protobuf.ByteString
         getMetricsLevelBytes() {
@@ -1620,16 +1755,16 @@ public final class Config {
       }
     }
 
-    public static final int METRICS_NAMESPACE_FIELD_NUMBER = 13;
+    public static final int METRICS_NAMESPACE_FIELD_NUMBER = 17;
     private java.lang.Object metricsNamespace_;
     /**
-     * <code>optional string metrics_namespace = 13 [default = "KinesisProducerLibrary"];</code>
+     * <code>optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];</code>
      */
     public boolean hasMetricsNamespace() {
-      return ((bitField0_ & 0x00001000) == 0x00001000);
+      return ((bitField0_ & 0x00010000) == 0x00010000);
     }
     /**
-     * <code>optional string metrics_namespace = 13 [default = "KinesisProducerLibrary"];</code>
+     * <code>optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];</code>
      */
     public java.lang.String getMetricsNamespace() {
       java.lang.Object ref = metricsNamespace_;
@@ -1646,7 +1781,7 @@ public final class Config {
       }
     }
     /**
-     * <code>optional string metrics_namespace = 13 [default = "KinesisProducerLibrary"];</code>
+     * <code>optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];</code>
      */
     public com.google.protobuf.ByteString
         getMetricsNamespaceBytes() {
@@ -1662,106 +1797,91 @@ public final class Config {
       }
     }
 
-    public static final int METRICS_UPLOAD_DELAY_FIELD_NUMBER = 14;
+    public static final int METRICS_UPLOAD_DELAY_FIELD_NUMBER = 18;
     private long metricsUploadDelay_;
     /**
-     * <code>optional uint64 metrics_upload_delay = 14 [default = 60000];</code>
+     * <code>optional uint64 metrics_upload_delay = 18 [default = 60000];</code>
      */
     public boolean hasMetricsUploadDelay() {
-      return ((bitField0_ & 0x00002000) == 0x00002000);
+      return ((bitField0_ & 0x00020000) == 0x00020000);
     }
     /**
-     * <code>optional uint64 metrics_upload_delay = 14 [default = 60000];</code>
+     * <code>optional uint64 metrics_upload_delay = 18 [default = 60000];</code>
      */
     public long getMetricsUploadDelay() {
       return metricsUploadDelay_;
     }
 
-    public static final int MIN_CONNECTIONS_FIELD_NUMBER = 15;
+    public static final int MIN_CONNECTIONS_FIELD_NUMBER = 19;
     private long minConnections_;
     /**
-     * <code>optional uint64 min_connections = 15 [default = 1];</code>
+     * <code>optional uint64 min_connections = 19 [default = 1];</code>
      */
     public boolean hasMinConnections() {
-      return ((bitField0_ & 0x00004000) == 0x00004000);
+      return ((bitField0_ & 0x00040000) == 0x00040000);
     }
     /**
-     * <code>optional uint64 min_connections = 15 [default = 1];</code>
+     * <code>optional uint64 min_connections = 19 [default = 1];</code>
      */
     public long getMinConnections() {
       return minConnections_;
     }
 
-    public static final int PORT_FIELD_NUMBER = 16;
-    private long port_;
-    /**
-     * <code>optional uint64 port = 16 [default = 443];</code>
-     */
-    public boolean hasPort() {
-      return ((bitField0_ & 0x00008000) == 0x00008000);
-    }
-    /**
-     * <code>optional uint64 port = 16 [default = 443];</code>
-     */
-    public long getPort() {
-      return port_;
-    }
-
-    public static final int RATE_LIMIT_FIELD_NUMBER = 17;
+    public static final int RATE_LIMIT_FIELD_NUMBER = 20;
     private long rateLimit_;
     /**
-     * <code>optional uint64 rate_limit = 17 [default = 150];</code>
+     * <code>optional uint64 rate_limit = 20 [default = 150];</code>
      */
     public boolean hasRateLimit() {
-      return ((bitField0_ & 0x00010000) == 0x00010000);
+      return ((bitField0_ & 0x00080000) == 0x00080000);
     }
     /**
-     * <code>optional uint64 rate_limit = 17 [default = 150];</code>
+     * <code>optional uint64 rate_limit = 20 [default = 150];</code>
      */
     public long getRateLimit() {
       return rateLimit_;
     }
 
-    public static final int RECORD_MAX_BUFFERED_TIME_FIELD_NUMBER = 18;
+    public static final int RECORD_MAX_BUFFERED_TIME_FIELD_NUMBER = 21;
     private long recordMaxBufferedTime_;
     /**
-     * <code>optional uint64 record_max_buffered_time = 18 [default = 100];</code>
+     * <code>optional uint64 record_max_buffered_time = 21 [default = 100];</code>
      */
     public boolean hasRecordMaxBufferedTime() {
-      return ((bitField0_ & 0x00020000) == 0x00020000);
+      return ((bitField0_ & 0x00100000) == 0x00100000);
     }
     /**
-     * <code>optional uint64 record_max_buffered_time = 18 [default = 100];</code>
+     * <code>optional uint64 record_max_buffered_time = 21 [default = 100];</code>
      */
     public long getRecordMaxBufferedTime() {
       return recordMaxBufferedTime_;
     }
 
-    public static final int RECORD_TTL_FIELD_NUMBER = 19;
+    public static final int RECORD_TTL_FIELD_NUMBER = 22;
     private long recordTtl_;
     /**
-     * <code>optional uint64 record_ttl = 19 [default = 30000];</code>
+     * <code>optional uint64 record_ttl = 22 [default = 30000];</code>
      */
     public boolean hasRecordTtl() {
-      return ((bitField0_ & 0x00040000) == 0x00040000);
+      return ((bitField0_ & 0x00200000) == 0x00200000);
     }
     /**
-     * <code>optional uint64 record_ttl = 19 [default = 30000];</code>
+     * <code>optional uint64 record_ttl = 22 [default = 30000];</code>
      */
     public long getRecordTtl() {
       return recordTtl_;
     }
 
-    public static final int REGION_FIELD_NUMBER = 20;
+    public static final int REGION_FIELD_NUMBER = 23;
     private java.lang.Object region_;
     /**
-     * <code>optional string region = 20 [default = ""];</code>
+     * <code>optional string region = 23 [default = ""];</code>
      */
     public boolean hasRegion() {
-      return ((bitField0_ & 0x00080000) == 0x00080000);
+      return ((bitField0_ & 0x00400000) == 0x00400000);
     }
     /**
-     * <code>optional string region = 20 [default = ""];</code>
+     * <code>optional string region = 23 [default = ""];</code>
      */
     public java.lang.String getRegion() {
       java.lang.Object ref = region_;
@@ -1778,7 +1898,7 @@ public final class Config {
       }
     }
     /**
-     * <code>optional string region = 20 [default = ""];</code>
+     * <code>optional string region = 23 [default = ""];</code>
      */
     public com.google.protobuf.ByteString
         getRegionBytes() {
@@ -1794,31 +1914,31 @@ public final class Config {
       }
     }
 
-    public static final int REQUEST_TIMEOUT_FIELD_NUMBER = 21;
+    public static final int REQUEST_TIMEOUT_FIELD_NUMBER = 24;
     private long requestTimeout_;
     /**
-     * <code>optional uint64 request_timeout = 21 [default = 6000];</code>
+     * <code>optional uint64 request_timeout = 24 [default = 6000];</code>
      */
     public boolean hasRequestTimeout() {
-      return ((bitField0_ & 0x00100000) == 0x00100000);
+      return ((bitField0_ & 0x00800000) == 0x00800000);
     }
     /**
-     * <code>optional uint64 request_timeout = 21 [default = 6000];</code>
+     * <code>optional uint64 request_timeout = 24 [default = 6000];</code>
      */
     public long getRequestTimeout() {
       return requestTimeout_;
     }
 
-    public static final int VERIFY_CERTIFICATE_FIELD_NUMBER = 22;
+    public static final int VERIFY_CERTIFICATE_FIELD_NUMBER = 25;
     private boolean verifyCertificate_;
     /**
-     * <code>optional bool verify_certificate = 22 [default = true];</code>
+     * <code>optional bool verify_certificate = 25 [default = true];</code>
      */
     public boolean hasVerifyCertificate() {
-      return ((bitField0_ & 0x00200000) == 0x00200000);
+      return ((bitField0_ & 0x01000000) == 0x01000000);
     }
     /**
-     * <code>optional bool verify_certificate = 22 [default = true];</code>
+     * <code>optional bool verify_certificate = 25 [default = true];</code>
      */
     public boolean getVerifyCertificate() {
       return verifyCertificate_;
@@ -1829,11 +1949,15 @@ public final class Config {
       aggregationEnabled_ = true;
       aggregationMaxCount_ = 4294967295L;
       aggregationMaxSize_ = 51200L;
+      cloudwatchEndpoint_ = "";
+      cloudwatchPort_ = 443L;
       collectionMaxCount_ = 500L;
       collectionMaxSize_ = 5242880L;
       connectTimeout_ = 6000L;
-      customEndpoint_ = "";
+      enableCoreDumps_ = false;
       failIfThrottled_ = false;
+      kinesisEndpoint_ = "";
+      kinesisPort_ = 443L;
       logLevel_ = "info";
       maxConnections_ = 24L;
       metricsGranularity_ = "shard";
@@ -1841,7 +1965,6 @@ public final class Config {
       metricsNamespace_ = "KinesisProducerLibrary";
       metricsUploadDelay_ = 60000L;
       minConnections_ = 1L;
-      port_ = 443L;
       rateLimit_ = 150L;
       recordMaxBufferedTime_ = 100L;
       recordTtl_ = 30000L;
@@ -1878,61 +2001,70 @@ public final class Config {
         output.writeUInt64(3, aggregationMaxSize_);
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeUInt64(4, collectionMaxCount_);
+        output.writeBytes(4, getCloudwatchEndpointBytes());
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        output.writeUInt64(5, collectionMaxSize_);
+        output.writeUInt64(5, cloudwatchPort_);
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
-        output.writeUInt64(6, connectTimeout_);
+        output.writeUInt64(6, collectionMaxCount_);
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
-        output.writeBytes(7, getCustomEndpointBytes());
+        output.writeUInt64(7, collectionMaxSize_);
       }
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
-        output.writeBool(8, failIfThrottled_);
+        output.writeUInt64(8, connectTimeout_);
       }
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
-        output.writeBytes(9, getLogLevelBytes());
+        output.writeBool(9, enableCoreDumps_);
       }
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
-        output.writeUInt64(10, maxConnections_);
+        output.writeBool(10, failIfThrottled_);
       }
       if (((bitField0_ & 0x00000400) == 0x00000400)) {
-        output.writeBytes(11, getMetricsGranularityBytes());
+        output.writeBytes(11, getKinesisEndpointBytes());
       }
       if (((bitField0_ & 0x00000800) == 0x00000800)) {
-        output.writeBytes(12, getMetricsLevelBytes());
+        output.writeUInt64(12, kinesisPort_);
       }
       if (((bitField0_ & 0x00001000) == 0x00001000)) {
-        output.writeBytes(13, getMetricsNamespaceBytes());
+        output.writeBytes(13, getLogLevelBytes());
       }
       if (((bitField0_ & 0x00002000) == 0x00002000)) {
-        output.writeUInt64(14, metricsUploadDelay_);
+        output.writeUInt64(14, maxConnections_);
       }
       if (((bitField0_ & 0x00004000) == 0x00004000)) {
-        output.writeUInt64(15, minConnections_);
+        output.writeBytes(15, getMetricsGranularityBytes());
       }
       if (((bitField0_ & 0x00008000) == 0x00008000)) {
-        output.writeUInt64(16, port_);
+        output.writeBytes(16, getMetricsLevelBytes());
       }
       if (((bitField0_ & 0x00010000) == 0x00010000)) {
-        output.writeUInt64(17, rateLimit_);
+        output.writeBytes(17, getMetricsNamespaceBytes());
       }
       if (((bitField0_ & 0x00020000) == 0x00020000)) {
-        output.writeUInt64(18, recordMaxBufferedTime_);
+        output.writeUInt64(18, metricsUploadDelay_);
       }
       if (((bitField0_ & 0x00040000) == 0x00040000)) {
-        output.writeUInt64(19, recordTtl_);
+        output.writeUInt64(19, minConnections_);
       }
       if (((bitField0_ & 0x00080000) == 0x00080000)) {
-        output.writeBytes(20, getRegionBytes());
+        output.writeUInt64(20, rateLimit_);
       }
       if (((bitField0_ & 0x00100000) == 0x00100000)) {
-        output.writeUInt64(21, requestTimeout_);
+        output.writeUInt64(21, recordMaxBufferedTime_);
       }
       if (((bitField0_ & 0x00200000) == 0x00200000)) {
-        output.writeBool(22, verifyCertificate_);
+        output.writeUInt64(22, recordTtl_);
+      }
+      if (((bitField0_ & 0x00400000) == 0x00400000)) {
+        output.writeBytes(23, getRegionBytes());
+      }
+      if (((bitField0_ & 0x00800000) == 0x00800000)) {
+        output.writeUInt64(24, requestTimeout_);
+      }
+      if (((bitField0_ & 0x01000000) == 0x01000000)) {
+        output.writeBool(25, verifyCertificate_);
       }
       for (int i = 0; i < additionalMetricDims_.size(); i++) {
         output.writeMessage(128, additionalMetricDims_.get(i));
@@ -1960,79 +2092,91 @@ public final class Config {
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(4, collectionMaxCount_);
+          .computeBytesSize(4, getCloudwatchEndpointBytes());
       }
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(5, collectionMaxSize_);
+          .computeUInt64Size(5, cloudwatchPort_);
       }
       if (((bitField0_ & 0x00000020) == 0x00000020)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(6, connectTimeout_);
+          .computeUInt64Size(6, collectionMaxCount_);
       }
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(7, getCustomEndpointBytes());
+          .computeUInt64Size(7, collectionMaxSize_);
       }
       if (((bitField0_ & 0x00000080) == 0x00000080)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(8, failIfThrottled_);
+          .computeUInt64Size(8, connectTimeout_);
       }
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(9, getLogLevelBytes());
+          .computeBoolSize(9, enableCoreDumps_);
       }
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(10, maxConnections_);
+          .computeBoolSize(10, failIfThrottled_);
       }
       if (((bitField0_ & 0x00000400) == 0x00000400)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(11, getMetricsGranularityBytes());
+          .computeBytesSize(11, getKinesisEndpointBytes());
       }
       if (((bitField0_ & 0x00000800) == 0x00000800)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(12, getMetricsLevelBytes());
+          .computeUInt64Size(12, kinesisPort_);
       }
       if (((bitField0_ & 0x00001000) == 0x00001000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(13, getMetricsNamespaceBytes());
+          .computeBytesSize(13, getLogLevelBytes());
       }
       if (((bitField0_ & 0x00002000) == 0x00002000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(14, metricsUploadDelay_);
+          .computeUInt64Size(14, maxConnections_);
       }
       if (((bitField0_ & 0x00004000) == 0x00004000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(15, minConnections_);
+          .computeBytesSize(15, getMetricsGranularityBytes());
       }
       if (((bitField0_ & 0x00008000) == 0x00008000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(16, port_);
+          .computeBytesSize(16, getMetricsLevelBytes());
       }
       if (((bitField0_ & 0x00010000) == 0x00010000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(17, rateLimit_);
+          .computeBytesSize(17, getMetricsNamespaceBytes());
       }
       if (((bitField0_ & 0x00020000) == 0x00020000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(18, recordMaxBufferedTime_);
+          .computeUInt64Size(18, metricsUploadDelay_);
       }
       if (((bitField0_ & 0x00040000) == 0x00040000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(19, recordTtl_);
+          .computeUInt64Size(19, minConnections_);
       }
       if (((bitField0_ & 0x00080000) == 0x00080000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(20, getRegionBytes());
+          .computeUInt64Size(20, rateLimit_);
       }
       if (((bitField0_ & 0x00100000) == 0x00100000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt64Size(21, requestTimeout_);
+          .computeUInt64Size(21, recordMaxBufferedTime_);
       }
       if (((bitField0_ & 0x00200000) == 0x00200000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeBoolSize(22, verifyCertificate_);
+          .computeUInt64Size(22, recordTtl_);
+      }
+      if (((bitField0_ & 0x00400000) == 0x00400000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(23, getRegionBytes());
+      }
+      if (((bitField0_ & 0x00800000) == 0x00800000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt64Size(24, requestTimeout_);
+      }
+      if (((bitField0_ & 0x01000000) == 0x01000000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(25, verifyCertificate_);
       }
       for (int i = 0; i < additionalMetricDims_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
@@ -2168,44 +2312,50 @@ public final class Config {
         bitField0_ = (bitField0_ & ~0x00000004);
         aggregationMaxSize_ = 51200L;
         bitField0_ = (bitField0_ & ~0x00000008);
-        collectionMaxCount_ = 500L;
+        cloudwatchEndpoint_ = "";
         bitField0_ = (bitField0_ & ~0x00000010);
-        collectionMaxSize_ = 5242880L;
+        cloudwatchPort_ = 443L;
         bitField0_ = (bitField0_ & ~0x00000020);
-        connectTimeout_ = 6000L;
+        collectionMaxCount_ = 500L;
         bitField0_ = (bitField0_ & ~0x00000040);
-        customEndpoint_ = "";
+        collectionMaxSize_ = 5242880L;
         bitField0_ = (bitField0_ & ~0x00000080);
-        failIfThrottled_ = false;
+        connectTimeout_ = 6000L;
         bitField0_ = (bitField0_ & ~0x00000100);
-        logLevel_ = "info";
+        enableCoreDumps_ = false;
         bitField0_ = (bitField0_ & ~0x00000200);
-        maxConnections_ = 24L;
+        failIfThrottled_ = false;
         bitField0_ = (bitField0_ & ~0x00000400);
-        metricsGranularity_ = "shard";
+        kinesisEndpoint_ = "";
         bitField0_ = (bitField0_ & ~0x00000800);
-        metricsLevel_ = "detailed";
+        kinesisPort_ = 443L;
         bitField0_ = (bitField0_ & ~0x00001000);
-        metricsNamespace_ = "KinesisProducerLibrary";
+        logLevel_ = "info";
         bitField0_ = (bitField0_ & ~0x00002000);
-        metricsUploadDelay_ = 60000L;
+        maxConnections_ = 24L;
         bitField0_ = (bitField0_ & ~0x00004000);
-        minConnections_ = 1L;
+        metricsGranularity_ = "shard";
         bitField0_ = (bitField0_ & ~0x00008000);
-        port_ = 443L;
+        metricsLevel_ = "detailed";
         bitField0_ = (bitField0_ & ~0x00010000);
-        rateLimit_ = 150L;
+        metricsNamespace_ = "KinesisProducerLibrary";
         bitField0_ = (bitField0_ & ~0x00020000);
-        recordMaxBufferedTime_ = 100L;
+        metricsUploadDelay_ = 60000L;
         bitField0_ = (bitField0_ & ~0x00040000);
-        recordTtl_ = 30000L;
+        minConnections_ = 1L;
         bitField0_ = (bitField0_ & ~0x00080000);
-        region_ = "";
+        rateLimit_ = 150L;
         bitField0_ = (bitField0_ & ~0x00100000);
-        requestTimeout_ = 6000L;
+        recordMaxBufferedTime_ = 100L;
         bitField0_ = (bitField0_ & ~0x00200000);
-        verifyCertificate_ = true;
+        recordTtl_ = 30000L;
         bitField0_ = (bitField0_ & ~0x00400000);
+        region_ = "";
+        bitField0_ = (bitField0_ & ~0x00800000);
+        requestTimeout_ = 6000L;
+        bitField0_ = (bitField0_ & ~0x01000000);
+        verifyCertificate_ = true;
+        bitField0_ = (bitField0_ & ~0x02000000);
         return this;
       }
 
@@ -2258,77 +2408,89 @@ public final class Config {
         if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
           to_bitField0_ |= 0x00000008;
         }
-        result.collectionMaxCount_ = collectionMaxCount_;
+        result.cloudwatchEndpoint_ = cloudwatchEndpoint_;
         if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
           to_bitField0_ |= 0x00000010;
         }
-        result.collectionMaxSize_ = collectionMaxSize_;
+        result.cloudwatchPort_ = cloudwatchPort_;
         if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
           to_bitField0_ |= 0x00000020;
         }
-        result.connectTimeout_ = connectTimeout_;
+        result.collectionMaxCount_ = collectionMaxCount_;
         if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
           to_bitField0_ |= 0x00000040;
         }
-        result.customEndpoint_ = customEndpoint_;
+        result.collectionMaxSize_ = collectionMaxSize_;
         if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
           to_bitField0_ |= 0x00000080;
         }
-        result.failIfThrottled_ = failIfThrottled_;
+        result.connectTimeout_ = connectTimeout_;
         if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
           to_bitField0_ |= 0x00000100;
         }
-        result.logLevel_ = logLevel_;
+        result.enableCoreDumps_ = enableCoreDumps_;
         if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
           to_bitField0_ |= 0x00000200;
         }
-        result.maxConnections_ = maxConnections_;
+        result.failIfThrottled_ = failIfThrottled_;
         if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
           to_bitField0_ |= 0x00000400;
         }
-        result.metricsGranularity_ = metricsGranularity_;
+        result.kinesisEndpoint_ = kinesisEndpoint_;
         if (((from_bitField0_ & 0x00001000) == 0x00001000)) {
           to_bitField0_ |= 0x00000800;
         }
-        result.metricsLevel_ = metricsLevel_;
+        result.kinesisPort_ = kinesisPort_;
         if (((from_bitField0_ & 0x00002000) == 0x00002000)) {
           to_bitField0_ |= 0x00001000;
         }
-        result.metricsNamespace_ = metricsNamespace_;
+        result.logLevel_ = logLevel_;
         if (((from_bitField0_ & 0x00004000) == 0x00004000)) {
           to_bitField0_ |= 0x00002000;
         }
-        result.metricsUploadDelay_ = metricsUploadDelay_;
+        result.maxConnections_ = maxConnections_;
         if (((from_bitField0_ & 0x00008000) == 0x00008000)) {
           to_bitField0_ |= 0x00004000;
         }
-        result.minConnections_ = minConnections_;
+        result.metricsGranularity_ = metricsGranularity_;
         if (((from_bitField0_ & 0x00010000) == 0x00010000)) {
           to_bitField0_ |= 0x00008000;
         }
-        result.port_ = port_;
+        result.metricsLevel_ = metricsLevel_;
         if (((from_bitField0_ & 0x00020000) == 0x00020000)) {
           to_bitField0_ |= 0x00010000;
         }
-        result.rateLimit_ = rateLimit_;
+        result.metricsNamespace_ = metricsNamespace_;
         if (((from_bitField0_ & 0x00040000) == 0x00040000)) {
           to_bitField0_ |= 0x00020000;
         }
-        result.recordMaxBufferedTime_ = recordMaxBufferedTime_;
+        result.metricsUploadDelay_ = metricsUploadDelay_;
         if (((from_bitField0_ & 0x00080000) == 0x00080000)) {
           to_bitField0_ |= 0x00040000;
         }
-        result.recordTtl_ = recordTtl_;
+        result.minConnections_ = minConnections_;
         if (((from_bitField0_ & 0x00100000) == 0x00100000)) {
           to_bitField0_ |= 0x00080000;
         }
-        result.region_ = region_;
+        result.rateLimit_ = rateLimit_;
         if (((from_bitField0_ & 0x00200000) == 0x00200000)) {
           to_bitField0_ |= 0x00100000;
         }
-        result.requestTimeout_ = requestTimeout_;
+        result.recordMaxBufferedTime_ = recordMaxBufferedTime_;
         if (((from_bitField0_ & 0x00400000) == 0x00400000)) {
           to_bitField0_ |= 0x00200000;
+        }
+        result.recordTtl_ = recordTtl_;
+        if (((from_bitField0_ & 0x00800000) == 0x00800000)) {
+          to_bitField0_ |= 0x00400000;
+        }
+        result.region_ = region_;
+        if (((from_bitField0_ & 0x01000000) == 0x01000000)) {
+          to_bitField0_ |= 0x00800000;
+        }
+        result.requestTimeout_ = requestTimeout_;
+        if (((from_bitField0_ & 0x02000000) == 0x02000000)) {
+          to_bitField0_ |= 0x01000000;
         }
         result.verifyCertificate_ = verifyCertificate_;
         result.bitField0_ = to_bitField0_;
@@ -2382,6 +2544,14 @@ public final class Config {
         if (other.hasAggregationMaxSize()) {
           setAggregationMaxSize(other.getAggregationMaxSize());
         }
+        if (other.hasCloudwatchEndpoint()) {
+          bitField0_ |= 0x00000010;
+          cloudwatchEndpoint_ = other.cloudwatchEndpoint_;
+          onChanged();
+        }
+        if (other.hasCloudwatchPort()) {
+          setCloudwatchPort(other.getCloudwatchPort());
+        }
         if (other.hasCollectionMaxCount()) {
           setCollectionMaxCount(other.getCollectionMaxCount());
         }
@@ -2391,16 +2561,22 @@ public final class Config {
         if (other.hasConnectTimeout()) {
           setConnectTimeout(other.getConnectTimeout());
         }
-        if (other.hasCustomEndpoint()) {
-          bitField0_ |= 0x00000080;
-          customEndpoint_ = other.customEndpoint_;
-          onChanged();
+        if (other.hasEnableCoreDumps()) {
+          setEnableCoreDumps(other.getEnableCoreDumps());
         }
         if (other.hasFailIfThrottled()) {
           setFailIfThrottled(other.getFailIfThrottled());
         }
+        if (other.hasKinesisEndpoint()) {
+          bitField0_ |= 0x00000800;
+          kinesisEndpoint_ = other.kinesisEndpoint_;
+          onChanged();
+        }
+        if (other.hasKinesisPort()) {
+          setKinesisPort(other.getKinesisPort());
+        }
         if (other.hasLogLevel()) {
-          bitField0_ |= 0x00000200;
+          bitField0_ |= 0x00002000;
           logLevel_ = other.logLevel_;
           onChanged();
         }
@@ -2408,17 +2584,17 @@ public final class Config {
           setMaxConnections(other.getMaxConnections());
         }
         if (other.hasMetricsGranularity()) {
-          bitField0_ |= 0x00000800;
+          bitField0_ |= 0x00008000;
           metricsGranularity_ = other.metricsGranularity_;
           onChanged();
         }
         if (other.hasMetricsLevel()) {
-          bitField0_ |= 0x00001000;
+          bitField0_ |= 0x00010000;
           metricsLevel_ = other.metricsLevel_;
           onChanged();
         }
         if (other.hasMetricsNamespace()) {
-          bitField0_ |= 0x00002000;
+          bitField0_ |= 0x00020000;
           metricsNamespace_ = other.metricsNamespace_;
           onChanged();
         }
@@ -2427,9 +2603,6 @@ public final class Config {
         }
         if (other.hasMinConnections()) {
           setMinConnections(other.getMinConnections());
-        }
-        if (other.hasPort()) {
-          setPort(other.getPort());
         }
         if (other.hasRateLimit()) {
           setRateLimit(other.getRateLimit());
@@ -2441,7 +2614,7 @@ public final class Config {
           setRecordTtl(other.getRecordTtl());
         }
         if (other.hasRegion()) {
-          bitField0_ |= 0x00100000;
+          bitField0_ |= 0x00800000;
           region_ = other.region_;
           onChanged();
         }
@@ -2820,120 +2993,24 @@ public final class Config {
         return this;
       }
 
-      private long collectionMaxCount_ = 500L;
+      private java.lang.Object cloudwatchEndpoint_ = "";
       /**
-       * <code>optional uint64 collection_max_count = 4 [default = 500];</code>
+       * <code>optional string cloudwatch_endpoint = 4 [default = ""];</code>
        */
-      public boolean hasCollectionMaxCount() {
+      public boolean hasCloudwatchEndpoint() {
         return ((bitField0_ & 0x00000010) == 0x00000010);
       }
       /**
-       * <code>optional uint64 collection_max_count = 4 [default = 500];</code>
+       * <code>optional string cloudwatch_endpoint = 4 [default = ""];</code>
        */
-      public long getCollectionMaxCount() {
-        return collectionMaxCount_;
-      }
-      /**
-       * <code>optional uint64 collection_max_count = 4 [default = 500];</code>
-       */
-      public Builder setCollectionMaxCount(long value) {
-        bitField0_ |= 0x00000010;
-        collectionMaxCount_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional uint64 collection_max_count = 4 [default = 500];</code>
-       */
-      public Builder clearCollectionMaxCount() {
-        bitField0_ = (bitField0_ & ~0x00000010);
-        collectionMaxCount_ = 500L;
-        onChanged();
-        return this;
-      }
-
-      private long collectionMaxSize_ = 5242880L;
-      /**
-       * <code>optional uint64 collection_max_size = 5 [default = 5242880];</code>
-       */
-      public boolean hasCollectionMaxSize() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
-      }
-      /**
-       * <code>optional uint64 collection_max_size = 5 [default = 5242880];</code>
-       */
-      public long getCollectionMaxSize() {
-        return collectionMaxSize_;
-      }
-      /**
-       * <code>optional uint64 collection_max_size = 5 [default = 5242880];</code>
-       */
-      public Builder setCollectionMaxSize(long value) {
-        bitField0_ |= 0x00000020;
-        collectionMaxSize_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional uint64 collection_max_size = 5 [default = 5242880];</code>
-       */
-      public Builder clearCollectionMaxSize() {
-        bitField0_ = (bitField0_ & ~0x00000020);
-        collectionMaxSize_ = 5242880L;
-        onChanged();
-        return this;
-      }
-
-      private long connectTimeout_ = 6000L;
-      /**
-       * <code>optional uint64 connect_timeout = 6 [default = 6000];</code>
-       */
-      public boolean hasConnectTimeout() {
-        return ((bitField0_ & 0x00000040) == 0x00000040);
-      }
-      /**
-       * <code>optional uint64 connect_timeout = 6 [default = 6000];</code>
-       */
-      public long getConnectTimeout() {
-        return connectTimeout_;
-      }
-      /**
-       * <code>optional uint64 connect_timeout = 6 [default = 6000];</code>
-       */
-      public Builder setConnectTimeout(long value) {
-        bitField0_ |= 0x00000040;
-        connectTimeout_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional uint64 connect_timeout = 6 [default = 6000];</code>
-       */
-      public Builder clearConnectTimeout() {
-        bitField0_ = (bitField0_ & ~0x00000040);
-        connectTimeout_ = 6000L;
-        onChanged();
-        return this;
-      }
-
-      private java.lang.Object customEndpoint_ = "";
-      /**
-       * <code>optional string custom_endpoint = 7 [default = ""];</code>
-       */
-      public boolean hasCustomEndpoint() {
-        return ((bitField0_ & 0x00000080) == 0x00000080);
-      }
-      /**
-       * <code>optional string custom_endpoint = 7 [default = ""];</code>
-       */
-      public java.lang.String getCustomEndpoint() {
-        java.lang.Object ref = customEndpoint_;
+      public java.lang.String getCloudwatchEndpoint() {
+        java.lang.Object ref = cloudwatchEndpoint_;
         if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs =
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
           if (bs.isValidUtf8()) {
-            customEndpoint_ = s;
+            cloudwatchEndpoint_ = s;
           }
           return s;
         } else {
@@ -2941,98 +3018,366 @@ public final class Config {
         }
       }
       /**
-       * <code>optional string custom_endpoint = 7 [default = ""];</code>
+       * <code>optional string cloudwatch_endpoint = 4 [default = ""];</code>
        */
       public com.google.protobuf.ByteString
-          getCustomEndpointBytes() {
-        java.lang.Object ref = customEndpoint_;
+          getCloudwatchEndpointBytes() {
+        java.lang.Object ref = cloudwatchEndpoint_;
         if (ref instanceof String) {
           com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
-          customEndpoint_ = b;
+          cloudwatchEndpoint_ = b;
           return b;
         } else {
           return (com.google.protobuf.ByteString) ref;
         }
       }
       /**
-       * <code>optional string custom_endpoint = 7 [default = ""];</code>
+       * <code>optional string cloudwatch_endpoint = 4 [default = ""];</code>
        */
-      public Builder setCustomEndpoint(
+      public Builder setCloudwatchEndpoint(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000080;
-        customEndpoint_ = value;
+  bitField0_ |= 0x00000010;
+        cloudwatchEndpoint_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string custom_endpoint = 7 [default = ""];</code>
+       * <code>optional string cloudwatch_endpoint = 4 [default = ""];</code>
        */
-      public Builder clearCustomEndpoint() {
-        bitField0_ = (bitField0_ & ~0x00000080);
-        customEndpoint_ = getDefaultInstance().getCustomEndpoint();
+      public Builder clearCloudwatchEndpoint() {
+        bitField0_ = (bitField0_ & ~0x00000010);
+        cloudwatchEndpoint_ = getDefaultInstance().getCloudwatchEndpoint();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string custom_endpoint = 7 [default = ""];</code>
+       * <code>optional string cloudwatch_endpoint = 4 [default = ""];</code>
        */
-      public Builder setCustomEndpointBytes(
+      public Builder setCloudwatchEndpointBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000080;
-        customEndpoint_ = value;
+  bitField0_ |= 0x00000010;
+        cloudwatchEndpoint_ = value;
+        onChanged();
+        return this;
+      }
+
+      private long cloudwatchPort_ = 443L;
+      /**
+       * <code>optional uint64 cloudwatch_port = 5 [default = 443];</code>
+       */
+      public boolean hasCloudwatchPort() {
+        return ((bitField0_ & 0x00000020) == 0x00000020);
+      }
+      /**
+       * <code>optional uint64 cloudwatch_port = 5 [default = 443];</code>
+       */
+      public long getCloudwatchPort() {
+        return cloudwatchPort_;
+      }
+      /**
+       * <code>optional uint64 cloudwatch_port = 5 [default = 443];</code>
+       */
+      public Builder setCloudwatchPort(long value) {
+        bitField0_ |= 0x00000020;
+        cloudwatchPort_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional uint64 cloudwatch_port = 5 [default = 443];</code>
+       */
+      public Builder clearCloudwatchPort() {
+        bitField0_ = (bitField0_ & ~0x00000020);
+        cloudwatchPort_ = 443L;
+        onChanged();
+        return this;
+      }
+
+      private long collectionMaxCount_ = 500L;
+      /**
+       * <code>optional uint64 collection_max_count = 6 [default = 500];</code>
+       */
+      public boolean hasCollectionMaxCount() {
+        return ((bitField0_ & 0x00000040) == 0x00000040);
+      }
+      /**
+       * <code>optional uint64 collection_max_count = 6 [default = 500];</code>
+       */
+      public long getCollectionMaxCount() {
+        return collectionMaxCount_;
+      }
+      /**
+       * <code>optional uint64 collection_max_count = 6 [default = 500];</code>
+       */
+      public Builder setCollectionMaxCount(long value) {
+        bitField0_ |= 0x00000040;
+        collectionMaxCount_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional uint64 collection_max_count = 6 [default = 500];</code>
+       */
+      public Builder clearCollectionMaxCount() {
+        bitField0_ = (bitField0_ & ~0x00000040);
+        collectionMaxCount_ = 500L;
+        onChanged();
+        return this;
+      }
+
+      private long collectionMaxSize_ = 5242880L;
+      /**
+       * <code>optional uint64 collection_max_size = 7 [default = 5242880];</code>
+       */
+      public boolean hasCollectionMaxSize() {
+        return ((bitField0_ & 0x00000080) == 0x00000080);
+      }
+      /**
+       * <code>optional uint64 collection_max_size = 7 [default = 5242880];</code>
+       */
+      public long getCollectionMaxSize() {
+        return collectionMaxSize_;
+      }
+      /**
+       * <code>optional uint64 collection_max_size = 7 [default = 5242880];</code>
+       */
+      public Builder setCollectionMaxSize(long value) {
+        bitField0_ |= 0x00000080;
+        collectionMaxSize_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional uint64 collection_max_size = 7 [default = 5242880];</code>
+       */
+      public Builder clearCollectionMaxSize() {
+        bitField0_ = (bitField0_ & ~0x00000080);
+        collectionMaxSize_ = 5242880L;
+        onChanged();
+        return this;
+      }
+
+      private long connectTimeout_ = 6000L;
+      /**
+       * <code>optional uint64 connect_timeout = 8 [default = 6000];</code>
+       */
+      public boolean hasConnectTimeout() {
+        return ((bitField0_ & 0x00000100) == 0x00000100);
+      }
+      /**
+       * <code>optional uint64 connect_timeout = 8 [default = 6000];</code>
+       */
+      public long getConnectTimeout() {
+        return connectTimeout_;
+      }
+      /**
+       * <code>optional uint64 connect_timeout = 8 [default = 6000];</code>
+       */
+      public Builder setConnectTimeout(long value) {
+        bitField0_ |= 0x00000100;
+        connectTimeout_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional uint64 connect_timeout = 8 [default = 6000];</code>
+       */
+      public Builder clearConnectTimeout() {
+        bitField0_ = (bitField0_ & ~0x00000100);
+        connectTimeout_ = 6000L;
+        onChanged();
+        return this;
+      }
+
+      private boolean enableCoreDumps_ ;
+      /**
+       * <code>optional bool enable_core_dumps = 9 [default = false];</code>
+       */
+      public boolean hasEnableCoreDumps() {
+        return ((bitField0_ & 0x00000200) == 0x00000200);
+      }
+      /**
+       * <code>optional bool enable_core_dumps = 9 [default = false];</code>
+       */
+      public boolean getEnableCoreDumps() {
+        return enableCoreDumps_;
+      }
+      /**
+       * <code>optional bool enable_core_dumps = 9 [default = false];</code>
+       */
+      public Builder setEnableCoreDumps(boolean value) {
+        bitField0_ |= 0x00000200;
+        enableCoreDumps_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bool enable_core_dumps = 9 [default = false];</code>
+       */
+      public Builder clearEnableCoreDumps() {
+        bitField0_ = (bitField0_ & ~0x00000200);
+        enableCoreDumps_ = false;
         onChanged();
         return this;
       }
 
       private boolean failIfThrottled_ ;
       /**
-       * <code>optional bool fail_if_throttled = 8 [default = false];</code>
+       * <code>optional bool fail_if_throttled = 10 [default = false];</code>
        */
       public boolean hasFailIfThrottled() {
-        return ((bitField0_ & 0x00000100) == 0x00000100);
+        return ((bitField0_ & 0x00000400) == 0x00000400);
       }
       /**
-       * <code>optional bool fail_if_throttled = 8 [default = false];</code>
+       * <code>optional bool fail_if_throttled = 10 [default = false];</code>
        */
       public boolean getFailIfThrottled() {
         return failIfThrottled_;
       }
       /**
-       * <code>optional bool fail_if_throttled = 8 [default = false];</code>
+       * <code>optional bool fail_if_throttled = 10 [default = false];</code>
        */
       public Builder setFailIfThrottled(boolean value) {
-        bitField0_ |= 0x00000100;
+        bitField0_ |= 0x00000400;
         failIfThrottled_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional bool fail_if_throttled = 8 [default = false];</code>
+       * <code>optional bool fail_if_throttled = 10 [default = false];</code>
        */
       public Builder clearFailIfThrottled() {
-        bitField0_ = (bitField0_ & ~0x00000100);
+        bitField0_ = (bitField0_ & ~0x00000400);
         failIfThrottled_ = false;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object kinesisEndpoint_ = "";
+      /**
+       * <code>optional string kinesis_endpoint = 11 [default = ""];</code>
+       */
+      public boolean hasKinesisEndpoint() {
+        return ((bitField0_ & 0x00000800) == 0x00000800);
+      }
+      /**
+       * <code>optional string kinesis_endpoint = 11 [default = ""];</code>
+       */
+      public java.lang.String getKinesisEndpoint() {
+        java.lang.Object ref = kinesisEndpoint_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            kinesisEndpoint_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string kinesis_endpoint = 11 [default = ""];</code>
+       */
+      public com.google.protobuf.ByteString
+          getKinesisEndpointBytes() {
+        java.lang.Object ref = kinesisEndpoint_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          kinesisEndpoint_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string kinesis_endpoint = 11 [default = ""];</code>
+       */
+      public Builder setKinesisEndpoint(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000800;
+        kinesisEndpoint_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string kinesis_endpoint = 11 [default = ""];</code>
+       */
+      public Builder clearKinesisEndpoint() {
+        bitField0_ = (bitField0_ & ~0x00000800);
+        kinesisEndpoint_ = getDefaultInstance().getKinesisEndpoint();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string kinesis_endpoint = 11 [default = ""];</code>
+       */
+      public Builder setKinesisEndpointBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000800;
+        kinesisEndpoint_ = value;
+        onChanged();
+        return this;
+      }
+
+      private long kinesisPort_ = 443L;
+      /**
+       * <code>optional uint64 kinesis_port = 12 [default = 443];</code>
+       */
+      public boolean hasKinesisPort() {
+        return ((bitField0_ & 0x00001000) == 0x00001000);
+      }
+      /**
+       * <code>optional uint64 kinesis_port = 12 [default = 443];</code>
+       */
+      public long getKinesisPort() {
+        return kinesisPort_;
+      }
+      /**
+       * <code>optional uint64 kinesis_port = 12 [default = 443];</code>
+       */
+      public Builder setKinesisPort(long value) {
+        bitField0_ |= 0x00001000;
+        kinesisPort_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional uint64 kinesis_port = 12 [default = 443];</code>
+       */
+      public Builder clearKinesisPort() {
+        bitField0_ = (bitField0_ & ~0x00001000);
+        kinesisPort_ = 443L;
         onChanged();
         return this;
       }
 
       private java.lang.Object logLevel_ = "info";
       /**
-       * <code>optional string log_level = 9 [default = "info"];</code>
+       * <code>optional string log_level = 13 [default = "info"];</code>
        */
       public boolean hasLogLevel() {
-        return ((bitField0_ & 0x00000200) == 0x00000200);
+        return ((bitField0_ & 0x00002000) == 0x00002000);
       }
       /**
-       * <code>optional string log_level = 9 [default = "info"];</code>
+       * <code>optional string log_level = 13 [default = "info"];</code>
        */
       public java.lang.String getLogLevel() {
         java.lang.Object ref = logLevel_;
@@ -3049,7 +3394,7 @@ public final class Config {
         }
       }
       /**
-       * <code>optional string log_level = 9 [default = "info"];</code>
+       * <code>optional string log_level = 13 [default = "info"];</code>
        */
       public com.google.protobuf.ByteString
           getLogLevelBytes() {
@@ -3065,36 +3410,36 @@ public final class Config {
         }
       }
       /**
-       * <code>optional string log_level = 9 [default = "info"];</code>
+       * <code>optional string log_level = 13 [default = "info"];</code>
        */
       public Builder setLogLevel(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000200;
+  bitField0_ |= 0x00002000;
         logLevel_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string log_level = 9 [default = "info"];</code>
+       * <code>optional string log_level = 13 [default = "info"];</code>
        */
       public Builder clearLogLevel() {
-        bitField0_ = (bitField0_ & ~0x00000200);
+        bitField0_ = (bitField0_ & ~0x00002000);
         logLevel_ = getDefaultInstance().getLogLevel();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string log_level = 9 [default = "info"];</code>
+       * <code>optional string log_level = 13 [default = "info"];</code>
        */
       public Builder setLogLevelBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000200;
+  bitField0_ |= 0x00002000;
         logLevel_ = value;
         onChanged();
         return this;
@@ -3102,31 +3447,31 @@ public final class Config {
 
       private long maxConnections_ = 24L;
       /**
-       * <code>optional uint64 max_connections = 10 [default = 24];</code>
+       * <code>optional uint64 max_connections = 14 [default = 24];</code>
        */
       public boolean hasMaxConnections() {
-        return ((bitField0_ & 0x00000400) == 0x00000400);
+        return ((bitField0_ & 0x00004000) == 0x00004000);
       }
       /**
-       * <code>optional uint64 max_connections = 10 [default = 24];</code>
+       * <code>optional uint64 max_connections = 14 [default = 24];</code>
        */
       public long getMaxConnections() {
         return maxConnections_;
       }
       /**
-       * <code>optional uint64 max_connections = 10 [default = 24];</code>
+       * <code>optional uint64 max_connections = 14 [default = 24];</code>
        */
       public Builder setMaxConnections(long value) {
-        bitField0_ |= 0x00000400;
+        bitField0_ |= 0x00004000;
         maxConnections_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional uint64 max_connections = 10 [default = 24];</code>
+       * <code>optional uint64 max_connections = 14 [default = 24];</code>
        */
       public Builder clearMaxConnections() {
-        bitField0_ = (bitField0_ & ~0x00000400);
+        bitField0_ = (bitField0_ & ~0x00004000);
         maxConnections_ = 24L;
         onChanged();
         return this;
@@ -3134,13 +3479,13 @@ public final class Config {
 
       private java.lang.Object metricsGranularity_ = "shard";
       /**
-       * <code>optional string metrics_granularity = 11 [default = "shard"];</code>
+       * <code>optional string metrics_granularity = 15 [default = "shard"];</code>
        */
       public boolean hasMetricsGranularity() {
-        return ((bitField0_ & 0x00000800) == 0x00000800);
+        return ((bitField0_ & 0x00008000) == 0x00008000);
       }
       /**
-       * <code>optional string metrics_granularity = 11 [default = "shard"];</code>
+       * <code>optional string metrics_granularity = 15 [default = "shard"];</code>
        */
       public java.lang.String getMetricsGranularity() {
         java.lang.Object ref = metricsGranularity_;
@@ -3157,7 +3502,7 @@ public final class Config {
         }
       }
       /**
-       * <code>optional string metrics_granularity = 11 [default = "shard"];</code>
+       * <code>optional string metrics_granularity = 15 [default = "shard"];</code>
        */
       public com.google.protobuf.ByteString
           getMetricsGranularityBytes() {
@@ -3173,36 +3518,36 @@ public final class Config {
         }
       }
       /**
-       * <code>optional string metrics_granularity = 11 [default = "shard"];</code>
+       * <code>optional string metrics_granularity = 15 [default = "shard"];</code>
        */
       public Builder setMetricsGranularity(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000800;
+  bitField0_ |= 0x00008000;
         metricsGranularity_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string metrics_granularity = 11 [default = "shard"];</code>
+       * <code>optional string metrics_granularity = 15 [default = "shard"];</code>
        */
       public Builder clearMetricsGranularity() {
-        bitField0_ = (bitField0_ & ~0x00000800);
+        bitField0_ = (bitField0_ & ~0x00008000);
         metricsGranularity_ = getDefaultInstance().getMetricsGranularity();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string metrics_granularity = 11 [default = "shard"];</code>
+       * <code>optional string metrics_granularity = 15 [default = "shard"];</code>
        */
       public Builder setMetricsGranularityBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000800;
+  bitField0_ |= 0x00008000;
         metricsGranularity_ = value;
         onChanged();
         return this;
@@ -3210,13 +3555,13 @@ public final class Config {
 
       private java.lang.Object metricsLevel_ = "detailed";
       /**
-       * <code>optional string metrics_level = 12 [default = "detailed"];</code>
+       * <code>optional string metrics_level = 16 [default = "detailed"];</code>
        */
       public boolean hasMetricsLevel() {
-        return ((bitField0_ & 0x00001000) == 0x00001000);
+        return ((bitField0_ & 0x00010000) == 0x00010000);
       }
       /**
-       * <code>optional string metrics_level = 12 [default = "detailed"];</code>
+       * <code>optional string metrics_level = 16 [default = "detailed"];</code>
        */
       public java.lang.String getMetricsLevel() {
         java.lang.Object ref = metricsLevel_;
@@ -3233,7 +3578,7 @@ public final class Config {
         }
       }
       /**
-       * <code>optional string metrics_level = 12 [default = "detailed"];</code>
+       * <code>optional string metrics_level = 16 [default = "detailed"];</code>
        */
       public com.google.protobuf.ByteString
           getMetricsLevelBytes() {
@@ -3249,36 +3594,36 @@ public final class Config {
         }
       }
       /**
-       * <code>optional string metrics_level = 12 [default = "detailed"];</code>
+       * <code>optional string metrics_level = 16 [default = "detailed"];</code>
        */
       public Builder setMetricsLevel(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00001000;
+  bitField0_ |= 0x00010000;
         metricsLevel_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string metrics_level = 12 [default = "detailed"];</code>
+       * <code>optional string metrics_level = 16 [default = "detailed"];</code>
        */
       public Builder clearMetricsLevel() {
-        bitField0_ = (bitField0_ & ~0x00001000);
+        bitField0_ = (bitField0_ & ~0x00010000);
         metricsLevel_ = getDefaultInstance().getMetricsLevel();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string metrics_level = 12 [default = "detailed"];</code>
+       * <code>optional string metrics_level = 16 [default = "detailed"];</code>
        */
       public Builder setMetricsLevelBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00001000;
+  bitField0_ |= 0x00010000;
         metricsLevel_ = value;
         onChanged();
         return this;
@@ -3286,13 +3631,13 @@ public final class Config {
 
       private java.lang.Object metricsNamespace_ = "KinesisProducerLibrary";
       /**
-       * <code>optional string metrics_namespace = 13 [default = "KinesisProducerLibrary"];</code>
+       * <code>optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];</code>
        */
       public boolean hasMetricsNamespace() {
-        return ((bitField0_ & 0x00002000) == 0x00002000);
+        return ((bitField0_ & 0x00020000) == 0x00020000);
       }
       /**
-       * <code>optional string metrics_namespace = 13 [default = "KinesisProducerLibrary"];</code>
+       * <code>optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];</code>
        */
       public java.lang.String getMetricsNamespace() {
         java.lang.Object ref = metricsNamespace_;
@@ -3309,7 +3654,7 @@ public final class Config {
         }
       }
       /**
-       * <code>optional string metrics_namespace = 13 [default = "KinesisProducerLibrary"];</code>
+       * <code>optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];</code>
        */
       public com.google.protobuf.ByteString
           getMetricsNamespaceBytes() {
@@ -3325,36 +3670,36 @@ public final class Config {
         }
       }
       /**
-       * <code>optional string metrics_namespace = 13 [default = "KinesisProducerLibrary"];</code>
+       * <code>optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];</code>
        */
       public Builder setMetricsNamespace(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00002000;
+  bitField0_ |= 0x00020000;
         metricsNamespace_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string metrics_namespace = 13 [default = "KinesisProducerLibrary"];</code>
+       * <code>optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];</code>
        */
       public Builder clearMetricsNamespace() {
-        bitField0_ = (bitField0_ & ~0x00002000);
+        bitField0_ = (bitField0_ & ~0x00020000);
         metricsNamespace_ = getDefaultInstance().getMetricsNamespace();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string metrics_namespace = 13 [default = "KinesisProducerLibrary"];</code>
+       * <code>optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];</code>
        */
       public Builder setMetricsNamespaceBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00002000;
+  bitField0_ |= 0x00020000;
         metricsNamespace_ = value;
         onChanged();
         return this;
@@ -3362,31 +3707,31 @@ public final class Config {
 
       private long metricsUploadDelay_ = 60000L;
       /**
-       * <code>optional uint64 metrics_upload_delay = 14 [default = 60000];</code>
+       * <code>optional uint64 metrics_upload_delay = 18 [default = 60000];</code>
        */
       public boolean hasMetricsUploadDelay() {
-        return ((bitField0_ & 0x00004000) == 0x00004000);
+        return ((bitField0_ & 0x00040000) == 0x00040000);
       }
       /**
-       * <code>optional uint64 metrics_upload_delay = 14 [default = 60000];</code>
+       * <code>optional uint64 metrics_upload_delay = 18 [default = 60000];</code>
        */
       public long getMetricsUploadDelay() {
         return metricsUploadDelay_;
       }
       /**
-       * <code>optional uint64 metrics_upload_delay = 14 [default = 60000];</code>
+       * <code>optional uint64 metrics_upload_delay = 18 [default = 60000];</code>
        */
       public Builder setMetricsUploadDelay(long value) {
-        bitField0_ |= 0x00004000;
+        bitField0_ |= 0x00040000;
         metricsUploadDelay_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional uint64 metrics_upload_delay = 14 [default = 60000];</code>
+       * <code>optional uint64 metrics_upload_delay = 18 [default = 60000];</code>
        */
       public Builder clearMetricsUploadDelay() {
-        bitField0_ = (bitField0_ & ~0x00004000);
+        bitField0_ = (bitField0_ & ~0x00040000);
         metricsUploadDelay_ = 60000L;
         onChanged();
         return this;
@@ -3394,95 +3739,63 @@ public final class Config {
 
       private long minConnections_ = 1L;
       /**
-       * <code>optional uint64 min_connections = 15 [default = 1];</code>
+       * <code>optional uint64 min_connections = 19 [default = 1];</code>
        */
       public boolean hasMinConnections() {
-        return ((bitField0_ & 0x00008000) == 0x00008000);
+        return ((bitField0_ & 0x00080000) == 0x00080000);
       }
       /**
-       * <code>optional uint64 min_connections = 15 [default = 1];</code>
+       * <code>optional uint64 min_connections = 19 [default = 1];</code>
        */
       public long getMinConnections() {
         return minConnections_;
       }
       /**
-       * <code>optional uint64 min_connections = 15 [default = 1];</code>
+       * <code>optional uint64 min_connections = 19 [default = 1];</code>
        */
       public Builder setMinConnections(long value) {
-        bitField0_ |= 0x00008000;
+        bitField0_ |= 0x00080000;
         minConnections_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional uint64 min_connections = 15 [default = 1];</code>
+       * <code>optional uint64 min_connections = 19 [default = 1];</code>
        */
       public Builder clearMinConnections() {
-        bitField0_ = (bitField0_ & ~0x00008000);
+        bitField0_ = (bitField0_ & ~0x00080000);
         minConnections_ = 1L;
-        onChanged();
-        return this;
-      }
-
-      private long port_ = 443L;
-      /**
-       * <code>optional uint64 port = 16 [default = 443];</code>
-       */
-      public boolean hasPort() {
-        return ((bitField0_ & 0x00010000) == 0x00010000);
-      }
-      /**
-       * <code>optional uint64 port = 16 [default = 443];</code>
-       */
-      public long getPort() {
-        return port_;
-      }
-      /**
-       * <code>optional uint64 port = 16 [default = 443];</code>
-       */
-      public Builder setPort(long value) {
-        bitField0_ |= 0x00010000;
-        port_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional uint64 port = 16 [default = 443];</code>
-       */
-      public Builder clearPort() {
-        bitField0_ = (bitField0_ & ~0x00010000);
-        port_ = 443L;
         onChanged();
         return this;
       }
 
       private long rateLimit_ = 150L;
       /**
-       * <code>optional uint64 rate_limit = 17 [default = 150];</code>
+       * <code>optional uint64 rate_limit = 20 [default = 150];</code>
        */
       public boolean hasRateLimit() {
-        return ((bitField0_ & 0x00020000) == 0x00020000);
+        return ((bitField0_ & 0x00100000) == 0x00100000);
       }
       /**
-       * <code>optional uint64 rate_limit = 17 [default = 150];</code>
+       * <code>optional uint64 rate_limit = 20 [default = 150];</code>
        */
       public long getRateLimit() {
         return rateLimit_;
       }
       /**
-       * <code>optional uint64 rate_limit = 17 [default = 150];</code>
+       * <code>optional uint64 rate_limit = 20 [default = 150];</code>
        */
       public Builder setRateLimit(long value) {
-        bitField0_ |= 0x00020000;
+        bitField0_ |= 0x00100000;
         rateLimit_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional uint64 rate_limit = 17 [default = 150];</code>
+       * <code>optional uint64 rate_limit = 20 [default = 150];</code>
        */
       public Builder clearRateLimit() {
-        bitField0_ = (bitField0_ & ~0x00020000);
+        bitField0_ = (bitField0_ & ~0x00100000);
         rateLimit_ = 150L;
         onChanged();
         return this;
@@ -3490,31 +3803,31 @@ public final class Config {
 
       private long recordMaxBufferedTime_ = 100L;
       /**
-       * <code>optional uint64 record_max_buffered_time = 18 [default = 100];</code>
+       * <code>optional uint64 record_max_buffered_time = 21 [default = 100];</code>
        */
       public boolean hasRecordMaxBufferedTime() {
-        return ((bitField0_ & 0x00040000) == 0x00040000);
+        return ((bitField0_ & 0x00200000) == 0x00200000);
       }
       /**
-       * <code>optional uint64 record_max_buffered_time = 18 [default = 100];</code>
+       * <code>optional uint64 record_max_buffered_time = 21 [default = 100];</code>
        */
       public long getRecordMaxBufferedTime() {
         return recordMaxBufferedTime_;
       }
       /**
-       * <code>optional uint64 record_max_buffered_time = 18 [default = 100];</code>
+       * <code>optional uint64 record_max_buffered_time = 21 [default = 100];</code>
        */
       public Builder setRecordMaxBufferedTime(long value) {
-        bitField0_ |= 0x00040000;
+        bitField0_ |= 0x00200000;
         recordMaxBufferedTime_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional uint64 record_max_buffered_time = 18 [default = 100];</code>
+       * <code>optional uint64 record_max_buffered_time = 21 [default = 100];</code>
        */
       public Builder clearRecordMaxBufferedTime() {
-        bitField0_ = (bitField0_ & ~0x00040000);
+        bitField0_ = (bitField0_ & ~0x00200000);
         recordMaxBufferedTime_ = 100L;
         onChanged();
         return this;
@@ -3522,31 +3835,31 @@ public final class Config {
 
       private long recordTtl_ = 30000L;
       /**
-       * <code>optional uint64 record_ttl = 19 [default = 30000];</code>
+       * <code>optional uint64 record_ttl = 22 [default = 30000];</code>
        */
       public boolean hasRecordTtl() {
-        return ((bitField0_ & 0x00080000) == 0x00080000);
+        return ((bitField0_ & 0x00400000) == 0x00400000);
       }
       /**
-       * <code>optional uint64 record_ttl = 19 [default = 30000];</code>
+       * <code>optional uint64 record_ttl = 22 [default = 30000];</code>
        */
       public long getRecordTtl() {
         return recordTtl_;
       }
       /**
-       * <code>optional uint64 record_ttl = 19 [default = 30000];</code>
+       * <code>optional uint64 record_ttl = 22 [default = 30000];</code>
        */
       public Builder setRecordTtl(long value) {
-        bitField0_ |= 0x00080000;
+        bitField0_ |= 0x00400000;
         recordTtl_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional uint64 record_ttl = 19 [default = 30000];</code>
+       * <code>optional uint64 record_ttl = 22 [default = 30000];</code>
        */
       public Builder clearRecordTtl() {
-        bitField0_ = (bitField0_ & ~0x00080000);
+        bitField0_ = (bitField0_ & ~0x00400000);
         recordTtl_ = 30000L;
         onChanged();
         return this;
@@ -3554,13 +3867,13 @@ public final class Config {
 
       private java.lang.Object region_ = "";
       /**
-       * <code>optional string region = 20 [default = ""];</code>
+       * <code>optional string region = 23 [default = ""];</code>
        */
       public boolean hasRegion() {
-        return ((bitField0_ & 0x00100000) == 0x00100000);
+        return ((bitField0_ & 0x00800000) == 0x00800000);
       }
       /**
-       * <code>optional string region = 20 [default = ""];</code>
+       * <code>optional string region = 23 [default = ""];</code>
        */
       public java.lang.String getRegion() {
         java.lang.Object ref = region_;
@@ -3577,7 +3890,7 @@ public final class Config {
         }
       }
       /**
-       * <code>optional string region = 20 [default = ""];</code>
+       * <code>optional string region = 23 [default = ""];</code>
        */
       public com.google.protobuf.ByteString
           getRegionBytes() {
@@ -3593,36 +3906,36 @@ public final class Config {
         }
       }
       /**
-       * <code>optional string region = 20 [default = ""];</code>
+       * <code>optional string region = 23 [default = ""];</code>
        */
       public Builder setRegion(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00100000;
+  bitField0_ |= 0x00800000;
         region_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional string region = 20 [default = ""];</code>
+       * <code>optional string region = 23 [default = ""];</code>
        */
       public Builder clearRegion() {
-        bitField0_ = (bitField0_ & ~0x00100000);
+        bitField0_ = (bitField0_ & ~0x00800000);
         region_ = getDefaultInstance().getRegion();
         onChanged();
         return this;
       }
       /**
-       * <code>optional string region = 20 [default = ""];</code>
+       * <code>optional string region = 23 [default = ""];</code>
        */
       public Builder setRegionBytes(
           com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00100000;
+  bitField0_ |= 0x00800000;
         region_ = value;
         onChanged();
         return this;
@@ -3630,31 +3943,31 @@ public final class Config {
 
       private long requestTimeout_ = 6000L;
       /**
-       * <code>optional uint64 request_timeout = 21 [default = 6000];</code>
+       * <code>optional uint64 request_timeout = 24 [default = 6000];</code>
        */
       public boolean hasRequestTimeout() {
-        return ((bitField0_ & 0x00200000) == 0x00200000);
+        return ((bitField0_ & 0x01000000) == 0x01000000);
       }
       /**
-       * <code>optional uint64 request_timeout = 21 [default = 6000];</code>
+       * <code>optional uint64 request_timeout = 24 [default = 6000];</code>
        */
       public long getRequestTimeout() {
         return requestTimeout_;
       }
       /**
-       * <code>optional uint64 request_timeout = 21 [default = 6000];</code>
+       * <code>optional uint64 request_timeout = 24 [default = 6000];</code>
        */
       public Builder setRequestTimeout(long value) {
-        bitField0_ |= 0x00200000;
+        bitField0_ |= 0x01000000;
         requestTimeout_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional uint64 request_timeout = 21 [default = 6000];</code>
+       * <code>optional uint64 request_timeout = 24 [default = 6000];</code>
        */
       public Builder clearRequestTimeout() {
-        bitField0_ = (bitField0_ & ~0x00200000);
+        bitField0_ = (bitField0_ & ~0x01000000);
         requestTimeout_ = 6000L;
         onChanged();
         return this;
@@ -3662,31 +3975,31 @@ public final class Config {
 
       private boolean verifyCertificate_ = true;
       /**
-       * <code>optional bool verify_certificate = 22 [default = true];</code>
+       * <code>optional bool verify_certificate = 25 [default = true];</code>
        */
       public boolean hasVerifyCertificate() {
-        return ((bitField0_ & 0x00400000) == 0x00400000);
+        return ((bitField0_ & 0x02000000) == 0x02000000);
       }
       /**
-       * <code>optional bool verify_certificate = 22 [default = true];</code>
+       * <code>optional bool verify_certificate = 25 [default = true];</code>
        */
       public boolean getVerifyCertificate() {
         return verifyCertificate_;
       }
       /**
-       * <code>optional bool verify_certificate = 22 [default = true];</code>
+       * <code>optional bool verify_certificate = 25 [default = true];</code>
        */
       public Builder setVerifyCertificate(boolean value) {
-        bitField0_ |= 0x00400000;
+        bitField0_ |= 0x02000000;
         verifyCertificate_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional bool verify_certificate = 22 [default = true];</code>
+       * <code>optional bool verify_certificate = 25 [default = true];</code>
        */
       public Builder clearVerifyCertificate() {
-        bitField0_ = (bitField0_ & ~0x00400000);
+        bitField0_ = (bitField0_ & ~0x02000000);
         verifyCertificate_ = true;
         onChanged();
         return this;
@@ -3725,28 +4038,30 @@ public final class Config {
       "\n\014config.proto\0220com.amazonaws.services.k" +
       "inesis.producer.protobuf\"F\n\023AdditionalDi" +
       "mension\022\013\n\003key\030\001 \002(\t\022\r\n\005value\030\002 \002(\t\022\023\n\013g" +
-      "ranularity\030\003 \002(\t\"\277\006\n\rConfiguration\022f\n\026ad" +
+      "ranularity\030\003 \002(\t\"\247\007\n\rConfiguration\022f\n\026ad" +
       "ditional_metric_dims\030\200\001 \003(\0132E.com.amazon" +
       "aws.services.kinesis.producer.protobuf.A" +
       "dditionalDimension\022!\n\023aggregation_enable" +
       "d\030\001 \001(\010:\004true\022)\n\025aggregation_max_count\030\002" +
       " \001(\004:\n4294967295\022#\n\024aggregation_max_size" +
-      "\030\003 \001(\004:\00551200\022!\n\024collection_max_count\030\004 ",
-      "\001(\004:\003500\022$\n\023collection_max_size\030\005 \001(\004:\0075" +
-      "242880\022\035\n\017connect_timeout\030\006 \001(\004:\0046000\022\031\n" +
-      "\017custom_endpoint\030\007 \001(\t:\000\022 \n\021fail_if_thro" +
-      "ttled\030\010 \001(\010:\005false\022\027\n\tlog_level\030\t \001(\t:\004i" +
-      "nfo\022\033\n\017max_connections\030\n \001(\004:\00224\022\"\n\023metr" +
-      "ics_granularity\030\013 \001(\t:\005shard\022\037\n\rmetrics_" +
-      "level\030\014 \001(\t:\010detailed\0221\n\021metrics_namespa" +
-      "ce\030\r \001(\t:\026KinesisProducerLibrary\022#\n\024metr" +
-      "ics_upload_delay\030\016 \001(\004:\00560000\022\032\n\017min_con" +
-      "nections\030\017 \001(\004:\0011\022\021\n\004port\030\020 \001(\004:\003443\022\027\n\n",
-      "rate_limit\030\021 \001(\004:\003150\022%\n\030record_max_buff" +
-      "ered_time\030\022 \001(\004:\003100\022\031\n\nrecord_ttl\030\023 \001(\004" +
-      ":\00530000\022\020\n\006region\030\024 \001(\t:\000\022\035\n\017request_tim" +
-      "eout\030\025 \001(\004:\0046000\022 \n\022verify_certificate\030\026" +
-      " \001(\010:\004true"
+      "\030\003 \001(\004:\00551200\022\035\n\023cloudwatch_endpoint\030\004 \001",
+      "(\t:\000\022\034\n\017cloudwatch_port\030\005 \001(\004:\003443\022!\n\024co" +
+      "llection_max_count\030\006 \001(\004:\003500\022$\n\023collect" +
+      "ion_max_size\030\007 \001(\004:\0075242880\022\035\n\017connect_t" +
+      "imeout\030\010 \001(\004:\0046000\022 \n\021enable_core_dumps\030" +
+      "\t \001(\010:\005false\022 \n\021fail_if_throttled\030\n \001(\010:" +
+      "\005false\022\032\n\020kinesis_endpoint\030\013 \001(\t:\000\022\031\n\014ki" +
+      "nesis_port\030\014 \001(\004:\003443\022\027\n\tlog_level\030\r \001(\t" +
+      ":\004info\022\033\n\017max_connections\030\016 \001(\004:\00224\022\"\n\023m" +
+      "etrics_granularity\030\017 \001(\t:\005shard\022\037\n\rmetri" +
+      "cs_level\030\020 \001(\t:\010detailed\0221\n\021metrics_name",
+      "space\030\021 \001(\t:\026KinesisProducerLibrary\022#\n\024m" +
+      "etrics_upload_delay\030\022 \001(\004:\00560000\022\032\n\017min_" +
+      "connections\030\023 \001(\004:\0011\022\027\n\nrate_limit\030\024 \001(\004" +
+      ":\003150\022%\n\030record_max_buffered_time\030\025 \001(\004:" +
+      "\003100\022\031\n\nrecord_ttl\030\026 \001(\004:\00530000\022\020\n\006regio" +
+      "n\030\027 \001(\t:\000\022\035\n\017request_timeout\030\030 \001(\004:\0046000" +
+      "\022 \n\022verify_certificate\030\031 \001(\010:\004true"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -3771,7 +4086,7 @@ public final class Config {
     internal_static_com_amazonaws_services_kinesis_producer_protobuf_Configuration_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_com_amazonaws_services_kinesis_producer_protobuf_Configuration_descriptor,
-        new java.lang.String[] { "AdditionalMetricDims", "AggregationEnabled", "AggregationMaxCount", "AggregationMaxSize", "CollectionMaxCount", "CollectionMaxSize", "ConnectTimeout", "CustomEndpoint", "FailIfThrottled", "LogLevel", "MaxConnections", "MetricsGranularity", "MetricsLevel", "MetricsNamespace", "MetricsUploadDelay", "MinConnections", "Port", "RateLimit", "RecordMaxBufferedTime", "RecordTtl", "Region", "RequestTimeout", "VerifyCertificate", });
+        new java.lang.String[] { "AdditionalMetricDims", "AggregationEnabled", "AggregationMaxCount", "AggregationMaxSize", "CloudwatchEndpoint", "CloudwatchPort", "CollectionMaxCount", "CollectionMaxSize", "ConnectTimeout", "EnableCoreDumps", "FailIfThrottled", "KinesisEndpoint", "KinesisPort", "LogLevel", "MaxConnections", "MetricsGranularity", "MetricsLevel", "MetricsNamespace", "MetricsUploadDelay", "MinConnections", "RateLimit", "RecordMaxBufferedTime", "RecordTtl", "Region", "RequestTimeout", "VerifyCertificate", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

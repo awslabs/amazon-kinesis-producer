@@ -18,7 +18,6 @@ package com.amazonaws.services.kinesis.producer;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.ProcessBuilder.Redirect;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.Channels;
@@ -26,6 +25,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -48,6 +48,7 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSSessionCredentials;
 import com.amazonaws.services.kinesis.producer.protobuf.Messages;
 import com.amazonaws.services.kinesis.producer.protobuf.Messages.Message;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.protobuf.ByteString;
 
 /**
@@ -74,10 +75,13 @@ public class Daemon {
     
     private BlockingQueue<Message> outgoingMessages = new LinkedBlockingQueue<>();
     private BlockingQueue<Message> incomingMessages = new LinkedBlockingQueue<>();
-    
-    private ExecutorService executor = Executors.newCachedThreadPool();
+
+    private ExecutorService executor = Executors
+            .newCachedThreadPool(new ThreadFactoryBuilder().setDaemon(true).setNameFormat("kpl-daemon-%04d").build());
     
     private Process process = null;
+    private LogInputStreamReader stdOutReader;
+    private LogInputStreamReader stdErrReader;
     private AtomicBoolean shutdown = new AtomicBoolean(false);
     
     private File inPipe = null;
@@ -395,9 +399,9 @@ public class Daemon {
         long start = System.nanoTime();
         while (!inPipe.exists() || !outPipe.exists()) {
             try {
-                Thread.sleep(1);
+                Thread.sleep(10);
             } catch (InterruptedException e) { }
-            if (System.nanoTime() - start > 1e9) {
+            if (System.nanoTime() - start > 15e9) {
                 fatalError("Pipes did not show up after calling mkfifo", false);
             }
         }
@@ -413,29 +417,22 @@ public class Daemon {
     }
     
     private void startChildProcess() throws IOException, InterruptedException {
-        List<String> args = new ArrayList<>();
-        
-        args.add(pathToExecutable);
-        args.add(outPipe.getAbsolutePath());
-        args.add(inPipe.getAbsolutePath());
-        args.add(protobufToHex(config.toProtobufMessage()));
-        
-        if (config.getCredentialsProvider() != null) {
-            args.add(protobufToHex(makeSetCredentialsMessage(
-                    config.getCredentialsProvider(), false)));
+        List<String> args = new ArrayList<>(Arrays.asList(pathToExecutable, "-o", outPipe.getAbsolutePath(), "-i",
+                inPipe.getAbsolutePath(), "-c", protobufToHex(config.toProtobufMessage()), "-k",
+                protobufToHex(makeSetCredentialsMessage(config.getCredentialsProvider(), false)), "-t"));
+
+        AWSCredentialsProvider metricsCreds = config.getMetricsCredentialsProvider();
+        if (metricsCreds == null) {
+            metricsCreds = config.getCredentialsProvider();
         }
-        
-        if (config.getMetricsCredentialsProvider() != null) {
-            args.add(protobufToHex(makeSetCredentialsMessage(
-                    config.getMetricsCredentialsProvider(), true)));
-        }
-           
+        args.add("-w");
+        args.add(protobufToHex(makeSetCredentialsMessage(metricsCreds, true)));
+
         final ProcessBuilder pb = new ProcessBuilder(args);
         for (Entry<String, String> e : environmentVariables.entrySet()) {
             pb.environment().put(e.getKey(), e.getValue());
         }
-        pb.redirectError(Redirect.INHERIT);
-        pb.redirectOutput(Redirect.INHERIT);
+
 
         executor.submit(new Runnable() {
             @Override
@@ -454,22 +451,36 @@ public class Daemon {
         } catch (Exception e) {
             fatalError("Error starting child process", e, false);
         }
-        
+        stdOutReader = new LogInputStreamReader(process.getInputStream(), "StdOut", new LogInputStreamReader.DefaultLoggingFunction() {
+            @Override
+            public void apply(Logger logger, String message) {
+                logger.info(message);
+            }
+        });
+        stdErrReader = new LogInputStreamReader(process.getErrorStream(), "StdErr", new LogInputStreamReader.DefaultLoggingFunction() {
+            @Override
+            public void apply(Logger logger, String message) {
+                logger.warn(message);
+            }
+        });
+
+        executor.submit(stdOutReader);
+        executor.submit(stdErrReader);
         int code = process.waitFor();
+
+        stdOutReader.shutdown();
+        stdErrReader.shutdown();
         deletePipes();
         fatalError("Child process exited with code " + code, code != 1);
     }
     
     private void updateCredentials() throws InterruptedException {
-        if (config.getCredentialsProvider() != null) {
-            outgoingMessages.put(makeSetCredentialsMessage(
-                    config.getCredentialsProvider(), false));
+        outgoingMessages.put(makeSetCredentialsMessage(config.getCredentialsProvider(), false));
+        AWSCredentialsProvider metricsCreds = config.getMetricsCredentialsProvider();
+        if (metricsCreds == null) {
+            metricsCreds = config.getCredentialsProvider();
         }
-        
-        if (config.getMetricsCredentialsProvider() != null) {
-            outgoingMessages.put(makeSetCredentialsMessage(
-                    config.getMetricsCredentialsProvider(), true));
-        }
+        outgoingMessages.put(makeSetCredentialsMessage(metricsCreds, true));
     }
     
     private void fatalError(String message) {
@@ -487,6 +498,12 @@ public class Daemon {
     private synchronized void fatalError(String message, Throwable t, boolean retryable) {
         if (!shutdown.getAndSet(true)) {
             if (process != null) {
+                if (stdErrReader != null) {
+                    stdErrReader.prepareForShutdown();
+                }
+                if (stdOutReader != null) {
+                    stdOutReader.prepareForShutdown();
+                }
                 process.destroy();
             }
             try {

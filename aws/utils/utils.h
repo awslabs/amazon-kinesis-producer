@@ -55,10 +55,6 @@ std::string md5_hex(const std::string& data);
 // digest interpreted as a 128 bit big endian int and converted to decimal
 std::string md5_decimal(const std::string& data);
 
-std::string base64_encode(const std::string& s);
-
-std::vector<uint8_t> base64_decode(const std::string& s);
-
 std::pair<std::string, std::string> get_date_time(
     const boost::posix_time::ptime& pt =
         boost::posix_time::microsec_clock::universal_time());
@@ -136,6 +132,8 @@ void sleep_until(TimePoint t) {
   std::this_thread::sleep_until(t);
 #endif
 }
+
+void enable_sdk_logging();
 
 } // namespace utils
 } // namespace aws

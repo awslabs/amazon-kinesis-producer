@@ -18,7 +18,6 @@
 
 #include <aws/utils/logging.h>
 
-#include <aws/kinesis/test/test_tls_server.h>
 #include <aws/kinesis/core/user_record.h>
 #include <aws/kinesis/core/kinesis_record.h>
 

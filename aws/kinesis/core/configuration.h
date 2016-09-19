@@ -70,6 +70,26 @@ class Configuration : private boost::noncopyable {
     return aggregation_max_size_;
   }
 
+  // Use a custom CloudWatch endpoint.
+  //
+  // Note this does not accept protocols or paths, only host names or ip
+  // addresses. There is no way to disable TLS. The KPL always connects with
+  // TLS.
+  //
+  // Expected pattern: ^([A-Za-z0-9-\\.]+)?$
+  const std::string& cloudwatch_endpoint() const noexcept {
+    return cloudwatch_endpoint_;
+  }
+
+  // Server port to connect to for CloudWatch.
+  //
+  // Default: 443
+  // Minimum: 1
+  // Maximum (inclusive): 65535
+  size_t cloudwatch_port() const noexcept {
+    return cloudwatch_port_;
+  }
+
   // Maximum number of items to pack into an PutRecords request.
   //
   // There should be normally no need to adjust this. If you want to limit the
@@ -106,15 +126,21 @@ class Configuration : private boost::noncopyable {
     return connect_timeout_;
   }
 
-  // Use a custom Kinesis and CloudWatch endpoint.
+  // This has no effect on Windows.
   //
-  // Mostly for testing use. Note this does not accept protocols or paths,
-  // only host names or ip addresses. There is no way to disable TLS. The KPL
-  // always connects with TLS.
+  // If set to true, the KPL native process will attempt to raise its own core
+  // file size soft limit to 128MB, or the hard limit, whichever is lower. If
+  // the soft limit is already at or above the target amount, it is not
+  // changed.
   //
-  // Expected pattern: ^([A-Za-z0-9-\\.]+)?$
-  const std::string& custom_endpoint() const noexcept {
-    return custom_endpoint_;
+  // Note that even if the limit is successfully raised (or already
+  // sufficient), it does not guarantee that core files will be written on a
+  // crash, since that is dependent on operation system settings that's beyond
+  // the control of individual processes.
+  //
+  // Default: false
+  bool enable_core_dumps() const noexcept {
+    return enable_core_dumps_;
   }
 
   // If true, throttled puts are not retried. The records that got throttled
@@ -132,6 +158,26 @@ class Configuration : private boost::noncopyable {
   // Default: false
   bool fail_if_throttled() const noexcept {
     return fail_if_throttled_;
+  }
+
+  // Use a custom Kinesis endpoint.
+  //
+  // Note this does not accept protocols or paths, only host names or ip
+  // addresses. There is no way to disable TLS. The KPL always connects with
+  // TLS.
+  //
+  // Expected pattern: ^([A-Za-z0-9-\\.]+)?$
+  const std::string& kinesis_endpoint() const noexcept {
+    return kinesis_endpoint_;
+  }
+
+  // Server port to connect to for Kinesis.
+  //
+  // Default: 443
+  // Minimum: 1
+  // Maximum (inclusive): 65535
+  size_t kinesis_port() const noexcept {
+    return kinesis_port_;
   }
 
   // Minimum level of logs. Messages below the specified level will not be
@@ -240,15 +286,6 @@ class Configuration : private boost::noncopyable {
     return min_connections_;
   }
 
-  // Server port to connect to. Only useful with custom_endpoint.
-  //
-  // Default: 443
-  // Minimum: 1
-  // Maximum (inclusive): 65535
-  size_t port() const noexcept {
-    return port_;
-  }
-
   // Limits the maximum allowed put rate for a shard, as a percentage of the
   // backend limits.
   //
@@ -346,8 +383,7 @@ class Configuration : private boost::noncopyable {
     return request_timeout_;
   }
 
-  // Verify the endpoint's certificate. Do not disable unless using
-  // custom_endpoint for testing. Never disable this in production.
+  // Verify SSL certificates. Always enable in production for security.
   //
   // Default: true
   bool verify_certificate() const noexcept {
@@ -411,6 +447,43 @@ class Configuration : private boost::noncopyable {
     return *this;
   }
 
+  // Use a custom CloudWatch endpoint.
+  //
+  // Note this does not accept protocols or paths, only host names or ip
+  // addresses. There is no way to disable TLS. The KPL always connects with
+  // TLS.
+  //
+  // Expected pattern: ^([A-Za-z0-9-\\.]+)?$
+  Configuration& cloudwatch_endpoint(std::string val) {
+    static std::regex pattern(
+        "^([A-Za-z0-9-\\.]+)?$",
+        std::regex::ECMAScript | std::regex::optimize);
+    if (!std::regex_match(val, pattern)) {
+      std::string err;
+      err += "cloudwatch_endpoint must match the pattern ^([A-Za-z0-9-\\.]+)?$, got ";
+      err += val;
+      throw std::runtime_error(err);
+    }
+    cloudwatch_endpoint_ = val;
+    return *this;
+  }
+
+  // Server port to connect to for CloudWatch.
+  //
+  // Default: 443
+  // Minimum: 1
+  // Maximum (inclusive): 65535
+  Configuration& cloudwatch_port(size_t val) {
+    if (val < 1ull || val > 65535ull) {
+      std::string err;
+      err += "cloudwatch_port must be between 1 and 65535, got ";
+      err += std::to_string(val);
+      throw std::runtime_error(err);
+    }
+    cloudwatch_port_ = val;
+    return *this;
+  }
+
   // Maximum number of items to pack into an PutRecords request.
   //
   // There should be normally no need to adjust this. If you want to limit the
@@ -468,24 +541,21 @@ class Configuration : private boost::noncopyable {
     return *this;
   }
 
-  // Use a custom Kinesis and CloudWatch endpoint.
+  // This has no effect on Windows.
   //
-  // Mostly for testing use. Note this does not accept protocols or paths,
-  // only host names or ip addresses. There is no way to disable TLS. The KPL
-  // always connects with TLS.
+  // If set to true, the KPL native process will attempt to raise its own core
+  // file size soft limit to 128MB, or the hard limit, whichever is lower. If
+  // the soft limit is already at or above the target amount, it is not
+  // changed.
   //
-  // Expected pattern: ^([A-Za-z0-9-\\.]+)?$
-  Configuration& custom_endpoint(std::string val) {
-    static std::regex pattern(
-        "^([A-Za-z0-9-\\.]+)?$",
-        std::regex::ECMAScript | std::regex::optimize);
-    if (!std::regex_match(val, pattern)) {
-      std::string err;
-      err += "custom_endpoint must match the pattern ^([A-Za-z0-9-\\.]+)?$, got ";
-      err += val;
-      throw std::runtime_error(err);
-    }
-    custom_endpoint_ = val;
+  // Note that even if the limit is successfully raised (or already
+  // sufficient), it does not guarantee that core files will be written on a
+  // crash, since that is dependent on operation system settings that's beyond
+  // the control of individual processes.
+  //
+  // Default: false
+  Configuration& enable_core_dumps(bool val) {
+    enable_core_dumps_ = val;
     return *this;
   }
 
@@ -504,6 +574,43 @@ class Configuration : private boost::noncopyable {
   // Default: false
   Configuration& fail_if_throttled(bool val) {
     fail_if_throttled_ = val;
+    return *this;
+  }
+
+  // Use a custom Kinesis endpoint.
+  //
+  // Note this does not accept protocols or paths, only host names or ip
+  // addresses. There is no way to disable TLS. The KPL always connects with
+  // TLS.
+  //
+  // Expected pattern: ^([A-Za-z0-9-\\.]+)?$
+  Configuration& kinesis_endpoint(std::string val) {
+    static std::regex pattern(
+        "^([A-Za-z0-9-\\.]+)?$",
+        std::regex::ECMAScript | std::regex::optimize);
+    if (!std::regex_match(val, pattern)) {
+      std::string err;
+      err += "kinesis_endpoint must match the pattern ^([A-Za-z0-9-\\.]+)?$, got ";
+      err += val;
+      throw std::runtime_error(err);
+    }
+    kinesis_endpoint_ = val;
+    return *this;
+  }
+
+  // Server port to connect to for Kinesis.
+  //
+  // Default: 443
+  // Minimum: 1
+  // Maximum (inclusive): 65535
+  Configuration& kinesis_port(size_t val) {
+    if (val < 1ull || val > 65535ull) {
+      std::string err;
+      err += "kinesis_port must be between 1 and 65535, got ";
+      err += std::to_string(val);
+      throw std::runtime_error(err);
+    }
+    kinesis_port_ = val;
     return *this;
   }
 
@@ -674,22 +781,6 @@ class Configuration : private boost::noncopyable {
     return *this;
   }
 
-  // Server port to connect to. Only useful with custom_endpoint.
-  //
-  // Default: 443
-  // Minimum: 1
-  // Maximum (inclusive): 65535
-  Configuration& port(size_t val) {
-    if (val < 1ull || val > 65535ull) {
-      std::string err;
-      err += "port must be between 1 and 65535, got ";
-      err += std::to_string(val);
-      throw std::runtime_error(err);
-    }
-    port_ = val;
-    return *this;
-  }
-
   // Limits the maximum allowed put rate for a shard, as a percentage of the
   // backend limits.
   //
@@ -825,8 +916,7 @@ class Configuration : private boost::noncopyable {
     return *this;
   }
 
-  // Verify the endpoint's certificate. Do not disable unless using
-  // custom_endpoint for testing. Never disable this in production.
+  // Verify SSL certificates. Always enable in production for security.
   //
   // Default: true
   Configuration& verify_certificate(bool val) {
@@ -856,11 +946,15 @@ class Configuration : private boost::noncopyable {
     aggregation_enabled(c.aggregation_enabled());
     aggregation_max_count(c.aggregation_max_count());
     aggregation_max_size(c.aggregation_max_size());
+    cloudwatch_endpoint(c.cloudwatch_endpoint());
+    cloudwatch_port(c.cloudwatch_port());
     collection_max_count(c.collection_max_count());
     collection_max_size(c.collection_max_size());
     connect_timeout(c.connect_timeout());
-    custom_endpoint(c.custom_endpoint());
+    enable_core_dumps(c.enable_core_dumps());
     fail_if_throttled(c.fail_if_throttled());
+    kinesis_endpoint(c.kinesis_endpoint());
+    kinesis_port(c.kinesis_port());
     log_level(c.log_level());
     max_connections(c.max_connections());
     metrics_granularity(c.metrics_granularity());
@@ -868,7 +962,6 @@ class Configuration : private boost::noncopyable {
     metrics_namespace(c.metrics_namespace());
     metrics_upload_delay(c.metrics_upload_delay());
     min_connections(c.min_connections());
-    port(c.port());
     rate_limit(c.rate_limit());
     record_max_buffered_time(c.record_max_buffered_time());
     record_ttl(c.record_ttl());
@@ -888,11 +981,15 @@ class Configuration : private boost::noncopyable {
   bool aggregation_enabled_ = true;
   size_t aggregation_max_count_ = 4294967295;
   size_t aggregation_max_size_ = 51200;
+  std::string cloudwatch_endpoint_ = "";
+  size_t cloudwatch_port_ = 443;
   size_t collection_max_count_ = 500;
   size_t collection_max_size_ = 5242880;
   uint64_t connect_timeout_ = 6000;
-  std::string custom_endpoint_ = "";
+  bool enable_core_dumps_ = false;
   bool fail_if_throttled_ = false;
+  std::string kinesis_endpoint_ = "";
+  size_t kinesis_port_ = 443;
   std::string log_level_ = "info";
   size_t max_connections_ = 24;
   std::string metrics_granularity_ = "shard";
@@ -900,7 +997,6 @@ class Configuration : private boost::noncopyable {
   std::string metrics_namespace_ = "KinesisProducerLibrary";
   size_t metrics_upload_delay_ = 60000;
   size_t min_connections_ = 1;
-  size_t port_ = 443;
   size_t rate_limit_ = 150;
   uint64_t record_max_buffered_time_ = 100;
   uint64_t record_ttl_ = 30000;

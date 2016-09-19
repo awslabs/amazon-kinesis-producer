@@ -11,23 +11,17 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
-#include <condition_variable>
-#include <mutex>
-
 #include <boost/test/unit_test.hpp>
 
 #include <aws/kinesis/core/aggregator.h>
 #include <aws/kinesis/core/test/test_utils.h>
 #include <aws/utils/io_service_executor.h>
-#include <aws/http/io_service_socket.h>
 #include <aws/utils/utils.h>
 
 namespace {
 
 using FlushCallback =
     std::function<void (std::shared_ptr<aws::kinesis::core::KinesisRecord>)>;
-
-const int kPort = aws::kinesis::test::TestTLSServer::kDefaultPort;
 
 const size_t kCountLimit = 100;
 
@@ -39,99 +33,55 @@ std::string get_hash_key(uint64_t shard_id) {
   return shard_id_to_hash_key[shard_id];
 }
 
-auto describe_stream_handler = [](auto& req) {
-  aws::http::HttpResponse res(200);
-  res.set_data(R"XXXX(
-  {
-    "StreamDescription": {
-      "StreamStatus": "ACTIVE",
-      "StreamName": "test",
-      "StreamARN": "arn:aws:kinesis:us-west-2:263868185958:stream\/test",
-      "Shards": [
-        {
-          "HashKeyRange": {
-            "EndingHashKey": "340282366920938463463374607431768211455",
-            "StartingHashKey": "170141183460469231731687303715884105728"
-          },
-          "ShardId": "shardId-000000000001",
-          "SequenceNumberRange": {
-            "StartingSequenceNumber": "49549167410945534708633744510750617797212193316405248018"
-          }
-        },
-        {
-          "HashKeyRange": {
-            "EndingHashKey": "85070591730234615865843651857942052862",
-            "StartingHashKey": "0"
-          },
-          "ShardId": "shardId-000000000002",
-          "ParentShardId": "shardId-000000000000",
-          "SequenceNumberRange": {
-            "StartingSequenceNumber": "49549169978943246555030591128013184047489460388642160674"
-          }
-        },
-        {
-          "HashKeyRange": {
-            "EndingHashKey": "170141183460469231731687303715884105727",
-            "StartingHashKey": "85070591730234615865843651857942052863"
-          },
-          "ShardId": "shardId-000000000003",
-          "ParentShardId": "shardId-000000000000",
-          "SequenceNumberRange": {
-            "StartingSequenceNumber": "49549169978965547300229121751154719765762108750148141106"
-          }
-        }
-      ]
-    }
+class MockShardMap : public aws::kinesis::core::ShardMap {
+ public:
+  MockShardMap(bool down = false) : down_(down) {
+    limits_.emplace_back("85070591730234615865843651857942052862");
+    shard_ids_.emplace_back(2);
+
+    limits_.emplace_back("170141183460469231731687303715884105727");
+    shard_ids_.emplace_back(3);
+
+    limits_.emplace_back("340282366920938463463374607431768211455");
+    shard_ids_.emplace_back(1);
   }
-  )XXXX");
-  return res;
+
+  boost::optional<uint64_t> shard_id(
+      const boost::multiprecision::uint128_t& hash_key) {
+    if (down_) {
+      return boost::none;
+    }
+
+    for (size_t i = 0; i < shard_ids_.size(); i++) {
+      if (hash_key <= limits_[i]) {
+        return shard_ids_[i];
+      }
+    }
+
+    return boost::none;
+  }
+
+ private:
+  bool down_;
+  std::vector<uint64_t> shard_ids_;
+  std::vector<boost::multiprecision::uint128_t> limits_;
 };
 
 auto make_aggregator(
+    bool shard_map_down = false,
     FlushCallback cb = [](auto) {},
     std::shared_ptr<aws::kinesis::core::Configuration> config =
         std::shared_ptr<aws::kinesis::core::Configuration>()) {
-  auto executor = std::make_shared<aws::utils::IoServiceExecutor>(4);
-  auto factory = std::make_shared<aws::http::IoServiceSocketFactory>();
-
-  auto http_client =
-      std::make_shared<aws::http::HttpClient>(
-          executor,
-          factory,
-          "localhost",
-          kPort,
-          true,
-          false);
-
-  auto creds =
-      std::make_shared<aws::auth::BasicAwsCredentialsProvider>(
-          "AKIAAAAAAAAAAAAAAAAA",
-          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-
-  auto shard_map =
-      std::make_shared<aws::kinesis::core::ShardMap>(
-          executor,
-          http_client,
-          creds,
-          "us-west-1",
-          "test",
-          std::make_shared<aws::metrics::NullMetricsManager>(),
-          std::chrono::milliseconds(100),
-          std::chrono::milliseconds(1000));
-
   if (!config) {
     config = std::make_shared<aws::kinesis::core::Configuration>();
     config->aggregation_max_count(kCountLimit);
   }
 
-  auto aggregator =
-      std::make_shared<aws::kinesis::core::Aggregator>(
-          executor,
-          shard_map,
+  return std::make_shared<aws::kinesis::core::Aggregator>(
+          std::make_shared<aws::utils::IoServiceExecutor>(4),
+          std::make_shared<MockShardMap>(shard_map_down),
           cb,
           config);
-
-  return aggregator;
 }
 
 } //namespace
@@ -139,13 +89,7 @@ auto make_aggregator(
 BOOST_AUTO_TEST_SUITE(Aggregator)
 
 BOOST_AUTO_TEST_CASE(Basic) {
-  aws::kinesis::test::TestTLSServer server;
-  server.enqueue_handler(describe_stream_handler);
-
   auto aggregator = make_aggregator();
-
-  // allow shard map to update
-  aws::utils::sleep_for(std::chrono::milliseconds(1500));
 
   for (uint64_t shard_id = 1; shard_id <= 3; shard_id++) {
     aws::kinesis::test::UserRecordSharedPtrVector v;
@@ -171,7 +115,7 @@ BOOST_AUTO_TEST_CASE(Basic) {
 }
 
 BOOST_AUTO_TEST_CASE(ShardMapDown) {
-  auto aggregator = make_aggregator();
+  auto aggregator = make_aggregator(true);
 
   for (int i = 0; i < 100; i++) {
     auto ur =
@@ -186,15 +130,9 @@ BOOST_AUTO_TEST_CASE(ShardMapDown) {
 }
 
 BOOST_AUTO_TEST_CASE(AggregationDisabled) {
-  aws::kinesis::test::TestTLSServer server;
-  server.enqueue_handler(describe_stream_handler);
-
   auto config = std::make_shared<aws::kinesis::core::Configuration>();
   config->aggregation_enabled(false);
-  auto aggregator = make_aggregator([](auto){}, config);
-
-  // allow shard map to update
-  aws::utils::sleep_for(std::chrono::milliseconds(1500));
+  auto aggregator = make_aggregator(false, [](auto){}, config);
 
   for (int i = 0; i < 100; i++) {
     auto ur =
@@ -209,16 +147,13 @@ BOOST_AUTO_TEST_CASE(AggregationDisabled) {
 }
 
 BOOST_AUTO_TEST_CASE(Concurrency) {
-  aws::kinesis::test::TestTLSServer server;
-  server.enqueue_handler(describe_stream_handler);
 
   std::atomic<size_t> count(0);
-  auto aggregator = make_aggregator([&](auto kr) {
-    count += kr->size();
-  });
-
-  // allow shard map to update
-  aws::utils::sleep_for(std::chrono::milliseconds(1500));
+  auto aggregator = make_aggregator(
+      false,
+      [&](auto kr) {
+        count += kr->size();
+      });
 
   const size_t N = 250;
 

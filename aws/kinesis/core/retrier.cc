@@ -10,10 +10,9 @@
 // on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
+#include <unordered_set>
 
 #include <aws/kinesis/core/retrier.h>
-
-#include <aws/utils/json.h>
 
 namespace aws {
 namespace kinesis {
@@ -40,128 +39,85 @@ MetricsPutter& MetricsPutter::operator ()(
 
 } //namespace detail
 
-void Retrier::handle_put_records_result(const Result& result) {
-  emit_metrics(result);
+void
+Retrier::handle_put_records_result(std::shared_ptr<PutRecordsContext> prc) {
+  auto outcome = prc->get_outcome();
+  auto start = prc->get_start();
+  auto end = prc->get_end();
 
-  try {
-    if (result->successful()) {
-      auto status_code = result->status_code();
-      if (status_code == 200) {
-        on_200(result);
-      } else if (status_code >= 500 && status_code < 600) {
-        retry_not_expired(result);
+
+  if (!outcome.IsSuccess()) {
+    auto e = outcome.GetError();
+    auto code = e.GetExceptionName();
+    auto msg = e.GetMessage();
+    for (auto& kr : prc->get_records()) {
+      if (!(config_->fail_if_throttled() &&
+            code == "ProvisionedThroughputExceededException")) {
+        retry_not_expired(kr, start, end, code, msg);
       } else {
-        // For PutRecords, errors that apply to individual kinesis records
-        // (like throttling, too big or bad format) come back in code 200s.
-        // This is different from plain old PutRecord, where those come back
-        // with code 400. As such, all the errors we want to retry on are
-        // handled in the 200 case. All 400 codes are therefore not retryable.
-        LOG(error) << "PutRecords failed: " << result->response_body();
-        fail(result);
+        fail(kr, start, end, code, msg);
       }
-    } else {
-      retry_not_expired(result);
     }
-  } catch (const std::exception& ex) {
-    LOG(error) << "Unexpected error encountered processing http result: "
-               << ex.what();
-    fail(result,
-         "Unexpected Error",
-         ex.what());
-  }
-}
+  } else {
+    detail::MetricsPutter metrics_putter(metrics_manager_, prc->get_stream());
+    auto result = outcome.GetResult().GetRecords();
 
-void Retrier::on_200(const Result& result) {
-  using aws::metrics::constants::Names;
-
-  auto json = aws::utils::Json(result->response_body());
-  auto records = json["Records"];
-  auto prr = result->template context<PutRecordsRequest>();
-  detail::MetricsPutter metrics_putter(metrics_manager_, result);
-
-  // If somehow there's a size mismatch, subsequent code may crash from
-  // array out of bounds, so we're going to explicitly catch it here and
-  // print a nicer message. Also, if there's a size mismatch, we can no longer
-  // be sure which result is for which record, so we better fail all of them.
-  // None of this is expected to happen if the backend behaves correctly,
-  // but if it does happen, this will make it easier to identify the problem.
-  if (records.size() != prr->size()) {
-    std::stringstream ss;
-    ss << "Count of records in PutRecords response differs from the number "
-       << "sent: " << records.size() << "received, but " << prr->size()
-       << " were sent.";
-    LOG(error) << ss.str();
-    fail(result, "Record Count Mismatch", ss.str());
-    return;
-  }
-
-  for (size_t i = 0; i < prr->size(); i++) {
-    auto record = records[i];
-    auto& kr = prr->items()[i];
-    bool success = record["SequenceNumber"];
-    auto start = result->start_time();
-    auto end = result->end_time();
-
-    auto shard_id = kr->items().front()->predicted_shard();
-    if (success) {
-      metrics_putter
-          (Names::KinesisRecordsPut, 1, shard_id)
-          (Names::KinesisRecordsDataPut, kr->accurate_size(), shard_id)
-          (Names::AllErrors, 0, shard_id);
-    } else {
-      metrics_putter
-          (Names::KinesisRecordsPut, 0, shard_id)
-          (Names::ErrorsByCode, 1, shard_id, (std::string) record["ErrorCode"])
-          (Names::AllErrors, 1, shard_id);
+    // If somehow there's a size mismatch, subsequent code may crash from
+    // array out of bounds, so we're going to explicitly catch it here and
+    // print a nicer message. Also, if there's a size mismatch, we can no longer
+    // be sure which result is for which record, so we better fail all of them.
+    // None of this is expected to happen if the backend behaves correctly,
+    // but if it does happen, this will make it easier to identify the problem.
+    if (result.size() != prc->get_records().size()) {
+      std::stringstream ss;
+      ss << "Count of records in PutRecords response differs from the number "
+         << "sent: " << result.size() << "received, but "
+         << prc->get_records().size() << " were sent.";
+      LOG(error) << ss.str();
+      for (auto& kr : prc->get_records()) {
+        fail(kr, start, end, "Record Count Mismatch", ss.str());
+      }
+      return;
     }
 
-    if (success) {
-      for (auto& ur : kr->items()) {
-        succeed_if_correct_shard(ur,
-                                 start,
-                                 end,
-                                 record["ShardId"],
-                                 record["SequenceNumber"]);
-      }
-    } else {
-      std::string err_code = record["ErrorCode"];
-      std::string err_msg = record["ErrorMessage"];
+    for (size_t i = 0; i < result.size(); i++) {
+      auto& kr = prc->get_records()[i];
+      auto& put_result = result[i];
+      bool success = put_result.GetSequenceNumber().size() > 0;
+      auto predicted_shard = kr->items().front()->predicted_shard();
 
-      bool can_retry =
-          (!config_->fail_if_throttled() &&
-           err_code == "ProvisionedThroughputExceededException") ||
-          (err_code == "InternalFailure") ||
-          (err_code == "ServiceUnavailable");
-
-      if (can_retry) {
-        retry_not_expired(kr, start, end, err_code, err_msg);
+      using aws::metrics::constants::Names;
+      if (success) {
+        metrics_putter
+            (Names::KinesisRecordsPut, 1, predicted_shard)
+            (Names::KinesisRecordsDataPut, kr->accurate_size(), predicted_shard)
+            (Names::AllErrors, 0, predicted_shard);
       } else {
-        fail(kr, start, end, err_code, err_msg);
+        metrics_putter
+            (Names::KinesisRecordsPut, 0, predicted_shard)
+            (Names::ErrorsByCode, 1, predicted_shard, put_result.GetErrorCode())
+            (Names::AllErrors, 1, predicted_shard);
+      }
+
+      if (success) {
+        for (auto& ur : kr->items()) {
+          succeed_if_correct_shard(ur,
+                                   start,
+                                   end,
+                                   put_result.GetShardId(),
+                                   put_result.GetSequenceNumber());
+        }
+      } else {
+        auto& err_code = put_result.GetErrorCode();
+        auto& err_msg = put_result.GetErrorMessage();
+        if (!(config_->fail_if_throttled() &&
+              err_code == "ProvisionedThroughputExceededException")) {
+          retry_not_expired(kr, start, end, err_code, err_msg);
+        } else {
+          fail(kr, start, end, err_code, err_msg);
+        }
       }
     }
-  }
-}
-
-void Retrier::retry_not_expired(const Result& result) {
-  retry_not_expired(
-      result,
-      result->successful()
-          ? std::to_string(result->status_code())
-          : "Exception",
-      result->successful()
-          ? result->response_body().substr(0, 4096)
-          : result->error());
-}
-
-void Retrier::retry_not_expired(const Result& result,
-                                const std::string& err_code,
-                                const std::string& err_msg) {
-  for (auto& kr : result->template context<PutRecordsRequest>()->items()) {
-    retry_not_expired(kr,
-                      result->start_time(),
-                      result->end_time(),
-                      err_code,
-                      err_msg);
   }
 }
 
@@ -199,28 +155,6 @@ void Retrier::retry_not_expired(const std::shared_ptr<UserRecord>& ur,
         std::chrono::milliseconds(
             config_->record_max_buffered_time() / 2));
     retry_cb_(ur);
-  }
-}
-
-void Retrier::fail(const Result& result) {
-  fail(result,
-       result->successful()
-          ? std::to_string(result->status_code())
-          : "Exception",
-       result->successful()
-          ? result->response_body().substr(0, 4096)
-          : result->error());
-}
-
-void Retrier::fail(const Result& result,
-                   const std::string& err_code,
-                   const std::string& err_msg) {
-  for (auto& kr : result->template context<PutRecordsRequest>()->items()) {
-    fail(kr,
-         result->start_time(),
-         result->end_time(),
-         err_code,
-         err_msg);
   }
 }
 
@@ -283,14 +217,12 @@ void Retrier::finish_user_record(const std::shared_ptr<UserRecord>& ur,
   }
 }
 
-void Retrier::emit_metrics(const Result& result) {
+void Retrier::emit_metrics(const std::shared_ptr<PutRecordsContext>& prc) {
   using aws::metrics::constants::Names;
-
-  detail::MetricsPutter metrics_putter(metrics_manager_, result);
-  auto prr = result->template context<PutRecordsRequest>();
+  detail::MetricsPutter metrics_putter(metrics_manager_, prc->get_stream());
 
   double num_urs = 0;
-  for (auto& kr : prr->items()) {
+  for (auto& kr : prc->get_records()) {
     metrics_putter(Names::UserRecordsPerKinesisRecord,
                    kr->items().size(),
                    kr->items().front()->predicted_shard());
@@ -298,24 +230,14 @@ void Retrier::emit_metrics(const Result& result) {
   }
 
   metrics_putter
-      (Names::RequestTime, result->duration_millis())
-      (Names::KinesisRecordsPerPutRecordsRequest, prr->items().size())
+      (Names::RequestTime, prc->duration_millis())
+      (Names::KinesisRecordsPerPutRecordsRequest, prc->get_records().size())
       (Names::UserRecordsPerPutRecordsRequest, num_urs);
 
-  boost::optional<std::string> err_code;
-  if (result->successful()) {
-    auto status_code = result->status_code();
-    if (status_code != 200) {
-      // TODO parse the json (if any) to get the error code
-      err_code = "Http" + std::to_string(status_code);
-    }
-  } else {
-    err_code = result->error().substr(0, 255);
-  }
-
-  if (err_code) {
+  if (!prc->get_outcome().IsSuccess()) {
+    auto& code = prc->get_outcome().GetError().GetExceptionName();
     metrics_putter
-        (Names::ErrorsByCode, 1, boost::none, err_code)
+        (Names::ErrorsByCode, 1, boost::none, code)
         (Names::AllErrors, 1);
   }
 }

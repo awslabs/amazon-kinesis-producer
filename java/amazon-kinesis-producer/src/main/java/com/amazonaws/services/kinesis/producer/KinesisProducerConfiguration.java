@@ -113,8 +113,11 @@ public class KinesisProducerConfiguration {
      * 
      * @see #setMetricsCredentialsProvider(AWSCredentialsProvider)
      */
-    public KinesisProducerConfiguration setCredentialsProvider(AWSCredentialsProvider CredentialsProvider) {
-        this.credentialsProvider = CredentialsProvider;
+    public KinesisProducerConfiguration setCredentialsProvider(AWSCredentialsProvider credentialsProvider) {
+        if (credentialsProvider == null) {
+            throw new NullPointerException("credentialsProvider cannot be null");
+        }
+        this.credentialsProvider = credentialsProvider;
         return this;
     }
 
@@ -230,12 +233,16 @@ public class KinesisProducerConfiguration {
     private boolean aggregationEnabled = true;
     private long aggregationMaxCount = 4294967295L;
     private long aggregationMaxSize = 51200L;
+    private String cloudwatchEndpoint = "";
+    private long cloudwatchPort = 443L;
     private long collectionMaxCount = 500L;
     private long collectionMaxSize = 5242880L;
     private long connectTimeout = 6000L;
     private long credentialsRefreshDelay = 5000L;
-    private String customEndpoint = "";
+    private boolean enableCoreDumps = false;
     private boolean failIfThrottled = false;
+    private String kinesisEndpoint = "";
+    private long kinesisPort = 443L;
     private String logLevel = "info";
     private long maxConnections = 24L;
     private String metricsGranularity = "shard";
@@ -244,7 +251,6 @@ public class KinesisProducerConfiguration {
     private long metricsUploadDelay = 60000L;
     private long minConnections = 1L;
     private String nativeExecutable = "";
-    private long port = 443L;
     private long rateLimit = 150L;
     private long recordMaxBufferedTime = 100L;
     private long recordTtl = 30000L;
@@ -300,6 +306,30 @@ public class KinesisProducerConfiguration {
      */
     public long getAggregationMaxSize() {
       return aggregationMaxSize;
+    }
+
+    /**
+     * Use a custom CloudWatch endpoint.
+     * 
+     * <p>
+     * Note this does not accept protocols or paths, only host names or ip addresses. There is no
+     * way to disable TLS. The KPL always connects with TLS.
+     * 
+     * <p><b>Expected pattern</b>: ^([A-Za-z0-9-\\.]+)?$
+     */
+    public String getCloudwatchEndpoint() {
+      return cloudwatchEndpoint;
+    }
+
+    /**
+     * Server port to connect to for CloudWatch.
+     * 
+     * <p><b>Default</b>: 443
+     * <p><b>Minimum</b>: 1
+     * <p><b>Maximum (inclusive)</b>: 65535
+     */
+    public long getCloudwatchPort() {
+      return cloudwatchPort;
     }
 
     /**
@@ -362,16 +392,22 @@ public class KinesisProducerConfiguration {
     }
 
     /**
-     * Use a custom Kinesis and CloudWatch endpoint.
+     * This has no effect on Windows.
      * 
      * <p>
-     * Mostly for testing use. Note this does not accept protocols or paths, only host names or ip
-     * addresses. There is no way to disable TLS. The KPL always connects with TLS.
+     * If set to true, the KPL native process will attempt to raise its own core file size soft
+     * limit to 128MB, or the hard limit, whichever is lower. If the soft limit is already at or
+     * above the target amount, it is not changed.
      * 
-     * <p><b>Expected pattern</b>: ^([A-Za-z0-9-\\.]+)?$
+     * <p>
+     * Note that even if the limit is successfully raised (or already sufficient), it does not
+     * guarantee that core files will be written on a crash, since that is dependent on operation
+     * system settings that's beyond the control of individual processes.
+     * 
+     * <p><b>Default</b>: false
      */
-    public String getCustomEndpoint() {
-      return customEndpoint;
+    public boolean isEnableCoreDumps() {
+      return enableCoreDumps;
     }
 
     /**
@@ -390,6 +426,30 @@ public class KinesisProducerConfiguration {
      */
     public boolean isFailIfThrottled() {
       return failIfThrottled;
+    }
+
+    /**
+     * Use a custom Kinesis endpoint.
+     * 
+     * <p>
+     * Note this does not accept protocols or paths, only host names or ip addresses. There is no
+     * way to disable TLS. The KPL always connects with TLS.
+     * 
+     * <p><b>Expected pattern</b>: ^([A-Za-z0-9-\\.]+)?$
+     */
+    public String getKinesisEndpoint() {
+      return kinesisEndpoint;
+    }
+
+    /**
+     * Server port to connect to for Kinesis.
+     * 
+     * <p><b>Default</b>: 443
+     * <p><b>Minimum</b>: 1
+     * <p><b>Maximum (inclusive)</b>: 65535
+     */
+    public long getKinesisPort() {
+      return kinesisPort;
     }
 
     /**
@@ -533,17 +593,6 @@ public class KinesisProducerConfiguration {
     }
 
     /**
-     * Server port to connect to. Only useful with custom_endpoint.
-     * 
-     * <p><b>Default</b>: 443
-     * <p><b>Minimum</b>: 1
-     * <p><b>Maximum (inclusive)</b>: 65535
-     */
-    public long getPort() {
-      return port;
-    }
-
-    /**
      * Limits the maximum allowed put rate for a shard, as a percentage of the backend limits.
      * 
      * <p>
@@ -668,8 +717,7 @@ public class KinesisProducerConfiguration {
     }
 
     /**
-     * Verify the endpoint's certificate. Do not disable unless using custom_endpoint for testing.
-     * Never disable this in production.
+     * Verify SSL certificates. Always enable in production for security.
      * 
      * <p><b>Default</b>: true
      */
@@ -732,6 +780,38 @@ public class KinesisProducerConfiguration {
             throw new IllegalArgumentException("aggregationMaxSize must be between 64 and 1048576, got " + val);
         }
         aggregationMaxSize = val;
+        return this;
+    }
+
+    /**
+     * Use a custom CloudWatch endpoint.
+     * 
+     * <p>
+     * Note this does not accept protocols or paths, only host names or ip addresses. There is no
+     * way to disable TLS. The KPL always connects with TLS.
+     * 
+     * <p><b>Expected pattern</b>: ^([A-Za-z0-9-\\.]+)?$
+     */
+    public KinesisProducerConfiguration setCloudwatchEndpoint(String val) {
+        if (!Pattern.matches("^([A-Za-z0-9-\\.]+)?$", val)) {
+            throw new IllegalArgumentException("cloudwatchEndpoint must match the pattern ^([A-Za-z0-9-\\.]+)?$, got " + val);
+        }
+        cloudwatchEndpoint = val;
+        return this;
+    }
+
+    /**
+     * Server port to connect to for CloudWatch.
+     * 
+     * <p><b>Default</b>: 443
+     * <p><b>Minimum</b>: 1
+     * <p><b>Maximum (inclusive)</b>: 65535
+     */
+    public KinesisProducerConfiguration setCloudwatchPort(long val) {
+        if (val < 1L || val > 65535L) {
+            throw new IllegalArgumentException("cloudwatchPort must be between 1 and 65535, got " + val);
+        }
+        cloudwatchPort = val;
         return this;
     }
 
@@ -811,19 +891,22 @@ public class KinesisProducerConfiguration {
     }
 
     /**
-     * Use a custom Kinesis and CloudWatch endpoint.
+     * This has no effect on Windows.
      * 
      * <p>
-     * Mostly for testing use. Note this does not accept protocols or paths, only host names or ip
-     * addresses. There is no way to disable TLS. The KPL always connects with TLS.
+     * If set to true, the KPL native process will attempt to raise its own core file size soft
+     * limit to 128MB, or the hard limit, whichever is lower. If the soft limit is already at or
+     * above the target amount, it is not changed.
      * 
-     * <p><b>Expected pattern</b>: ^([A-Za-z0-9-\\.]+)?$
+     * <p>
+     * Note that even if the limit is successfully raised (or already sufficient), it does not
+     * guarantee that core files will be written on a crash, since that is dependent on operation
+     * system settings that's beyond the control of individual processes.
+     * 
+     * <p><b>Default</b>: false
      */
-    public KinesisProducerConfiguration setCustomEndpoint(String val) {
-        if (!Pattern.matches("^([A-Za-z0-9-\\.]+)?$", val)) {
-            throw new IllegalArgumentException("customEndpoint must match the pattern ^([A-Za-z0-9-\\.]+)?$, got " + val);
-        }
-        customEndpoint = val;
+    public KinesisProducerConfiguration setEnableCoreDumps(boolean val) {
+        enableCoreDumps = val;
         return this;
     }
 
@@ -843,6 +926,38 @@ public class KinesisProducerConfiguration {
      */
     public KinesisProducerConfiguration setFailIfThrottled(boolean val) {
         failIfThrottled = val;
+        return this;
+    }
+
+    /**
+     * Use a custom Kinesis endpoint.
+     * 
+     * <p>
+     * Note this does not accept protocols or paths, only host names or ip addresses. There is no
+     * way to disable TLS. The KPL always connects with TLS.
+     * 
+     * <p><b>Expected pattern</b>: ^([A-Za-z0-9-\\.]+)?$
+     */
+    public KinesisProducerConfiguration setKinesisEndpoint(String val) {
+        if (!Pattern.matches("^([A-Za-z0-9-\\.]+)?$", val)) {
+            throw new IllegalArgumentException("kinesisEndpoint must match the pattern ^([A-Za-z0-9-\\.]+)?$, got " + val);
+        }
+        kinesisEndpoint = val;
+        return this;
+    }
+
+    /**
+     * Server port to connect to for Kinesis.
+     * 
+     * <p><b>Default</b>: 443
+     * <p><b>Minimum</b>: 1
+     * <p><b>Maximum (inclusive)</b>: 65535
+     */
+    public KinesisProducerConfiguration setKinesisPort(long val) {
+        if (val < 1L || val > 65535L) {
+            throw new IllegalArgumentException("kinesisPort must be between 1 and 65535, got " + val);
+        }
+        kinesisPort = val;
         return this;
     }
 
@@ -1016,21 +1131,6 @@ public class KinesisProducerConfiguration {
     }
 
     /**
-     * Server port to connect to. Only useful with custom_endpoint.
-     * 
-     * <p><b>Default</b>: 443
-     * <p><b>Minimum</b>: 1
-     * <p><b>Maximum (inclusive)</b>: 65535
-     */
-    public KinesisProducerConfiguration setPort(long val) {
-        if (val < 1L || val > 65535L) {
-            throw new IllegalArgumentException("port must be between 1 and 65535, got " + val);
-        }
-        port = val;
-        return this;
-    }
-
-    /**
      * Limits the maximum allowed put rate for a shard, as a percentage of the backend limits.
      * 
      * <p>
@@ -1176,8 +1276,7 @@ public class KinesisProducerConfiguration {
     }
 
     /**
-     * Verify the endpoint's certificate. Do not disable unless using custom_endpoint for testing.
-     * Never disable this in production.
+     * Verify SSL certificates. Always enable in production for security.
      * 
      * <p><b>Default</b>: true
      */
@@ -1193,11 +1292,15 @@ public class KinesisProducerConfiguration {
                 .setAggregationEnabled(aggregationEnabled)
                 .setAggregationMaxCount(aggregationMaxCount)
                 .setAggregationMaxSize(aggregationMaxSize)
+                .setCloudwatchEndpoint(cloudwatchEndpoint)
+                .setCloudwatchPort(cloudwatchPort)
                 .setCollectionMaxCount(collectionMaxCount)
                 .setCollectionMaxSize(collectionMaxSize)
                 .setConnectTimeout(connectTimeout)
-                .setCustomEndpoint(customEndpoint)
+                .setEnableCoreDumps(enableCoreDumps)
                 .setFailIfThrottled(failIfThrottled)
+                .setKinesisEndpoint(kinesisEndpoint)
+                .setKinesisPort(kinesisPort)
                 .setLogLevel(logLevel)
                 .setMaxConnections(maxConnections)
                 .setMetricsGranularity(metricsGranularity)
@@ -1205,7 +1308,6 @@ public class KinesisProducerConfiguration {
                 .setMetricsNamespace(metricsNamespace)
                 .setMetricsUploadDelay(metricsUploadDelay)
                 .setMinConnections(minConnections)
-                .setPort(port)
                 .setRateLimit(rateLimit)
                 .setRecordMaxBufferedTime(recordMaxBufferedTime)
                 .setRecordTtl(recordTtl)

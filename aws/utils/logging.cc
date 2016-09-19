@@ -22,45 +22,150 @@
 #include <boost/log/sources/record_ostream.hpp>
 #include <boost/log/support/date_time.hpp>
 #include <boost/log/utility/setup/common_attributes.hpp>
+#include <iostream>
+#include <mutex>
+#include <cstdint>
+#include <cstdarg>
+#include <stdio.h>
+
+#include <aws/core/utils/memory/stl/AWSString.h>
+#include <aws/core/utils/logging/AWSLogging.h>
+#include <aws/core/utils/Array.h>
 
 namespace aws {
 namespace utils {
 
-void set_log_level(const std::string& min_level) {
+using BoostLevel = boost::log::trivial::severity_level;
+
+BoostLevel set_log_level(const std::string& min_level) {
   auto min = boost::log::trivial::info;
   if (min_level == "warning") {
     min = boost::log::trivial::warning;
   } else if (min_level == "error") {
     min = boost::log::trivial::error;
   }
-  boost::log::core::get()->set_filter(boost::log::trivial::severity >= min);
+  return min;
 }
 
 void setup_logging(const std::string& min_level) {
-  set_log_level(min_level);
+  auto level = set_log_level(min_level);
+  setup_logging(level);
+}
 
-  using OstreamBackend = boost::log::sinks::text_ostream_backend;
-  auto backend = boost::make_shared<OstreamBackend>();
-  backend->add_stream(
-      boost::shared_ptr<std::ostream>(
-          &std::cerr,
-          boost::null_deleter()));
-  auto sink =
-      boost::make_shared<boost::log::sinks::synchronous_sink<OstreamBackend>>(
-          backend);
+void setup_logging(const BoostLevel level) {
+    boost::log::core::get()->set_filter(boost::log::trivial::severity >= level);
+    using OstreamBackend = boost::log::sinks::text_ostream_backend;
+    auto backend = boost::make_shared<OstreamBackend>();
+    backend->add_stream(
+        boost::shared_ptr<std::ostream>(
+            &std::cerr,
+            boost::null_deleter()));
+    auto sink =
+        boost::make_shared<boost::log::sinks::synchronous_sink<OstreamBackend>>(
+            backend);
 
-  boost::log::add_common_attributes();
-  namespace expr = boost::log::expressions;
-  auto log_expr = expr::stream
-      << "[" << expr::format_date_time<boost::posix_time::ptime>(
-            "TimeStamp",
-            "%Y-%m-%d %H:%M:%S.%f") << "] "
-      << "[" << expr::attr<boost::log::aux::thread::id>("ThreadID") << "] "
-      << "[" << boost::log::trivial::severity << "] "
-      << expr::smessage;
-  sink->set_formatter(log_expr);
+    boost::log::add_common_attributes();
+    namespace expr = boost::log::expressions;
+    auto log_expr = expr::stream
+        << "++++" << std::endl
+        << "[" << expr::format_date_time<boost::posix_time::ptime>(
+              "TimeStamp",
+              "%Y-%m-%d %H:%M:%S.%f") << "] "
+//        << "[" << expr::attr<boost::log::aux::thread::id>("ThreadID") << "] "
+//        << "[" << expr::attr<boost::log::aux::process::id>("ProcessID") << "] "
+        << "[" << expr::attr<boost::log::attributes::current_process_id::value_type>("ProcessID") << "]"
+        << "[" << expr::attr<boost::log::attributes::current_thread_id::value_type>("ThreadID") << "] "
+        << "[" << boost::log::trivial::severity << "] "
+        << expr::smessage
+        << std::endl << "----";
+    sink->set_formatter(log_expr);
 
-  boost::log::core::get()->add_sink(sink);
+    boost::log::core::get()->add_sink(sink);
+}
+using BoostLog = boost::log::trivial::severity_level;
+const BoostLog AwsLevelToBoostLevel[] = {
+  BoostLog::fatal,
+  BoostLog::fatal,
+  BoostLog::error,
+  BoostLog::warning,
+  BoostLog::info,
+  BoostLog::debug,
+  BoostLog::trace
+};
+
+using namespace Aws::Utils::Logging;
+
+class AwsBoostLogInterface : public Aws::Utils::Logging::LogSystemInterface {
+
+private:
+  LogLevel logLevel_;
+
+public:
+
+  AwsBoostLogInterface(LogLevel logLevel) : logLevel_(logLevel) {
+  }
+
+  virtual LogLevel GetLogLevel(void) const override {
+    return logLevel_;
+  }
+
+  virtual void Log(LogLevel logLevel, const char* tag, const char* formatStr, ...) override {
+    using namespace Aws::Utils;
+    //
+    // Borrowed from AWS SDK aws/core/utils/logging/FormattedLogSystem.cpp
+    //
+    Aws::StringStream ss;
+
+    std::va_list args;
+    va_start(args, formatStr);
+
+    va_list tmp_args; //unfortunately you cannot consume a va_list twice
+    va_copy(tmp_args, args); //so we have to copy it
+    #ifdef WIN32
+        const int requiredLength = _vscprintf(formatStr, tmp_args) + 1;
+    #else
+        const int requiredLength = vsnprintf(nullptr, 0, formatStr, tmp_args) + 1;
+    #endif
+    va_end(tmp_args);
+
+    Array<char> outputBuff(requiredLength);
+    #ifdef WIN32
+        vsnprintf_s(outputBuff.GetUnderlyingData(), requiredLength, _TRUNCATE, formatStr, args);
+    #else
+        vsnprintf(outputBuff.GetUnderlyingData(), requiredLength, formatStr, args);
+    #endif // WIN32
+
+    ss << outputBuff.GetUnderlyingData() << std::endl;
+
+    LogToBoost(logLevel, tag, ss.str());
+
+    va_end(args);
+  }
+
+  virtual void LogStream(LogLevel logLevel, const char* tag, const Aws::OStringStream &messageStream) override {
+    LogToBoost(logLevel, tag, messageStream.str());
+  }
+
+  void LogToBoost(LogLevel logLevel, const char* tag, const std::string& message) {
+    BoostLog level = BoostLog::error;
+    int logLevelInt = static_cast<int>(logLevel);
+    if (logLevelInt < 0) {
+      LOG(error) << "Aws::Utils::Logging::LogLevel value less than 0: '" << logLevelInt << "'.  Defaulting to error";
+    } else {
+      size_t logLevelSize = static_cast<size_t>(logLevelInt);
+      if (logLevelSize >= sizeof(AwsLevelToBoostLevel)) {
+        LOG(error) << "Aws::Utils::Logging::LogLevel value not found in mapping: '" << logLevelInt << "'.  Defaulting to error";
+      } else {
+        level = AwsLevelToBoostLevel[logLevelSize];
+      }
+    }
+    BOOST_LOG_SEV(aws::utils::_logger, level) << "[AWS Log](" << tag << ")" << message;
+  }
+};
+
+void setup_aws_logging(Aws::Utils::Logging::LogLevel log_level) {
+    Aws::Utils::Logging::InitializeAWSLogging(
+      Aws::MakeShared<AwsBoostLogInterface>("kpl-sdk-logging", log_level));
 }
 
 } //namespace utils

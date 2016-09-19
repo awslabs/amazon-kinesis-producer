@@ -31,30 +31,8 @@ class PutRecordsRequest : public SerializableContainer<KinesisRecord> {
   }
 
   std::string serialize() override {
-    if (items_.empty()) {
-      throw std::runtime_error("Cannot serialize an empty PutRecordsRequest");
-    }
-
-    std::string s;
-    // The data will expand due to Base64 and json overhead
-    s.reserve(accurate_size() * 2);
-
-    s += "{\"StreamName\":\"";
-    s += stream();
-    s += "\",\"Records\":[";
-    for (const auto& kr : items_) {
-      s += "{\"Data\":\"";
-      s += aws::utils::base64_encode(kr->serialize());
-      s += "\",\"PartitionKey\":\"";
-      s += kr->partition_key();
-      s += "\",\"ExplicitHashKey\":\"";
-      s += kr->explicit_hash_key();
-      s += "\"},";
-    }
-    s.back() = ']';
-    s += '}';
-
-    return s;
+    throw std::runtime_error(
+        "Serialize not implemented for PutRecordsRequest. Use the SDK.");
   }
 
   const std::string& stream() {

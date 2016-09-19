@@ -18,13 +18,10 @@
 #include <boost/noncopyable.hpp>
 #include <boost/optional.hpp>
 
-#include <aws/mutex.h>
-#include <aws/auth/credentials.h>
-#include <aws/auth/sigv4.h>
-#include <aws/http/http_client.h>
-#include <aws/http/http.h>
-#include <aws/utils/utils.h>
+#include <aws/kinesis/KinesisClient.h>
 #include <aws/metrics/metrics_manager.h>
+#include <aws/mutex.h>
+#include <aws/utils/utils.h>
 
 namespace aws {
 namespace kinesis {
@@ -35,17 +32,15 @@ class ShardMap : boost::noncopyable {
   using uint128_t = boost::multiprecision::uint128_t;
   using TimePoint = std::chrono::steady_clock::time_point;
 
-  ShardMap(const std::shared_ptr<aws::utils::Executor>& executor,
-           const std::shared_ptr<aws::http::HttpClient>& http_client,
-           const std::shared_ptr<aws::auth::AwsCredentialsProvider>& creds,
-           const std::string& region,
-           const std::string& stream,
-           const std::shared_ptr<aws::metrics::MetricsManager>& metrics_manager
+  ShardMap(std::shared_ptr<aws::utils::Executor> executor,
+           std::shared_ptr<Aws::Kinesis::KinesisClient> kinesis_client,
+           std::string stream,
+           std::shared_ptr<aws::metrics::MetricsManager> metrics_manager
               = std::make_shared<aws::metrics::NullMetricsManager>(),
            std::chrono::milliseconds min_backoff = kMinBackoff,
            std::chrono::milliseconds max_backoff = kMaxBackoff);
 
-  boost::optional<uint64_t> shard_id(const uint128_t& hash_key);
+  virtual boost::optional<uint64_t> shard_id(const uint128_t& hash_key);
 
   void invalidate(TimePoint seen_at);
 
@@ -59,6 +54,9 @@ class ShardMap : boost::noncopyable {
     auto p = std::string(12 - i.length(), '0');
     return "shardId-" + p + i;
   }
+
+ protected:
+  ShardMap() {}
 
  private:
   using Mutex = aws::shared_mutex;
@@ -77,14 +75,12 @@ class ShardMap : boost::noncopyable {
   void update(const std::string& start_shard_id = "");
 
   void update_callback(
-      const std::shared_ptr<aws::http::HttpResult>& result);
+      const Aws::Kinesis::Model::DescribeStreamOutcome& outcome);
 
-  void update_fail(const std::string& error);
+  void update_fail(const std::string& code, const std::string& msg = "");
 
   std::shared_ptr<aws::utils::Executor> executor_;
-  std::shared_ptr<aws::http::HttpClient> http_client_;
-  std::shared_ptr<aws::auth::AwsCredentialsProvider> creds_provider_;
-  std::string region_;
+  std::shared_ptr<Aws::Kinesis::KinesisClient> kinesis_client_;
   std::string stream_;
   std::shared_ptr<aws::metrics::MetricsManager> metrics_manager_;
 

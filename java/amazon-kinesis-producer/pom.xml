@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.amazonaws</groupId>
     <artifactId>amazon-kinesis-producer</artifactId>
-    <version>0.10.2</version>
+    <version>0.12.0-SNAPSHOT</version>
     <name>Amazon Kinesis Producer Library</name>
 
     <scm>
@@ -31,9 +31,33 @@
                 <configuration>
                     <excludePackageNames>com.amazonaws.services.kinesis.producer.protobuf</excludePackageNames>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
+
+    <properties>
+        <aws-sdk-core-version>(1.11.0, 1.12.0]</aws-sdk-core-version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -71,7 +95,7 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-core</artifactId>
-            <version>1.10.34</version>
+            <version>${aws-sdk-core-version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
