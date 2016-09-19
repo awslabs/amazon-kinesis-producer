@@ -8,6 +8,28 @@ For detailed information and installation instructions, see the article [Develop
 
 ## Release Notes
 
+### 0.12.0
+
+* **Maven Artifact Signing Change**
+  * Artifacts are now signed by the identity `Amazon Kinesis Tools <amazon-kinesis-tools@amazon.com>`
+
+* **Windows Support is not Available for this Version**.
+
+  This version of the Kinesis Producer Library doesn't currently support windows. Windows support will be added back at a later date.
+
+#### Java
+
+* Log output from the kinesis_producer is now captured, and re-emitted by the LogInputStreamReader
+* The daemon is now more aggressive about restarting the native kinesis_producer process.
+* Updated AWS SDK dependency.
+
+#### C++ Core
+
+* The native process now uses version 1.0.5 of the AWS C++ SDK.
+  * The native process doesn't currently support any of the AWS C++ SDK credentials providers. Support for these providers will be added a later date.
+* The native process now attempts to produce stack traces for various fatal signals.
+
+
 ### 0.10.2
 
 Misc bug fixes and improvements.
