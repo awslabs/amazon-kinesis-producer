@@ -114,8 +114,11 @@ class _ConfigTemplate {
      * 
      * @see #setMetricsCredentialsProvider(AWSCredentialsProvider)
      */
-    public _ConfigTemplate setCredentialsProvider(AWSCredentialsProvider CredentialsProvider) {
-        this.credentialsProvider = CredentialsProvider;
+    public _ConfigTemplate setCredentialsProvider(AWSCredentialsProvider credentialsProvider) {
+        if (credentialsProvider == null) {
+            throw new NullPointerException("credentialsProvider cannot be null");
+        }
+        this.credentialsProvider = credentialsProvider;
         return this;
     }
 

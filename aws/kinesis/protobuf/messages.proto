@@ -1,6 +1,7 @@
 import "config.proto";
 
 package aws.kinesis.protobuf;
+option java_package = "com.amazonaws.kinesis.producer.protobuf";
 
 message Tag {
   required string key   = 1;

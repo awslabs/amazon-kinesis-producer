@@ -11,12 +11,12 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
+#include <aws/utils/utils.h>
+
 #include <array>
 #include <iomanip>
 #include <iostream>
 
-#include <boost/archive/iterators/base64_from_binary.hpp>
-#include <boost/archive/iterators/transform_width.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -25,15 +25,13 @@
 #include <boost/multiprecision/cpp_int.hpp>
 #include <boost/date_time.hpp>
 
+
+#include <aws/core/utils/logging/DefaultLogSystem.h>
+#include <aws/core/utils/logging/AWSLogging.h>
+#include <aws/core/utils/logging/LogLevel.h>
 #include <aws/utils/logging.h>
 
 #include <openssl/md5.h>
-
-extern "C" {
-  #include <base64/include/libbase64.h>
-}
-
-#include "aws/utils/utils.h"
 
 namespace aws {
 namespace utils {
@@ -101,32 +99,6 @@ std::string md5_decimal(const std::string& data) {
   std::stringstream ss;
   ss << boost::multiprecision::uint128_t("0x" + hash);
   return ss.str();
-}
-
-std::string base64_encode(const std::string& s) {
-  const char* data = s.data();
-  const uint32_t data_len = s.length();
-  size_t result_len = (data_len + 2) / 3 * 4;
-  std::vector<uint8_t> out(result_len);
-  size_t actual_result_len = 0;
-
-  ::base64_encode(data, data_len, (char*) out.data(), &actual_result_len);
-  if (actual_result_len != result_len) {
-    std::stringstream ss;
-    ss << "Error in base64 encode, actual result len did not match prediction: "
-       << "expected " << result_len << " but got " << actual_result_len;
-    throw std::runtime_error(ss.str().c_str());
-  }
-
-  return std::string((const char*) out.data(), out.size());
-}
-
-std::vector<uint8_t> base64_decode(const std::string& s) {
-  std::vector<uint8_t> v(s.length());
-  size_t len = 0;
-  ::base64_decode((const char*) s.data(), s.length(), (char*) v.data(), &len);
-  v.resize(len);
-  return v;
 }
 
 std::pair<std::string, std::string>
@@ -201,6 +173,14 @@ uint64_t millis_till(const std::chrono::steady_clock::time_point& end) {
     return std::chrono::duration_cast<std::chrono::milliseconds>(
         end - now).count();
   }
+}
+
+void enable_sdk_logging() {
+  Aws::Utils::Logging::InitializeAWSLogging(
+      Aws::MakeShared<Aws::Utils::Logging::DefaultLogSystem>(
+          "log",
+          Aws::Utils::Logging::LogLevel::Trace,
+          "aws_sdk_"));
 }
 
 } // namespace utils

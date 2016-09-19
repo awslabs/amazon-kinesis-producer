@@ -76,9 +76,13 @@ class Reducer : boost::noncopyable {
 
     container_->add(input);
 
-    if (container_->size() >= count_limit_ ||
-        container_->estimated_size() >= size_limit_ ||
-        flush_predicate_(input)) {
+    auto size = container_->size();
+    auto estimated_size = container_->estimated_size();
+    auto flush_predicate_result = flush_predicate_(input);
+    if (size >= count_limit_ ||
+        estimated_size >= size_limit_ ||
+        flush_predicate_result) {
+
       auto output = flush(lock);
       if (output && output->size() > 0) {
         return output;

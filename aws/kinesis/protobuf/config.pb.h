@@ -240,50 +240,83 @@ class Configuration : public ::google::protobuf::Message {
   inline ::google::protobuf::uint64 aggregation_max_size() const;
   inline void set_aggregation_max_size(::google::protobuf::uint64 value);
 
-  // optional uint64 collection_max_count = 4 [default = 500];
+  // optional string cloudwatch_endpoint = 4 [default = ""];
+  inline bool has_cloudwatch_endpoint() const;
+  inline void clear_cloudwatch_endpoint();
+  static const int kCloudwatchEndpointFieldNumber = 4;
+  inline const ::std::string& cloudwatch_endpoint() const;
+  inline void set_cloudwatch_endpoint(const ::std::string& value);
+  inline void set_cloudwatch_endpoint(const char* value);
+  inline void set_cloudwatch_endpoint(const char* value, size_t size);
+  inline ::std::string* mutable_cloudwatch_endpoint();
+  inline ::std::string* release_cloudwatch_endpoint();
+  inline void set_allocated_cloudwatch_endpoint(::std::string* cloudwatch_endpoint);
+
+  // optional uint64 cloudwatch_port = 5 [default = 443];
+  inline bool has_cloudwatch_port() const;
+  inline void clear_cloudwatch_port();
+  static const int kCloudwatchPortFieldNumber = 5;
+  inline ::google::protobuf::uint64 cloudwatch_port() const;
+  inline void set_cloudwatch_port(::google::protobuf::uint64 value);
+
+  // optional uint64 collection_max_count = 6 [default = 500];
   inline bool has_collection_max_count() const;
   inline void clear_collection_max_count();
-  static const int kCollectionMaxCountFieldNumber = 4;
+  static const int kCollectionMaxCountFieldNumber = 6;
   inline ::google::protobuf::uint64 collection_max_count() const;
   inline void set_collection_max_count(::google::protobuf::uint64 value);
 
-  // optional uint64 collection_max_size = 5 [default = 5242880];
+  // optional uint64 collection_max_size = 7 [default = 5242880];
   inline bool has_collection_max_size() const;
   inline void clear_collection_max_size();
-  static const int kCollectionMaxSizeFieldNumber = 5;
+  static const int kCollectionMaxSizeFieldNumber = 7;
   inline ::google::protobuf::uint64 collection_max_size() const;
   inline void set_collection_max_size(::google::protobuf::uint64 value);
 
-  // optional uint64 connect_timeout = 6 [default = 6000];
+  // optional uint64 connect_timeout = 8 [default = 6000];
   inline bool has_connect_timeout() const;
   inline void clear_connect_timeout();
-  static const int kConnectTimeoutFieldNumber = 6;
+  static const int kConnectTimeoutFieldNumber = 8;
   inline ::google::protobuf::uint64 connect_timeout() const;
   inline void set_connect_timeout(::google::protobuf::uint64 value);
 
-  // optional string custom_endpoint = 7 [default = ""];
-  inline bool has_custom_endpoint() const;
-  inline void clear_custom_endpoint();
-  static const int kCustomEndpointFieldNumber = 7;
-  inline const ::std::string& custom_endpoint() const;
-  inline void set_custom_endpoint(const ::std::string& value);
-  inline void set_custom_endpoint(const char* value);
-  inline void set_custom_endpoint(const char* value, size_t size);
-  inline ::std::string* mutable_custom_endpoint();
-  inline ::std::string* release_custom_endpoint();
-  inline void set_allocated_custom_endpoint(::std::string* custom_endpoint);
+  // optional bool enable_core_dumps = 9 [default = false];
+  inline bool has_enable_core_dumps() const;
+  inline void clear_enable_core_dumps();
+  static const int kEnableCoreDumpsFieldNumber = 9;
+  inline bool enable_core_dumps() const;
+  inline void set_enable_core_dumps(bool value);
 
-  // optional bool fail_if_throttled = 8 [default = false];
+  // optional bool fail_if_throttled = 10 [default = false];
   inline bool has_fail_if_throttled() const;
   inline void clear_fail_if_throttled();
-  static const int kFailIfThrottledFieldNumber = 8;
+  static const int kFailIfThrottledFieldNumber = 10;
   inline bool fail_if_throttled() const;
   inline void set_fail_if_throttled(bool value);
 
-  // optional string log_level = 9 [default = "info"];
+  // optional string kinesis_endpoint = 11 [default = ""];
+  inline bool has_kinesis_endpoint() const;
+  inline void clear_kinesis_endpoint();
+  static const int kKinesisEndpointFieldNumber = 11;
+  inline const ::std::string& kinesis_endpoint() const;
+  inline void set_kinesis_endpoint(const ::std::string& value);
+  inline void set_kinesis_endpoint(const char* value);
+  inline void set_kinesis_endpoint(const char* value, size_t size);
+  inline ::std::string* mutable_kinesis_endpoint();
+  inline ::std::string* release_kinesis_endpoint();
+  inline void set_allocated_kinesis_endpoint(::std::string* kinesis_endpoint);
+
+  // optional uint64 kinesis_port = 12 [default = 443];
+  inline bool has_kinesis_port() const;
+  inline void clear_kinesis_port();
+  static const int kKinesisPortFieldNumber = 12;
+  inline ::google::protobuf::uint64 kinesis_port() const;
+  inline void set_kinesis_port(::google::protobuf::uint64 value);
+
+  // optional string log_level = 13 [default = "info"];
   inline bool has_log_level() const;
   inline void clear_log_level();
-  static const int kLogLevelFieldNumber = 9;
+  static const int kLogLevelFieldNumber = 13;
   inline const ::std::string& log_level() const;
   inline void set_log_level(const ::std::string& value);
   inline void set_log_level(const char* value);
@@ -292,17 +325,17 @@ class Configuration : public ::google::protobuf::Message {
   inline ::std::string* release_log_level();
   inline void set_allocated_log_level(::std::string* log_level);
 
-  // optional uint64 max_connections = 10 [default = 24];
+  // optional uint64 max_connections = 14 [default = 24];
   inline bool has_max_connections() const;
   inline void clear_max_connections();
-  static const int kMaxConnectionsFieldNumber = 10;
+  static const int kMaxConnectionsFieldNumber = 14;
   inline ::google::protobuf::uint64 max_connections() const;
   inline void set_max_connections(::google::protobuf::uint64 value);
 
-  // optional string metrics_granularity = 11 [default = "shard"];
+  // optional string metrics_granularity = 15 [default = "shard"];
   inline bool has_metrics_granularity() const;
   inline void clear_metrics_granularity();
-  static const int kMetricsGranularityFieldNumber = 11;
+  static const int kMetricsGranularityFieldNumber = 15;
   inline const ::std::string& metrics_granularity() const;
   inline void set_metrics_granularity(const ::std::string& value);
   inline void set_metrics_granularity(const char* value);
@@ -311,10 +344,10 @@ class Configuration : public ::google::protobuf::Message {
   inline ::std::string* release_metrics_granularity();
   inline void set_allocated_metrics_granularity(::std::string* metrics_granularity);
 
-  // optional string metrics_level = 12 [default = "detailed"];
+  // optional string metrics_level = 16 [default = "detailed"];
   inline bool has_metrics_level() const;
   inline void clear_metrics_level();
-  static const int kMetricsLevelFieldNumber = 12;
+  static const int kMetricsLevelFieldNumber = 16;
   inline const ::std::string& metrics_level() const;
   inline void set_metrics_level(const ::std::string& value);
   inline void set_metrics_level(const char* value);
@@ -323,10 +356,10 @@ class Configuration : public ::google::protobuf::Message {
   inline ::std::string* release_metrics_level();
   inline void set_allocated_metrics_level(::std::string* metrics_level);
 
-  // optional string metrics_namespace = 13 [default = "KinesisProducerLibrary"];
+  // optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];
   inline bool has_metrics_namespace() const;
   inline void clear_metrics_namespace();
-  static const int kMetricsNamespaceFieldNumber = 13;
+  static const int kMetricsNamespaceFieldNumber = 17;
   inline const ::std::string& metrics_namespace() const;
   inline void set_metrics_namespace(const ::std::string& value);
   inline void set_metrics_namespace(const char* value);
@@ -335,52 +368,45 @@ class Configuration : public ::google::protobuf::Message {
   inline ::std::string* release_metrics_namespace();
   inline void set_allocated_metrics_namespace(::std::string* metrics_namespace);
 
-  // optional uint64 metrics_upload_delay = 14 [default = 60000];
+  // optional uint64 metrics_upload_delay = 18 [default = 60000];
   inline bool has_metrics_upload_delay() const;
   inline void clear_metrics_upload_delay();
-  static const int kMetricsUploadDelayFieldNumber = 14;
+  static const int kMetricsUploadDelayFieldNumber = 18;
   inline ::google::protobuf::uint64 metrics_upload_delay() const;
   inline void set_metrics_upload_delay(::google::protobuf::uint64 value);
 
-  // optional uint64 min_connections = 15 [default = 1];
+  // optional uint64 min_connections = 19 [default = 1];
   inline bool has_min_connections() const;
   inline void clear_min_connections();
-  static const int kMinConnectionsFieldNumber = 15;
+  static const int kMinConnectionsFieldNumber = 19;
   inline ::google::protobuf::uint64 min_connections() const;
   inline void set_min_connections(::google::protobuf::uint64 value);
 
-  // optional uint64 port = 16 [default = 443];
-  inline bool has_port() const;
-  inline void clear_port();
-  static const int kPortFieldNumber = 16;
-  inline ::google::protobuf::uint64 port() const;
-  inline void set_port(::google::protobuf::uint64 value);
-
-  // optional uint64 rate_limit = 17 [default = 150];
+  // optional uint64 rate_limit = 20 [default = 150];
   inline bool has_rate_limit() const;
   inline void clear_rate_limit();
-  static const int kRateLimitFieldNumber = 17;
+  static const int kRateLimitFieldNumber = 20;
   inline ::google::protobuf::uint64 rate_limit() const;
   inline void set_rate_limit(::google::protobuf::uint64 value);
 
-  // optional uint64 record_max_buffered_time = 18 [default = 100];
+  // optional uint64 record_max_buffered_time = 21 [default = 100];
   inline bool has_record_max_buffered_time() const;
   inline void clear_record_max_buffered_time();
-  static const int kRecordMaxBufferedTimeFieldNumber = 18;
+  static const int kRecordMaxBufferedTimeFieldNumber = 21;
   inline ::google::protobuf::uint64 record_max_buffered_time() const;
   inline void set_record_max_buffered_time(::google::protobuf::uint64 value);
 
-  // optional uint64 record_ttl = 19 [default = 30000];
+  // optional uint64 record_ttl = 22 [default = 30000];
   inline bool has_record_ttl() const;
   inline void clear_record_ttl();
-  static const int kRecordTtlFieldNumber = 19;
+  static const int kRecordTtlFieldNumber = 22;
   inline ::google::protobuf::uint64 record_ttl() const;
   inline void set_record_ttl(::google::protobuf::uint64 value);
 
-  // optional string region = 20 [default = ""];
+  // optional string region = 23 [default = ""];
   inline bool has_region() const;
   inline void clear_region();
-  static const int kRegionFieldNumber = 20;
+  static const int kRegionFieldNumber = 23;
   inline const ::std::string& region() const;
   inline void set_region(const ::std::string& value);
   inline void set_region(const char* value);
@@ -389,17 +415,17 @@ class Configuration : public ::google::protobuf::Message {
   inline ::std::string* release_region();
   inline void set_allocated_region(::std::string* region);
 
-  // optional uint64 request_timeout = 21 [default = 6000];
+  // optional uint64 request_timeout = 24 [default = 6000];
   inline bool has_request_timeout() const;
   inline void clear_request_timeout();
-  static const int kRequestTimeoutFieldNumber = 21;
+  static const int kRequestTimeoutFieldNumber = 24;
   inline ::google::protobuf::uint64 request_timeout() const;
   inline void set_request_timeout(::google::protobuf::uint64 value);
 
-  // optional bool verify_certificate = 22 [default = true];
+  // optional bool verify_certificate = 25 [default = true];
   inline bool has_verify_certificate() const;
   inline void clear_verify_certificate();
-  static const int kVerifyCertificateFieldNumber = 22;
+  static const int kVerifyCertificateFieldNumber = 25;
   inline bool verify_certificate() const;
   inline void set_verify_certificate(bool value);
 
@@ -411,16 +437,24 @@ class Configuration : public ::google::protobuf::Message {
   inline void clear_has_aggregation_max_count();
   inline void set_has_aggregation_max_size();
   inline void clear_has_aggregation_max_size();
+  inline void set_has_cloudwatch_endpoint();
+  inline void clear_has_cloudwatch_endpoint();
+  inline void set_has_cloudwatch_port();
+  inline void clear_has_cloudwatch_port();
   inline void set_has_collection_max_count();
   inline void clear_has_collection_max_count();
   inline void set_has_collection_max_size();
   inline void clear_has_collection_max_size();
   inline void set_has_connect_timeout();
   inline void clear_has_connect_timeout();
-  inline void set_has_custom_endpoint();
-  inline void clear_has_custom_endpoint();
+  inline void set_has_enable_core_dumps();
+  inline void clear_has_enable_core_dumps();
   inline void set_has_fail_if_throttled();
   inline void clear_has_fail_if_throttled();
+  inline void set_has_kinesis_endpoint();
+  inline void clear_has_kinesis_endpoint();
+  inline void set_has_kinesis_port();
+  inline void clear_has_kinesis_port();
   inline void set_has_log_level();
   inline void clear_has_log_level();
   inline void set_has_max_connections();
@@ -435,8 +469,6 @@ class Configuration : public ::google::protobuf::Message {
   inline void clear_has_metrics_upload_delay();
   inline void set_has_min_connections();
   inline void clear_has_min_connections();
-  inline void set_has_port();
-  inline void clear_has_port();
   inline void set_has_rate_limit();
   inline void clear_has_rate_limit();
   inline void set_has_record_max_buffered_time();
@@ -457,10 +489,13 @@ class Configuration : public ::google::protobuf::Message {
   ::google::protobuf::RepeatedPtrField< ::aws::kinesis::protobuf::AdditionalDimension > additional_metric_dims_;
   ::google::protobuf::uint64 aggregation_max_count_;
   ::google::protobuf::uint64 aggregation_max_size_;
+  ::std::string* cloudwatch_endpoint_;
+  ::google::protobuf::uint64 cloudwatch_port_;
   ::google::protobuf::uint64 collection_max_count_;
   ::google::protobuf::uint64 collection_max_size_;
   ::google::protobuf::uint64 connect_timeout_;
-  ::std::string* custom_endpoint_;
+  ::std::string* kinesis_endpoint_;
+  ::google::protobuf::uint64 kinesis_port_;
   static ::std::string* _default_log_level_;
   ::std::string* log_level_;
   ::google::protobuf::uint64 max_connections_;
@@ -472,13 +507,13 @@ class Configuration : public ::google::protobuf::Message {
   ::std::string* metrics_namespace_;
   ::google::protobuf::uint64 metrics_upload_delay_;
   ::google::protobuf::uint64 min_connections_;
-  ::google::protobuf::uint64 port_;
   ::google::protobuf::uint64 rate_limit_;
   ::google::protobuf::uint64 record_max_buffered_time_;
   ::google::protobuf::uint64 record_ttl_;
   ::std::string* region_;
   ::google::protobuf::uint64 request_timeout_;
   bool aggregation_enabled_;
+  bool enable_core_dumps_;
   bool fail_if_throttled_;
   bool verify_certificate_;
   friend void  protobuf_AddDesc_config_2eproto();
@@ -829,15 +864,115 @@ inline void Configuration::set_aggregation_max_size(::google::protobuf::uint64 v
   // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.aggregation_max_size)
 }
 
-// optional uint64 collection_max_count = 4 [default = 500];
-inline bool Configuration::has_collection_max_count() const {
+// optional string cloudwatch_endpoint = 4 [default = ""];
+inline bool Configuration::has_cloudwatch_endpoint() const {
   return (_has_bits_[0] & 0x00000010u) != 0;
 }
-inline void Configuration::set_has_collection_max_count() {
+inline void Configuration::set_has_cloudwatch_endpoint() {
   _has_bits_[0] |= 0x00000010u;
 }
-inline void Configuration::clear_has_collection_max_count() {
+inline void Configuration::clear_has_cloudwatch_endpoint() {
   _has_bits_[0] &= ~0x00000010u;
+}
+inline void Configuration::clear_cloudwatch_endpoint() {
+  if (cloudwatch_endpoint_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    cloudwatch_endpoint_->clear();
+  }
+  clear_has_cloudwatch_endpoint();
+}
+inline const ::std::string& Configuration::cloudwatch_endpoint() const {
+  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.Configuration.cloudwatch_endpoint)
+  return *cloudwatch_endpoint_;
+}
+inline void Configuration::set_cloudwatch_endpoint(const ::std::string& value) {
+  set_has_cloudwatch_endpoint();
+  if (cloudwatch_endpoint_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    cloudwatch_endpoint_ = new ::std::string;
+  }
+  cloudwatch_endpoint_->assign(value);
+  // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.cloudwatch_endpoint)
+}
+inline void Configuration::set_cloudwatch_endpoint(const char* value) {
+  set_has_cloudwatch_endpoint();
+  if (cloudwatch_endpoint_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    cloudwatch_endpoint_ = new ::std::string;
+  }
+  cloudwatch_endpoint_->assign(value);
+  // @@protoc_insertion_point(field_set_char:aws.kinesis.protobuf.Configuration.cloudwatch_endpoint)
+}
+inline void Configuration::set_cloudwatch_endpoint(const char* value, size_t size) {
+  set_has_cloudwatch_endpoint();
+  if (cloudwatch_endpoint_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    cloudwatch_endpoint_ = new ::std::string;
+  }
+  cloudwatch_endpoint_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:aws.kinesis.protobuf.Configuration.cloudwatch_endpoint)
+}
+inline ::std::string* Configuration::mutable_cloudwatch_endpoint() {
+  set_has_cloudwatch_endpoint();
+  if (cloudwatch_endpoint_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    cloudwatch_endpoint_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:aws.kinesis.protobuf.Configuration.cloudwatch_endpoint)
+  return cloudwatch_endpoint_;
+}
+inline ::std::string* Configuration::release_cloudwatch_endpoint() {
+  clear_has_cloudwatch_endpoint();
+  if (cloudwatch_endpoint_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = cloudwatch_endpoint_;
+    cloudwatch_endpoint_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void Configuration::set_allocated_cloudwatch_endpoint(::std::string* cloudwatch_endpoint) {
+  if (cloudwatch_endpoint_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete cloudwatch_endpoint_;
+  }
+  if (cloudwatch_endpoint) {
+    set_has_cloudwatch_endpoint();
+    cloudwatch_endpoint_ = cloudwatch_endpoint;
+  } else {
+    clear_has_cloudwatch_endpoint();
+    cloudwatch_endpoint_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:aws.kinesis.protobuf.Configuration.cloudwatch_endpoint)
+}
+
+// optional uint64 cloudwatch_port = 5 [default = 443];
+inline bool Configuration::has_cloudwatch_port() const {
+  return (_has_bits_[0] & 0x00000020u) != 0;
+}
+inline void Configuration::set_has_cloudwatch_port() {
+  _has_bits_[0] |= 0x00000020u;
+}
+inline void Configuration::clear_has_cloudwatch_port() {
+  _has_bits_[0] &= ~0x00000020u;
+}
+inline void Configuration::clear_cloudwatch_port() {
+  cloudwatch_port_ = GOOGLE_ULONGLONG(443);
+  clear_has_cloudwatch_port();
+}
+inline ::google::protobuf::uint64 Configuration::cloudwatch_port() const {
+  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.Configuration.cloudwatch_port)
+  return cloudwatch_port_;
+}
+inline void Configuration::set_cloudwatch_port(::google::protobuf::uint64 value) {
+  set_has_cloudwatch_port();
+  cloudwatch_port_ = value;
+  // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.cloudwatch_port)
+}
+
+// optional uint64 collection_max_count = 6 [default = 500];
+inline bool Configuration::has_collection_max_count() const {
+  return (_has_bits_[0] & 0x00000040u) != 0;
+}
+inline void Configuration::set_has_collection_max_count() {
+  _has_bits_[0] |= 0x00000040u;
+}
+inline void Configuration::clear_has_collection_max_count() {
+  _has_bits_[0] &= ~0x00000040u;
 }
 inline void Configuration::clear_collection_max_count() {
   collection_max_count_ = GOOGLE_ULONGLONG(500);
@@ -853,15 +988,15 @@ inline void Configuration::set_collection_max_count(::google::protobuf::uint64 v
   // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.collection_max_count)
 }
 
-// optional uint64 collection_max_size = 5 [default = 5242880];
+// optional uint64 collection_max_size = 7 [default = 5242880];
 inline bool Configuration::has_collection_max_size() const {
-  return (_has_bits_[0] & 0x00000020u) != 0;
+  return (_has_bits_[0] & 0x00000080u) != 0;
 }
 inline void Configuration::set_has_collection_max_size() {
-  _has_bits_[0] |= 0x00000020u;
+  _has_bits_[0] |= 0x00000080u;
 }
 inline void Configuration::clear_has_collection_max_size() {
-  _has_bits_[0] &= ~0x00000020u;
+  _has_bits_[0] &= ~0x00000080u;
 }
 inline void Configuration::clear_collection_max_size() {
   collection_max_size_ = GOOGLE_ULONGLONG(5242880);
@@ -877,15 +1012,15 @@ inline void Configuration::set_collection_max_size(::google::protobuf::uint64 va
   // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.collection_max_size)
 }
 
-// optional uint64 connect_timeout = 6 [default = 6000];
+// optional uint64 connect_timeout = 8 [default = 6000];
 inline bool Configuration::has_connect_timeout() const {
-  return (_has_bits_[0] & 0x00000040u) != 0;
+  return (_has_bits_[0] & 0x00000100u) != 0;
 }
 inline void Configuration::set_has_connect_timeout() {
-  _has_bits_[0] |= 0x00000040u;
+  _has_bits_[0] |= 0x00000100u;
 }
 inline void Configuration::clear_has_connect_timeout() {
-  _has_bits_[0] &= ~0x00000040u;
+  _has_bits_[0] &= ~0x00000100u;
 }
 inline void Configuration::clear_connect_timeout() {
   connect_timeout_ = GOOGLE_ULONGLONG(6000);
@@ -901,91 +1036,39 @@ inline void Configuration::set_connect_timeout(::google::protobuf::uint64 value)
   // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.connect_timeout)
 }
 
-// optional string custom_endpoint = 7 [default = ""];
-inline bool Configuration::has_custom_endpoint() const {
-  return (_has_bits_[0] & 0x00000080u) != 0;
+// optional bool enable_core_dumps = 9 [default = false];
+inline bool Configuration::has_enable_core_dumps() const {
+  return (_has_bits_[0] & 0x00000200u) != 0;
 }
-inline void Configuration::set_has_custom_endpoint() {
-  _has_bits_[0] |= 0x00000080u;
+inline void Configuration::set_has_enable_core_dumps() {
+  _has_bits_[0] |= 0x00000200u;
 }
-inline void Configuration::clear_has_custom_endpoint() {
-  _has_bits_[0] &= ~0x00000080u;
+inline void Configuration::clear_has_enable_core_dumps() {
+  _has_bits_[0] &= ~0x00000200u;
 }
-inline void Configuration::clear_custom_endpoint() {
-  if (custom_endpoint_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    custom_endpoint_->clear();
-  }
-  clear_has_custom_endpoint();
+inline void Configuration::clear_enable_core_dumps() {
+  enable_core_dumps_ = false;
+  clear_has_enable_core_dumps();
 }
-inline const ::std::string& Configuration::custom_endpoint() const {
-  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.Configuration.custom_endpoint)
-  return *custom_endpoint_;
+inline bool Configuration::enable_core_dumps() const {
+  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.Configuration.enable_core_dumps)
+  return enable_core_dumps_;
 }
-inline void Configuration::set_custom_endpoint(const ::std::string& value) {
-  set_has_custom_endpoint();
-  if (custom_endpoint_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    custom_endpoint_ = new ::std::string;
-  }
-  custom_endpoint_->assign(value);
-  // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.custom_endpoint)
-}
-inline void Configuration::set_custom_endpoint(const char* value) {
-  set_has_custom_endpoint();
-  if (custom_endpoint_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    custom_endpoint_ = new ::std::string;
-  }
-  custom_endpoint_->assign(value);
-  // @@protoc_insertion_point(field_set_char:aws.kinesis.protobuf.Configuration.custom_endpoint)
-}
-inline void Configuration::set_custom_endpoint(const char* value, size_t size) {
-  set_has_custom_endpoint();
-  if (custom_endpoint_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    custom_endpoint_ = new ::std::string;
-  }
-  custom_endpoint_->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:aws.kinesis.protobuf.Configuration.custom_endpoint)
-}
-inline ::std::string* Configuration::mutable_custom_endpoint() {
-  set_has_custom_endpoint();
-  if (custom_endpoint_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    custom_endpoint_ = new ::std::string;
-  }
-  // @@protoc_insertion_point(field_mutable:aws.kinesis.protobuf.Configuration.custom_endpoint)
-  return custom_endpoint_;
-}
-inline ::std::string* Configuration::release_custom_endpoint() {
-  clear_has_custom_endpoint();
-  if (custom_endpoint_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    return NULL;
-  } else {
-    ::std::string* temp = custom_endpoint_;
-    custom_endpoint_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    return temp;
-  }
-}
-inline void Configuration::set_allocated_custom_endpoint(::std::string* custom_endpoint) {
-  if (custom_endpoint_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete custom_endpoint_;
-  }
-  if (custom_endpoint) {
-    set_has_custom_endpoint();
-    custom_endpoint_ = custom_endpoint;
-  } else {
-    clear_has_custom_endpoint();
-    custom_endpoint_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  }
-  // @@protoc_insertion_point(field_set_allocated:aws.kinesis.protobuf.Configuration.custom_endpoint)
+inline void Configuration::set_enable_core_dumps(bool value) {
+  set_has_enable_core_dumps();
+  enable_core_dumps_ = value;
+  // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.enable_core_dumps)
 }
 
-// optional bool fail_if_throttled = 8 [default = false];
+// optional bool fail_if_throttled = 10 [default = false];
 inline bool Configuration::has_fail_if_throttled() const {
-  return (_has_bits_[0] & 0x00000100u) != 0;
+  return (_has_bits_[0] & 0x00000400u) != 0;
 }
 inline void Configuration::set_has_fail_if_throttled() {
-  _has_bits_[0] |= 0x00000100u;
+  _has_bits_[0] |= 0x00000400u;
 }
 inline void Configuration::clear_has_fail_if_throttled() {
-  _has_bits_[0] &= ~0x00000100u;
+  _has_bits_[0] &= ~0x00000400u;
 }
 inline void Configuration::clear_fail_if_throttled() {
   fail_if_throttled_ = false;
@@ -1001,15 +1084,115 @@ inline void Configuration::set_fail_if_throttled(bool value) {
   // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.fail_if_throttled)
 }
 
-// optional string log_level = 9 [default = "info"];
+// optional string kinesis_endpoint = 11 [default = ""];
+inline bool Configuration::has_kinesis_endpoint() const {
+  return (_has_bits_[0] & 0x00000800u) != 0;
+}
+inline void Configuration::set_has_kinesis_endpoint() {
+  _has_bits_[0] |= 0x00000800u;
+}
+inline void Configuration::clear_has_kinesis_endpoint() {
+  _has_bits_[0] &= ~0x00000800u;
+}
+inline void Configuration::clear_kinesis_endpoint() {
+  if (kinesis_endpoint_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    kinesis_endpoint_->clear();
+  }
+  clear_has_kinesis_endpoint();
+}
+inline const ::std::string& Configuration::kinesis_endpoint() const {
+  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.Configuration.kinesis_endpoint)
+  return *kinesis_endpoint_;
+}
+inline void Configuration::set_kinesis_endpoint(const ::std::string& value) {
+  set_has_kinesis_endpoint();
+  if (kinesis_endpoint_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    kinesis_endpoint_ = new ::std::string;
+  }
+  kinesis_endpoint_->assign(value);
+  // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.kinesis_endpoint)
+}
+inline void Configuration::set_kinesis_endpoint(const char* value) {
+  set_has_kinesis_endpoint();
+  if (kinesis_endpoint_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    kinesis_endpoint_ = new ::std::string;
+  }
+  kinesis_endpoint_->assign(value);
+  // @@protoc_insertion_point(field_set_char:aws.kinesis.protobuf.Configuration.kinesis_endpoint)
+}
+inline void Configuration::set_kinesis_endpoint(const char* value, size_t size) {
+  set_has_kinesis_endpoint();
+  if (kinesis_endpoint_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    kinesis_endpoint_ = new ::std::string;
+  }
+  kinesis_endpoint_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:aws.kinesis.protobuf.Configuration.kinesis_endpoint)
+}
+inline ::std::string* Configuration::mutable_kinesis_endpoint() {
+  set_has_kinesis_endpoint();
+  if (kinesis_endpoint_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    kinesis_endpoint_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:aws.kinesis.protobuf.Configuration.kinesis_endpoint)
+  return kinesis_endpoint_;
+}
+inline ::std::string* Configuration::release_kinesis_endpoint() {
+  clear_has_kinesis_endpoint();
+  if (kinesis_endpoint_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = kinesis_endpoint_;
+    kinesis_endpoint_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void Configuration::set_allocated_kinesis_endpoint(::std::string* kinesis_endpoint) {
+  if (kinesis_endpoint_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete kinesis_endpoint_;
+  }
+  if (kinesis_endpoint) {
+    set_has_kinesis_endpoint();
+    kinesis_endpoint_ = kinesis_endpoint;
+  } else {
+    clear_has_kinesis_endpoint();
+    kinesis_endpoint_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:aws.kinesis.protobuf.Configuration.kinesis_endpoint)
+}
+
+// optional uint64 kinesis_port = 12 [default = 443];
+inline bool Configuration::has_kinesis_port() const {
+  return (_has_bits_[0] & 0x00001000u) != 0;
+}
+inline void Configuration::set_has_kinesis_port() {
+  _has_bits_[0] |= 0x00001000u;
+}
+inline void Configuration::clear_has_kinesis_port() {
+  _has_bits_[0] &= ~0x00001000u;
+}
+inline void Configuration::clear_kinesis_port() {
+  kinesis_port_ = GOOGLE_ULONGLONG(443);
+  clear_has_kinesis_port();
+}
+inline ::google::protobuf::uint64 Configuration::kinesis_port() const {
+  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.Configuration.kinesis_port)
+  return kinesis_port_;
+}
+inline void Configuration::set_kinesis_port(::google::protobuf::uint64 value) {
+  set_has_kinesis_port();
+  kinesis_port_ = value;
+  // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.kinesis_port)
+}
+
+// optional string log_level = 13 [default = "info"];
 inline bool Configuration::has_log_level() const {
-  return (_has_bits_[0] & 0x00000200u) != 0;
+  return (_has_bits_[0] & 0x00002000u) != 0;
 }
 inline void Configuration::set_has_log_level() {
-  _has_bits_[0] |= 0x00000200u;
+  _has_bits_[0] |= 0x00002000u;
 }
 inline void Configuration::clear_has_log_level() {
-  _has_bits_[0] &= ~0x00000200u;
+  _has_bits_[0] &= ~0x00002000u;
 }
 inline void Configuration::clear_log_level() {
   if (log_level_ != _default_log_level_) {
@@ -1077,15 +1260,15 @@ inline void Configuration::set_allocated_log_level(::std::string* log_level) {
   // @@protoc_insertion_point(field_set_allocated:aws.kinesis.protobuf.Configuration.log_level)
 }
 
-// optional uint64 max_connections = 10 [default = 24];
+// optional uint64 max_connections = 14 [default = 24];
 inline bool Configuration::has_max_connections() const {
-  return (_has_bits_[0] & 0x00000400u) != 0;
+  return (_has_bits_[0] & 0x00004000u) != 0;
 }
 inline void Configuration::set_has_max_connections() {
-  _has_bits_[0] |= 0x00000400u;
+  _has_bits_[0] |= 0x00004000u;
 }
 inline void Configuration::clear_has_max_connections() {
-  _has_bits_[0] &= ~0x00000400u;
+  _has_bits_[0] &= ~0x00004000u;
 }
 inline void Configuration::clear_max_connections() {
   max_connections_ = GOOGLE_ULONGLONG(24);
@@ -1101,15 +1284,15 @@ inline void Configuration::set_max_connections(::google::protobuf::uint64 value)
   // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.max_connections)
 }
 
-// optional string metrics_granularity = 11 [default = "shard"];
+// optional string metrics_granularity = 15 [default = "shard"];
 inline bool Configuration::has_metrics_granularity() const {
-  return (_has_bits_[0] & 0x00000800u) != 0;
+  return (_has_bits_[0] & 0x00008000u) != 0;
 }
 inline void Configuration::set_has_metrics_granularity() {
-  _has_bits_[0] |= 0x00000800u;
+  _has_bits_[0] |= 0x00008000u;
 }
 inline void Configuration::clear_has_metrics_granularity() {
-  _has_bits_[0] &= ~0x00000800u;
+  _has_bits_[0] &= ~0x00008000u;
 }
 inline void Configuration::clear_metrics_granularity() {
   if (metrics_granularity_ != _default_metrics_granularity_) {
@@ -1177,15 +1360,15 @@ inline void Configuration::set_allocated_metrics_granularity(::std::string* metr
   // @@protoc_insertion_point(field_set_allocated:aws.kinesis.protobuf.Configuration.metrics_granularity)
 }
 
-// optional string metrics_level = 12 [default = "detailed"];
+// optional string metrics_level = 16 [default = "detailed"];
 inline bool Configuration::has_metrics_level() const {
-  return (_has_bits_[0] & 0x00001000u) != 0;
+  return (_has_bits_[0] & 0x00010000u) != 0;
 }
 inline void Configuration::set_has_metrics_level() {
-  _has_bits_[0] |= 0x00001000u;
+  _has_bits_[0] |= 0x00010000u;
 }
 inline void Configuration::clear_has_metrics_level() {
-  _has_bits_[0] &= ~0x00001000u;
+  _has_bits_[0] &= ~0x00010000u;
 }
 inline void Configuration::clear_metrics_level() {
   if (metrics_level_ != _default_metrics_level_) {
@@ -1253,15 +1436,15 @@ inline void Configuration::set_allocated_metrics_level(::std::string* metrics_le
   // @@protoc_insertion_point(field_set_allocated:aws.kinesis.protobuf.Configuration.metrics_level)
 }
 
-// optional string metrics_namespace = 13 [default = "KinesisProducerLibrary"];
+// optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];
 inline bool Configuration::has_metrics_namespace() const {
-  return (_has_bits_[0] & 0x00002000u) != 0;
+  return (_has_bits_[0] & 0x00020000u) != 0;
 }
 inline void Configuration::set_has_metrics_namespace() {
-  _has_bits_[0] |= 0x00002000u;
+  _has_bits_[0] |= 0x00020000u;
 }
 inline void Configuration::clear_has_metrics_namespace() {
-  _has_bits_[0] &= ~0x00002000u;
+  _has_bits_[0] &= ~0x00020000u;
 }
 inline void Configuration::clear_metrics_namespace() {
   if (metrics_namespace_ != _default_metrics_namespace_) {
@@ -1329,15 +1512,15 @@ inline void Configuration::set_allocated_metrics_namespace(::std::string* metric
   // @@protoc_insertion_point(field_set_allocated:aws.kinesis.protobuf.Configuration.metrics_namespace)
 }
 
-// optional uint64 metrics_upload_delay = 14 [default = 60000];
+// optional uint64 metrics_upload_delay = 18 [default = 60000];
 inline bool Configuration::has_metrics_upload_delay() const {
-  return (_has_bits_[0] & 0x00004000u) != 0;
+  return (_has_bits_[0] & 0x00040000u) != 0;
 }
 inline void Configuration::set_has_metrics_upload_delay() {
-  _has_bits_[0] |= 0x00004000u;
+  _has_bits_[0] |= 0x00040000u;
 }
 inline void Configuration::clear_has_metrics_upload_delay() {
-  _has_bits_[0] &= ~0x00004000u;
+  _has_bits_[0] &= ~0x00040000u;
 }
 inline void Configuration::clear_metrics_upload_delay() {
   metrics_upload_delay_ = GOOGLE_ULONGLONG(60000);
@@ -1353,15 +1536,15 @@ inline void Configuration::set_metrics_upload_delay(::google::protobuf::uint64 v
   // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.metrics_upload_delay)
 }
 
-// optional uint64 min_connections = 15 [default = 1];
+// optional uint64 min_connections = 19 [default = 1];
 inline bool Configuration::has_min_connections() const {
-  return (_has_bits_[0] & 0x00008000u) != 0;
+  return (_has_bits_[0] & 0x00080000u) != 0;
 }
 inline void Configuration::set_has_min_connections() {
-  _has_bits_[0] |= 0x00008000u;
+  _has_bits_[0] |= 0x00080000u;
 }
 inline void Configuration::clear_has_min_connections() {
-  _has_bits_[0] &= ~0x00008000u;
+  _has_bits_[0] &= ~0x00080000u;
 }
 inline void Configuration::clear_min_connections() {
   min_connections_ = GOOGLE_ULONGLONG(1);
@@ -1377,39 +1560,15 @@ inline void Configuration::set_min_connections(::google::protobuf::uint64 value)
   // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.min_connections)
 }
 
-// optional uint64 port = 16 [default = 443];
-inline bool Configuration::has_port() const {
-  return (_has_bits_[0] & 0x00010000u) != 0;
-}
-inline void Configuration::set_has_port() {
-  _has_bits_[0] |= 0x00010000u;
-}
-inline void Configuration::clear_has_port() {
-  _has_bits_[0] &= ~0x00010000u;
-}
-inline void Configuration::clear_port() {
-  port_ = GOOGLE_ULONGLONG(443);
-  clear_has_port();
-}
-inline ::google::protobuf::uint64 Configuration::port() const {
-  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.Configuration.port)
-  return port_;
-}
-inline void Configuration::set_port(::google::protobuf::uint64 value) {
-  set_has_port();
-  port_ = value;
-  // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.port)
-}
-
-// optional uint64 rate_limit = 17 [default = 150];
+// optional uint64 rate_limit = 20 [default = 150];
 inline bool Configuration::has_rate_limit() const {
-  return (_has_bits_[0] & 0x00020000u) != 0;
+  return (_has_bits_[0] & 0x00100000u) != 0;
 }
 inline void Configuration::set_has_rate_limit() {
-  _has_bits_[0] |= 0x00020000u;
+  _has_bits_[0] |= 0x00100000u;
 }
 inline void Configuration::clear_has_rate_limit() {
-  _has_bits_[0] &= ~0x00020000u;
+  _has_bits_[0] &= ~0x00100000u;
 }
 inline void Configuration::clear_rate_limit() {
   rate_limit_ = GOOGLE_ULONGLONG(150);
@@ -1425,15 +1584,15 @@ inline void Configuration::set_rate_limit(::google::protobuf::uint64 value) {
   // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.rate_limit)
 }
 
-// optional uint64 record_max_buffered_time = 18 [default = 100];
+// optional uint64 record_max_buffered_time = 21 [default = 100];
 inline bool Configuration::has_record_max_buffered_time() const {
-  return (_has_bits_[0] & 0x00040000u) != 0;
+  return (_has_bits_[0] & 0x00200000u) != 0;
 }
 inline void Configuration::set_has_record_max_buffered_time() {
-  _has_bits_[0] |= 0x00040000u;
+  _has_bits_[0] |= 0x00200000u;
 }
 inline void Configuration::clear_has_record_max_buffered_time() {
-  _has_bits_[0] &= ~0x00040000u;
+  _has_bits_[0] &= ~0x00200000u;
 }
 inline void Configuration::clear_record_max_buffered_time() {
   record_max_buffered_time_ = GOOGLE_ULONGLONG(100);
@@ -1449,15 +1608,15 @@ inline void Configuration::set_record_max_buffered_time(::google::protobuf::uint
   // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.record_max_buffered_time)
 }
 
-// optional uint64 record_ttl = 19 [default = 30000];
+// optional uint64 record_ttl = 22 [default = 30000];
 inline bool Configuration::has_record_ttl() const {
-  return (_has_bits_[0] & 0x00080000u) != 0;
+  return (_has_bits_[0] & 0x00400000u) != 0;
 }
 inline void Configuration::set_has_record_ttl() {
-  _has_bits_[0] |= 0x00080000u;
+  _has_bits_[0] |= 0x00400000u;
 }
 inline void Configuration::clear_has_record_ttl() {
-  _has_bits_[0] &= ~0x00080000u;
+  _has_bits_[0] &= ~0x00400000u;
 }
 inline void Configuration::clear_record_ttl() {
   record_ttl_ = GOOGLE_ULONGLONG(30000);
@@ -1473,15 +1632,15 @@ inline void Configuration::set_record_ttl(::google::protobuf::uint64 value) {
   // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.record_ttl)
 }
 
-// optional string region = 20 [default = ""];
+// optional string region = 23 [default = ""];
 inline bool Configuration::has_region() const {
-  return (_has_bits_[0] & 0x00100000u) != 0;
+  return (_has_bits_[0] & 0x00800000u) != 0;
 }
 inline void Configuration::set_has_region() {
-  _has_bits_[0] |= 0x00100000u;
+  _has_bits_[0] |= 0x00800000u;
 }
 inline void Configuration::clear_has_region() {
-  _has_bits_[0] &= ~0x00100000u;
+  _has_bits_[0] &= ~0x00800000u;
 }
 inline void Configuration::clear_region() {
   if (region_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
@@ -1549,15 +1708,15 @@ inline void Configuration::set_allocated_region(::std::string* region) {
   // @@protoc_insertion_point(field_set_allocated:aws.kinesis.protobuf.Configuration.region)
 }
 
-// optional uint64 request_timeout = 21 [default = 6000];
+// optional uint64 request_timeout = 24 [default = 6000];
 inline bool Configuration::has_request_timeout() const {
-  return (_has_bits_[0] & 0x00200000u) != 0;
+  return (_has_bits_[0] & 0x01000000u) != 0;
 }
 inline void Configuration::set_has_request_timeout() {
-  _has_bits_[0] |= 0x00200000u;
+  _has_bits_[0] |= 0x01000000u;
 }
 inline void Configuration::clear_has_request_timeout() {
-  _has_bits_[0] &= ~0x00200000u;
+  _has_bits_[0] &= ~0x01000000u;
 }
 inline void Configuration::clear_request_timeout() {
   request_timeout_ = GOOGLE_ULONGLONG(6000);
@@ -1573,15 +1732,15 @@ inline void Configuration::set_request_timeout(::google::protobuf::uint64 value)
   // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.request_timeout)
 }
 
-// optional bool verify_certificate = 22 [default = true];
+// optional bool verify_certificate = 25 [default = true];
 inline bool Configuration::has_verify_certificate() const {
-  return (_has_bits_[0] & 0x00400000u) != 0;
+  return (_has_bits_[0] & 0x02000000u) != 0;
 }
 inline void Configuration::set_has_verify_certificate() {
-  _has_bits_[0] |= 0x00400000u;
+  _has_bits_[0] |= 0x02000000u;
 }
 inline void Configuration::clear_has_verify_certificate() {
-  _has_bits_[0] &= ~0x00400000u;
+  _has_bits_[0] &= ~0x02000000u;
 }
 inline void Configuration::clear_verify_certificate() {
   verify_certificate_ = true;

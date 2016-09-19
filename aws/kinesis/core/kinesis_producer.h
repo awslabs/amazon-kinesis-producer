@@ -14,8 +14,11 @@
 #ifndef AWS_KINESIS_CORE_KINESIS_PRODUCER_H_
 #define AWS_KINESIS_CORE_KINESIS_PRODUCER_H_
 
+#include <aws/auth/mutable_static_creds_provider.h>
+#include <aws/kinesis/KinesisClient.h>
 #include <aws/kinesis/core/pipeline.h>
 #include <aws/metrics/metrics_manager.h>
+#include <aws/monitoring/CloudWatchClient.h>
 
 namespace aws {
 namespace kinesis {
@@ -29,33 +32,25 @@ class KinesisProducer : boost::noncopyable {
       std::shared_ptr<IpcManager> ipc_manager,
       std::string region,
       std::shared_ptr<Configuration>& config,
-      std::shared_ptr<aws::auth::AwsCredentialsProvider> creds_provider,
-      std::shared_ptr<aws::auth::AwsCredentialsProvider> metrics_creds_provider,
+      std::shared_ptr<aws::auth::MutableStaticCredentialsProvider>
+          kinesis_creds_provider,
+      std::shared_ptr<aws::auth::MutableStaticCredentialsProvider>
+          cw_creds_provider,
       std::shared_ptr<aws::utils::Executor> executor,
-      std::shared_ptr<aws::http::SocketFactory> socket_factory)
+      std::string ca_path)
       : region_(std::move(region)),
         config_(std::move(config)),
-        creds_chain_(
-            aws::auth::AwsCredentialsProviderChain::create(
-                {creds_provider})),
-        // If metrics_creds_provider points to the same instance as
-        // creds_provider, then the instances of AwsCredentialsProviderChain
-        // should be the same too, this way when we get an update for
-        // for creds_chain_, metrics_creds_chain_ is updated as well.
-        metrics_creds_chain_(
-            metrics_creds_provider == creds_provider
-                ? creds_chain_
-                : aws::auth::AwsCredentialsProviderChain::create(
-                      {metrics_creds_provider})),
+        kinesis_creds_provider_(std::move(kinesis_creds_provider)),
+        cw_creds_provider_(std::move(cw_creds_provider)),
         executor_(std::move(executor)),
-        socket_factory_(std::move(socket_factory)),
         ipc_manager_(std::move(ipc_manager)),
         pipelines_([this](auto& stream) {
           return this->create_pipeline(stream);
         }),
         shutdown_(false) {
+    create_kinesis_client(ca_path);
+    create_cw_client(ca_path);
     create_metrics_manager();
-    create_http_client();
     report_outstanding();
     message_drainer_ = aws::thread([this] { this->drain_messages(); });
   }
@@ -76,7 +71,9 @@ class KinesisProducer : boost::noncopyable {
 
   void create_metrics_manager();
 
-  void create_http_client();
+  void create_kinesis_client(const std::string& ca_path);
+
+  void create_cw_client(const std::string& ca_path);
 
   Pipeline* create_pipeline(const std::string& stream);
 
@@ -98,12 +95,14 @@ class KinesisProducer : boost::noncopyable {
   std::string region_;
 
   std::shared_ptr<Configuration> config_;
-  std::shared_ptr<aws::auth::AwsCredentialsProviderChain> creds_chain_;
-  std::shared_ptr<aws::auth::AwsCredentialsProviderChain> metrics_creds_chain_;
+  std::shared_ptr<aws::auth::MutableStaticCredentialsProvider>
+      kinesis_creds_provider_;
+  std::shared_ptr<aws::auth::MutableStaticCredentialsProvider>
+      cw_creds_provider_;
+  std::shared_ptr<Aws::Kinesis::KinesisClient> kinesis_client_;
+  std::shared_ptr<Aws::CloudWatch::CloudWatchClient> cw_client_;
   std::shared_ptr<aws::utils::Executor> executor_;
-  std::shared_ptr<aws::http::SocketFactory> socket_factory_;
 
-  std::shared_ptr<aws::http::HttpClient> http_client_;
   std::shared_ptr<IpcManager> ipc_manager_;
   std::shared_ptr<aws::metrics::MetricsManager> metrics_manager_;
 

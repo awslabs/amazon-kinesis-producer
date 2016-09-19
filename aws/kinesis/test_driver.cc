@@ -21,8 +21,8 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-#include <aws/auth/credentials.h>
-#include <aws/http/io_service_socket.h>
+#include <aws/auth/mutable_static_creds_provider.h>
+#include <aws/core/auth/AWSCredentialsProvider.h>
 #include <aws/kinesis/core/configuration.h>
 #include <aws/kinesis/core/ipc_manager.h>
 #include <aws/kinesis/core/kinesis_producer.h>
@@ -58,6 +58,7 @@ int main(int argc, char** argv) {
   auto config = std::make_shared<aws::kinesis::core::Configuration>();
   config->record_max_buffered_time(1500);
   config->record_ttl(0xFFFFFFF);
+  //config->kinesis_endpoint("localhost");
   //config->record_max_buffered_time(30000);
   //config->aggregation_max_size(1024);
   //config->metrics_granularity("stream");
@@ -82,17 +83,11 @@ int main(int argc, char** argv) {
   auto ipc = std::make_shared<aws::kinesis::core::IpcManager>(ipc_channel);
 
   auto executor = std::make_shared<aws::utils::IoServiceExecutor>(8);
-  auto socket_factory = std::make_shared<aws::http::IoServiceSocketFactory>();
-  auto ec2_metadata = std::make_shared<aws::http::Ec2Metadata>(executor,
-                                                               socket_factory);
-  auto provider =
-      std::make_shared<aws::auth::DefaultAwsCredentialsProviderChain>(
-          executor,
-          ec2_metadata);
 
-  aws::utils::sleep_for(std::chrono::milliseconds(250));
-  // Make sure we have credentials
-  provider->get_credentials();
+  auto creds_provider =
+      std::make_shared<aws::auth::MutableStaticCredentialsProvider>(
+          std::getenv("AWS_ACCESS_KEY_ID"),
+          std::getenv("AWS_SECRET_ACCESS_KEY"));
 
   auto ipc_channel2 =
       std::make_shared<aws::kinesis::core::detail::IpcChannel>(
@@ -105,10 +100,10 @@ int main(int argc, char** argv) {
       ipc2,
       region,
       config,
-      provider,
-      provider,
+      creds_provider,
+      creds_provider,
       executor,
-      socket_factory);
+      ".");
       /*std::make_shared<aws::auth::BasicAwsCredentialsProvider>(
           "AKIAAAAAAAAAAAAAAAAA",
           "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));*/

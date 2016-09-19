@@ -21,8 +21,9 @@
 #include <aws/kinesis/core/configuration.h>
 #include <aws/kinesis/core/ipc_manager.h>
 #include <aws/kinesis/core/limiter.h>
+#include <aws/kinesis/core/put_records_context.h>
 #include <aws/kinesis/core/retrier.h>
-#include <aws/auth/sigv4.h>
+#include <aws/kinesis/KinesisClient.h>
 #include <aws/metrics/metrics_manager.h>
 
 namespace aws {
@@ -36,31 +37,24 @@ class Pipeline : boost::noncopyable {
 
   Pipeline(
       std::string region,
-      const std::string& stream,
+      std::string stream,
       std::shared_ptr<Configuration> config,
       std::shared_ptr<aws::utils::Executor> executor,
-      std::shared_ptr<aws::http::HttpClient> http_client,
-      const std::shared_ptr<aws::auth::AwsCredentialsProvider>& creds_provider,
+      std::shared_ptr<Aws::Kinesis::KinesisClient> kinesis_client,
       std::shared_ptr<aws::metrics::MetricsManager> metrics_manager,
       Retrier::UserRecordCallback finish_user_record_cb)
-      : region_(std::move(region)),
+      : stream_(std::move(stream)),
+        region_(std::move(region)),
         config_(std::move(config)),
         executor_(std::move(executor)),
-        http_client_(std::move(http_client)),
+        kinesis_client_(std::move(kinesis_client)),
         metrics_manager_(std::move(metrics_manager)),
         finish_user_record_cb_(std::move(finish_user_record_cb)),
-        sig_v4_ctx_(
-            std::make_shared<aws::auth::SigV4Context>(
-                region_,
-                "kinesis",
-                creds_provider)),
         shard_map_(
             std::make_shared<ShardMap>(
                 executor_,
-                http_client_,
-                creds_provider,
-                region_,
-                stream,
+                kinesis_client_,
+                stream_,
                 metrics_manager_)),
         aggregator_(
             std::make_shared<Aggregator>(
@@ -88,14 +82,14 @@ class Pipeline : boost::noncopyable {
                 [this](auto& ur) { this->aggregator_put(ur); },
                 [this](TimePoint tp) { shard_map_->invalidate(tp); },
                 [this](auto& code, auto& msg) {
-                    limiter_->add_error(code, msg);
+                  limiter_->add_error(code, msg);
                 },
                 metrics_manager_)),
         user_records_rcvd_metric_(
             metrics_manager_
                 ->finder()
                 .set_name(aws::metrics::constants::Names::UserRecordsReceived)
-                .set_stream(stream)
+                .set_stream(stream_)
                 .find()),
         outstanding_user_records_(0) {}
 
@@ -141,24 +135,30 @@ class Pipeline : boost::noncopyable {
   }
 
   void send_put_records_request(const std::shared_ptr<PutRecordsRequest>& prr) {
-    auto request = aws::http::create_kinesis_request(region_,
-                                                     "PutRecords",
-                                                     prr->serialize());
-    try {
-      aws::auth::sign_v4(request, *sig_v4_ctx_);
-      http_client_->put(
-          request,
-          [this](auto& result) { this->retrier_put(result); },
-          prr,
-          prr->deadline(),
-          prr->expiration());
-    } catch (const std::exception& e) {
-      retrier_->put(std::make_shared<aws::http::HttpResult>(e.what(), prr));
-    }
-  }
-
-  void retrier_put(const std::shared_ptr<aws::http::HttpResult>& result) {
-    executor_->submit([=] { retrier_->put(result); });
+    auto prc = std::make_shared<PutRecordsContext>(stream_, prr->items());
+    prc->set_start(std::chrono::steady_clock::now());
+    kinesis_client_->PutRecordsAsync(
+        prc->to_sdk_request(),
+        [this](auto /*client*/,
+               auto& /*sdk_req*/,
+               auto& outcome,
+               auto sdk_ctx) {
+          auto ctx = std::dynamic_pointer_cast<PutRecordsContext>(
+              std::const_pointer_cast<Aws::Client::AsyncCallerContext>(
+                  sdk_ctx));
+          ctx->set_end(std::chrono::steady_clock::now());
+          ctx->set_outcome(outcome);
+          // At the time of writing, the SDK can spawn a large number of
+          // threads in order to achieve request parallelism. These threads will
+          // later put items into the IPC manager after they finish the logic in
+          // the retrier. This can overwhelm the queue in the IPC manager, which
+          // is guarded by a no-backoff spin lock and never intended for
+          // use under high contention. To workaround this, we sumbit a task
+          // into the pipeline's executor instead. This limits the contention on
+          // the IPC manager's queue to the size of the executor's thread pool.
+          this->executor_->submit([=] { this->retrier_->put(ctx); });
+        },
+        prc);
   }
 
   void retrier_put_kr(const std::shared_ptr<KinesisRecord>& kr) {
@@ -169,14 +169,14 @@ class Pipeline : boost::noncopyable {
     });
   }
 
+  std::string stream_;
   std::string region_;
   std::shared_ptr<Configuration> config_;
   std::shared_ptr<aws::utils::Executor> executor_;
-  std::shared_ptr<aws::http::HttpClient> http_client_;
+  std::shared_ptr<Aws::Kinesis::KinesisClient> kinesis_client_;
   std::shared_ptr<aws::metrics::MetricsManager> metrics_manager_;
   Retrier::UserRecordCallback finish_user_record_cb_;
 
-  std::shared_ptr<aws::auth::SigV4Context> sig_v4_ctx_;
   std::shared_ptr<ShardMap> shard_map_;
   std::shared_ptr<Aggregator> aggregator_;
   std::shared_ptr<Limiter> limiter_;

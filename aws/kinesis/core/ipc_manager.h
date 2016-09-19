@@ -16,6 +16,7 @@
 
 #include <array>
 #include <thread>
+#include <cstring>
 
 #include <boost/noncopyable.hpp>
 #include <boost/asio.hpp>
@@ -43,18 +44,48 @@ template <typename StreamDescriptor,
           typename FileManager>
 class IpcChannelImpl : public boost::noncopyable {
  public:
+  IpcChannelImpl(std::string& in_file,
+                 std::string& out_file,
+                 bool create_pipes = true)
+      : IpcChannelImpl(in_file.c_str(), out_file.c_str(), create_pipes)
+  {}
+
+
   IpcChannelImpl(const char* in_file,
                  const char* out_file,
-                 bool create_pipes = true)
-      : in_file_(in_file),
-        out_file_(out_file),
-        create_pipes_(create_pipes),
-        in_handle_(0),
-        out_handle_(0) {}
+                 bool create_pipes = true) :
+      create_pipes_(create_pipes),
+      in_handle_(0),
+      out_handle_(0)
+  {
+      if (in_file) {
+          size_t in_file_len = std::strlen(in_file) + 1;
+          in_file_ = new char[in_file_len];
+          std::strncpy(in_file_, in_file, in_file_len);
+      } else {
+          in_file_ = nullptr;
+      }
+
+      if (out_file) {
+          size_t out_file_len = std::strlen(out_file) + 1;
+          out_file_ = new char[out_file_len];
+          std::strncpy(out_file_, out_file, out_file_len);
+      } else {
+          out_file_ = nullptr;
+      }
+  }
+
+
 
   ~IpcChannelImpl() {
     close_write_channel();
-    close_read_channel();
+    close_read_channel();    
+    if (in_file_) {
+        delete [] in_file_;
+    }
+    if (out_file_) {
+        delete [] out_file_;
+    }
   }
 
   int64_t read(void* buf, size_t count) {
@@ -102,8 +133,8 @@ class IpcChannelImpl : public boost::noncopyable {
   }
 
  private:
-  const char* in_file_;
-  const char* out_file_;
+  char* in_file_;
+  char* out_file_;
   bool create_pipes_;
   NativeHandle in_handle_;
   NativeHandle out_handle_;
