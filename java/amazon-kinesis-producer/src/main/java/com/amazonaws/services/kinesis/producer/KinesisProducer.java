@@ -123,6 +123,7 @@ public class KinesisProducer {
     private volatile Daemon child;
     private volatile long lastChild = System.nanoTime();
     private volatile boolean destroyed = false;
+    private ProcessFailureBehavior processFailureBehavior = ProcessFailureBehavior.AutoRestart;
 
     private class MessageHandler implements Daemon.MessageHandler {
         @Override
@@ -159,13 +160,18 @@ public class KinesisProducer {
             }
             futures.clear();
 
-            // Only restart child if it's not an irrecoverable error, and if
-            // there has been some time (3 seconds) between the last child
-            // creation. If the child process crashes almost immediately, we're
-            // going to abort to avoid going into a loop.
-            if (!(t instanceof IrrecoverableError) && System.nanoTime() - lastChild > 3e9) {
-                lastChild = System.nanoTime();
+            if (processFailureBehavior == ProcessFailureBehavior.AutoRestart && !destroyed) {
+                log.info("Restarting native producer process.");
                 child = new Daemon(pathToExecutable, new MessageHandler(), pathToTmpDir, config, env);
+            } else {
+                // Only restart child if it's not an irrecoverable error, and if
+                // there has been some time (3 seconds) between the last child
+                // creation. If the child process crashes almost immediately, we're
+                // going to abort to avoid going into a loop.
+                if (!(t instanceof IrrecoverableError) && System.nanoTime() - lastChild > 3e9) {
+                    lastChild = System.nanoTime();
+                    child = new Daemon(pathToExecutable, new MessageHandler(), pathToTmpDir, config, env);
+                }
             }
         }
   
@@ -238,6 +244,7 @@ public class KinesisProducer {
         env = new ImmutableMap.Builder<String, String>()
                 .put("LD_LIBRARY_PATH", pathToLibDir)
                 .put("DYLD_LIBRARY_PATH", pathToLibDir)
+                .put("CA_DIR", pathToTmpDir)
                 .build();
         
         child = new Daemon(pathToExecutable, new MessageHandler(), pathToTmpDir, config, env);
@@ -819,6 +826,17 @@ public class KinesisProducer {
                             IOUtils.write(bin, fos);
                         }
                         extracted.setExecutable(true);
+                    }
+                    
+                    String certFileName = "b204d74a.0";
+                    String certFilePath = Paths.get(pathToTmpDir, certFileName).toString();
+                    if (!new File(certFilePath).exists()) {
+                        try (FileOutputStream fos = new FileOutputStream(certFilePath);
+                                FileLock lock = fos.getChannel().lock()) {
+                            byte[] certs = IOUtils.toByteArray(
+                                    this.getClass().getClassLoader().getResourceAsStream("cacerts/" + certFileName));
+                            IOUtils.write(certs, fos);
+                        }
                     }
      
                     pathToLibDir = pathToTmpDir;

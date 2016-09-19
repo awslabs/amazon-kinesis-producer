@@ -23,6 +23,9 @@ if [ $1 == "clang" ] || [ $(uname) == 'Darwin' ]; then
     export DYLD_LIBRARY_PATH="$INSTALL_DIR/lib:$DYLD_LIBRARY_PATH"
   fi
 else
+  export CC="gcc"
+  export CXX="g++"
+  export CXXFLAGS="-I$INSTALL_DIR/include -O3"
   export LDFLAGS="-L$INSTALL_DIR/lib -L/usr/local/lib64/"
   export LD_LIBRARY_PATH="$INSTALL_DIR/lib:/usr/local/lib:/usr/local/lib64:$LD_LIBRARY_PATH"
 fi
@@ -35,7 +38,8 @@ fi
 # Need to unset LD_LIBRARY_PATH for curl because the OpenSSL we build doesn't
 # have MD4, which curl tries to use.
 function _curl {
-  (unset LD_LIBRARY_PATH; curl -L $@)
+  #(unset LD_LIBRARY_PATH; curl -L $@)
+  curl -L $@
 }
 
 cd $INSTALL_DIR
@@ -68,7 +72,8 @@ if [ ! -d "openssl-1.0.1m" ]; then
 
   cd openssl-1.0.1m
 
-  OPTS="threads no-shared no-idea no-camellia no-seed no-bf no-cast no-rc2 no-rc4 no-rc5 no-md2 no-md4 no-ripemd no-mdc2 no-ssl2 no-ssl3 no-krb5 no-jpake no-capieng"
+  # Have to leave MD4 enabled because curl expects it
+  OPTS="threads no-shared no-idea no-camellia no-seed no-bf no-cast no-rc2 no-rc4 no-rc5 no-md2 no-ripemd no-mdc2 no-ssl2 no-ssl3 no-krb5 no-jpake no-capieng"
 
   if [[ $(uname) == 'Darwin' ]]; then
     ./Configure darwin64-x86_64-cc $OPTS --prefix=$INSTALL_DIR
@@ -116,6 +121,22 @@ if [ ! -d "boost_1_58_0" ]; then
   cd ..
 fi
 
+# zlib
+if [ ! -d "zlib-1.2.8" ]; then
+  _curl "$LIB_MIRROR/zlib-1.2.8.tar.gz" > zlib.tgz
+  tar xf zlib.tgz
+  rm zlib.tgz
+
+  cd zlib-1.2.8
+
+  ./configure --static --prefix="$INSTALL_DIR"
+  make -j
+  make install
+
+  cd ..
+fi
+
+
 # Google Protocol Buffers
 if [ ! -d "protobuf-2.6.1" ]; then
   _curl "$LIB_MIRROR/protobuf-2.6.1.tar.gz" > protobuf.tgz
@@ -129,6 +150,56 @@ if [ ! -d "protobuf-2.6.1" ]; then
   make install
 
   cd ..
+fi
+
+
+# libcurl
+if [ ! -d "curl-7.47.0" ]; then
+  _curl "$LIB_MIRROR/curl-7.47.0.tar.gz" > curl.tgz
+  tar xf curl.tgz
+  rm curl.tgz
+
+  cd curl-7.47.0
+
+  conf --disable-shared --disable-ldap --disable-ldaps \
+    --enable-threaded-resolver --disable-debug --without-libssh2
+  make -j
+  make install
+
+  cd ..
+fi
+
+# AWS C++ SDK
+if [ ! -d "aws-sdk-cpp" ]; then
+  git clone https://github.com/awslabs/aws-sdk-cpp.git aws-sdk-cpp
+  pushd aws-sdk-cpp
+  git checkout 1.0.5
+  popd
+
+  rm -rf aws-sdk-cpp-build
+  mkdir aws-sdk-cpp-build
+
+  cd aws-sdk-cpp-build
+
+  cmake \
+    -DBUILD_ONLY="kinesis;monitoring" \
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+    -DSTATIC_LINKING=1 \
+    -DCMAKE_PREFIX_PATH="$INSTALL_DIR" \
+    -DCMAKE_C_COMPILER="$CC" \
+    -DCMAKE_CXX_COMPILER="$CXX" \
+    -DCMAKE_CXX_FLAGS="$CXXFLAGS" \
+    -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR" \
+    -DENABLE_TESTING="OFF" \
+    ../aws-sdk-cpp
+  make -j 4
+  make install
+
+  cd ..
+
+  for f in $(find $INSTALL_DIR -name "libaws-cpp-sdk*.a"); do
+    mv $f "$INSTALL_DIR/lib/"
+  done
 fi
 
 cd ..

@@ -13,30 +13,38 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <aws/utils/logging.h>
-
+#include <aws/core/utils/json/JsonSerializer.h>
 #include <aws/kinesis/core/retrier.h>
-
 #include <aws/kinesis/core/test/test_utils.h>
+#include <aws/utils/logging.h>
 
 namespace {
 
 using TimePoint = std::chrono::steady_clock::time_point;
 
-auto make_result(
-    std::shared_ptr<aws::kinesis::core::PutRecordsRequest> prr,
-    std::unique_ptr<aws::http::HttpResponse>&& response,
-    TimePoint start = std::chrono::steady_clock::now(),
-    TimePoint end = std::chrono::steady_clock::now()) {
-  return std::make_shared<aws::http::HttpResult>(
-      std::move(response),
-      std::move(prr),
-      start,
-      end);
+auto success_outcome(std::string json) {
+  Aws::Utils::Json::JsonValue j(json);
+  Aws::Http::HeaderValueCollection h;
+  Aws::AmazonWebServiceResult<Aws::Utils::Json::JsonValue> awsr(j, h);
+  Aws::Kinesis::Model::PutRecordsResult r(awsr);
+  Aws::Kinesis::Model::PutRecordsOutcome o(r);
+  return o;
 }
 
-auto make_put_records_request(size_t num_kr, size_t num_ur_per_kr) {
-  auto prr = std::make_shared<aws::kinesis::core::PutRecordsRequest>();
+Aws::Kinesis::Model::PutRecordsOutcome
+error_outcome(std::string name, std::string msg) {
+  return Aws::Kinesis::Model::PutRecordsOutcome(
+      Aws::Client::AWSError<Aws::Kinesis::KinesisErrors>(
+          Aws::Kinesis::KinesisErrors::UNKNOWN,
+          name,
+          msg,
+          false));
+}
+
+auto make_prr_ctx(size_t num_kr,
+                  size_t num_ur_per_kr,
+                  Aws::Kinesis::Model::PutRecordsOutcome outcome) {
+  std::vector<std::shared_ptr<aws::kinesis::core::KinesisRecord>> krs;
   for (size_t i = 0; i < num_kr; i++) {
     auto kr = std::make_shared<aws::kinesis::core::KinesisRecord>();
     for (size_t j = 0; j < num_ur_per_kr; j++) {
@@ -44,9 +52,13 @@ auto make_put_records_request(size_t num_kr, size_t num_ur_per_kr) {
       ur->predicted_shard(i);
       kr->add(ur);
     }
-    prr->add(kr);
+    krs.push_back(kr);
   }
-  return prr;
+  auto ctx = std::make_shared<aws::kinesis::core::PutRecordsContext>(
+      "myStream",
+      krs);
+  ctx->set_outcome(outcome);
+  return ctx;
 }
 
 } //namespace
@@ -55,30 +67,32 @@ BOOST_AUTO_TEST_SUITE(Retrier)
 
 // Case where there are no errors
 BOOST_AUTO_TEST_CASE(Success) {
-  auto response = std::make_unique<aws::http::HttpResponse>(200);
-  response->set_data(R"(
-  {
-    "FailedRecordCount": 0,
-    "Records":[
-      {
-        "SequenceNumber":"1234",
-        "ShardId":"shardId-000000000000"
-      },
-      {
-        "SequenceNumber":"4567",
-        "ShardId":"shardId-000000000001"
-      }
-    ]
-  }
-  )");
-
   auto num_ur_per_kr = 10;
   auto num_kr = 2;
-  auto prr = make_put_records_request(num_kr, num_ur_per_kr);
+
+  auto ctx = make_prr_ctx(
+      num_kr,
+      num_ur_per_kr,
+      success_outcome(R"(
+      {
+        "FailedRecordCount": 0,
+        "Records":[
+          {
+            "SequenceNumber":"1234",
+            "ShardId":"shardId-000000000000"
+          },
+          {
+            "SequenceNumber":"4567",
+            "ShardId":"shardId-000000000001"
+          }
+        ]
+      }
+      )"));
 
   auto start = std::chrono::steady_clock::now();
   auto end = start + std::chrono::milliseconds(5);
-  auto result = make_result(prr, std::move(response), start, end);
+  ctx->set_start(start);
+  ctx->set_end(end);
 
   size_t count = 0;
   aws::kinesis::core::Retrier retrier(
@@ -105,17 +119,18 @@ BOOST_AUTO_TEST_CASE(Success) {
         BOOST_FAIL("Shard map invalidate should not be called");
       });
 
-  retrier.put(result);
+  retrier.put(ctx);
 
   BOOST_CHECK_EQUAL(count, num_kr * num_ur_per_kr);
 }
 
-BOOST_AUTO_TEST_CASE(Code500) {
-  auto response = std::make_unique<aws::http::HttpResponse>(500);
-  auto prr = make_put_records_request(1, 10);
+BOOST_AUTO_TEST_CASE(RequestFailure) {
+  auto ctx = make_prr_ctx(1, 10, error_outcome("code", "msg"));
+
   auto start = std::chrono::steady_clock::now();
   auto end = start + std::chrono::milliseconds(5);
-  auto result = make_result(prr, std::move(response), start, end);
+  ctx->set_start(start);
+  ctx->set_end(end);
 
   size_t count = 0;
   aws::kinesis::core::Retrier retrier(
@@ -130,88 +145,58 @@ BOOST_AUTO_TEST_CASE(Code500) {
         BOOST_CHECK(attempts[0].start() == start);
         BOOST_CHECK(attempts[0].end() == start + std::chrono::milliseconds(5));
         BOOST_CHECK(!(bool) attempts[0]);
-        BOOST_CHECK_EQUAL(attempts[0].error_code(), "500");
-        BOOST_CHECK_EQUAL(attempts[0].error_message(), "");
+        BOOST_CHECK_EQUAL(attempts[0].error_code(), "code");
+        BOOST_CHECK_EQUAL(attempts[0].error_message(), "msg");
       },
       [&](auto) {
         BOOST_FAIL("Shard map invalidate should not be called");
       });
 
-  retrier.put(result);
+  retrier.put(ctx);
 
   BOOST_CHECK_EQUAL(count, 10);
 }
 
-BOOST_AUTO_TEST_CASE(Code400) {
-  auto err_msg = "forbidden";
-  auto response = std::make_unique<aws::http::HttpResponse>(403);
-  response->set_data(err_msg);
-
-  auto prr = make_put_records_request(1, 10);
-  auto result = make_result(prr, std::move(response));
-
-  size_t count = 0;
-  aws::kinesis::core::Retrier retrier(
-      std::make_shared<aws::kinesis::core::Configuration>(),
-      [&](auto& ur) {
-        count++;
-        auto& attempts = ur->attempts();
-        BOOST_CHECK_EQUAL(attempts.size(), 1);
-        BOOST_CHECK(!(bool) attempts[0]);
-        BOOST_CHECK_EQUAL(attempts[0].error_code(), "403");
-        BOOST_CHECK_EQUAL(attempts[0].error_message(), err_msg);
-      },
-      [&](auto& ur) {
-        BOOST_FAIL("Retry should not be called");
-      },
-      [&](auto) {
-        BOOST_FAIL("Shard map invalidate should not be called");
-      });
-
-  retrier.put(result);
-
-  BOOST_CHECK_EQUAL(count, 10);
-}
 
 // A mix of success and failures in a PutRecordsResult.
 BOOST_AUTO_TEST_CASE(Partial) {
-  auto response = std::make_unique<aws::http::HttpResponse>(200);
-  response->set_data(R"(
-  {
-    "FailedRecordCount": 4,
-    "Records":[
-      {
-        "SequenceNumber":"1234",
-        "ShardId":"shardId-000000000000"
-      },
-      {
-        "SequenceNumber":"4567",
-        "ShardId":"shardId-000000000001"
-      },
-      {
-        "ErrorCode":"xx",
-        "ErrorMessage":"yy"
-      },
-      {
-        "ErrorCode":"InternalFailure",
-        "ErrorMessage":"Internal service failure."
-      },
-      {
-        "ErrorCode":"ServiceUnavailable",
-        "ErrorMessage":""
-      },
-      {
-        "ErrorCode":"ProvisionedThroughputExceededException",
-        "ErrorMessage":"..."
-      }
-    ]
-  }
-  )");
-
   auto num_ur_per_kr = 10;
   auto num_kr = 6;
-  auto prr = make_put_records_request(num_kr, num_ur_per_kr);
-  auto result = make_result(prr, std::move(response));
+
+  auto ctx = make_prr_ctx(
+      num_kr,
+      num_ur_per_kr,
+      success_outcome(R"(
+      {
+        "FailedRecordCount": 4,
+        "Records":[
+          {
+            "SequenceNumber":"1234",
+            "ShardId":"shardId-000000000000"
+          },
+          {
+            "SequenceNumber":"4567",
+            "ShardId":"shardId-000000000001"
+          },
+          {
+            "ErrorCode":"xx",
+            "ErrorMessage":"yy"
+          },
+          {
+            "ErrorCode":"InternalFailure",
+            "ErrorMessage":"Internal service failure."
+          },
+          {
+            "ErrorCode":"ServiceUnavailable",
+            "ErrorMessage":""
+          },
+          {
+            "ErrorCode":"ProvisionedThroughputExceededException",
+            "ErrorMessage":"..."
+          }
+        ]
+      }
+      )"));
 
   size_t count = 0;
   aws::kinesis::core::Retrier retrier(
@@ -261,27 +246,26 @@ BOOST_AUTO_TEST_CASE(Partial) {
         BOOST_FAIL("Shard map invalidate should not be called");
       });
 
-  retrier.put(result);
+  retrier.put(ctx);
 
   BOOST_CHECK_EQUAL(count, num_kr * num_ur_per_kr);
 }
 
 BOOST_AUTO_TEST_CASE(FailIfThrottled) {
-  auto response = std::make_unique<aws::http::HttpResponse>(200);
-  response->set_data(R"(
-  {
-    "FailedRecordCount": 1,
-    "Records":[
+  auto ctx = make_prr_ctx(
+      1,
+      10,
+      success_outcome(R"(
       {
-        "ErrorCode":"ProvisionedThroughputExceededException",
-        "ErrorMessage":"..."
+        "FailedRecordCount": 1,
+        "Records":[
+          {
+            "ErrorCode":"ProvisionedThroughputExceededException",
+            "ErrorMessage":"..."
+          }
+        ]
       }
-    ]
-  }
-  )");
-
-  auto prr = make_put_records_request(1, 10);
-  auto result = make_result(prr, std::move(response));
+      )"));
 
   auto config = std::make_shared<aws::kinesis::core::Configuration>();
   config->fail_if_throttled(true);
@@ -305,56 +289,26 @@ BOOST_AUTO_TEST_CASE(FailIfThrottled) {
         BOOST_FAIL("Shard map invalidate should not be called");
       });
 
-  retrier.put(result);
-
-  BOOST_CHECK_EQUAL(count, 10);
-}
-
-BOOST_AUTO_TEST_CASE(Exception) {
-  auto result =
-    std::make_shared<aws::http::HttpResult>(
-        "some error",
-         make_put_records_request(1, 10));
-
-  size_t count = 0;
-  aws::kinesis::core::Retrier retrier(
-      std::make_shared<aws::kinesis::core::Configuration>(),
-      [&](auto& ur) {
-        BOOST_FAIL("Finish should not be called");
-      },
-      [&](auto& ur) {
-        count++;
-        auto& attempts = ur->attempts();
-        BOOST_CHECK_EQUAL(attempts.size(), 1);
-        BOOST_CHECK(!(bool) attempts[0]);
-        BOOST_CHECK_EQUAL(attempts[0].error_code(), "Exception");
-        BOOST_CHECK_EQUAL(attempts[0].error_message(), "some error");
-      },
-      [&](auto) {
-        BOOST_FAIL("Shard map invalidate should not be called");
-      });
-
-  retrier.put(result);
+  retrier.put(ctx);
 
   BOOST_CHECK_EQUAL(count, 10);
 }
 
 BOOST_AUTO_TEST_CASE(WrongShard) {
-  auto response = std::make_unique<aws::http::HttpResponse>(200);
-  response->set_data(R"(
-  {
-    "FailedRecordCount": 0,
-    "Records":[
+  auto ctx = make_prr_ctx(
+      1,
+      1,
+      success_outcome(R"(
       {
-        "SequenceNumber":"1234",
-        "ShardId":"shardId-000000000004"
+        "FailedRecordCount": 0,
+        "Records":[
+          {
+            "SequenceNumber":"1234",
+            "ShardId":"shardId-000000000004"
+          }
+        ]
       }
-    ]
-  }
-  )");
-
-  auto prr = make_put_records_request(1, 1);
-  auto result = make_result(prr, std::move(response));
+      )"));
 
   size_t count = 0;
   bool shard_map_invalidated = false;
@@ -375,7 +329,7 @@ BOOST_AUTO_TEST_CASE(WrongShard) {
         shard_map_invalidated = true;
       });
 
-  retrier.put(result);
+  retrier.put(ctx);
 
   BOOST_CHECK_MESSAGE(shard_map_invalidated,
                       "Shard map should've been invalidated.");

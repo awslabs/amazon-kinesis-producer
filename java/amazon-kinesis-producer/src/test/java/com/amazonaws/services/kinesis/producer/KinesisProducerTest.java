@@ -45,7 +45,6 @@ import com.confluex.mock.http.MockHttpsServer;
 import com.google.common.collect.ImmutableList;
 
 public class KinesisProducerTest {
-    @SuppressWarnings("unused")
     private static final Logger log = LoggerFactory.getLogger(KinesisProducerTest.class);
     
     private MockHttpsServer server;
@@ -107,7 +106,13 @@ public class KinesisProducerTest {
         
         for (ClientRequest cr : server.getRequests()) {
             String auth = cr.getHeaders().get("Authorization");
+            if (auth == null) {
+                auth = cr.getHeaders().get("authorization");
+            }
             String host = cr.getHeaders().get("Host");
+            if (host == null) {
+                cr.getHeaders().get("host");
+            }
             if (auth.contains(AKID_B)) {
                 assertFalse(host.contains("kinesis"));
                 counts.get(AKID_B).getAndIncrement();
@@ -143,13 +148,16 @@ public class KinesisProducerTest {
         
         kp.flushSync();
         kp.destroy();
-        
+
         Map<String, AtomicInteger> counts = new HashMap<String, AtomicInteger>();
         counts.put(AKID_C, new AtomicInteger(0));
         counts.put(AKID_D, new AtomicInteger(0));
         
         for (ClientRequest cr : server.getRequests()) {
             String auth = cr.getHeaders().get("Authorization");
+            if (auth == null) {
+                auth = cr.getHeaders().get("authorization");
+            }
             if (auth.contains(AKID_C)) {
                 counts.get(AKID_C).getAndIncrement();
             } else if (auth.contains(AKID_D)) {
@@ -173,7 +181,11 @@ public class KinesisProducerTest {
             exec.submit(new Runnable() {
                 @Override
                 public void run() {
-                    kps[n] = getProducer(null, null);
+                    try {
+                        kps[n] = getProducer(null, null);
+                    } catch (Exception e) {
+                        log.error("Error starting KPL", e);
+                    }
                 }
             });
         }
@@ -189,15 +201,20 @@ public class KinesisProducerTest {
  
     private KinesisProducer getProducer(AWSCredentialsProvider provider, AWSCredentialsProvider metrics_creds_provider) {
         final KinesisProducerConfiguration cfg = new KinesisProducerConfiguration()
-                .setCustomEndpoint("localhost")
-                .setPort(port)
+                .setKinesisEndpoint("localhost")
+                .setKinesisPort(port)
+                .setCloudwatchEndpoint("localhost")
+                .setCloudwatchPort(port)
                 .setVerifyCertificate(false)
                 .setAggregationEnabled(false)
-                .setCredentialsProvider(provider)
                 .setCredentialsRefreshDelay(100)
                 .setRegion("us-west-1")
                 .setRecordTtl(200)
-                .setMetricsUploadDelay(100);
+                .setMetricsUploadDelay(100)
+                .setRecordTtl(100);
+        if (provider != null) {
+            cfg.setCredentialsProvider(provider);
+        }
         if (metrics_creds_provider != null) {
             cfg.setMetricsCredentialsProvider(metrics_creds_provider);
         }

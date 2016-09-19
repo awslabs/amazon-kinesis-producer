@@ -56,16 +56,20 @@ void protobuf_AssignDesc_config_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(AdditionalDimension));
   Configuration_descriptor_ = file->message_type(1);
-  static const int Configuration_offsets_[23] = {
+  static const int Configuration_offsets_[26] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, additional_metric_dims_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, aggregation_enabled_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, aggregation_max_count_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, aggregation_max_size_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, cloudwatch_endpoint_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, cloudwatch_port_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, collection_max_count_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, collection_max_size_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, connect_timeout_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, custom_endpoint_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, enable_core_dumps_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, fail_if_throttled_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, kinesis_endpoint_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, kinesis_port_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, log_level_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, max_connections_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, metrics_granularity_),
@@ -73,7 +77,6 @@ void protobuf_AssignDesc_config_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, metrics_namespace_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, metrics_upload_delay_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, min_connections_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, port_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, rate_limit_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, record_max_buffered_time_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, record_ttl_),
@@ -132,27 +135,30 @@ void protobuf_AddDesc_config_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\014config.proto\022\024aws.kinesis.protobuf\"F\n\023"
     "AdditionalDimension\022\013\n\003key\030\001 \002(\t\022\r\n\005valu"
-    "e\030\002 \002(\t\022\023\n\013granularity\030\003 \002(\t\"\243\006\n\rConfigu"
+    "e\030\002 \002(\t\022\023\n\013granularity\030\003 \002(\t\"\213\007\n\rConfigu"
     "ration\022J\n\026additional_metric_dims\030\200\001 \003(\0132"
     ").aws.kinesis.protobuf.AdditionalDimensi"
     "on\022!\n\023aggregation_enabled\030\001 \001(\010:\004true\022)\n"
     "\025aggregation_max_count\030\002 \001(\004:\n4294967295"
-    "\022#\n\024aggregation_max_size\030\003 \001(\004:\00551200\022!\n"
-    "\024collection_max_count\030\004 \001(\004:\003500\022$\n\023coll"
-    "ection_max_size\030\005 \001(\004:\0075242880\022\035\n\017connec"
-    "t_timeout\030\006 \001(\004:\0046000\022\031\n\017custom_endpoint"
-    "\030\007 \001(\t:\000\022 \n\021fail_if_throttled\030\010 \001(\010:\005fal"
-    "se\022\027\n\tlog_level\030\t \001(\t:\004info\022\033\n\017max_conne"
-    "ctions\030\n \001(\004:\00224\022\"\n\023metrics_granularity\030"
-    "\013 \001(\t:\005shard\022\037\n\rmetrics_level\030\014 \001(\t:\010det"
-    "ailed\0221\n\021metrics_namespace\030\r \001(\t:\026Kinesi"
-    "sProducerLibrary\022#\n\024metrics_upload_delay"
-    "\030\016 \001(\004:\00560000\022\032\n\017min_connections\030\017 \001(\004:\001"
-    "1\022\021\n\004port\030\020 \001(\004:\003443\022\027\n\nrate_limit\030\021 \001(\004"
-    ":\003150\022%\n\030record_max_buffered_time\030\022 \001(\004:"
-    "\003100\022\031\n\nrecord_ttl\030\023 \001(\004:\00530000\022\020\n\006regio"
-    "n\030\024 \001(\t:\000\022\035\n\017request_timeout\030\025 \001(\004:\0046000"
-    "\022 \n\022verify_certificate\030\026 \001(\010:\004true", 914);
+    "\022#\n\024aggregation_max_size\030\003 \001(\004:\00551200\022\035\n"
+    "\023cloudwatch_endpoint\030\004 \001(\t:\000\022\034\n\017cloudwat"
+    "ch_port\030\005 \001(\004:\003443\022!\n\024collection_max_cou"
+    "nt\030\006 \001(\004:\003500\022$\n\023collection_max_size\030\007 \001"
+    "(\004:\0075242880\022\035\n\017connect_timeout\030\010 \001(\004:\00460"
+    "00\022 \n\021enable_core_dumps\030\t \001(\010:\005false\022 \n\021"
+    "fail_if_throttled\030\n \001(\010:\005false\022\032\n\020kinesi"
+    "s_endpoint\030\013 \001(\t:\000\022\031\n\014kinesis_port\030\014 \001(\004"
+    ":\003443\022\027\n\tlog_level\030\r \001(\t:\004info\022\033\n\017max_co"
+    "nnections\030\016 \001(\004:\00224\022\"\n\023metrics_granulari"
+    "ty\030\017 \001(\t:\005shard\022\037\n\rmetrics_level\030\020 \001(\t:\010"
+    "detailed\0221\n\021metrics_namespace\030\021 \001(\t:\026Kin"
+    "esisProducerLibrary\022#\n\024metrics_upload_de"
+    "lay\030\022 \001(\004:\00560000\022\032\n\017min_connections\030\023 \001("
+    "\004:\0011\022\027\n\nrate_limit\030\024 \001(\004:\003150\022%\n\030record_"
+    "max_buffered_time\030\025 \001(\004:\003100\022\031\n\nrecord_t"
+    "tl\030\026 \001(\004:\00530000\022\020\n\006region\030\027 \001(\t:\000\022\035\n\017req"
+    "uest_timeout\030\030 \001(\004:\0046000\022 \n\022verify_certi"
+    "ficate\030\031 \001(\010:\004true", 1018);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "config.proto", &protobuf_RegisterTypes);
   AdditionalDimension::default_instance_ = new AdditionalDimension();
@@ -552,11 +558,15 @@ const int Configuration::kAdditionalMetricDimsFieldNumber;
 const int Configuration::kAggregationEnabledFieldNumber;
 const int Configuration::kAggregationMaxCountFieldNumber;
 const int Configuration::kAggregationMaxSizeFieldNumber;
+const int Configuration::kCloudwatchEndpointFieldNumber;
+const int Configuration::kCloudwatchPortFieldNumber;
 const int Configuration::kCollectionMaxCountFieldNumber;
 const int Configuration::kCollectionMaxSizeFieldNumber;
 const int Configuration::kConnectTimeoutFieldNumber;
-const int Configuration::kCustomEndpointFieldNumber;
+const int Configuration::kEnableCoreDumpsFieldNumber;
 const int Configuration::kFailIfThrottledFieldNumber;
+const int Configuration::kKinesisEndpointFieldNumber;
+const int Configuration::kKinesisPortFieldNumber;
 const int Configuration::kLogLevelFieldNumber;
 const int Configuration::kMaxConnectionsFieldNumber;
 const int Configuration::kMetricsGranularityFieldNumber;
@@ -564,7 +574,6 @@ const int Configuration::kMetricsLevelFieldNumber;
 const int Configuration::kMetricsNamespaceFieldNumber;
 const int Configuration::kMetricsUploadDelayFieldNumber;
 const int Configuration::kMinConnectionsFieldNumber;
-const int Configuration::kPortFieldNumber;
 const int Configuration::kRateLimitFieldNumber;
 const int Configuration::kRecordMaxBufferedTimeFieldNumber;
 const int Configuration::kRecordTtlFieldNumber;
@@ -595,11 +604,15 @@ void Configuration::SharedCtor() {
   aggregation_enabled_ = true;
   aggregation_max_count_ = GOOGLE_ULONGLONG(4294967295);
   aggregation_max_size_ = GOOGLE_ULONGLONG(51200);
+  cloudwatch_endpoint_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  cloudwatch_port_ = GOOGLE_ULONGLONG(443);
   collection_max_count_ = GOOGLE_ULONGLONG(500);
   collection_max_size_ = GOOGLE_ULONGLONG(5242880);
   connect_timeout_ = GOOGLE_ULONGLONG(6000);
-  custom_endpoint_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  enable_core_dumps_ = false;
   fail_if_throttled_ = false;
+  kinesis_endpoint_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  kinesis_port_ = GOOGLE_ULONGLONG(443);
   log_level_ = const_cast< ::std::string*>(_default_log_level_);
   max_connections_ = GOOGLE_ULONGLONG(24);
   metrics_granularity_ = const_cast< ::std::string*>(_default_metrics_granularity_);
@@ -607,7 +620,6 @@ void Configuration::SharedCtor() {
   metrics_namespace_ = const_cast< ::std::string*>(_default_metrics_namespace_);
   metrics_upload_delay_ = GOOGLE_ULONGLONG(60000);
   min_connections_ = GOOGLE_ULONGLONG(1);
-  port_ = GOOGLE_ULONGLONG(443);
   rate_limit_ = GOOGLE_ULONGLONG(150);
   record_max_buffered_time_ = GOOGLE_ULONGLONG(100);
   record_ttl_ = GOOGLE_ULONGLONG(30000);
@@ -623,8 +635,11 @@ Configuration::~Configuration() {
 }
 
 void Configuration::SharedDtor() {
-  if (custom_endpoint_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete custom_endpoint_;
+  if (cloudwatch_endpoint_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete cloudwatch_endpoint_;
+  }
+  if (kinesis_endpoint_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete kinesis_endpoint_;
   }
   if (log_level_ != _default_log_level_) {
     delete log_level_;
@@ -667,21 +682,38 @@ Configuration* Configuration::New() const {
 }
 
 void Configuration::Clear() {
+#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
+  &reinterpret_cast<Configuration*>(16)->f) - \
+   reinterpret_cast<char*>(16))
+
+#define ZR_(first, last) do {                              \
+    size_t f = OFFSET_OF_FIELD_(first);                    \
+    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
+    ::memset(&first, 0, n);                                \
+  } while (0)
+
   if (_has_bits_[0 / 32] & 254) {
     aggregation_enabled_ = true;
     aggregation_max_count_ = GOOGLE_ULONGLONG(4294967295);
     aggregation_max_size_ = GOOGLE_ULONGLONG(51200);
-    collection_max_count_ = GOOGLE_ULONGLONG(500);
-    collection_max_size_ = GOOGLE_ULONGLONG(5242880);
-    connect_timeout_ = GOOGLE_ULONGLONG(6000);
-    if (has_custom_endpoint()) {
-      if (custom_endpoint_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-        custom_endpoint_->clear();
+    if (has_cloudwatch_endpoint()) {
+      if (cloudwatch_endpoint_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        cloudwatch_endpoint_->clear();
       }
     }
+    cloudwatch_port_ = GOOGLE_ULONGLONG(443);
+    collection_max_count_ = GOOGLE_ULONGLONG(500);
+    collection_max_size_ = GOOGLE_ULONGLONG(5242880);
   }
   if (_has_bits_[8 / 32] & 65280) {
-    fail_if_throttled_ = false;
+    ZR_(enable_core_dumps_, fail_if_throttled_);
+    connect_timeout_ = GOOGLE_ULONGLONG(6000);
+    if (has_kinesis_endpoint()) {
+      if (kinesis_endpoint_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        kinesis_endpoint_->clear();
+      }
+    }
+    kinesis_port_ = GOOGLE_ULONGLONG(443);
     if (has_log_level()) {
       if (log_level_ != _default_log_level_) {
         log_level_->assign(*_default_log_level_);
@@ -693,6 +725,8 @@ void Configuration::Clear() {
         metrics_granularity_->assign(*_default_metrics_granularity_);
       }
     }
+  }
+  if (_has_bits_[16 / 32] & 16711680) {
     if (has_metrics_level()) {
       if (metrics_level_ != _default_metrics_level_) {
         metrics_level_->assign(*_default_metrics_level_);
@@ -705,9 +739,6 @@ void Configuration::Clear() {
     }
     metrics_upload_delay_ = GOOGLE_ULONGLONG(60000);
     min_connections_ = GOOGLE_ULONGLONG(1);
-  }
-  if (_has_bits_[16 / 32] & 8323072) {
-    port_ = GOOGLE_ULONGLONG(443);
     rate_limit_ = GOOGLE_ULONGLONG(150);
     record_max_buffered_time_ = GOOGLE_ULONGLONG(100);
     record_ttl_ = GOOGLE_ULONGLONG(30000);
@@ -716,9 +747,15 @@ void Configuration::Clear() {
         region_->clear();
       }
     }
+  }
+  if (_has_bits_[24 / 32] & 50331648) {
     request_timeout_ = GOOGLE_ULONGLONG(6000);
     verify_certificate_ = true;
   }
+
+#undef OFFSET_OF_FIELD_
+#undef ZR_
+
   additional_metric_dims_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -774,13 +811,45 @@ bool Configuration::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(32)) goto parse_collection_max_count;
+        if (input->ExpectTag(34)) goto parse_cloudwatch_endpoint;
         break;
       }
 
-      // optional uint64 collection_max_count = 4 [default = 500];
+      // optional string cloudwatch_endpoint = 4 [default = ""];
       case 4: {
-        if (tag == 32) {
+        if (tag == 34) {
+         parse_cloudwatch_endpoint:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_cloudwatch_endpoint()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->cloudwatch_endpoint().data(), this->cloudwatch_endpoint().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "cloudwatch_endpoint");
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(40)) goto parse_cloudwatch_port;
+        break;
+      }
+
+      // optional uint64 cloudwatch_port = 5 [default = 443];
+      case 5: {
+        if (tag == 40) {
+         parse_cloudwatch_port:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &cloudwatch_port_)));
+          set_has_cloudwatch_port();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(48)) goto parse_collection_max_count;
+        break;
+      }
+
+      // optional uint64 collection_max_count = 6 [default = 500];
+      case 6: {
+        if (tag == 48) {
          parse_collection_max_count:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
@@ -789,13 +858,13 @@ bool Configuration::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(40)) goto parse_collection_max_size;
+        if (input->ExpectTag(56)) goto parse_collection_max_size;
         break;
       }
 
-      // optional uint64 collection_max_size = 5 [default = 5242880];
-      case 5: {
-        if (tag == 40) {
+      // optional uint64 collection_max_size = 7 [default = 5242880];
+      case 7: {
+        if (tag == 56) {
          parse_collection_max_size:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
@@ -804,13 +873,13 @@ bool Configuration::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(48)) goto parse_connect_timeout;
+        if (input->ExpectTag(64)) goto parse_connect_timeout;
         break;
       }
 
-      // optional uint64 connect_timeout = 6 [default = 6000];
-      case 6: {
-        if (tag == 48) {
+      // optional uint64 connect_timeout = 8 [default = 6000];
+      case 8: {
+        if (tag == 64) {
          parse_connect_timeout:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
@@ -819,30 +888,28 @@ bool Configuration::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(58)) goto parse_custom_endpoint;
+        if (input->ExpectTag(72)) goto parse_enable_core_dumps;
         break;
       }
 
-      // optional string custom_endpoint = 7 [default = ""];
-      case 7: {
-        if (tag == 58) {
-         parse_custom_endpoint:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_custom_endpoint()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-            this->custom_endpoint().data(), this->custom_endpoint().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "custom_endpoint");
+      // optional bool enable_core_dumps = 9 [default = false];
+      case 9: {
+        if (tag == 72) {
+         parse_enable_core_dumps:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &enable_core_dumps_)));
+          set_has_enable_core_dumps();
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(64)) goto parse_fail_if_throttled;
+        if (input->ExpectTag(80)) goto parse_fail_if_throttled;
         break;
       }
 
-      // optional bool fail_if_throttled = 8 [default = false];
-      case 8: {
-        if (tag == 64) {
+      // optional bool fail_if_throttled = 10 [default = false];
+      case 10: {
+        if (tag == 80) {
          parse_fail_if_throttled:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
@@ -851,13 +918,45 @@ bool Configuration::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(74)) goto parse_log_level;
+        if (input->ExpectTag(90)) goto parse_kinesis_endpoint;
         break;
       }
 
-      // optional string log_level = 9 [default = "info"];
-      case 9: {
-        if (tag == 74) {
+      // optional string kinesis_endpoint = 11 [default = ""];
+      case 11: {
+        if (tag == 90) {
+         parse_kinesis_endpoint:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_kinesis_endpoint()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->kinesis_endpoint().data(), this->kinesis_endpoint().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "kinesis_endpoint");
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(96)) goto parse_kinesis_port;
+        break;
+      }
+
+      // optional uint64 kinesis_port = 12 [default = 443];
+      case 12: {
+        if (tag == 96) {
+         parse_kinesis_port:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &kinesis_port_)));
+          set_has_kinesis_port();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(106)) goto parse_log_level;
+        break;
+      }
+
+      // optional string log_level = 13 [default = "info"];
+      case 13: {
+        if (tag == 106) {
          parse_log_level:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_log_level()));
@@ -868,13 +967,13 @@ bool Configuration::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(80)) goto parse_max_connections;
+        if (input->ExpectTag(112)) goto parse_max_connections;
         break;
       }
 
-      // optional uint64 max_connections = 10 [default = 24];
-      case 10: {
-        if (tag == 80) {
+      // optional uint64 max_connections = 14 [default = 24];
+      case 14: {
+        if (tag == 112) {
          parse_max_connections:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
@@ -883,13 +982,13 @@ bool Configuration::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(90)) goto parse_metrics_granularity;
+        if (input->ExpectTag(122)) goto parse_metrics_granularity;
         break;
       }
 
-      // optional string metrics_granularity = 11 [default = "shard"];
-      case 11: {
-        if (tag == 90) {
+      // optional string metrics_granularity = 15 [default = "shard"];
+      case 15: {
+        if (tag == 122) {
          parse_metrics_granularity:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_metrics_granularity()));
@@ -900,13 +999,13 @@ bool Configuration::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(98)) goto parse_metrics_level;
+        if (input->ExpectTag(130)) goto parse_metrics_level;
         break;
       }
 
-      // optional string metrics_level = 12 [default = "detailed"];
-      case 12: {
-        if (tag == 98) {
+      // optional string metrics_level = 16 [default = "detailed"];
+      case 16: {
+        if (tag == 130) {
          parse_metrics_level:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_metrics_level()));
@@ -917,13 +1016,13 @@ bool Configuration::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(106)) goto parse_metrics_namespace;
+        if (input->ExpectTag(138)) goto parse_metrics_namespace;
         break;
       }
 
-      // optional string metrics_namespace = 13 [default = "KinesisProducerLibrary"];
-      case 13: {
-        if (tag == 106) {
+      // optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];
+      case 17: {
+        if (tag == 138) {
          parse_metrics_namespace:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_metrics_namespace()));
@@ -934,13 +1033,13 @@ bool Configuration::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(112)) goto parse_metrics_upload_delay;
+        if (input->ExpectTag(144)) goto parse_metrics_upload_delay;
         break;
       }
 
-      // optional uint64 metrics_upload_delay = 14 [default = 60000];
-      case 14: {
-        if (tag == 112) {
+      // optional uint64 metrics_upload_delay = 18 [default = 60000];
+      case 18: {
+        if (tag == 144) {
          parse_metrics_upload_delay:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
@@ -949,13 +1048,13 @@ bool Configuration::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(120)) goto parse_min_connections;
+        if (input->ExpectTag(152)) goto parse_min_connections;
         break;
       }
 
-      // optional uint64 min_connections = 15 [default = 1];
-      case 15: {
-        if (tag == 120) {
+      // optional uint64 min_connections = 19 [default = 1];
+      case 19: {
+        if (tag == 152) {
          parse_min_connections:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
@@ -964,28 +1063,13 @@ bool Configuration::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(128)) goto parse_port;
+        if (input->ExpectTag(160)) goto parse_rate_limit;
         break;
       }
 
-      // optional uint64 port = 16 [default = 443];
-      case 16: {
-        if (tag == 128) {
-         parse_port:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &port_)));
-          set_has_port();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(136)) goto parse_rate_limit;
-        break;
-      }
-
-      // optional uint64 rate_limit = 17 [default = 150];
-      case 17: {
-        if (tag == 136) {
+      // optional uint64 rate_limit = 20 [default = 150];
+      case 20: {
+        if (tag == 160) {
          parse_rate_limit:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
@@ -994,13 +1078,13 @@ bool Configuration::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(144)) goto parse_record_max_buffered_time;
+        if (input->ExpectTag(168)) goto parse_record_max_buffered_time;
         break;
       }
 
-      // optional uint64 record_max_buffered_time = 18 [default = 100];
-      case 18: {
-        if (tag == 144) {
+      // optional uint64 record_max_buffered_time = 21 [default = 100];
+      case 21: {
+        if (tag == 168) {
          parse_record_max_buffered_time:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
@@ -1009,13 +1093,13 @@ bool Configuration::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(152)) goto parse_record_ttl;
+        if (input->ExpectTag(176)) goto parse_record_ttl;
         break;
       }
 
-      // optional uint64 record_ttl = 19 [default = 30000];
-      case 19: {
-        if (tag == 152) {
+      // optional uint64 record_ttl = 22 [default = 30000];
+      case 22: {
+        if (tag == 176) {
          parse_record_ttl:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
@@ -1024,13 +1108,13 @@ bool Configuration::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(162)) goto parse_region;
+        if (input->ExpectTag(186)) goto parse_region;
         break;
       }
 
-      // optional string region = 20 [default = ""];
-      case 20: {
-        if (tag == 162) {
+      // optional string region = 23 [default = ""];
+      case 23: {
+        if (tag == 186) {
          parse_region:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
                 input, this->mutable_region()));
@@ -1041,13 +1125,13 @@ bool Configuration::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(168)) goto parse_request_timeout;
+        if (input->ExpectTag(192)) goto parse_request_timeout;
         break;
       }
 
-      // optional uint64 request_timeout = 21 [default = 6000];
-      case 21: {
-        if (tag == 168) {
+      // optional uint64 request_timeout = 24 [default = 6000];
+      case 24: {
+        if (tag == 192) {
          parse_request_timeout:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
@@ -1056,13 +1140,13 @@ bool Configuration::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(176)) goto parse_verify_certificate;
+        if (input->ExpectTag(200)) goto parse_verify_certificate;
         break;
       }
 
-      // optional bool verify_certificate = 22 [default = true];
-      case 22: {
-        if (tag == 176) {
+      // optional bool verify_certificate = 25 [default = true];
+      case 25: {
+        if (tag == 200) {
          parse_verify_certificate:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
@@ -1129,129 +1213,149 @@ void Configuration::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteUInt64(3, this->aggregation_max_size(), output);
   }
 
-  // optional uint64 collection_max_count = 4 [default = 500];
-  if (has_collection_max_count()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(4, this->collection_max_count(), output);
-  }
-
-  // optional uint64 collection_max_size = 5 [default = 5242880];
-  if (has_collection_max_size()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(5, this->collection_max_size(), output);
-  }
-
-  // optional uint64 connect_timeout = 6 [default = 6000];
-  if (has_connect_timeout()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(6, this->connect_timeout(), output);
-  }
-
-  // optional string custom_endpoint = 7 [default = ""];
-  if (has_custom_endpoint()) {
+  // optional string cloudwatch_endpoint = 4 [default = ""];
+  if (has_cloudwatch_endpoint()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->custom_endpoint().data(), this->custom_endpoint().length(),
+      this->cloudwatch_endpoint().data(), this->cloudwatch_endpoint().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "custom_endpoint");
+      "cloudwatch_endpoint");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      7, this->custom_endpoint(), output);
+      4, this->cloudwatch_endpoint(), output);
   }
 
-  // optional bool fail_if_throttled = 8 [default = false];
+  // optional uint64 cloudwatch_port = 5 [default = 443];
+  if (has_cloudwatch_port()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(5, this->cloudwatch_port(), output);
+  }
+
+  // optional uint64 collection_max_count = 6 [default = 500];
+  if (has_collection_max_count()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(6, this->collection_max_count(), output);
+  }
+
+  // optional uint64 collection_max_size = 7 [default = 5242880];
+  if (has_collection_max_size()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(7, this->collection_max_size(), output);
+  }
+
+  // optional uint64 connect_timeout = 8 [default = 6000];
+  if (has_connect_timeout()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(8, this->connect_timeout(), output);
+  }
+
+  // optional bool enable_core_dumps = 9 [default = false];
+  if (has_enable_core_dumps()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(9, this->enable_core_dumps(), output);
+  }
+
+  // optional bool fail_if_throttled = 10 [default = false];
   if (has_fail_if_throttled()) {
-    ::google::protobuf::internal::WireFormatLite::WriteBool(8, this->fail_if_throttled(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteBool(10, this->fail_if_throttled(), output);
   }
 
-  // optional string log_level = 9 [default = "info"];
+  // optional string kinesis_endpoint = 11 [default = ""];
+  if (has_kinesis_endpoint()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->kinesis_endpoint().data(), this->kinesis_endpoint().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "kinesis_endpoint");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      11, this->kinesis_endpoint(), output);
+  }
+
+  // optional uint64 kinesis_port = 12 [default = 443];
+  if (has_kinesis_port()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(12, this->kinesis_port(), output);
+  }
+
+  // optional string log_level = 13 [default = "info"];
   if (has_log_level()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->log_level().data(), this->log_level().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
       "log_level");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      9, this->log_level(), output);
+      13, this->log_level(), output);
   }
 
-  // optional uint64 max_connections = 10 [default = 24];
+  // optional uint64 max_connections = 14 [default = 24];
   if (has_max_connections()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(10, this->max_connections(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(14, this->max_connections(), output);
   }
 
-  // optional string metrics_granularity = 11 [default = "shard"];
+  // optional string metrics_granularity = 15 [default = "shard"];
   if (has_metrics_granularity()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->metrics_granularity().data(), this->metrics_granularity().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
       "metrics_granularity");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      11, this->metrics_granularity(), output);
+      15, this->metrics_granularity(), output);
   }
 
-  // optional string metrics_level = 12 [default = "detailed"];
+  // optional string metrics_level = 16 [default = "detailed"];
   if (has_metrics_level()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->metrics_level().data(), this->metrics_level().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
       "metrics_level");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      12, this->metrics_level(), output);
+      16, this->metrics_level(), output);
   }
 
-  // optional string metrics_namespace = 13 [default = "KinesisProducerLibrary"];
+  // optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];
   if (has_metrics_namespace()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->metrics_namespace().data(), this->metrics_namespace().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
       "metrics_namespace");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      13, this->metrics_namespace(), output);
+      17, this->metrics_namespace(), output);
   }
 
-  // optional uint64 metrics_upload_delay = 14 [default = 60000];
+  // optional uint64 metrics_upload_delay = 18 [default = 60000];
   if (has_metrics_upload_delay()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(14, this->metrics_upload_delay(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(18, this->metrics_upload_delay(), output);
   }
 
-  // optional uint64 min_connections = 15 [default = 1];
+  // optional uint64 min_connections = 19 [default = 1];
   if (has_min_connections()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(15, this->min_connections(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(19, this->min_connections(), output);
   }
 
-  // optional uint64 port = 16 [default = 443];
-  if (has_port()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(16, this->port(), output);
-  }
-
-  // optional uint64 rate_limit = 17 [default = 150];
+  // optional uint64 rate_limit = 20 [default = 150];
   if (has_rate_limit()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(17, this->rate_limit(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(20, this->rate_limit(), output);
   }
 
-  // optional uint64 record_max_buffered_time = 18 [default = 100];
+  // optional uint64 record_max_buffered_time = 21 [default = 100];
   if (has_record_max_buffered_time()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(18, this->record_max_buffered_time(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(21, this->record_max_buffered_time(), output);
   }
 
-  // optional uint64 record_ttl = 19 [default = 30000];
+  // optional uint64 record_ttl = 22 [default = 30000];
   if (has_record_ttl()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(19, this->record_ttl(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(22, this->record_ttl(), output);
   }
 
-  // optional string region = 20 [default = ""];
+  // optional string region = 23 [default = ""];
   if (has_region()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->region().data(), this->region().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
       "region");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      20, this->region(), output);
+      23, this->region(), output);
   }
 
-  // optional uint64 request_timeout = 21 [default = 6000];
+  // optional uint64 request_timeout = 24 [default = 6000];
   if (has_request_timeout()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(21, this->request_timeout(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(24, this->request_timeout(), output);
   }
 
-  // optional bool verify_certificate = 22 [default = true];
+  // optional bool verify_certificate = 25 [default = true];
   if (has_verify_certificate()) {
-    ::google::protobuf::internal::WireFormatLite::WriteBool(22, this->verify_certificate(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteBool(25, this->verify_certificate(), output);
   }
 
   // repeated .aws.kinesis.protobuf.AdditionalDimension additional_metric_dims = 128;
@@ -1285,38 +1389,64 @@ void Configuration::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(3, this->aggregation_max_size(), target);
   }
 
-  // optional uint64 collection_max_count = 4 [default = 500];
-  if (has_collection_max_count()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(4, this->collection_max_count(), target);
-  }
-
-  // optional uint64 collection_max_size = 5 [default = 5242880];
-  if (has_collection_max_size()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(5, this->collection_max_size(), target);
-  }
-
-  // optional uint64 connect_timeout = 6 [default = 6000];
-  if (has_connect_timeout()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(6, this->connect_timeout(), target);
-  }
-
-  // optional string custom_endpoint = 7 [default = ""];
-  if (has_custom_endpoint()) {
+  // optional string cloudwatch_endpoint = 4 [default = ""];
+  if (has_cloudwatch_endpoint()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->custom_endpoint().data(), this->custom_endpoint().length(),
+      this->cloudwatch_endpoint().data(), this->cloudwatch_endpoint().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "custom_endpoint");
+      "cloudwatch_endpoint");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        7, this->custom_endpoint(), target);
+        4, this->cloudwatch_endpoint(), target);
   }
 
-  // optional bool fail_if_throttled = 8 [default = false];
+  // optional uint64 cloudwatch_port = 5 [default = 443];
+  if (has_cloudwatch_port()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(5, this->cloudwatch_port(), target);
+  }
+
+  // optional uint64 collection_max_count = 6 [default = 500];
+  if (has_collection_max_count()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(6, this->collection_max_count(), target);
+  }
+
+  // optional uint64 collection_max_size = 7 [default = 5242880];
+  if (has_collection_max_size()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(7, this->collection_max_size(), target);
+  }
+
+  // optional uint64 connect_timeout = 8 [default = 6000];
+  if (has_connect_timeout()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(8, this->connect_timeout(), target);
+  }
+
+  // optional bool enable_core_dumps = 9 [default = false];
+  if (has_enable_core_dumps()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(9, this->enable_core_dumps(), target);
+  }
+
+  // optional bool fail_if_throttled = 10 [default = false];
   if (has_fail_if_throttled()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(8, this->fail_if_throttled(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(10, this->fail_if_throttled(), target);
   }
 
-  // optional string log_level = 9 [default = "info"];
+  // optional string kinesis_endpoint = 11 [default = ""];
+  if (has_kinesis_endpoint()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->kinesis_endpoint().data(), this->kinesis_endpoint().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "kinesis_endpoint");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        11, this->kinesis_endpoint(), target);
+  }
+
+  // optional uint64 kinesis_port = 12 [default = 443];
+  if (has_kinesis_port()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(12, this->kinesis_port(), target);
+  }
+
+  // optional string log_level = 13 [default = "info"];
   if (has_log_level()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->log_level().data(), this->log_level().length(),
@@ -1324,15 +1454,15 @@ void Configuration::SerializeWithCachedSizes(
       "log_level");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        9, this->log_level(), target);
+        13, this->log_level(), target);
   }
 
-  // optional uint64 max_connections = 10 [default = 24];
+  // optional uint64 max_connections = 14 [default = 24];
   if (has_max_connections()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(10, this->max_connections(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(14, this->max_connections(), target);
   }
 
-  // optional string metrics_granularity = 11 [default = "shard"];
+  // optional string metrics_granularity = 15 [default = "shard"];
   if (has_metrics_granularity()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->metrics_granularity().data(), this->metrics_granularity().length(),
@@ -1340,10 +1470,10 @@ void Configuration::SerializeWithCachedSizes(
       "metrics_granularity");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        11, this->metrics_granularity(), target);
+        15, this->metrics_granularity(), target);
   }
 
-  // optional string metrics_level = 12 [default = "detailed"];
+  // optional string metrics_level = 16 [default = "detailed"];
   if (has_metrics_level()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->metrics_level().data(), this->metrics_level().length(),
@@ -1351,10 +1481,10 @@ void Configuration::SerializeWithCachedSizes(
       "metrics_level");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        12, this->metrics_level(), target);
+        16, this->metrics_level(), target);
   }
 
-  // optional string metrics_namespace = 13 [default = "KinesisProducerLibrary"];
+  // optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];
   if (has_metrics_namespace()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->metrics_namespace().data(), this->metrics_namespace().length(),
@@ -1362,40 +1492,35 @@ void Configuration::SerializeWithCachedSizes(
       "metrics_namespace");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        13, this->metrics_namespace(), target);
+        17, this->metrics_namespace(), target);
   }
 
-  // optional uint64 metrics_upload_delay = 14 [default = 60000];
+  // optional uint64 metrics_upload_delay = 18 [default = 60000];
   if (has_metrics_upload_delay()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(14, this->metrics_upload_delay(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(18, this->metrics_upload_delay(), target);
   }
 
-  // optional uint64 min_connections = 15 [default = 1];
+  // optional uint64 min_connections = 19 [default = 1];
   if (has_min_connections()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(15, this->min_connections(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(19, this->min_connections(), target);
   }
 
-  // optional uint64 port = 16 [default = 443];
-  if (has_port()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(16, this->port(), target);
-  }
-
-  // optional uint64 rate_limit = 17 [default = 150];
+  // optional uint64 rate_limit = 20 [default = 150];
   if (has_rate_limit()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(17, this->rate_limit(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(20, this->rate_limit(), target);
   }
 
-  // optional uint64 record_max_buffered_time = 18 [default = 100];
+  // optional uint64 record_max_buffered_time = 21 [default = 100];
   if (has_record_max_buffered_time()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(18, this->record_max_buffered_time(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(21, this->record_max_buffered_time(), target);
   }
 
-  // optional uint64 record_ttl = 19 [default = 30000];
+  // optional uint64 record_ttl = 22 [default = 30000];
   if (has_record_ttl()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(19, this->record_ttl(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(22, this->record_ttl(), target);
   }
 
-  // optional string region = 20 [default = ""];
+  // optional string region = 23 [default = ""];
   if (has_region()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
       this->region().data(), this->region().length(),
@@ -1403,17 +1528,17 @@ void Configuration::SerializeWithCachedSizes(
       "region");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        20, this->region(), target);
+        23, this->region(), target);
   }
 
-  // optional uint64 request_timeout = 21 [default = 6000];
+  // optional uint64 request_timeout = 24 [default = 6000];
   if (has_request_timeout()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(21, this->request_timeout(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(24, this->request_timeout(), target);
   }
 
-  // optional bool verify_certificate = 22 [default = true];
+  // optional bool verify_certificate = 25 [default = true];
   if (has_verify_certificate()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(22, this->verify_certificate(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(25, this->verify_certificate(), target);
   }
 
   // repeated .aws.kinesis.protobuf.AdditionalDimension additional_metric_dims = 128;
@@ -1454,135 +1579,156 @@ int Configuration::ByteSize() const {
           this->aggregation_max_size());
     }
 
-    // optional uint64 collection_max_count = 4 [default = 500];
+    // optional string cloudwatch_endpoint = 4 [default = ""];
+    if (has_cloudwatch_endpoint()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->cloudwatch_endpoint());
+    }
+
+    // optional uint64 cloudwatch_port = 5 [default = 443];
+    if (has_cloudwatch_port()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+          this->cloudwatch_port());
+    }
+
+    // optional uint64 collection_max_count = 6 [default = 500];
     if (has_collection_max_count()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt64Size(
           this->collection_max_count());
     }
 
-    // optional uint64 collection_max_size = 5 [default = 5242880];
+    // optional uint64 collection_max_size = 7 [default = 5242880];
     if (has_collection_max_size()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt64Size(
           this->collection_max_size());
     }
 
-    // optional uint64 connect_timeout = 6 [default = 6000];
+  }
+  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
+    // optional uint64 connect_timeout = 8 [default = 6000];
     if (has_connect_timeout()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt64Size(
           this->connect_timeout());
     }
 
-    // optional string custom_endpoint = 7 [default = ""];
-    if (has_custom_endpoint()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->custom_endpoint());
+    // optional bool enable_core_dumps = 9 [default = false];
+    if (has_enable_core_dumps()) {
+      total_size += 1 + 1;
     }
 
-  }
-  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
-    // optional bool fail_if_throttled = 8 [default = false];
+    // optional bool fail_if_throttled = 10 [default = false];
     if (has_fail_if_throttled()) {
       total_size += 1 + 1;
     }
 
-    // optional string log_level = 9 [default = "info"];
+    // optional string kinesis_endpoint = 11 [default = ""];
+    if (has_kinesis_endpoint()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->kinesis_endpoint());
+    }
+
+    // optional uint64 kinesis_port = 12 [default = 443];
+    if (has_kinesis_port()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+          this->kinesis_port());
+    }
+
+    // optional string log_level = 13 [default = "info"];
     if (has_log_level()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->log_level());
     }
 
-    // optional uint64 max_connections = 10 [default = 24];
+    // optional uint64 max_connections = 14 [default = 24];
     if (has_max_connections()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt64Size(
           this->max_connections());
     }
 
-    // optional string metrics_granularity = 11 [default = "shard"];
+    // optional string metrics_granularity = 15 [default = "shard"];
     if (has_metrics_granularity()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->metrics_granularity());
     }
 
-    // optional string metrics_level = 12 [default = "detailed"];
+  }
+  if (_has_bits_[16 / 32] & (0xffu << (16 % 32))) {
+    // optional string metrics_level = 16 [default = "detailed"];
     if (has_metrics_level()) {
-      total_size += 1 +
+      total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->metrics_level());
     }
 
-    // optional string metrics_namespace = 13 [default = "KinesisProducerLibrary"];
+    // optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];
     if (has_metrics_namespace()) {
-      total_size += 1 +
+      total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->metrics_namespace());
     }
 
-    // optional uint64 metrics_upload_delay = 14 [default = 60000];
+    // optional uint64 metrics_upload_delay = 18 [default = 60000];
     if (has_metrics_upload_delay()) {
-      total_size += 1 +
+      total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::UInt64Size(
           this->metrics_upload_delay());
     }
 
-    // optional uint64 min_connections = 15 [default = 1];
+    // optional uint64 min_connections = 19 [default = 1];
     if (has_min_connections()) {
-      total_size += 1 +
+      total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::UInt64Size(
           this->min_connections());
     }
 
-  }
-  if (_has_bits_[16 / 32] & (0xffu << (16 % 32))) {
-    // optional uint64 port = 16 [default = 443];
-    if (has_port()) {
-      total_size += 2 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->port());
-    }
-
-    // optional uint64 rate_limit = 17 [default = 150];
+    // optional uint64 rate_limit = 20 [default = 150];
     if (has_rate_limit()) {
       total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::UInt64Size(
           this->rate_limit());
     }
 
-    // optional uint64 record_max_buffered_time = 18 [default = 100];
+    // optional uint64 record_max_buffered_time = 21 [default = 100];
     if (has_record_max_buffered_time()) {
       total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::UInt64Size(
           this->record_max_buffered_time());
     }
 
-    // optional uint64 record_ttl = 19 [default = 30000];
+    // optional uint64 record_ttl = 22 [default = 30000];
     if (has_record_ttl()) {
       total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::UInt64Size(
           this->record_ttl());
     }
 
-    // optional string region = 20 [default = ""];
+    // optional string region = 23 [default = ""];
     if (has_region()) {
       total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->region());
     }
 
-    // optional uint64 request_timeout = 21 [default = 6000];
+  }
+  if (_has_bits_[24 / 32] & (0xffu << (24 % 32))) {
+    // optional uint64 request_timeout = 24 [default = 6000];
     if (has_request_timeout()) {
       total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::UInt64Size(
           this->request_timeout());
     }
 
-    // optional bool verify_certificate = 22 [default = true];
+    // optional bool verify_certificate = 25 [default = true];
     if (has_verify_certificate()) {
       total_size += 2 + 1;
     }
@@ -1632,22 +1778,34 @@ void Configuration::MergeFrom(const Configuration& from) {
     if (from.has_aggregation_max_size()) {
       set_aggregation_max_size(from.aggregation_max_size());
     }
+    if (from.has_cloudwatch_endpoint()) {
+      set_cloudwatch_endpoint(from.cloudwatch_endpoint());
+    }
+    if (from.has_cloudwatch_port()) {
+      set_cloudwatch_port(from.cloudwatch_port());
+    }
     if (from.has_collection_max_count()) {
       set_collection_max_count(from.collection_max_count());
     }
     if (from.has_collection_max_size()) {
       set_collection_max_size(from.collection_max_size());
     }
+  }
+  if (from._has_bits_[8 / 32] & (0xffu << (8 % 32))) {
     if (from.has_connect_timeout()) {
       set_connect_timeout(from.connect_timeout());
     }
-    if (from.has_custom_endpoint()) {
-      set_custom_endpoint(from.custom_endpoint());
+    if (from.has_enable_core_dumps()) {
+      set_enable_core_dumps(from.enable_core_dumps());
     }
-  }
-  if (from._has_bits_[8 / 32] & (0xffu << (8 % 32))) {
     if (from.has_fail_if_throttled()) {
       set_fail_if_throttled(from.fail_if_throttled());
+    }
+    if (from.has_kinesis_endpoint()) {
+      set_kinesis_endpoint(from.kinesis_endpoint());
+    }
+    if (from.has_kinesis_port()) {
+      set_kinesis_port(from.kinesis_port());
     }
     if (from.has_log_level()) {
       set_log_level(from.log_level());
@@ -1658,6 +1816,8 @@ void Configuration::MergeFrom(const Configuration& from) {
     if (from.has_metrics_granularity()) {
       set_metrics_granularity(from.metrics_granularity());
     }
+  }
+  if (from._has_bits_[16 / 32] & (0xffu << (16 % 32))) {
     if (from.has_metrics_level()) {
       set_metrics_level(from.metrics_level());
     }
@@ -1669,11 +1829,6 @@ void Configuration::MergeFrom(const Configuration& from) {
     }
     if (from.has_min_connections()) {
       set_min_connections(from.min_connections());
-    }
-  }
-  if (from._has_bits_[16 / 32] & (0xffu << (16 % 32))) {
-    if (from.has_port()) {
-      set_port(from.port());
     }
     if (from.has_rate_limit()) {
       set_rate_limit(from.rate_limit());
@@ -1687,6 +1842,8 @@ void Configuration::MergeFrom(const Configuration& from) {
     if (from.has_region()) {
       set_region(from.region());
     }
+  }
+  if (from._has_bits_[24 / 32] & (0xffu << (24 % 32))) {
     if (from.has_request_timeout()) {
       set_request_timeout(from.request_timeout());
     }
@@ -1721,11 +1878,15 @@ void Configuration::Swap(Configuration* other) {
     std::swap(aggregation_enabled_, other->aggregation_enabled_);
     std::swap(aggregation_max_count_, other->aggregation_max_count_);
     std::swap(aggregation_max_size_, other->aggregation_max_size_);
+    std::swap(cloudwatch_endpoint_, other->cloudwatch_endpoint_);
+    std::swap(cloudwatch_port_, other->cloudwatch_port_);
     std::swap(collection_max_count_, other->collection_max_count_);
     std::swap(collection_max_size_, other->collection_max_size_);
     std::swap(connect_timeout_, other->connect_timeout_);
-    std::swap(custom_endpoint_, other->custom_endpoint_);
+    std::swap(enable_core_dumps_, other->enable_core_dumps_);
     std::swap(fail_if_throttled_, other->fail_if_throttled_);
+    std::swap(kinesis_endpoint_, other->kinesis_endpoint_);
+    std::swap(kinesis_port_, other->kinesis_port_);
     std::swap(log_level_, other->log_level_);
     std::swap(max_connections_, other->max_connections_);
     std::swap(metrics_granularity_, other->metrics_granularity_);
@@ -1733,7 +1894,6 @@ void Configuration::Swap(Configuration* other) {
     std::swap(metrics_namespace_, other->metrics_namespace_);
     std::swap(metrics_upload_delay_, other->metrics_upload_delay_);
     std::swap(min_connections_, other->min_connections_);
-    std::swap(port_, other->port_);
     std::swap(rate_limit_, other->rate_limit_);
     std::swap(record_max_buffered_time_, other->record_max_buffered_time_);
     std::swap(record_ttl_, other->record_ttl_);

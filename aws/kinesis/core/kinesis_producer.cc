@@ -11,7 +11,69 @@
 // express or implied. See the License for the specific language governing
 // permissions and limitations under the License.
 
+#if BOOST_OS_WINDOWS
+  #include <windows.h>
+#else
+  #include <sys/utsname.h>
+#endif
+
+#include <aws/utils/logging.h>
+#include <aws/core/client/AWSClient.h>
+#include <aws/core/client/DefaultRetryStrategy.h>
+#include <aws/core/http/Scheme.h>
 #include <aws/kinesis/core/kinesis_producer.h>
+
+namespace {
+
+const constexpr char* kVersion = "0.12.0";
+
+std::string user_agent() {
+  std::stringstream ss;
+  ss << "KinesisProducerLibrary/" << kVersion << " | ";
+#if BOOST_OS_WINDOWS
+  OSVERSIONINFO v;
+  v.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+  GetVersionEx(&v);
+  ss << "Windows | " << v.dwMajorVersion << "." << v.dwMinorVersion << "."
+     << v.dwBuildNumber << "." << v.dwPlatformId;
+#else
+  ::utsname un;
+  ::uname(&un);
+  ss << un.sysname << " | " << un.release << " | " << un.version << " | "
+     << un.machine;
+#endif
+
+  // Strip consecutive spaces
+  auto ua = ss.str();
+  auto new_end = std::unique(
+      ua.begin(),
+      ua.end(),
+      [](auto a, auto b) {
+        return a == ' ' && b == ' ';
+      });
+  ua.erase(new_end, ua.end());
+
+  return ua;
+}
+
+Aws::Client::ClientConfiguration
+make_sdk_client_cfg(const aws::kinesis::core::Configuration& kpl_cfg,
+                    const std::string& region,
+                    const std::string& ca_path) {
+  Aws::Client::ClientConfiguration cfg;
+  cfg.userAgent = user_agent();
+  LOG(info) << "Using Region: " << region;
+  cfg.region = region;
+  cfg.maxConnections = kpl_cfg.max_connections();
+  cfg.requestTimeoutMs = kpl_cfg.request_timeout();
+  cfg.connectTimeoutMs = kpl_cfg.connect_timeout();
+  cfg.retryStrategy = std::make_shared<Aws::Client::DefaultRetryStrategy>(0, 0);
+  cfg.verifySSL = kpl_cfg.verify_certificate();
+  cfg.caPath = ca_path;
+  return cfg;
+}
+
+} //namespace
 
 namespace aws {
 namespace kinesis {
@@ -40,39 +102,42 @@ void KinesisProducer::create_metrics_manager() {
   metrics_manager_ =
       std::make_shared<aws::metrics::MetricsManager>(
           executor_,
-          socket_factory_,
-          metrics_creds_chain_,
-          region_,
+          cw_client_,
           config_->metrics_namespace(),
           level,
           granularity,
           std::move(extra_dims),
-          config_->custom_endpoint(),
-          config_->port(),
           std::chrono::milliseconds(config_->metrics_upload_delay()));
 }
 
-void KinesisProducer::create_http_client() {
-  auto endpoint = config_->custom_endpoint();
-  auto port = config_->port();
-
-  if (endpoint.empty()) {
-    endpoint = "kinesis." + region_ + ".amazonaws.com";
-    port = 443;
+void KinesisProducer::create_kinesis_client(const std::string& ca_path) {
+  auto cfg = make_sdk_client_cfg(*config_, region_, ca_path);
+  if (config_->kinesis_endpoint().size() > 0) {
+    cfg.endpointOverride = config_->kinesis_endpoint() + ":" +
+        std::to_string(config_->kinesis_port());
+  } else {
+    cfg.endpointOverride =
+        "kinesis." + region_ + ".amazonaws.com:443";
   }
+  LOG(info) << "Using Kinesis endpoint " + cfg.endpointOverride;
+  kinesis_client_ = std::make_shared<Aws::Kinesis::KinesisClient>(
+      kinesis_creds_provider_,
+      cfg);
+}
 
-  http_client_ =
-      std::make_shared<aws::http::HttpClient>(
-          executor_,
-          socket_factory_,
-          endpoint,
-          port,
-          true,
-          config_->verify_certificate(),
-          config_->min_connections(),
-          config_->max_connections(),
-          std::chrono::milliseconds(config_->connect_timeout()),
-          std::chrono::milliseconds(config_->request_timeout()));
+void KinesisProducer::create_cw_client(const std::string& ca_path) {
+  auto cfg = make_sdk_client_cfg(*config_, region_, ca_path);
+  if (config_->cloudwatch_endpoint().size() > 0) {
+    cfg.endpointOverride = config_->cloudwatch_endpoint() + ":" +
+        std::to_string(config_->cloudwatch_port());
+  } else {
+    cfg.endpointOverride =
+        "monitoring." + region_ + ".amazonaws.com:443";
+  }
+  LOG(info) << "Using CloudWatch endpoint " + cfg.endpointOverride;
+  cw_client_ = std::make_shared<Aws::CloudWatch::CloudWatchClient>(
+      cw_creds_provider_,
+      cfg);
 }
 
 Pipeline* KinesisProducer::create_pipeline(const std::string& stream) {
@@ -82,8 +147,7 @@ Pipeline* KinesisProducer::create_pipeline(const std::string& stream) {
       stream,
       config_,
       executor_,
-      http_client_,
-      creds_chain_,
+      kinesis_client_,
       metrics_manager_,
       [this](auto& ur) {
         ipc_manager_->put(ur->to_put_record_result().SerializeAsString());
@@ -223,26 +287,13 @@ void KinesisProducer::on_metrics_request(
 
 void KinesisProducer::on_set_credentials(
     const aws::kinesis::protobuf::SetCredentials& set_creds) {
-  // If the metrics_creds_chain_ is pointing to the same instance as the regular
-  // creds_chain_, and we receive a new set of creds just for metrics, we need
-  // to create a new instance of AwsCredentialsProviderChain for
-  // metrics_creds_chain_ to point to. Otherwise we'll wrongly override the
-  // regular credentials when setting the metrics credentials.
-  if (set_creds.for_metrics() && metrics_creds_chain_ == creds_chain_) {
-    metrics_creds_chain_ =
-        std::make_shared<aws::auth::AwsCredentialsProviderChain>();
-  }
-
-  (set_creds.for_metrics()
-      ? metrics_creds_chain_
-      : creds_chain_)->reset({
-          std::make_shared<aws::auth::BasicAwsCredentialsProvider>(
-              set_creds.credentials().akid(),
-              set_creds.credentials().secret_key(),
-              set_creds.credentials().has_token()
-                  ? boost::optional<std::string>(
-                        set_creds.credentials().token())
-                  : boost::none)});
+  const auto& akid = set_creds.credentials().akid();
+  const auto& sk = set_creds.credentials().secret_key();
+  auto token = set_creds.credentials().has_token()
+      ? set_creds.credentials().token()
+      : "";
+  (set_creds.for_metrics() ? cw_creds_provider_ : kinesis_creds_provider_)
+      ->set_credentials(akid, sk, token);
 }
 
 void KinesisProducer::report_outstanding() {

@@ -14,10 +14,12 @@
 #ifndef AWS_KINESIS_CORE_RETRIER_H_
 #define AWS_KINESIS_CORE_RETRIER_H_
 
+#include <aws/core/utils/Outcome.h>
+#include <aws/kinesis/KinesisClient.h>
 #include <aws/kinesis/core/configuration.h>
+#include <aws/kinesis/core/put_records_context.h>
 #include <aws/kinesis/core/put_records_request.h>
 #include <aws/kinesis/core/shard_map.h>
-#include <aws/http/http_client.h>
 #include <aws/metrics/metrics_manager.h>
 
 namespace aws {
@@ -29,9 +31,9 @@ namespace detail {
 class MetricsPutter {
  public:
   MetricsPutter(std::shared_ptr<aws::metrics::MetricsManager> metrics_manager,
-                const std::shared_ptr<aws::http::HttpResult>& result)
+                std::string stream)
       : metrics_manager_(std::move(metrics_manager)),
-        stream_(result->template context<PutRecordsRequest>()->stream()) {}
+        stream_(stream) {}
 
   MetricsPutter& operator ()(
         std::string name,
@@ -50,7 +52,7 @@ class Retrier {
  public:
   using Configuration = aws::kinesis::core::Configuration;
   using TimePoint = std::chrono::steady_clock::time_point;
-  using Result = std::shared_ptr<aws::http::HttpResult>;
+ // using Result = std::shared_ptr<aws::http::HttpResult>;
   using UserRecordCallback =
       std::function<void (const std::shared_ptr<UserRecord>&)>;
   using ShardMapInvalidateCallback = std::function<void (TimePoint)>;
@@ -71,8 +73,8 @@ class Retrier {
         error_cb_(error_cb),
         metrics_manager_(metrics_manager) {}
 
-  void put(const Result& result) {
-    handle_put_records_result(result);
+  void put(std::shared_ptr<PutRecordsContext> prc) {
+    handle_put_records_result(std::move(prc));
   }
 
   void put(const std::shared_ptr<KinesisRecord>& kr,
@@ -83,15 +85,7 @@ class Retrier {
   }
 
  private:
-  void handle_put_records_result(const Result& result);
-
-  void on_200(const Result& result);
-
-  void retry_not_expired(const Result& result);
-
-  void retry_not_expired(const Result& result,
-                         const std::string& err_code,
-                         const std::string& err_msg);
+  void handle_put_records_result(std::shared_ptr<PutRecordsContext> prc);
 
   void retry_not_expired(const std::shared_ptr<KinesisRecord>& kr,
                          TimePoint start,
@@ -104,12 +98,6 @@ class Retrier {
                          TimePoint end,
                          const std::string& err_code,
                          const std::string& err_msg);
-
-  void fail(const Result& result);
-
-  void fail(const Result& result,
-            const std::string& err_code,
-            const std::string& err_msg);
 
   void fail(const std::shared_ptr<KinesisRecord>& kr,
             TimePoint start,
@@ -132,9 +120,9 @@ class Retrier {
   void finish_user_record(const std::shared_ptr<UserRecord>& ur,
                           const Attempt& final_attempt);
 
-  void emit_metrics(const Result& result);
-
   void emit_metrics(const std::shared_ptr<UserRecord>& ur);
+
+  void emit_metrics(const std::shared_ptr<PutRecordsContext>& prc);
 
   std::shared_ptr<Configuration> config_;
   UserRecordCallback finish_cb_;
