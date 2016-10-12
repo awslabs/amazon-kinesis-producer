@@ -162,7 +162,7 @@ if [ ! -d "curl-7.47.0" ]; then
   cd curl-7.47.0
 
   conf --disable-shared --disable-ldap --disable-ldaps \
-    --enable-threaded-resolver --disable-debug --without-libssh2
+    --enable-threaded-resolver --disable-debug --without-libssh2 --without-ca-bundle
   make -j
   make install
 
