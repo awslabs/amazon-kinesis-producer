@@ -8,6 +8,18 @@ For detailed information and installation instructions, see the article [Develop
 
 ## Release Notes
 
+### 0.12.1
+
+#### C++ Core
+
+* The native process will no longer attempt to use the default system CA bundle
+  * The KPL should now run on versions of Linux that don't place the default CA bundle in /etc/pki
+  * This fixes issue #66
+  
+* Added automatic BJS endpoint selection
+  * The KPL will now select the BJS endpoint when configured for BJS.
+  * This fixes issue #36
+
 ### 0.12.0
 
 * **Maven Artifact Signing Change**
