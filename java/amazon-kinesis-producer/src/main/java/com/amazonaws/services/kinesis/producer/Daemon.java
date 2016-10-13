@@ -417,9 +417,10 @@ public class Daemon {
     }
     
     private void startChildProcess() throws IOException, InterruptedException {
+        log.info("Asking for trace");
         List<String> args = new ArrayList<>(Arrays.asList(pathToExecutable, "-o", outPipe.getAbsolutePath(), "-i",
                 inPipe.getAbsolutePath(), "-c", protobufToHex(config.toProtobufMessage()), "-k",
-                protobufToHex(makeSetCredentialsMessage(config.getCredentialsProvider(), false)), "-t"));
+                protobufToHex(makeSetCredentialsMessage(config.getCredentialsProvider(), false)), "-t", "--log-level", "trace"));
 
         AWSCredentialsProvider metricsCreds = config.getMetricsCredentialsProvider();
         if (metricsCreds == null) {

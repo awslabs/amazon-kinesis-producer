@@ -66,11 +66,12 @@ struct option long_opts[]{
 };
 
 void handle_log_level(std::string input_level) {
-    std::string level;
-    std::transform(input_level.begin(), input_level.end(), level.begin(), ::tolower);
+    std::string level = input_level;
+    std::transform(level.begin(), level.end(), level.begin(), ::tolower);
     using AwsLog = Aws::Utils::Logging::LogLevel;
     using BoostLog = boost::log::trivial::severity_level;
     std::unordered_map< std::string, std::pair<AwsLog, BoostLog> > level_mapping;
+
     level_mapping["trace"] = std::make_pair(AwsLog::Trace, BoostLog::trace);
     level_mapping["debug"] = std::make_pair(AwsLog::Debug, BoostLog::debug);
     level_mapping["info"] = std::make_pair(AwsLog::Info, BoostLog::info);

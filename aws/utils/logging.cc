@@ -31,6 +31,7 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/logging/AWSLogging.h>
 #include <aws/core/utils/Array.h>
+#include <aws/core/utils/logging/LogLevel.h>
 
 namespace aws {
 namespace utils {
@@ -71,8 +72,6 @@ void setup_logging(const BoostLevel level) {
         << "[" << expr::format_date_time<boost::posix_time::ptime>(
               "TimeStamp",
               "%Y-%m-%d %H:%M:%S.%f") << "] "
-//        << "[" << expr::attr<boost::log::aux::thread::id>("ThreadID") << "] "
-//        << "[" << expr::attr<boost::log::aux::process::id>("ProcessID") << "] "
         << "[" << expr::attr<boost::log::attributes::current_process_id::value_type>("ProcessID") << "]"
         << "[" << expr::attr<boost::log::attributes::current_thread_id::value_type>("ThreadID") << "] "
         << "[" << boost::log::trivial::severity << "] "
@@ -81,6 +80,7 @@ void setup_logging(const BoostLevel level) {
     sink->set_formatter(log_expr);
 
     boost::log::core::get()->add_sink(sink);
+    LOG(info) << "Set boost log level to " << boost::log::trivial::to_string(level);
 }
 using BoostLog = boost::log::trivial::severity_level;
 const BoostLog AwsLevelToBoostLevel[] = {
@@ -159,13 +159,15 @@ public:
         level = AwsLevelToBoostLevel[logLevelSize];
       }
     }
-    BOOST_LOG_SEV(aws::utils::_logger, level) << "[AWS Log](" << tag << ")" << message;
+    BOOST_LOG_SEV(aws::utils::_logger, level) << "[AWS Log: " << Aws::Utils::Logging::GetLogLevelName(logLevel) << "](" << tag << ")" << message;
   }
 };
 
 void setup_aws_logging(Aws::Utils::Logging::LogLevel log_level) {
     Aws::Utils::Logging::InitializeAWSLogging(
       Aws::MakeShared<AwsBoostLogInterface>("kpl-sdk-logging", log_level));
+
+    LOG(info) << "Set AWS Log Level to " << Aws::Utils::Logging::GetLogLevelName(log_level);
 }
 
 } //namespace utils

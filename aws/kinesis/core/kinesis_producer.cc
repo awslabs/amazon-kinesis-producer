@@ -25,7 +25,29 @@
 
 namespace {
 
+struct EndpointConfiguration {
+  std::string kinesis_endpoint_;
+  std::string cloudwatch_endpoint_;
+
+  EndpointConfiguration(std::string kinesis_endpoint, std::string cloudwatch_endpoint) :
+    kinesis_endpoint_(kinesis_endpoint), cloudwatch_endpoint_(cloudwatch_endpoint) {}
+};
+
 const constexpr char* kVersion = "0.12.0";
+const std::unordered_map< std::string, EndpointConfiguration > kRegionEndpointOverride = {
+  { "cn-north-1", { "kinesis.cn-north-1.amazonaws.com.cn", "monitoring.cn-north-1.amazonaws.com.cn" } }
+};
+
+void set_override_if_present(std::string& region, Aws::Client::ClientConfiguration& cfg, std::string service, std::function<std::string(EndpointConfiguration)> extractor) {
+  auto region_override = kRegionEndpointOverride.find(region);
+  if (region_override != kRegionEndpointOverride.end()) {
+    std::string url = extractor(region_override->second);
+    LOG(info) << "Found region override of " << service << " for " << region << ". Using endpoint of " << url;
+    cfg.endpointOverride = url;
+  } else {
+    LOG(info) << "Using default " << service << " endpoint";
+  }
+}
 
 std::string user_agent() {
   std::stringstream ss;
@@ -115,11 +137,11 @@ void KinesisProducer::create_kinesis_client(const std::string& ca_path) {
   if (config_->kinesis_endpoint().size() > 0) {
     cfg.endpointOverride = config_->kinesis_endpoint() + ":" +
         std::to_string(config_->kinesis_port());
+    LOG(info) << "Using Kinesis endpoint " + cfg.endpointOverride;
   } else {
-    cfg.endpointOverride =
-        "kinesis." + region_ + ".amazonaws.com:443";
+      set_override_if_present(region_, cfg, "Kinesis", [](auto ep) { return ep.kinesis_endpoint_; });
   }
-  LOG(info) << "Using Kinesis endpoint " + cfg.endpointOverride;
+
   kinesis_client_ = std::make_shared<Aws::Kinesis::KinesisClient>(
       kinesis_creds_provider_,
       cfg);
@@ -130,11 +152,11 @@ void KinesisProducer::create_cw_client(const std::string& ca_path) {
   if (config_->cloudwatch_endpoint().size() > 0) {
     cfg.endpointOverride = config_->cloudwatch_endpoint() + ":" +
         std::to_string(config_->cloudwatch_port());
+    LOG(info) << "Using CloudWatch endpoint " + cfg.endpointOverride;
   } else {
-    cfg.endpointOverride =
-        "monitoring." + region_ + ".amazonaws.com:443";
+      set_override_if_present(region_, cfg, "CloudWatch", [](auto ep) -> std::string { return ep.cloudwatch_endpoint_; });
   }
-  LOG(info) << "Using CloudWatch endpoint " + cfg.endpointOverride;
+
   cw_client_ = std::make_shared<Aws::CloudWatch::CloudWatchClient>(
       cw_creds_provider_,
       cfg);
