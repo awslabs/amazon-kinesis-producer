@@ -19,7 +19,7 @@
 
 static size_t signal_message_sizes[NSIG];
 
-void write_signal_descriptiong(int signal) {
+void write_signal_description(int signal) {
     if (signal <= 0 || signal >= NSIG) {
         WRITE_MESSAGE("Can't Find Signal Description for ")
         WRITE_NUM_CHECKED(signal, "Negative Signal")
@@ -78,7 +78,7 @@ static void signal_handler(int, siginfo_t *info, void *) {
         }
         WRITE_MESSAGE("\n");
         WRITE_MESSAGE("Description: ")
-        write_signal_descriptiong(info->si_signo);
+        write_signal_description(info->si_signo);
         WRITE_MESSAGE("\n")
         WRITE_MESSAGE("---BEGIN STACK TRACE---\n")
         aws::utils::backtrace::stack_trace_for_signal();
@@ -105,22 +105,29 @@ namespace aws {
                     signal_message_sizes[i] = strlen(sys_siglist[i]);
                 }
             }
+            sigset_t mask;
+            sigemptyset(&mask);
+            sigaddset(&mask, SIGQUIT);
+            sigaddset(&mask, SIGILL);
+            sigaddset(&mask, SIGBUS);
+            sigaddset(&mask, SIGSEGV);
+
             struct sigaction action;
             action.sa_sigaction = &signal_handler;
-            action.sa_flags |= SA_SIGINFO;
+            action.sa_flags = SA_SIGINFO;
+            action.sa_mask = mask;
 
             sigaction(SIGQUIT, &action, NULL);
             sigaction(SIGILL, &action, NULL);
-            //
-            // Disabling for now, since the handler will actually trigger an abort once it's done.
-            //
-            // sigaction(SIGABRT, &action, NULL);
             sigaction(SIGBUS, &action, NULL);
             sigaction(SIGSEGV, &action, NULL);
+
             //
-            // Disabling this since curl can trigger them and doesn't ignore them
+            // Ignoring this since curl/OpenSSL can trigger them and something is wrong with it's ignore
             //
-            sigaction(SIGPIPE, &action, NULL);
+            struct sigaction pipe_action = {};
+            pipe_action.sa_handler = SIG_IGN;
+            sigaction(SIGPIPE, &pipe_action, NULL);
         }
 
         void enable_segfault_trigger() {
