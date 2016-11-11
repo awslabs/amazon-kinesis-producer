@@ -1,6 +1,15 @@
+// Copyright 2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
-// Created by Pfifer, Justin on 4/29/16.
+// Licensed under the Amazon Software License (the "License").
+// You may not use this file except in compliance with the License.
+// A copy of the License is located at
 //
+//  http://aws.amazon.com/asl
+//
+// or in the "license" file accompanying this file. This file is distributed
+// on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the License for the specific language governing
+// permissions and limitations under the License.
 
 #include "signal_handler.h"
 #include "segfault_signal.h"
@@ -13,9 +22,6 @@
 #include <cstring>
 #include <cstdint>
 #include <cstdlib>
-#include <thread>
-#include <mutex>
-#include <atomic>
 
 static size_t signal_message_sizes[NSIG];
 
@@ -32,63 +38,68 @@ void write_signal_description(int signal) {
     }
 }
 
-static std::mutex display_mutex;
-
 static void signal_handler(int, siginfo_t *info, void *) {
-    {
-        std::lock_guard<std::mutex> lock(display_mutex);                
-        WRITE_MESSAGE("\n++++\n")
-        WRITE_MESSAGE("[ERROR]\n")        
+    WRITE_MESSAGE("\n++++\n");
+    if (info->si_signo == SIGUSR1) {
+        WRITE_MESSAGE("[INFO]\n");
+        WRITE_MESSAGE("User Requested Stack Trace\n");
+        WRITE_MESSAGE("---BEGIN INFO---\n");
+    } else {
+        WRITE_MESSAGE("[ERROR]\n");
         WRITE_MESSAGE("---BEGIN ERROR----\n");
-        WRITE_MESSAGE("Signal: ");
-
-        switch (info->si_signo) {
-            case SIGQUIT:
-                WRITE_MESSAGE("SIGQUIT")
-                break;
-            case SIGILL:
-                WRITE_MESSAGE("SIGILL: ")
-                WRITE_MESSAGE(" Code: (")
-                WRITE_CODE(info->si_code)
-                WRITE_MESSAGE(") Address: ")
-                WRITE_POINTER(info->si_addr)
-                break;
-            case SIGBUS:
-                WRITE_MESSAGE("SIGBUS")
-                WRITE_MESSAGE(" Code: (")
-                WRITE_CODE(info->si_code)
-                WRITE_MESSAGE(") Address: ")
-                WRITE_POINTER(info->si_addr)
-                break;
-            case SIGSEGV:
-                WRITE_MESSAGE("SIGSEGV")
-                WRITE_MESSAGE(" Code: (")
-                WRITE_CODE(info->si_code)
-                WRITE_MESSAGE(") Address: ")
-                WRITE_POINTER(info->si_addr)
-                break;
-            case SIGPIPE:
-                WRITE_MESSAGE("SIGPIPE")
-                break;
-            default:
-                WRITE_MESSAGE("Unhandled Signal(")
-                WRITE_NUM_CHECKED(info->si_signo, "Negative Signal?")
-                WRITE_MESSAGE(")")
-                break;
-        }
-        WRITE_MESSAGE("\n");
-        WRITE_MESSAGE("Description: ")
-        write_signal_description(info->si_signo);
-        WRITE_MESSAGE("\n")
-        WRITE_MESSAGE("---BEGIN STACK TRACE---\n")
-        aws::utils::backtrace::stack_trace_for_signal();
-        WRITE_MESSAGE("---END STACK TRACE---\n")
-        WRITE_MESSAGE("---END ERROR---\n")
-        WRITE_MESSAGE("----\n");
     }
+    WRITE_MESSAGE("Signal: ");
 
-    if (info->si_signo != SIGPIPE) {
-        sleep(2);
+    switch (info->si_signo) {
+    case SIGQUIT:
+        WRITE_MESSAGE("SIGQUIT")
+            break;
+    case SIGILL:
+        WRITE_MESSAGE("SIGILL: ");
+        WRITE_MESSAGE(" Code: (");
+        WRITE_CODE(info->si_code);
+        WRITE_MESSAGE(") Address: ");
+        WRITE_POINTER(info->si_addr);
+        break;
+    case SIGBUS:
+        WRITE_MESSAGE("SIGBUS");
+        WRITE_MESSAGE(" Code: (");
+        WRITE_CODE(info->si_code);
+        WRITE_MESSAGE(") Address: ");
+        WRITE_POINTER(info->si_addr);
+        break;
+    case SIGSEGV:
+        WRITE_MESSAGE("SIGSEGV");
+        WRITE_MESSAGE(" Code: (");
+        WRITE_CODE(info->si_code);
+        WRITE_MESSAGE(") Address: ");
+        WRITE_POINTER(info->si_addr);
+        break;
+    case SIGUSR1:
+        WRITE_MESSAGE("SIGUSR1");
+        break;
+    default:
+        WRITE_MESSAGE("Unhandled Signal(");
+        WRITE_NUM_CHECKED(info->si_signo, "Negative Signal?");
+        WRITE_MESSAGE(")");
+        break;
+    }
+    WRITE_MESSAGE("\n");
+    WRITE_MESSAGE("Description: ");
+    write_signal_description(info->si_signo);
+    WRITE_MESSAGE("\n");
+    WRITE_MESSAGE("---BEGIN STACK TRACE---\n");
+    aws::utils::backtrace::stack_trace_for_signal();
+    WRITE_MESSAGE("---END STACK TRACE---\n");
+    if (info->si_signo == SIGUSR1) {
+        WRITE_MESSAGE("---END INFO---\n");
+    } else {
+        WRITE_MESSAGE("---END ERROR---\n");
+    }
+    WRITE_MESSAGE("----\n");
+    
+
+    if (info->si_signo != SIGUSR1) {
         abort();
     }
 
@@ -111,6 +122,7 @@ namespace aws {
             sigaddset(&mask, SIGILL);
             sigaddset(&mask, SIGBUS);
             sigaddset(&mask, SIGSEGV);
+            sigaddset(&mask, SIGUSR1);
 
             struct sigaction action;
             action.sa_sigaction = &signal_handler;
@@ -121,6 +133,15 @@ namespace aws {
             sigaction(SIGILL, &action, NULL);
             sigaction(SIGBUS, &action, NULL);
             sigaction(SIGSEGV, &action, NULL);
+
+            //
+            // This enables customers to trigger a stack trace at any time by sending SIGUSR1 to the Kinesis Producer
+            // PID.  Unfortunately there is no way to control which thread actually handles the signal, so this is of
+            // questionable utility.
+            //
+            // TODO: Change the overall thread handling to allow triggering a stack trace from every thread.
+            //
+            sigaction(SIGUSR1, &action, NULL);
 
             //
             // Ignoring this since curl/OpenSSL can trigger them and something is wrong with it's ignore
