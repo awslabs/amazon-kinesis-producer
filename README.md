@@ -8,6 +8,13 @@ For detailed information and installation instructions, see the article [Develop
 
 ## Release Notes
 
+### 0.12.2
+
+#### C++ Core
+
+* The native process will no longer report SIGPIPE signals as an error with a stack trace.
+* Allow the use of SIGUSR1 to trigger a stack trace. This stack trace will only report for the thread that happened to receive the signal.
+
 ### 0.12.1
 
 #### C++ Core
@@ -134,77 +141,9 @@ A sample java project is available in `java/amazon-kinesis-sample`.
 
 ## Compiling the Native Code
 
-Rather than compiling from source, Java developers are encouraged to use the [KPL release in Maven](https://search.maven.org/#search%7Cga%7C1%7Camazon-kinesis-producer), which includes pre-compiled native binaries for Linux, OSX and Windows.
+Rather than compiling from source, Java developers are encouraged to use the [KPL release in Maven](https://search.maven.org/#search%7Cga%7C1%7Camazon-kinesis-producer), which includes pre-compiled native binaries for Linux, macOS.
 
-### Building on OSX with Clang
-
-An upgrade to the latest xcode command line tools is recommended.
-
-Once you have the repo checked out, run `bootstrap.sh`. This will download and compile all the dependencies. They will be installed into `{project_root}/third_party`.
-
-Run `./b2 -j 8` to build in debug mode.
-
-Run `./b2 release -j 8` to build release.
-
-Unit tests:
-
-```
-./b2 release -j 8 && ./bin/darwin-4.2.1/release/tests --report_level=detailed
-```
-
-### Building on Linux with GCC
-
-Currently only GCC is officially supported for building on Linux. Using other compilers may require modifying the build script (the project uses [boost build](http://www.boost.org/build/)).
-
-You will need gcc 4.9.x (or above).
-
-After that, it's the same as above, i.e.
-
-```
-./bootstrap.sh
-./b2 release -j 8
-```
-
-Unit tests:
-
-```
-./b2 release -j 8 && ./bin/gcc-4.9.2/release/tests --report_level=detailed
-```
-
-Note that if you build on a newer distribution and then deploy to an older one, the program may fail to run because it was linked against a newer version of glibc that the old OS doesn't have. To avoid this problem, build on the same (or a similar) distribution as the one you'll be using in production. We build the official release with RHEL 5 (kernel 2.6.18, glibc 2.5).
-
-### Building on Windows with MinGW
-
-At the time of writing MSVC (14.0) is not able to compile the KPL native code. As such, we have to use MinGW.
-
-We have successfully built and tested the KPL using the nuwen.net MinGW release 13.0. You can get it [here](http://nuwen.net/mingw.html). Get the version that includes git.
-
-Once you have extracted MinGW, go to the MinGW root folder and run `open_distro_window.bat`. This opens a command prompt with the current directory set to the MinGW root folder.
-
-From that command prompt, run `git\git-bash`. This will turn the command prompt into a bash shell.
-
-From there on it's the same procedure as Linux and OSX, i.e.:
-
-```
-# You may wish to cd to another dir first
-git clone https://github.com/awslabs/amazon-kinesis-producer amazon-kinesis-producer
-
-cd amazon-kinesis-producer
-./bootstrap.sh
-
-# We need to specify the toolset, otherwise boost will use MSVC by default, which won't work
-./b2 release -j 8 toolset=gcc
-```
-
-If you encounter an error that says `File or path name too long`, try moving the project folder to `/c/` to shorten the paths.
-
-Unit tests:
-
-```
-./b2 release -j 8 toolset=gcc && bin/gcc-mingw-5.1.0/release/tests.exe --report_level=detailed
-```
-
-You may need to increase the command prompt's line and/or buffer size to see the whole test report.
+Compilation of the native KPL components is currently migrating to CMake. Updating of the build instructions is currently being tracked in [Issue #67](https://github.com/awslabs/amazon-kinesis-producer/issues/67).
 
 ### Using the Java Wrapper with the Compiled Native Binaries
 
