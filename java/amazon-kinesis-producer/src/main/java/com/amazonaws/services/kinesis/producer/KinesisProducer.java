@@ -116,6 +116,7 @@ public class KinesisProducer {
                 }
             });
 
+
     private String pathToExecutable;
     private String pathToLibDir;
     private String pathToTmpDir;
@@ -762,9 +763,10 @@ public class KinesisProducer {
             } catch (InterruptedException e) { }
         }
     }
-    
+
     private void extractBinaries() {
         synchronized (EXTRACT_BIN_MUTEX) {
+            final List<File> watchFiles = new ArrayList<>(2);
             String os = SystemUtils.OS_NAME;
             if (SystemUtils.IS_OS_WINDOWS) {
                 os = "windows";
@@ -807,6 +809,7 @@ public class KinesisProducer {
                     
                     pathToExecutable = Paths.get(pathToTmpDir, "kinesis_producer_" + mdHex + extension).toString();
                     File extracted = new File(pathToExecutable);
+                    watchFiles.add(extracted);
                     if (extracted.exists()) {
                         try (FileInputStream fis = new FileInputStream(extracted);
                                 FileLock lock = fis.getChannel().lock(0, Long.MAX_VALUE, true)) {
@@ -829,20 +832,23 @@ public class KinesisProducer {
                     }
                     
                     String certFileName = "b204d74a.0";
-                    String certFilePath = Paths.get(pathToTmpDir, certFileName).toString();
-                    if (!new File(certFilePath).exists()) {
-                        try (FileOutputStream fos = new FileOutputStream(certFilePath);
+                    File certFile = new File(pathToTmpDir, certFileName);
+                    if (!certFile.exists()) {
+                        try (FileOutputStream fos = new FileOutputStream(certFile);
                                 FileLock lock = fos.getChannel().lock()) {
                             byte[] certs = IOUtils.toByteArray(
                                     this.getClass().getClassLoader().getResourceAsStream("cacerts/" + certFileName));
                             IOUtils.write(certs, fos);
                         }
                     }
-     
+
+                    watchFiles.add(certFile);
                     pathToLibDir = pathToTmpDir;
+                    FileAgeManager.instance().registerFiles(watchFiles);
                 } catch (Exception e) {
                     throw new RuntimeException("Could not copy native binaries to temp directory " + tmpDir, e);
                 }
+
             }
         }
     }
