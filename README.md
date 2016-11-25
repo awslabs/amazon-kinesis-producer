@@ -8,6 +8,13 @@ For detailed information and installation instructions, see the article [Develop
 
 ## Release Notes
 
+### 0.12.3
+
+#### Java
+
+* The Java process will periodically reset the last modified times for native components. This will help to ensure that these files aren't deleted by automated cleanup scripts.
+  * Fixes [Issue #81](https://github.com/awslabs/amazon-kinesis-producer/issues/81)
+
 ### 0.12.2
 
 #### C++ Core
