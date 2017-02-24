@@ -18,7 +18,9 @@ package com.amazonaws.services.kinesis.producer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileLock;
@@ -810,27 +812,32 @@ public class KinesisProducer {
                     pathToExecutable = Paths.get(pathToTmpDir, "kinesis_producer_" + mdHex + extension).toString();
                     File extracted = new File(pathToExecutable);
                     watchFiles.add(extracted);
-                    if (extracted.exists()) {
-                        try (FileInputStream fis = new FileInputStream(extracted);
-                                FileLock lock = fis.getChannel().lock(0, Long.MAX_VALUE, true)) {
+
+                    // use dedicated lock-file to limit access to executable by a single process
+                    final String pathToLock = Paths.get(pathToTmpDir, "kinesis_producer_" + mdHex + ".lock").toString();
+                    final File lockFile = new File(pathToLock);
+                    try (FileOutputStream lockFOS = new FileOutputStream(lockFile);
+                         FileLock lock = lockFOS.getChannel().lock()) {
+                        if (extracted.exists()) {
                             boolean contentEqual = false;
                             if (extracted.length() == bin.length) {
-                                byte[] existingBin = IOUtils.toByteArray(new FileInputStream(extracted));
-                                contentEqual = Arrays.equals(bin, existingBin);
+                                try (InputStream executableIS = new FileInputStream(extracted)) {
+                                    byte[] existingBin = IOUtils.toByteArray(executableIS);
+                                    contentEqual = Arrays.equals(bin, existingBin);
+                                }
                             }
                             if (!contentEqual) {
                                 throw new SecurityException("The contents of the binary " + extracted.getAbsolutePath()
                                         + " is not what it's expected to be.");
                             }
+                        } else {
+                            try (OutputStream fos = new FileOutputStream(extracted)) {
+                                IOUtils.write(bin, fos);
+                            }
+                            extracted.setExecutable(true);
                         }
-                    } else {
-                        try (FileOutputStream fos = new FileOutputStream(extracted);
-                                FileLock lock = fos.getChannel().lock()) {
-                            IOUtils.write(bin, fos);
-                        }
-                        extracted.setExecutable(true);
                     }
-                    
+
                     String certFileName = "b204d74a.0";
                     File certFile = new File(pathToTmpDir, certFileName);
                     if (!certFile.exists()) {
