@@ -467,12 +467,14 @@ public class Daemon {
 
         executor.submit(stdOutReader);
         executor.submit(stdErrReader);
-        int code = process.waitFor();
-
-        stdOutReader.shutdown();
-        stdErrReader.shutdown();
-        deletePipes();
-        fatalError("Child process exited with code " + code, code != 1);
+        try {
+            int code = process.waitFor();
+            fatalError("Child process exited with code " + code, code != 1);
+        } finally {
+            stdOutReader.shutdown();
+            stdErrReader.shutdown();
+            deletePipes();
+        }
     }
     
     private void updateCredentials() throws InterruptedException {
