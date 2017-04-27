@@ -480,6 +480,13 @@ class Configuration : public ::google::protobuf::Message {
   inline ::aws::kinesis::protobuf::Configuration_ThreadConfig thread_config() const;
   inline void set_thread_config(::aws::kinesis::protobuf::Configuration_ThreadConfig value);
 
+  // optional uint32 thread_pool_max_threads = 27 [default = 32];
+  inline bool has_thread_pool_max_threads() const;
+  inline void clear_thread_pool_max_threads();
+  static const int kThreadPoolMaxThreadsFieldNumber = 27;
+  inline ::google::protobuf::uint32 thread_pool_max_threads() const;
+  inline void set_thread_pool_max_threads(::google::protobuf::uint32 value);
+
   // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.Configuration)
  private:
   inline void set_has_aggregation_enabled();
@@ -534,6 +541,8 @@ class Configuration : public ::google::protobuf::Message {
   inline void clear_has_verify_certificate();
   inline void set_has_thread_config();
   inline void clear_has_thread_config();
+  inline void set_has_thread_pool_max_threads();
+  inline void clear_has_thread_pool_max_threads();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -570,6 +579,7 @@ class Configuration : public ::google::protobuf::Message {
   ::google::protobuf::uint64 record_ttl_;
   ::std::string* region_;
   ::google::protobuf::uint64 request_timeout_;
+  ::google::protobuf::uint32 thread_pool_max_threads_;
   friend void  protobuf_AddDesc_config_2eproto();
   friend void protobuf_AssignDesc_config_2eproto();
   friend void protobuf_ShutdownFile_config_2eproto();
@@ -1833,6 +1843,30 @@ inline void Configuration::set_thread_config(::aws::kinesis::protobuf::Configura
   set_has_thread_config();
   thread_config_ = value;
   // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.thread_config)
+}
+
+// optional uint32 thread_pool_max_threads = 27 [default = 32];
+inline bool Configuration::has_thread_pool_max_threads() const {
+  return (_has_bits_[0] & 0x08000000u) != 0;
+}
+inline void Configuration::set_has_thread_pool_max_threads() {
+  _has_bits_[0] |= 0x08000000u;
+}
+inline void Configuration::clear_has_thread_pool_max_threads() {
+  _has_bits_[0] &= ~0x08000000u;
+}
+inline void Configuration::clear_thread_pool_max_threads() {
+  thread_pool_max_threads_ = 32u;
+  clear_has_thread_pool_max_threads();
+}
+inline ::google::protobuf::uint32 Configuration::thread_pool_max_threads() const {
+  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.Configuration.thread_pool_max_threads)
+  return thread_pool_max_threads_;
+}
+inline void Configuration::set_thread_pool_max_threads(::google::protobuf::uint32 value) {
+  set_has_thread_pool_max_threads();
+  thread_pool_max_threads_ = value;
+  // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.thread_pool_max_threads)
 }
 
 

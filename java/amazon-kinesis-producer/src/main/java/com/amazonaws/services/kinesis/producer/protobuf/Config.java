@@ -1118,6 +1118,15 @@ public final class Config {
      * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = DEFAULT];</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig getThreadConfig();
+
+    /**
+     * <code>optional uint32 thread_pool_max_threads = 27 [default = 32];</code>
+     */
+    boolean hasThreadPoolMaxThreads();
+    /**
+     * <code>optional uint32 thread_pool_max_threads = 27 [default = 32];</code>
+     */
+    int getThreadPoolMaxThreads();
   }
   /**
    * Protobuf type {@code aws.kinesis.protobuf.Configuration}
@@ -1312,6 +1321,11 @@ public final class Config {
                 bitField0_ |= 0x02000000;
                 threadConfig_ = value;
               }
+              break;
+            }
+            case 216: {
+              bitField0_ |= 0x04000000;
+              threadPoolMaxThreads_ = input.readUInt32();
               break;
             }
             case 1026: {
@@ -2061,6 +2075,21 @@ public final class Config {
       return threadConfig_;
     }
 
+    public static final int THREAD_POOL_MAX_THREADS_FIELD_NUMBER = 27;
+    private int threadPoolMaxThreads_;
+    /**
+     * <code>optional uint32 thread_pool_max_threads = 27 [default = 32];</code>
+     */
+    public boolean hasThreadPoolMaxThreads() {
+      return ((bitField0_ & 0x04000000) == 0x04000000);
+    }
+    /**
+     * <code>optional uint32 thread_pool_max_threads = 27 [default = 32];</code>
+     */
+    public int getThreadPoolMaxThreads() {
+      return threadPoolMaxThreads_;
+    }
+
     private void initFields() {
       additionalMetricDims_ = java.util.Collections.emptyList();
       aggregationEnabled_ = true;
@@ -2089,6 +2118,7 @@ public final class Config {
       requestTimeout_ = 6000L;
       verifyCertificate_ = true;
       threadConfig_ = com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.DEFAULT;
+      threadPoolMaxThreads_ = 32;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -2186,6 +2216,9 @@ public final class Config {
       }
       if (((bitField0_ & 0x02000000) == 0x02000000)) {
         output.writeEnum(26, threadConfig_.getNumber());
+      }
+      if (((bitField0_ & 0x04000000) == 0x04000000)) {
+        output.writeUInt32(27, threadPoolMaxThreads_);
       }
       for (int i = 0; i < additionalMetricDims_.size(); i++) {
         output.writeMessage(128, additionalMetricDims_.get(i));
@@ -2302,6 +2335,10 @@ public final class Config {
       if (((bitField0_ & 0x02000000) == 0x02000000)) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(26, threadConfig_.getNumber());
+      }
+      if (((bitField0_ & 0x04000000) == 0x04000000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt32Size(27, threadPoolMaxThreads_);
       }
       for (int i = 0; i < additionalMetricDims_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
@@ -2483,6 +2520,8 @@ public final class Config {
         bitField0_ = (bitField0_ & ~0x02000000);
         threadConfig_ = com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.DEFAULT;
         bitField0_ = (bitField0_ & ~0x04000000);
+        threadPoolMaxThreads_ = 32;
+        bitField0_ = (bitField0_ & ~0x08000000);
         return this;
       }
 
@@ -2624,6 +2663,10 @@ public final class Config {
           to_bitField0_ |= 0x02000000;
         }
         result.threadConfig_ = threadConfig_;
+        if (((from_bitField0_ & 0x08000000) == 0x08000000)) {
+          to_bitField0_ |= 0x04000000;
+        }
+        result.threadPoolMaxThreads_ = threadPoolMaxThreads_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -2757,6 +2800,9 @@ public final class Config {
         }
         if (other.hasThreadConfig()) {
           setThreadConfig(other.getThreadConfig());
+        }
+        if (other.hasThreadPoolMaxThreads()) {
+          setThreadPoolMaxThreads(other.getThreadPoolMaxThreads());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -4174,6 +4220,38 @@ public final class Config {
         return this;
       }
 
+      private int threadPoolMaxThreads_ = 32;
+      /**
+       * <code>optional uint32 thread_pool_max_threads = 27 [default = 32];</code>
+       */
+      public boolean hasThreadPoolMaxThreads() {
+        return ((bitField0_ & 0x08000000) == 0x08000000);
+      }
+      /**
+       * <code>optional uint32 thread_pool_max_threads = 27 [default = 32];</code>
+       */
+      public int getThreadPoolMaxThreads() {
+        return threadPoolMaxThreads_;
+      }
+      /**
+       * <code>optional uint32 thread_pool_max_threads = 27 [default = 32];</code>
+       */
+      public Builder setThreadPoolMaxThreads(int value) {
+        bitField0_ |= 0x08000000;
+        threadPoolMaxThreads_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional uint32 thread_pool_max_threads = 27 [default = 32];</code>
+       */
+      public Builder clearThreadPoolMaxThreads() {
+        bitField0_ = (bitField0_ & ~0x08000000);
+        threadPoolMaxThreads_ = 32;
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:aws.kinesis.protobuf.Configuration)
     }
 
@@ -4206,7 +4284,7 @@ public final class Config {
     java.lang.String[] descriptorData = {
       "\n\014config.proto\022\024aws.kinesis.protobuf\"F\n\023" +
       "AdditionalDimension\022\013\n\003key\030\001 \002(\t\022\r\n\005valu" +
-      "e\030\002 \002(\t\022\023\n\013granularity\030\003 \002(\t\"\206\010\n\rConfigu" +
+      "e\030\002 \002(\t\022\023\n\013granularity\030\003 \002(\t\"\253\010\n\rConfigu" +
       "ration\022J\n\026additional_metric_dims\030\200\001 \003(\0132" +
       ").aws.kinesis.protobuf.AdditionalDimensi" +
       "on\022!\n\023aggregation_enabled\030\001 \001(\010:\004true\022)\n" +
@@ -4231,9 +4309,10 @@ public final class Config {
       "uest_timeout\030\030 \001(\004:\0046000\022 \n\022verify_certi" +
       "ficate\030\031 \001(\010:\004true\022P\n\rthread_config\030\032 \001(" +
       "\01620.aws.kinesis.protobuf.Configuration.T" +
-      "hreadConfig:\007DEFAULT\"\'\n\014ThreadConfig\022\013\n\007" +
-      "DEFAULT\020\000\022\n\n\006POOLED\020\001B2\n0com.amazonaws.s" +
-      "ervices.kinesis.producer.protobuf"
+      "hreadConfig:\007DEFAULT\022#\n\027thread_pool_max_" +
+      "threads\030\033 \001(\r:\00232\"\'\n\014ThreadConfig\022\013\n\007DEF" +
+      "AULT\020\000\022\n\n\006POOLED\020\001B2\n0com.amazonaws.serv",
+      "ices.kinesis.producer.protobuf"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -4258,7 +4337,7 @@ public final class Config {
     internal_static_aws_kinesis_protobuf_Configuration_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_aws_kinesis_protobuf_Configuration_descriptor,
-        new java.lang.String[] { "AdditionalMetricDims", "AggregationEnabled", "AggregationMaxCount", "AggregationMaxSize", "CloudwatchEndpoint", "CloudwatchPort", "CollectionMaxCount", "CollectionMaxSize", "ConnectTimeout", "EnableCoreDumps", "FailIfThrottled", "KinesisEndpoint", "KinesisPort", "LogLevel", "MaxConnections", "MetricsGranularity", "MetricsLevel", "MetricsNamespace", "MetricsUploadDelay", "MinConnections", "RateLimit", "RecordMaxBufferedTime", "RecordTtl", "Region", "RequestTimeout", "VerifyCertificate", "ThreadConfig", });
+        new java.lang.String[] { "AdditionalMetricDims", "AggregationEnabled", "AggregationMaxCount", "AggregationMaxSize", "CloudwatchEndpoint", "CloudwatchPort", "CollectionMaxCount", "CollectionMaxSize", "ConnectTimeout", "EnableCoreDumps", "FailIfThrottled", "KinesisEndpoint", "KinesisPort", "LogLevel", "MaxConnections", "MetricsGranularity", "MetricsLevel", "MetricsNamespace", "MetricsUploadDelay", "MinConnections", "RateLimit", "RecordMaxBufferedTime", "RecordTtl", "Region", "RequestTimeout", "VerifyCertificate", "ThreadConfig", "ThreadPoolMaxThreads", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

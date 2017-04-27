@@ -42,4 +42,5 @@ message Configuration {
     POOLED = 1;
   }
   optional ThreadConfig thread_config = 26 [default = DEFAULT];
+  optional uint32 thread_pool_max_threads = 27 [default = 32];
 }
