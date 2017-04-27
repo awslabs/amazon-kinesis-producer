@@ -23,6 +23,9 @@
 #include <aws/core/http/Scheme.h>
 #include <aws/kinesis/core/kinesis_producer.h>
 
+#include <system_error>
+#include <aws/core/utils/threading/Executor.h>
+
 namespace {
 
 struct EndpointConfiguration {
@@ -78,6 +81,16 @@ std::string user_agent() {
   return ua;
 }
 
+template<typename T>
+T cast_size_t(std::size_t value) {
+  if (value > std::numeric_limits<T>::max()) {
+    throw std::system_error(std::make_error_code(std::errc::result_out_of_range));
+  }
+  return static_cast<T>(value);
+}
+
+std::shared_ptr<Aws::Utils::Threading::Executor> sdk_client_executor;
+
 Aws::Client::ClientConfiguration
 make_sdk_client_cfg(const aws::kinesis::core::Configuration& kpl_cfg,
                     const std::string& region,
@@ -86,10 +99,18 @@ make_sdk_client_cfg(const aws::kinesis::core::Configuration& kpl_cfg,
   cfg.userAgent = user_agent();
   LOG(info) << "Using Region: " << region;
   cfg.region = region;
-  cfg.maxConnections = kpl_cfg.max_connections();
-  cfg.requestTimeoutMs = kpl_cfg.request_timeout();
-  cfg.connectTimeoutMs = kpl_cfg.connect_timeout();
+  cfg.maxConnections = cast_size_t<unsigned>(kpl_cfg.max_connections());
+  cfg.requestTimeoutMs = cast_size_t<long>(kpl_cfg.request_timeout());
+  cfg.connectTimeoutMs = cast_size_t<long>(kpl_cfg.connect_timeout());
   cfg.retryStrategy = std::make_shared<Aws::Client::DefaultRetryStrategy>(0, 0);
+  if (kpl_cfg.use_thread_pool()) {
+    if (sdk_client_executor == nullptr) {
+      sdk_client_executor = std::make_shared<Aws::Utils::Threading::PooledThreadExecutor>(kpl_cfg.max_threads());
+    }
+  } else {
+    sdk_client_executor = std::make_shared<Aws::Utils::Threading::DefaultExecutor>();
+  }
+  cfg.executor = sdk_client_executor;
   cfg.verifySSL = kpl_cfg.verify_certificate();
   cfg.caPath = ca_path;
   return cfg;

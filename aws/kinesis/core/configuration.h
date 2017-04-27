@@ -390,6 +390,19 @@ class Configuration : private boost::noncopyable {
     return verify_certificate_;
   }
 
+  /// Indicates whether the SDK clients should use a thread pool or not
+  /// \return true if the client should use a thread pool, false otherwise
+  bool use_thread_pool() const noexcept {
+    return use_thread_pool_;
+  }
+
+  /// The maximum number of threads that a thread pool should be limited to.
+  /// Threads are created eagerly.  This is only relevant if \see use_thread_pool() is true
+  /// \return the mamximum number of threads that the thread pool should consume
+  uint32_t max_threads() const noexcept {
+    return max_threads_;
+  }
+
   // Enable aggregation. With aggregation, multiple user records are packed
   // into a single KinesisRecord. If disabled, each user record is sent in its
   // own KinesisRecord.
@@ -924,6 +937,27 @@ class Configuration : private boost::noncopyable {
     return *this;
   }
 
+  /// Enables or disable the use of a thread pool for the SDK Client.
+  /// Default: false
+  /// \param val whether or not to use a thread pool
+  /// \return This configuration
+  Configuration& use_thread_pool(bool val) {
+    use_thread_pool_ = val;
+    return *this;
+  }
+
+  /// The maximum number of threads the thread pool will be allowed to use.
+  /// This is only useful if \see use_thread_pool is set to true
+  /// The threads for the thread pool are allocated eagerly.
+  /// \param val the maximum number of threads that the thread pool will use
+  /// \return This configuration
+  Configuration& max_threads(uint32_t val) {
+    if (val > 0) {
+      max_threads_ = val;
+    }
+    return *this;
+  }
+
 
   const std::vector<std::tuple<std::string, std::string, std::string>>&
   additional_metrics_dims() {
@@ -968,13 +1002,17 @@ class Configuration : private boost::noncopyable {
     region(c.region());
     request_timeout(c.request_timeout());
     verify_certificate(c.verify_certificate());
+    if (c.thread_config() == ::aws::kinesis::protobuf::Configuration_ThreadConfig::Configuration_ThreadConfig_POOLED) {
+      use_thread_pool(true);
+      max_threads(c.max_threads());
+    }
 
     for (auto i = 0; i < c.additional_metric_dims_size(); i++) {
       auto ad = c.additional_metric_dims(i);
       additional_metrics_dims_.push_back(
           std::make_tuple(ad.key(), ad.value(), ad.granularity()));
     }
-  
+
   }
 
  private:
@@ -1003,6 +1041,10 @@ class Configuration : private boost::noncopyable {
   std::string region_ = "";
   uint64_t request_timeout_ = 6000;
   bool verify_certificate_ = true;
+
+  bool use_thread_pool_ = false;
+  uint32_t max_threads_ = 0;
+
 
   std::vector<std::tuple<std::string, std::string, std::string>>
       additional_metrics_dims_;
