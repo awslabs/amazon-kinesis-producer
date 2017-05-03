@@ -1005,6 +1005,8 @@ class Configuration : private boost::noncopyable {
     if (c.thread_config() == ::aws::kinesis::protobuf::Configuration_ThreadConfig::Configuration_ThreadConfig_POOLED) {
       use_thread_pool(true);
       thread_pool_size(c.thread_pool_size());
+    } else if (c.thread_config() == ::aws::kinesis::protobuf::Configuration_ThreadConfig_PER_REQUEST) {
+      use_thread_pool(false);
     }
 
     for (auto i = 0; i < c.additional_metric_dims_size(); i++) {

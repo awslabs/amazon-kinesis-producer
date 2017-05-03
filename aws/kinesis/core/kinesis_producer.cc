@@ -105,7 +105,6 @@ make_sdk_client_cfg(const aws::kinesis::core::Configuration& kpl_cfg,
   cfg.connectTimeoutMs = cast_size_t<long>(kpl_cfg.connect_timeout());
   cfg.retryStrategy = std::make_shared<Aws::Client::DefaultRetryStrategy>(0, 0);
   if (kpl_cfg.use_thread_pool()) {
-
     if (sdk_client_executor == nullptr) {
       uint32_t thread_pool_size = kpl_cfg.thread_pool_size();
       //
