@@ -1393,9 +1393,6 @@ public class KinesisProducerConfiguration {
         }
 
         Configuration c = this.additionalConfigsToProtobuf(builder).build();
-       return Message.newBuilder()
-                      .setConfiguration(c)
-                      .setId(0)
-                      .build();
+        return Message.newBuilder().setConfiguration(c).setId(0).build();
     }
 }
