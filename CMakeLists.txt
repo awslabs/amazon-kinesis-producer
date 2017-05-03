@@ -1,16 +1,12 @@
 cmake_minimum_required(VERSION 3.5)
-project(amazon_kinesis_producer_internal)
+project(amazon_kinesis_producer)
 
 set(THIRD_PARTY_LIB_DIR "${amazon_kinesis_producer_internal_SOURCE_DIR}/third_party/lib")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y")
-set(CMAKE_EXE_LINKER_FLAGS "-L${THIRD_PARTY_LIB_DIR} ${ADDL_LINK_CONFIG}")
 
 if (CMAKE_COMPILER_IS_GNUCXX)
     set(ADDL_LINK_CONFIG "-static-libstdc++")
     add_compile_options("-fpermissive")
 endif ()
-
-
 
 IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
@@ -18,6 +14,9 @@ IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
         set(ADDL_LINK_CONFIG "${ADDL_LINK_CONFIG} -static-libasan")
     endif (CMAKE_COMPILER_IS_GNUCXX)
 ENDIF(CMAKE_BUILD_TYPE MATCHES DEBUG)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y")
+set(CMAKE_EXE_LINKER_FLAGS "-L${THIRD_PARTY_LIB_DIR} ${ADDL_LINK_CONFIG}")
 
 set(SOURCE_FILES
         aws/auth/mutable_static_creds_provider.h
