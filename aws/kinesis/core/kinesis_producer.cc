@@ -105,6 +105,7 @@ make_sdk_client_cfg(const aws::kinesis::core::Configuration& kpl_cfg,
   cfg.connectTimeoutMs = cast_size_t<long>(kpl_cfg.connect_timeout());
   cfg.retryStrategy = std::make_shared<Aws::Client::DefaultRetryStrategy>(0, 0);
   if (kpl_cfg.use_thread_pool()) {
+
     if (sdk_client_executor == nullptr) {
       uint32_t thread_pool_size = kpl_cfg.thread_pool_size();
       //
@@ -113,9 +114,11 @@ make_sdk_client_cfg(const aws::kinesis::core::Configuration& kpl_cfg,
       if (thread_pool_size == 0) {
         thread_pool_size = kDefaultThreadPoolSize;
       }
+      LOG(info) << "Using pooled threading model with " << thread_pool_size << " threads.";
       sdk_client_executor = std::make_shared<Aws::Utils::Threading::PooledThreadExecutor>(thread_pool_size);
     }
   } else {
+    LOG(info) << "Using per request threading model.";
     sdk_client_executor = std::make_shared<Aws::Utils::Threading::DefaultExecutor>();
   }
   cfg.executor = sdk_client_executor;
