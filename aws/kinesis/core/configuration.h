@@ -399,8 +399,8 @@ class Configuration : private boost::noncopyable {
   /// The maximum number of threads that a thread pool should be limited to.
   /// Threads are created eagerly.  This is only relevant if \see use_thread_pool() is true
   /// \return the mamximum number of threads that the thread pool should consume
-  uint32_t max_threads() const noexcept {
-    return max_threads_;
+  uint32_t thread_pool_size() const noexcept {
+    return thread_pool_size_;
   }
 
   // Enable aggregation. With aggregation, multiple user records are packed
@@ -951,9 +951,9 @@ class Configuration : private boost::noncopyable {
   /// The threads for the thread pool are allocated eagerly.
   /// \param val the maximum number of threads that the thread pool will use
   /// \return This configuration
-  Configuration& max_threads(uint32_t val) {
+  Configuration& thread_pool_size(uint32_t val) {
     if (val > 0) {
-      max_threads_ = val;
+      thread_pool_size_ = val;
     }
     return *this;
   }
@@ -1004,7 +1004,7 @@ class Configuration : private boost::noncopyable {
     verify_certificate(c.verify_certificate());
     if (c.thread_config() == ::aws::kinesis::protobuf::Configuration_ThreadConfig::Configuration_ThreadConfig_POOLED) {
       use_thread_pool(true);
-      max_threads(c.max_threads());
+      thread_pool_size(c.thread_pool_size());
     }
 
     for (auto i = 0; i < c.additional_metric_dims_size(); i++) {
@@ -1042,8 +1042,8 @@ class Configuration : private boost::noncopyable {
   uint64_t request_timeout_ = 6000;
   bool verify_certificate_ = true;
 
-  bool use_thread_pool_ = false;
-  uint32_t max_threads_ = 0;
+  bool use_thread_pool_ = true;
+  uint32_t thread_pool_size_ = 64;
 
 
   std::vector<std::tuple<std::string, std::string, std::string>>

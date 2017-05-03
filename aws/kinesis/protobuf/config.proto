@@ -38,9 +38,9 @@ message Configuration {
   optional uint64 request_timeout = 24 [default = 6000];
   optional bool verify_certificate = 25 [default = true];
   enum ThreadConfig {
-    DEFAULT = 0;
+    PER_REQUEST = 0;
     POOLED = 1;
   }
-  optional ThreadConfig thread_config = 26 [default = DEFAULT];
-  optional uint32 max_threads = 27 [default = 32];
+  optional ThreadConfig thread_config = 26 [default = POOLED];
+  optional uint32 thread_pool_size = 27 [default = 64];
 }

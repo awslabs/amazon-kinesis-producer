@@ -40,6 +40,7 @@ const constexpr char* kVersion = "0.12.0";
 const std::unordered_map< std::string, EndpointConfiguration > kRegionEndpointOverride = {
   { "cn-north-1", { "kinesis.cn-north-1.amazonaws.com.cn", "monitoring.cn-north-1.amazonaws.com.cn" } }
 };
+  const constexpr uint32_t kDefaultThreadPoolSize = 64;
 
 void set_override_if_present(std::string& region, Aws::Client::ClientConfiguration& cfg, std::string service, std::function<std::string(EndpointConfiguration)> extractor) {
   auto region_override = kRegionEndpointOverride.find(region);
@@ -105,7 +106,14 @@ make_sdk_client_cfg(const aws::kinesis::core::Configuration& kpl_cfg,
   cfg.retryStrategy = std::make_shared<Aws::Client::DefaultRetryStrategy>(0, 0);
   if (kpl_cfg.use_thread_pool()) {
     if (sdk_client_executor == nullptr) {
-      sdk_client_executor = std::make_shared<Aws::Utils::Threading::PooledThreadExecutor>(kpl_cfg.max_threads());
+      uint32_t thread_pool_size = kpl_cfg.thread_pool_size();
+      //
+      // TODO: Add rlimit check to see if the configured thread pool size is greater than RLIMIT_NPROC, and report a warning.
+      //
+      if (thread_pool_size == 0) {
+        thread_pool_size = kDefaultThreadPoolSize;
+      }
+      sdk_client_executor = std::make_shared<Aws::Utils::Threading::PooledThreadExecutor>(thread_pool_size);
     }
   } else {
     sdk_client_executor = std::make_shared<Aws::Utils::Threading::DefaultExecutor>();

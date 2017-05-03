@@ -85,7 +85,7 @@ void protobuf_AssignDesc_config_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, request_timeout_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, verify_certificate_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, thread_config_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, max_threads_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, thread_pool_size_),
   };
   Configuration_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -139,7 +139,7 @@ void protobuf_AddDesc_config_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\014config.proto\022\024aws.kinesis.protobuf\"F\n\023"
     "AdditionalDimension\022\013\n\003key\030\001 \002(\t\022\r\n\005valu"
-    "e\030\002 \002(\t\022\023\n\013granularity\030\003 \002(\t\"\237\010\n\rConfigu"
+    "e\030\002 \002(\t\022\023\n\013granularity\030\003 \002(\t\"\247\010\n\rConfigu"
     "ration\022J\n\026additional_metric_dims\030\200\001 \003(\0132"
     ").aws.kinesis.protobuf.AdditionalDimensi"
     "on\022!\n\023aggregation_enabled\030\001 \001(\010:\004true\022)\n"
@@ -162,12 +162,12 @@ void protobuf_AddDesc_config_2eproto() {
     "max_buffered_time\030\025 \001(\004:\003100\022\031\n\nrecord_t"
     "tl\030\026 \001(\004:\00530000\022\020\n\006region\030\027 \001(\t:\000\022\035\n\017req"
     "uest_timeout\030\030 \001(\004:\0046000\022 \n\022verify_certi"
-    "ficate\030\031 \001(\010:\004true\022P\n\rthread_config\030\032 \001("
+    "ficate\030\031 \001(\010:\004true\022O\n\rthread_config\030\032 \001("
     "\01620.aws.kinesis.protobuf.Configuration.T"
-    "hreadConfig:\007DEFAULT\022\027\n\013max_threads\030\033 \001("
-    "\r:\00232\"\'\n\014ThreadConfig\022\013\n\007DEFAULT\020\000\022\n\n\006PO"
-    "OLED\020\001B2\n0com.amazonaws.services.kinesis"
-    ".producer.protobuf", 1218);
+    "hreadConfig:\006POOLED\022\034\n\020thread_pool_size\030"
+    "\033 \001(\r:\00264\"+\n\014ThreadConfig\022\017\n\013PER_REQUEST"
+    "\020\000\022\n\n\006POOLED\020\001B2\n0com.amazonaws.services"
+    ".kinesis.producer.protobuf", 1226);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "config.proto", &protobuf_RegisterTypes);
   AdditionalDimension::default_instance_ = new AdditionalDimension();
@@ -573,7 +573,7 @@ bool Configuration_ThreadConfig_IsValid(int value) {
 }
 
 #ifndef _MSC_VER
-const Configuration_ThreadConfig Configuration::DEFAULT;
+const Configuration_ThreadConfig Configuration::PER_REQUEST;
 const Configuration_ThreadConfig Configuration::POOLED;
 const Configuration_ThreadConfig Configuration::ThreadConfig_MIN;
 const Configuration_ThreadConfig Configuration::ThreadConfig_MAX;
@@ -611,7 +611,7 @@ const int Configuration::kRegionFieldNumber;
 const int Configuration::kRequestTimeoutFieldNumber;
 const int Configuration::kVerifyCertificateFieldNumber;
 const int Configuration::kThreadConfigFieldNumber;
-const int Configuration::kMaxThreadsFieldNumber;
+const int Configuration::kThreadPoolSizeFieldNumber;
 #endif  // !_MSC_VER
 
 Configuration::Configuration()
@@ -658,8 +658,8 @@ void Configuration::SharedCtor() {
   region_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   request_timeout_ = GOOGLE_ULONGLONG(6000);
   verify_certificate_ = true;
-  thread_config_ = 0;
-  max_threads_ = 32u;
+  thread_config_ = 1;
+  thread_pool_size_ = 64u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -785,8 +785,8 @@ void Configuration::Clear() {
   if (_has_bits_[24 / 32] & 251658240) {
     request_timeout_ = GOOGLE_ULONGLONG(6000);
     verify_certificate_ = true;
-    thread_config_ = 0;
-    max_threads_ = 32u;
+    thread_config_ = 1;
+    thread_pool_size_ = 64u;
   }
 
 #undef OFFSET_OF_FIELD_
@@ -1195,7 +1195,7 @@ bool Configuration::MergePartialFromCodedStream(
         break;
       }
 
-      // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = DEFAULT];
+      // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = POOLED];
       case 26: {
         if (tag == 208) {
          parse_thread_config:
@@ -1211,18 +1211,18 @@ bool Configuration::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(216)) goto parse_max_threads;
+        if (input->ExpectTag(216)) goto parse_thread_pool_size;
         break;
       }
 
-      // optional uint32 max_threads = 27 [default = 32];
+      // optional uint32 thread_pool_size = 27 [default = 64];
       case 27: {
         if (tag == 216) {
-         parse_max_threads:
+         parse_thread_pool_size:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &max_threads_)));
-          set_has_max_threads();
+                 input, &thread_pool_size_)));
+          set_has_thread_pool_size();
         } else {
           goto handle_unusual;
         }
@@ -1429,15 +1429,15 @@ void Configuration::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteBool(25, this->verify_certificate(), output);
   }
 
-  // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = DEFAULT];
+  // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = POOLED];
   if (has_thread_config()) {
     ::google::protobuf::internal::WireFormatLite::WriteEnum(
       26, this->thread_config(), output);
   }
 
-  // optional uint32 max_threads = 27 [default = 32];
-  if (has_max_threads()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(27, this->max_threads(), output);
+  // optional uint32 thread_pool_size = 27 [default = 64];
+  if (has_thread_pool_size()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(27, this->thread_pool_size(), output);
   }
 
   // repeated .aws.kinesis.protobuf.AdditionalDimension additional_metric_dims = 128;
@@ -1623,15 +1623,15 @@ void Configuration::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(25, this->verify_certificate(), target);
   }
 
-  // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = DEFAULT];
+  // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = POOLED];
   if (has_thread_config()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
       26, this->thread_config(), target);
   }
 
-  // optional uint32 max_threads = 27 [default = 32];
-  if (has_max_threads()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(27, this->max_threads(), target);
+  // optional uint32 thread_pool_size = 27 [default = 64];
+  if (has_thread_pool_size()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(27, this->thread_pool_size(), target);
   }
 
   // repeated .aws.kinesis.protobuf.AdditionalDimension additional_metric_dims = 128;
@@ -1826,17 +1826,17 @@ int Configuration::ByteSize() const {
       total_size += 2 + 1;
     }
 
-    // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = DEFAULT];
+    // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = POOLED];
     if (has_thread_config()) {
       total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::EnumSize(this->thread_config());
     }
 
-    // optional uint32 max_threads = 27 [default = 32];
-    if (has_max_threads()) {
+    // optional uint32 thread_pool_size = 27 [default = 64];
+    if (has_thread_pool_size()) {
       total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::UInt32Size(
-          this->max_threads());
+          this->thread_pool_size());
     }
 
   }
@@ -1959,8 +1959,8 @@ void Configuration::MergeFrom(const Configuration& from) {
     if (from.has_thread_config()) {
       set_thread_config(from.thread_config());
     }
-    if (from.has_max_threads()) {
-      set_max_threads(from.max_threads());
+    if (from.has_thread_pool_size()) {
+      set_thread_pool_size(from.thread_pool_size());
     }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
@@ -2013,7 +2013,7 @@ void Configuration::Swap(Configuration* other) {
     std::swap(request_timeout_, other->request_timeout_);
     std::swap(verify_certificate_, other->verify_certificate_);
     std::swap(thread_config_, other->thread_config_);
-    std::swap(max_threads_, other->max_threads_);
+    std::swap(thread_pool_size_, other->thread_pool_size_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

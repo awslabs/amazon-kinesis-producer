@@ -40,11 +40,11 @@ class AdditionalDimension;
 class Configuration;
 
 enum Configuration_ThreadConfig {
-  Configuration_ThreadConfig_DEFAULT = 0,
+  Configuration_ThreadConfig_PER_REQUEST = 0,
   Configuration_ThreadConfig_POOLED = 1
 };
 bool Configuration_ThreadConfig_IsValid(int value);
-const Configuration_ThreadConfig Configuration_ThreadConfig_ThreadConfig_MIN = Configuration_ThreadConfig_DEFAULT;
+const Configuration_ThreadConfig Configuration_ThreadConfig_ThreadConfig_MIN = Configuration_ThreadConfig_PER_REQUEST;
 const Configuration_ThreadConfig Configuration_ThreadConfig_ThreadConfig_MAX = Configuration_ThreadConfig_POOLED;
 const int Configuration_ThreadConfig_ThreadConfig_ARRAYSIZE = Configuration_ThreadConfig_ThreadConfig_MAX + 1;
 
@@ -226,7 +226,7 @@ class Configuration : public ::google::protobuf::Message {
   // nested types ----------------------------------------------------
 
   typedef Configuration_ThreadConfig ThreadConfig;
-  static const ThreadConfig DEFAULT = Configuration_ThreadConfig_DEFAULT;
+  static const ThreadConfig PER_REQUEST = Configuration_ThreadConfig_PER_REQUEST;
   static const ThreadConfig POOLED = Configuration_ThreadConfig_POOLED;
   static inline bool ThreadConfig_IsValid(int value) {
     return Configuration_ThreadConfig_IsValid(value);
@@ -473,19 +473,19 @@ class Configuration : public ::google::protobuf::Message {
   inline bool verify_certificate() const;
   inline void set_verify_certificate(bool value);
 
-  // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = DEFAULT];
+  // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = POOLED];
   inline bool has_thread_config() const;
   inline void clear_thread_config();
   static const int kThreadConfigFieldNumber = 26;
   inline ::aws::kinesis::protobuf::Configuration_ThreadConfig thread_config() const;
   inline void set_thread_config(::aws::kinesis::protobuf::Configuration_ThreadConfig value);
 
-  // optional uint32 max_threads = 27 [default = 32];
-  inline bool has_max_threads() const;
-  inline void clear_max_threads();
-  static const int kMaxThreadsFieldNumber = 27;
-  inline ::google::protobuf::uint32 max_threads() const;
-  inline void set_max_threads(::google::protobuf::uint32 value);
+  // optional uint32 thread_pool_size = 27 [default = 64];
+  inline bool has_thread_pool_size() const;
+  inline void clear_thread_pool_size();
+  static const int kThreadPoolSizeFieldNumber = 27;
+  inline ::google::protobuf::uint32 thread_pool_size() const;
+  inline void set_thread_pool_size(::google::protobuf::uint32 value);
 
   // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.Configuration)
  private:
@@ -541,8 +541,8 @@ class Configuration : public ::google::protobuf::Message {
   inline void clear_has_verify_certificate();
   inline void set_has_thread_config();
   inline void clear_has_thread_config();
-  inline void set_has_max_threads();
-  inline void clear_has_max_threads();
+  inline void set_has_thread_pool_size();
+  inline void clear_has_thread_pool_size();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -579,7 +579,7 @@ class Configuration : public ::google::protobuf::Message {
   ::google::protobuf::uint64 record_ttl_;
   ::std::string* region_;
   ::google::protobuf::uint64 request_timeout_;
-  ::google::protobuf::uint32 max_threads_;
+  ::google::protobuf::uint32 thread_pool_size_;
   friend void  protobuf_AddDesc_config_2eproto();
   friend void protobuf_AssignDesc_config_2eproto();
   friend void protobuf_ShutdownFile_config_2eproto();
@@ -1820,7 +1820,7 @@ inline void Configuration::set_verify_certificate(bool value) {
   // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.verify_certificate)
 }
 
-// optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = DEFAULT];
+// optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = POOLED];
 inline bool Configuration::has_thread_config() const {
   return (_has_bits_[0] & 0x04000000u) != 0;
 }
@@ -1831,7 +1831,7 @@ inline void Configuration::clear_has_thread_config() {
   _has_bits_[0] &= ~0x04000000u;
 }
 inline void Configuration::clear_thread_config() {
-  thread_config_ = 0;
+  thread_config_ = 1;
   clear_has_thread_config();
 }
 inline ::aws::kinesis::protobuf::Configuration_ThreadConfig Configuration::thread_config() const {
@@ -1845,28 +1845,28 @@ inline void Configuration::set_thread_config(::aws::kinesis::protobuf::Configura
   // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.thread_config)
 }
 
-// optional uint32 max_threads = 27 [default = 32];
-inline bool Configuration::has_max_threads() const {
+// optional uint32 thread_pool_size = 27 [default = 64];
+inline bool Configuration::has_thread_pool_size() const {
   return (_has_bits_[0] & 0x08000000u) != 0;
 }
-inline void Configuration::set_has_max_threads() {
+inline void Configuration::set_has_thread_pool_size() {
   _has_bits_[0] |= 0x08000000u;
 }
-inline void Configuration::clear_has_max_threads() {
+inline void Configuration::clear_has_thread_pool_size() {
   _has_bits_[0] &= ~0x08000000u;
 }
-inline void Configuration::clear_max_threads() {
-  max_threads_ = 32u;
-  clear_has_max_threads();
+inline void Configuration::clear_thread_pool_size() {
+  thread_pool_size_ = 64u;
+  clear_has_thread_pool_size();
 }
-inline ::google::protobuf::uint32 Configuration::max_threads() const {
-  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.Configuration.max_threads)
-  return max_threads_;
+inline ::google::protobuf::uint32 Configuration::thread_pool_size() const {
+  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.Configuration.thread_pool_size)
+  return thread_pool_size_;
 }
-inline void Configuration::set_max_threads(::google::protobuf::uint32 value) {
-  set_has_max_threads();
-  max_threads_ = value;
-  // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.max_threads)
+inline void Configuration::set_thread_pool_size(::google::protobuf::uint32 value) {
+  set_has_thread_pool_size();
+  thread_pool_size_ = value;
+  // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.thread_pool_size)
 }
 
 
