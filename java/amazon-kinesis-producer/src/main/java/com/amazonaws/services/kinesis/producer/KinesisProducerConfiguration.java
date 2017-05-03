@@ -226,10 +226,10 @@ public class KinesisProducerConfiguration {
         /**
          * Tells the native process to create a thread for each request.
          */
-        DEFAULT(Configuration.ThreadConfig.DEFAULT),
+        PER_REQUEST(Configuration.ThreadConfig.PER_REQUEST),
         /**
          * Tells the native process to use a thread pool. The size of the pool can be controlled by
-         * {@link KinesisProducerConfiguration#setMaxThreads(int)}.
+         * {@link KinesisProducerConfiguration#setThreadPoolSize(int)}.
          */
         POOLED(Configuration.ThreadConfig.POOLED);
 
@@ -269,8 +269,8 @@ public class KinesisProducerConfiguration {
     private long requestTimeout = 6000L;
     private String tempDirectory = "";
     private boolean verifyCertificate = true;
-    private ThreadingModel threadingModel = ThreadingModel.DEFAULT;
-    private int maxThreads = 0;
+    private ThreadingModel threadingModel = ThreadingModel.POOLED;
+    private int threadPoolSize = 0;
 
     /**
      * Enable aggregation. With aggregation, multiple user records are packed into a single
@@ -761,8 +761,8 @@ public class KinesisProducerConfiguration {
      * 
      * @return the size of the thread pool for the native process.
      */
-    public int getMaxThreads() {
-        return maxThreads;
+    public int getThreadPoolSize() {
+        return threadPoolSize;
     }
 
     /**
@@ -1328,6 +1328,8 @@ public class KinesisProducerConfiguration {
     /**
      * Sets the threading model that the native process will use.
      *
+     * See {@link #getThreadingModel()} for more information
+     * 
      * @param threadingModel
      *            the threading model to use
      * @return this configuration object
@@ -1339,24 +1341,26 @@ public class KinesisProducerConfiguration {
 
     /**
      * Sets the maximum number of threads that the native process' thread pool will be configured with.
+     *
+     * See {@link #getThreadPoolSize()} for more information
      * 
-     * @param maxThreads
+     * @param threadPoolSize
      *            the maximum number of threads that the thread pool can use.
      * @throws IllegalArgumentException
-     *             if maxThreads is less than 0
+     *             if threadPoolSize is less than 0
      * @return this configuration object
      */
-    public KinesisProducerConfiguration setMaxThreads(int maxThreads) {
-        if (maxThreads < 0) {
+    public KinesisProducerConfiguration setThreadPoolSize(int threadPoolSize) {
+        if (threadPoolSize < 0) {
             throw new IllegalArgumentException("Max threads must greater than or equal to 0");
         }
-        this.maxThreads = maxThreads;
+        this.threadPoolSize = threadPoolSize;
         return this;
     }
 
     protected Message toProtobufMessage() {
-        Configuration c = this.additionalConfigsToProtobuf(
-            Configuration.newBuilder()
+        Configuration.Builder builder = Configuration.newBuilder()
+                //@formatter:off
                 .setAggregationEnabled(aggregationEnabled)
                 .setAggregationMaxCount(aggregationMaxCount)
                 .setAggregationMaxSize(aggregationMaxSize)
@@ -1382,8 +1386,13 @@ public class KinesisProducerConfiguration {
                 .setRegion(region)
                 .setRequestTimeout(requestTimeout)
                 .setVerifyCertificate(verifyCertificate)
-                        .setThreadConfig(threadingModel.threadConfig).setMaxThreads(maxThreads)
-                ).build();
+                .setThreadConfig(threadingModel.threadConfig);
+        //@formatter:on
+        if (threadPoolSize > 0) {
+            builder = builder.setThreadPoolSize(threadPoolSize);
+        }
+
+        Configuration c = this.additionalConfigsToProtobuf(builder).build();
        return Message.newBuilder()
                       .setConfiguration(c)
                       .setId(0)
