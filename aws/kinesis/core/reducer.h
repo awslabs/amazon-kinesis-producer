@@ -49,6 +49,37 @@ using TimePoint = Clock::time_point;
 // All methods are threadsafe.
 template <typename T, typename U>
 class Reducer : boost::noncopyable {
+private:
+  class FlushReason {
+  private:
+    bool manual_ = false;
+    bool record_count_ = false;
+    bool data_size_ = false;
+    bool predicate_match_ = false;
+    bool timed_ = false;
+
+  public:
+    bool &manual() { return manual_; }
+
+    bool &record_count() { return record_count_; }
+
+    bool &data_size() { return data_size_; }
+
+    bool &predicate_match() { return predicate_match_; }
+
+    bool &timed() { return timed_; }
+
+    bool flush_required() {
+      return manual_ || record_count_ || data_size_ || predicate_match_ || timed_;
+    }
+
+    friend std::ostream& operator<<(std::ostream &os, FlushReason &fr) {
+      return os << "{ manual: " << fr.manual_ << ", record_count: " << fr.record_count_ <<
+         ", data_size: " << fr.data_size_ << ", predicate_match: " << fr.predicate_match_ <<
+         ", timed: " << fr.timed_ << " }";
+    }
+
+  };
  public:
   using FlushPredicate = std::function<bool (const std::shared_ptr<T>&)>;
 
@@ -79,11 +110,14 @@ class Reducer : boost::noncopyable {
     auto size = container_->size();
     auto estimated_size = container_->estimated_size();
     auto flush_predicate_result = flush_predicate_(input);
-    if (size >= count_limit_ ||
-        estimated_size >= size_limit_ ||
-        flush_predicate_result) {
 
-      auto output = flush(lock);
+    FlushReason flush_reason;
+    flush_reason.record_count() = size >= count_limit_;
+    flush_reason.data_size() = estimated_size >= size_limit_;
+    flush_reason.predicate_match() = flush_predicate_result;
+
+    if (flush_reason.flush_required()) {
+      auto output = flush(lock, flush_reason);
       if (output && output->size() > 0) {
         return output;
       }
@@ -96,7 +130,9 @@ class Reducer : boost::noncopyable {
 
   // Manually trigger a flush, as though a deadline has been reached
   void flush() {
-    deadline_reached();
+    FlushReason flush_reason;
+    flush_reason.manual() = true;
+    trigger_flush(flush_reason);
   }
 
   // Records in the process of being flushed won't be counted
@@ -116,11 +152,12 @@ class Reducer : boost::noncopyable {
   using Mutex = aws::mutex;
   using Lock = aws::unique_lock<Mutex>;
 
-  std::shared_ptr<U> flush(Lock& lock) {
+  std::shared_ptr<U> flush(Lock &lock, FlushReason &flush_reason) {
     if (!lock) {
       lock.lock();
     }
 
+    LOG(info) << "Flush Triggered: " << flush_reason;
     scheduled_callback_->cancel();
 
     std::vector<std::shared_ptr<T>> records(container_->items());
@@ -171,8 +208,14 @@ class Reducer : boost::noncopyable {
   }
 
   void deadline_reached() {
+    FlushReason flush_reason;
+    flush_reason.timed() = true;
+    trigger_flush(flush_reason);
+  }
+
+  void trigger_flush(FlushReason &reason) {
     Lock lock(lock_);
-    auto r = flush(lock);
+    auto r = flush(lock, reason);
     lock.unlock();
     if (r && r->size() > 0) {
       flush_callback_(r);
