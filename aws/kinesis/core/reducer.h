@@ -16,8 +16,8 @@
 
 #include <mutex>
 
+#include <aws/kinesis/core/FlushStats.h>
 #include <aws/utils/logging.h>
-
 #include <aws/utils/executor.h>
 #include <aws/mutex.h>
 
@@ -49,37 +49,6 @@ using TimePoint = Clock::time_point;
 // All methods are threadsafe.
 template <typename T, typename U>
 class Reducer : boost::noncopyable {
-private:
-  class FlushReason {
-  private:
-    bool manual_ = false;
-    bool record_count_ = false;
-    bool data_size_ = false;
-    bool predicate_match_ = false;
-    bool timed_ = false;
-
-  public:
-    bool &manual() { return manual_; }
-
-    bool &record_count() { return record_count_; }
-
-    bool &data_size() { return data_size_; }
-
-    bool &predicate_match() { return predicate_match_; }
-
-    bool &timed() { return timed_; }
-
-    bool flush_required() {
-      return manual_ || record_count_ || data_size_ || predicate_match_ || timed_;
-    }
-
-    friend std::ostream& operator<<(std::ostream &os, FlushReason &fr) {
-      return os << "{ manual: " << fr.manual_ << ", record_count: " << fr.record_count_ <<
-         ", data_size: " << fr.data_size_ << ", predicate_match: " << fr.predicate_match_ <<
-         ", timed: " << fr.timed_ << " }";
-    }
-
-  };
  public:
   using FlushPredicate = std::function<bool (const std::shared_ptr<T>&)>;
 
@@ -88,11 +57,13 @@ private:
       const std::function<void (std::shared_ptr<U>)>& flush_callback,
       size_t size_limit,
       size_t count_limit,
+      FlushStats& flush_stats,
       FlushPredicate flush_predicate = [](auto) { return false; })
       : executor_(executor),
         flush_callback_(flush_callback),
         size_limit_(size_limit),
         count_limit_(count_limit),
+        flush_stats_(flush_stats),
         flush_predicate_(flush_predicate),
         container_(std::make_shared<U>()),
         scheduled_callback_(
@@ -157,7 +128,6 @@ private:
       lock.lock();
     }
 
-    LOG(info) << "Flush Triggered: " << flush_reason;
     scheduled_callback_->cancel();
 
     std::vector<std::shared_ptr<T>> records(container_->items());
@@ -191,6 +161,7 @@ private:
     }
 
     set_deadline();
+    flush_stats_.merge(flush_reason, flush_container->size());
 
     return flush_container;
   }
@@ -230,6 +201,7 @@ private:
   Mutex lock_;
   std::shared_ptr<U> container_;
   std::shared_ptr<aws::utils::ScheduledCallback> scheduled_callback_;
+  FlushStats& flush_stats_;
 };
 
 } //namespace core

@@ -59,7 +59,7 @@ set(SOURCE_FILES
         aws/utils/time_sensitive_queue.h
         aws/utils/token_bucket.h
         aws/utils/utils.cc
-        aws/utils/utils.h)
+        aws/utils/utils.h aws/kinesis/core/FlushStats.cc aws/kinesis/core/FlushStats.h)
 
 
 

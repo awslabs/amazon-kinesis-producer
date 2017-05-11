@@ -23,6 +23,7 @@
 #include <aws/kinesis/core/limiter.h>
 #include <aws/kinesis/core/put_records_context.h>
 #include <aws/kinesis/core/retrier.h>
+#include <aws/kinesis/core/FlushStats.h>
 #include <aws/kinesis/KinesisClient.h>
 #include <aws/metrics/metrics_manager.h>
 
@@ -46,6 +47,9 @@ class Pipeline : boost::noncopyable {
       : stream_(std::move(stream)),
         region_(std::move(region)),
         config_(std::move(config)),
+        ur_to_kr_stats_(stream_, "UserRecords", "KinesisRecords"),
+        kr_to_put_stats_(stream_, "KinesisRecords", "PutRecords"),
+        report_thread_(std::bind(&Pipeline::report_and_reset, this)),
         executor_(std::move(executor)),
         kinesis_client_(std::move(kinesis_client)),
         metrics_manager_(std::move(metrics_manager)),
@@ -58,11 +62,12 @@ class Pipeline : boost::noncopyable {
                 metrics_manager_)),
         aggregator_(
             std::make_shared<Aggregator>(
-                executor_,
-                shard_map_,
-                [this](auto kr) { this->limiter_put(kr); },
-                config_,
-                metrics_manager_)),
+                    executor_,
+                    shard_map_,
+                    [this](auto kr) { this->limiter_put(kr); },
+                    config_,
+                    ur_to_kr_stats_,
+                    metrics_manager_)),
         limiter_(
             std::make_shared<Limiter>(
                 executor_,
@@ -71,10 +76,11 @@ class Pipeline : boost::noncopyable {
                 config_)),
         collector_(
             std::make_shared<Collector>(
-                executor_,
-                [this](auto prr) { this->send_put_records_request(prr); },
-                config_,
-                metrics_manager_)),
+                    executor_,
+                    [this](auto prr) { this->send_put_records_request(prr); },
+                    config_,
+                    kr_to_put_stats_,
+                    metrics_manager_)),
         retrier_(
             std::make_shared<Retrier>(
                 config_,
@@ -111,6 +117,21 @@ class Pipeline : boost::noncopyable {
   }
 
  private:
+
+  void report_and_reset() {
+    while (true) {
+      {
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(15s);
+      }
+      LOG(info) << "Aggregator: " << ur_to_kr_stats_;
+      ur_to_kr_stats_.reset();
+
+      LOG(info) << "Collector: " << kr_to_put_stats_;
+      kr_to_put_stats_.reset();
+    }
+  }
+
   void aggregator_put(const std::shared_ptr<UserRecord>& ur) {
     auto kr = aggregator_->put(ur);
     if (kr) {
@@ -185,6 +206,9 @@ class Pipeline : boost::noncopyable {
 
   std::shared_ptr<aws::metrics::Metric> user_records_rcvd_metric_;
   std::atomic<uint64_t> outstanding_user_records_;
+  FlushStats ur_to_kr_stats_;
+  FlushStats kr_to_put_stats_;
+  std::thread report_thread_;
 };
 
 } //namespace core

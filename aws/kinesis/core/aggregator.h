@@ -22,6 +22,7 @@
 #include <aws/kinesis/core/kinesis_record.h>
 #include <aws/kinesis/core/reducer.h>
 #include <aws/kinesis/core/configuration.h>
+#include <aws/kinesis/core/FlushStats.h>
 #include <aws/utils/concurrent_hash_map.h>
 #include <aws/utils/executor.h>
 
@@ -41,12 +42,14 @@ class Aggregator : boost::noncopyable {
       const std::shared_ptr<ShardMap> shard_map,
       const DeadlineCallback& deadline_callback,
       const std::shared_ptr<aws::kinesis::core::Configuration>& config,
+      FlushStats& flush_stats,
       const std::shared_ptr<aws::metrics::MetricsManager>& metrics_manager =
           std::make_shared<aws::metrics::NullMetricsManager>())
       : executor_(executor),
         shard_map_(shard_map),
         deadline_callback_(deadline_callback),
         config_(config),
+        flush_stats_(flush_stats),
         metrics_manager_(metrics_manager),
         reducers_([this](auto) { return this->make_reducer(); }) {}
 
@@ -79,7 +82,9 @@ class Aggregator : boost::noncopyable {
         executor_,
         deadline_callback_,
         config_->aggregation_max_size(),
-        config_->aggregation_max_count());
+        config_->aggregation_max_count(),
+        flush_stats_
+    );
   }
 
   std::shared_ptr<aws::utils::Executor> executor_;
@@ -87,6 +92,7 @@ class Aggregator : boost::noncopyable {
   DeadlineCallback deadline_callback_;
   std::shared_ptr<aws::kinesis::core::Configuration> config_;
   std::shared_ptr<aws::metrics::MetricsManager> metrics_manager_;
+  FlushStats& flush_stats_;
   ReducerMap reducers_;
 };
 
