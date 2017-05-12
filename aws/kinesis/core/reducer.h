@@ -19,6 +19,7 @@
 #include <aws/kinesis/core/FlushStats.h>
 #include <aws/utils/logging.h>
 #include <aws/utils/executor.h>
+#include <aws/utils/processing_statistics_logger.h>
 #include <aws/mutex.h>
 
 namespace aws {
@@ -57,7 +58,7 @@ class Reducer : boost::noncopyable {
       const std::function<void (std::shared_ptr<U>)>& flush_callback,
       size_t size_limit,
       size_t count_limit,
-      FlushStats& flush_stats,
+      aws::utils::flush_statistics_aggregator& flush_stats,
       FlushPredicate flush_predicate = [](auto) { return false; })
       : executor_(executor),
         flush_callback_(flush_callback),
@@ -82,7 +83,7 @@ class Reducer : boost::noncopyable {
     auto estimated_size = container_->estimated_size();
     auto flush_predicate_result = flush_predicate_(input);
 
-    FlushReason flush_reason;
+    aws::utils::flush_statistics_context flush_reason;
     flush_reason.record_count() = size >= count_limit_;
     flush_reason.data_size() = estimated_size >= size_limit_;
     flush_reason.predicate_match() = flush_predicate_result;
@@ -101,7 +102,7 @@ class Reducer : boost::noncopyable {
 
   // Manually trigger a flush, as though a deadline has been reached
   void flush() {
-    FlushReason flush_reason;
+    aws::utils::flush_statistics_context flush_reason;
     flush_reason.manual() = true;
     trigger_flush(flush_reason);
   }
@@ -123,7 +124,7 @@ class Reducer : boost::noncopyable {
   using Mutex = aws::mutex;
   using Lock = aws::unique_lock<Mutex>;
 
-  std::shared_ptr<U> flush(Lock &lock, FlushReason &flush_reason) {
+  std::shared_ptr<U> flush(Lock &lock, aws::utils::flush_statistics_context &flush_reason) {
     if (!lock) {
       lock.lock();
     }
@@ -179,12 +180,12 @@ class Reducer : boost::noncopyable {
   }
 
   void deadline_reached() {
-    FlushReason flush_reason;
+    aws::utils::flush_statistics_context flush_reason;
     flush_reason.timed() = true;
     trigger_flush(flush_reason);
   }
 
-  void trigger_flush(FlushReason &reason) {
+  void trigger_flush(aws::utils::flush_statistics_context &reason) {
     Lock lock(lock_);
     auto r = flush(lock, reason);
     lock.unlock();
@@ -201,7 +202,7 @@ class Reducer : boost::noncopyable {
   Mutex lock_;
   std::shared_ptr<U> container_;
   std::shared_ptr<aws::utils::ScheduledCallback> scheduled_callback_;
-  FlushStats& flush_stats_;
+  aws::utils::flush_statistics_aggregator& flush_stats_;
 };
 
 } //namespace core

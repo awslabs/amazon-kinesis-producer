@@ -22,9 +22,9 @@
 #include <aws/kinesis/core/kinesis_record.h>
 #include <aws/kinesis/core/reducer.h>
 #include <aws/kinesis/core/configuration.h>
-#include <aws/kinesis/core/FlushStats.h>
 #include <aws/utils/concurrent_hash_map.h>
 #include <aws/utils/executor.h>
+#include <aws/utils/processing_statistics_logger.h>
 
 namespace aws {
 namespace kinesis {
@@ -42,7 +42,7 @@ class Aggregator : boost::noncopyable {
       const std::shared_ptr<ShardMap> shard_map,
       const DeadlineCallback& deadline_callback,
       const std::shared_ptr<aws::kinesis::core::Configuration>& config,
-      FlushStats& flush_stats,
+      aws::utils::flush_statistics_aggregator& flush_stats,
       const std::shared_ptr<aws::metrics::MetricsManager>& metrics_manager =
           std::make_shared<aws::metrics::NullMetricsManager>())
       : executor_(executor),
@@ -92,7 +92,7 @@ class Aggregator : boost::noncopyable {
   DeadlineCallback deadline_callback_;
   std::shared_ptr<aws::kinesis::core::Configuration> config_;
   std::shared_ptr<aws::metrics::MetricsManager> metrics_manager_;
-  FlushStats& flush_stats_;
+  aws::utils::flush_statistics_aggregator& flush_stats_;
   ReducerMap reducers_;
 };
 

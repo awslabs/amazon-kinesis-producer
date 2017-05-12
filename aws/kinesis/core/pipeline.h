@@ -24,9 +24,9 @@
 #include <aws/kinesis/core/limiter.h>
 #include <aws/kinesis/core/put_records_context.h>
 #include <aws/kinesis/core/retrier.h>
-#include <aws/kinesis/core/FlushStats.h>
 #include <aws/kinesis/KinesisClient.h>
 #include <aws/metrics/metrics_manager.h>
+#include <aws/utils/processing_statistics_logger.h>
 
 namespace aws {
 namespace kinesis {
@@ -48,14 +48,7 @@ class Pipeline : boost::noncopyable {
       : stream_(std::move(stream)),
         region_(std::move(region)),
         config_(std::move(config)),
-        ur_to_kr_stats_(stream_, "UserRecords", "KinesisRecords"),
-        kr_to_put_stats_(stream_, "KinesisRecords", "PutRecords"),
-        outstanding_put_reqs_(0),
-        started_reqs_(0),
-        completed_reqs_(0),
-        total_time_(0),
-        total_reqs_time_(0),
-        report_thread_(std::bind(&Pipeline::report_and_reset, this)),
+        stats_logger_(stream_, config_->record_max_buffered_time()),
         executor_(std::move(executor)),
         kinesis_client_(std::move(kinesis_client)),
         metrics_manager_(std::move(metrics_manager)),
@@ -72,7 +65,7 @@ class Pipeline : boost::noncopyable {
                     shard_map_,
                     [this](auto kr) { this->limiter_put(kr); },
                     config_,
-                    ur_to_kr_stats_,
+                    stats_logger_.stage1(),
                     metrics_manager_)),
         limiter_(
             std::make_shared<Limiter>(
@@ -85,7 +78,7 @@ class Pipeline : boost::noncopyable {
                     executor_,
                     [this](auto prr) { this->send_put_records_request(prr); },
                     config_,
-                    kr_to_put_stats_,
+                    stats_logger_.stage2(),
                     metrics_manager_)),
         retrier_(
             std::make_shared<Retrier>(
@@ -124,40 +117,6 @@ class Pipeline : boost::noncopyable {
 
  private:
 
-  void report_and_reset() {
-    while (true) {
-      {
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(15s);
-      }
-      LOG(info) << "Stage 1: " << ur_to_kr_stats_;
-      ur_to_kr_stats_.reset();
-
-      LOG(info) << "Stage 2: " << kr_to_put_stats_;
-      kr_to_put_stats_.reset();
-
-      LOG(info) << "(" << stream_ << ") Outstanding Put Requests: " << outstanding_put_reqs_;
-      LOG(info) << "(" << stream_ << ") { started: " << started_reqs_ << ", completed: " << completed_reqs_ << " }";
-      started_reqs_ = 0;
-      completed_reqs_ = 0;
-
-      std::uint64_t total_time = total_time_;
-      std::uint64_t requests = total_reqs_time_;
-
-      total_time_ = 0;
-      total_reqs_time_ = 0;
-
-      double average_req_time = total_time / static_cast<double>(requests);
-      double max_buffer_warn_limit = config_->record_max_buffered_time() * 5.0;
-      if (average_req_time > max_buffer_warn_limit) {
-        LOG(warning) << "Requests are taking more than " << max_buffer_warn_limit << " to complete.  "
-                  << "You may need to adjust your configuration to reduce the request time.";
-      }
-      LOG(info) << "(" << stream_ << ") Average Request Time: " << std::setprecision(8) << average_req_time << " ms";
-
-    }
-  }
-
   void aggregator_put(const std::shared_ptr<UserRecord>& ur) {
     auto kr = aggregator_->put(ur);
     if (kr) {
@@ -184,8 +143,6 @@ class Pipeline : boost::noncopyable {
   void send_put_records_request(const std::shared_ptr<PutRecordsRequest>& prr) {
     auto prc = std::make_shared<PutRecordsContext>(stream_, prr->items());
     prc->set_start(std::chrono::steady_clock::now());
-    ++outstanding_put_reqs_;
-    ++started_reqs_;
     kinesis_client_->PutRecordsAsync(
         prc->to_sdk_request(),
         [this](auto /*client*/,
@@ -212,12 +169,7 @@ class Pipeline : boost::noncopyable {
   }
 
   void request_completed(std::shared_ptr<PutRecordsContext> context) {
-    outstanding_put_reqs_.fetch_sub(1);
-    completed_reqs_.fetch_add(1);
-
-    total_time_.fetch_add(context->duration_millis());
-    total_reqs_time_.fetch_add(1);
-
+    stats_logger_.request_complete(context);
   }
 
   void retrier_put_kr(const std::shared_ptr<KinesisRecord>& kr) {
@@ -244,14 +196,8 @@ class Pipeline : boost::noncopyable {
 
   std::shared_ptr<aws::metrics::Metric> user_records_rcvd_metric_;
   std::atomic<uint64_t> outstanding_user_records_;
-  FlushStats ur_to_kr_stats_;
-  FlushStats kr_to_put_stats_;
-  std::thread report_thread_;
-  std::atomic<std::uint64_t> outstanding_put_reqs_;
-  std::atomic<std::uint64_t> completed_reqs_;
-  std::atomic<std::uint64_t> started_reqs_;
-  std::atomic<std::uint64_t> total_time_;
-  std::atomic<std::uint64_t> total_reqs_time_;
+
+  aws::utils::processing_statistics_logger stats_logger_;
 };
 
 } //namespace core
