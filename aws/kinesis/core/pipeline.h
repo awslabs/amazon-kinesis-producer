@@ -15,6 +15,7 @@
 #define AWS_KINESIS_CORE_PIPELINE_H_
 
 #include <boost/format.hpp>
+#include <iomanip>
 
 #include <aws/kinesis/core/aggregator.h>
 #include <aws/kinesis/core/collector.h>
@@ -52,6 +53,8 @@ class Pipeline : boost::noncopyable {
         outstanding_put_reqs_(0),
         started_reqs_(0),
         completed_reqs_(0),
+        total_time_(0),
+        total_reqs_time_(0),
         report_thread_(std::bind(&Pipeline::report_and_reset, this)),
         executor_(std::move(executor)),
         kinesis_client_(std::move(kinesis_client)),
@@ -138,6 +141,20 @@ class Pipeline : boost::noncopyable {
       started_reqs_ = 0;
       completed_reqs_ = 0;
 
+      std::uint64_t total_time = total_time_;
+      std::uint64_t requests = total_reqs_time_;
+
+      total_time_ = 0;
+      total_reqs_time_ = 0;
+
+      double average_req_time = total_time / static_cast<double>(requests);
+      double max_buffer_warn_limit = config_->record_max_buffered_time() * 5.0;
+      if (average_req_time > max_buffer_warn_limit) {
+        LOG(warning) << "Requests are taking more than " << max_buffer_warn_limit << " to complete.  "
+                  << "You may need to adjust your configuration to reduce the request time.";
+      }
+      LOG(info) << "(" << stream_ << ") Average Request Time: " << std::setprecision(8) << average_req_time << " ms";
+
     }
   }
 
@@ -180,8 +197,7 @@ class Pipeline : boost::noncopyable {
                   sdk_ctx));
           ctx->set_end(std::chrono::steady_clock::now());
           ctx->set_outcome(outcome);
-          --outstanding_put_reqs_;
-          ++completed_reqs_;
+          this->request_completed(ctx);
           // At the time of writing, the SDK can spawn a large number of
           // threads in order to achieve request parallelism. These threads will
           // later put items into the IPC manager after they finish the logic in
@@ -193,6 +209,15 @@ class Pipeline : boost::noncopyable {
           this->executor_->submit([=] { this->retrier_->put(ctx); });
         },
         prc);
+  }
+
+  void request_completed(std::shared_ptr<PutRecordsContext> context) {
+    outstanding_put_reqs_.fetch_sub(1);
+    completed_reqs_.fetch_add(1);
+
+    total_time_.fetch_add(context->duration_millis());
+    total_reqs_time_.fetch_add(1);
+
   }
 
   void retrier_put_kr(const std::shared_ptr<KinesisRecord>& kr) {
@@ -225,6 +250,8 @@ class Pipeline : boost::noncopyable {
   std::atomic<std::uint64_t> outstanding_put_reqs_;
   std::atomic<std::uint64_t> completed_reqs_;
   std::atomic<std::uint64_t> started_reqs_;
+  std::atomic<std::uint64_t> total_time_;
+  std::atomic<std::uint64_t> total_reqs_time_;
 };
 
 } //namespace core
