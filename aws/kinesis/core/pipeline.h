@@ -49,6 +49,9 @@ class Pipeline : boost::noncopyable {
         config_(std::move(config)),
         ur_to_kr_stats_(stream_, "UserRecords", "KinesisRecords"),
         kr_to_put_stats_(stream_, "KinesisRecords", "PutRecords"),
+        outstanding_put_reqs_(0),
+        started_reqs_(0),
+        completed_reqs_(0),
         report_thread_(std::bind(&Pipeline::report_and_reset, this)),
         executor_(std::move(executor)),
         kinesis_client_(std::move(kinesis_client)),
@@ -124,11 +127,17 @@ class Pipeline : boost::noncopyable {
         using namespace std::chrono_literals;
         std::this_thread::sleep_for(15s);
       }
-      LOG(info) << "Aggregator: " << ur_to_kr_stats_;
+      LOG(info) << "Stage 1: " << ur_to_kr_stats_;
       ur_to_kr_stats_.reset();
 
-      LOG(info) << "Collector: " << kr_to_put_stats_;
+      LOG(info) << "Stage 2: " << kr_to_put_stats_;
       kr_to_put_stats_.reset();
+
+      LOG(info) << "(" << stream_ << ") Outstanding Put Requests: " << outstanding_put_reqs_;
+      LOG(info) << "(" << stream_ << ") { started: " << started_reqs_ << ", completed: " << completed_reqs_ << " }";
+      started_reqs_ = 0;
+      completed_reqs_ = 0;
+
     }
   }
 
@@ -158,6 +167,8 @@ class Pipeline : boost::noncopyable {
   void send_put_records_request(const std::shared_ptr<PutRecordsRequest>& prr) {
     auto prc = std::make_shared<PutRecordsContext>(stream_, prr->items());
     prc->set_start(std::chrono::steady_clock::now());
+    ++outstanding_put_reqs_;
+    ++started_reqs_;
     kinesis_client_->PutRecordsAsync(
         prc->to_sdk_request(),
         [this](auto /*client*/,
@@ -169,6 +180,8 @@ class Pipeline : boost::noncopyable {
                   sdk_ctx));
           ctx->set_end(std::chrono::steady_clock::now());
           ctx->set_outcome(outcome);
+          --outstanding_put_reqs_;
+          ++completed_reqs_;
           // At the time of writing, the SDK can spawn a large number of
           // threads in order to achieve request parallelism. These threads will
           // later put items into the IPC manager after they finish the logic in
@@ -209,6 +222,9 @@ class Pipeline : boost::noncopyable {
   FlushStats ur_to_kr_stats_;
   FlushStats kr_to_put_stats_;
   std::thread report_thread_;
+  std::atomic<std::uint64_t> outstanding_put_reqs_;
+  std::atomic<std::uint64_t> completed_reqs_;
+  std::atomic<std::uint64_t> started_reqs_;
 };
 
 } //namespace core
