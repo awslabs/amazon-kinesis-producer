@@ -473,7 +473,7 @@ class Configuration : public ::google::protobuf::Message {
   inline bool verify_certificate() const;
   inline void set_verify_certificate(bool value);
 
-  // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = POOLED];
+  // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];
   inline bool has_thread_config() const;
   inline void clear_thread_config();
   static const int kThreadConfigFieldNumber = 26;
@@ -1820,7 +1820,7 @@ inline void Configuration::set_verify_certificate(bool value) {
   // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.verify_certificate)
 }
 
-// optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = POOLED];
+// optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];
 inline bool Configuration::has_thread_config() const {
   return (_has_bits_[0] & 0x04000000u) != 0;
 }
@@ -1831,7 +1831,7 @@ inline void Configuration::clear_has_thread_config() {
   _has_bits_[0] &= ~0x04000000u;
 }
 inline void Configuration::clear_thread_config() {
-  thread_config_ = 1;
+  thread_config_ = 0;
   clear_has_thread_config();
 }
 inline ::aws::kinesis::protobuf::Configuration_ThreadConfig Configuration::thread_config() const {

@@ -1111,11 +1111,11 @@ public final class Config {
     boolean getVerifyCertificate();
 
     /**
-     * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = POOLED];</code>
+     * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];</code>
      */
     boolean hasThreadConfig();
     /**
-     * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = POOLED];</code>
+     * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig getThreadConfig();
 
@@ -2063,13 +2063,13 @@ public final class Config {
     public static final int THREAD_CONFIG_FIELD_NUMBER = 26;
     private com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig threadConfig_;
     /**
-     * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = POOLED];</code>
+     * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];</code>
      */
     public boolean hasThreadConfig() {
       return ((bitField0_ & 0x02000000) == 0x02000000);
     }
     /**
-     * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = POOLED];</code>
+     * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig getThreadConfig() {
       return threadConfig_;
@@ -2117,7 +2117,7 @@ public final class Config {
       region_ = "";
       requestTimeout_ = 6000L;
       verifyCertificate_ = true;
-      threadConfig_ = com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.POOLED;
+      threadConfig_ = com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.PER_REQUEST;
       threadPoolSize_ = 64;
     }
     private byte memoizedIsInitialized = -1;
@@ -2518,7 +2518,7 @@ public final class Config {
         bitField0_ = (bitField0_ & ~0x01000000);
         verifyCertificate_ = true;
         bitField0_ = (bitField0_ & ~0x02000000);
-        threadConfig_ = com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.POOLED;
+        threadConfig_ = com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.PER_REQUEST;
         bitField0_ = (bitField0_ & ~0x04000000);
         threadPoolSize_ = 64;
         bitField0_ = (bitField0_ & ~0x08000000);
@@ -4185,21 +4185,21 @@ public final class Config {
         return this;
       }
 
-      private com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig threadConfig_ = com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.POOLED;
+      private com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig threadConfig_ = com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.PER_REQUEST;
       /**
-       * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = POOLED];</code>
+       * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];</code>
        */
       public boolean hasThreadConfig() {
         return ((bitField0_ & 0x04000000) == 0x04000000);
       }
       /**
-       * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = POOLED];</code>
+       * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig getThreadConfig() {
         return threadConfig_;
       }
       /**
-       * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = POOLED];</code>
+       * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];</code>
        */
       public Builder setThreadConfig(com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig value) {
         if (value == null) {
@@ -4211,11 +4211,11 @@ public final class Config {
         return this;
       }
       /**
-       * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = POOLED];</code>
+       * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];</code>
        */
       public Builder clearThreadConfig() {
         bitField0_ = (bitField0_ & ~0x04000000);
-        threadConfig_ = com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.POOLED;
+        threadConfig_ = com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.PER_REQUEST;
         onChanged();
         return this;
       }
@@ -4284,7 +4284,7 @@ public final class Config {
     java.lang.String[] descriptorData = {
       "\n\014config.proto\022\024aws.kinesis.protobuf\"F\n\023" +
       "AdditionalDimension\022\013\n\003key\030\001 \002(\t\022\r\n\005valu" +
-      "e\030\002 \002(\t\022\023\n\013granularity\030\003 \002(\t\"\247\010\n\rConfigu" +
+      "e\030\002 \002(\t\022\023\n\013granularity\030\003 \002(\t\"\254\010\n\rConfigu" +
       "ration\022J\n\026additional_metric_dims\030\200\001 \003(\0132" +
       ").aws.kinesis.protobuf.AdditionalDimensi" +
       "on\022!\n\023aggregation_enabled\030\001 \001(\010:\004true\022)\n" +
@@ -4307,12 +4307,12 @@ public final class Config {
       "max_buffered_time\030\025 \001(\004:\003100\022\031\n\nrecord_t" +
       "tl\030\026 \001(\004:\00530000\022\020\n\006region\030\027 \001(\t:\000\022\035\n\017req" +
       "uest_timeout\030\030 \001(\004:\0046000\022 \n\022verify_certi" +
-      "ficate\030\031 \001(\010:\004true\022O\n\rthread_config\030\032 \001(" +
+      "ficate\030\031 \001(\010:\004true\022T\n\rthread_config\030\032 \001(" +
       "\01620.aws.kinesis.protobuf.Configuration.T" +
-      "hreadConfig:\006POOLED\022\034\n\020thread_pool_size\030" +
-      "\033 \001(\r:\00264\"+\n\014ThreadConfig\022\017\n\013PER_REQUEST" +
-      "\020\000\022\n\n\006POOLED\020\001B2\n0com.amazonaws.services",
-      ".kinesis.producer.protobuf"
+      "hreadConfig:\013PER_REQUEST\022\034\n\020thread_pool_" +
+      "size\030\033 \001(\r:\00264\"+\n\014ThreadConfig\022\017\n\013PER_RE" +
+      "QUEST\020\000\022\n\n\006POOLED\020\001B2\n0com.amazonaws.ser",
+      "vices.kinesis.producer.protobuf"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {

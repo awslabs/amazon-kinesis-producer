@@ -41,6 +41,6 @@ message Configuration {
     PER_REQUEST = 0;
     POOLED = 1;
   }
-  optional ThreadConfig thread_config = 26 [default = POOLED];
+  optional ThreadConfig thread_config = 26 [default = PER_REQUEST];
   optional uint32 thread_pool_size = 27 [default = 64];
 }

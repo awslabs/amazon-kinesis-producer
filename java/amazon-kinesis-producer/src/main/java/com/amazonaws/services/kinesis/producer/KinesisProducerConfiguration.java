@@ -269,7 +269,7 @@ public class KinesisProducerConfiguration {
     private long requestTimeout = 6000L;
     private String tempDirectory = "";
     private boolean verifyCertificate = true;
-    private ThreadingModel threadingModel = ThreadingModel.POOLED;
+    private ThreadingModel threadingModel = ThreadingModel.PER_REQUEST;
     private int threadPoolSize = 0;
 
     /**

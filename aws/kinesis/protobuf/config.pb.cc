@@ -139,7 +139,7 @@ void protobuf_AddDesc_config_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\014config.proto\022\024aws.kinesis.protobuf\"F\n\023"
     "AdditionalDimension\022\013\n\003key\030\001 \002(\t\022\r\n\005valu"
-    "e\030\002 \002(\t\022\023\n\013granularity\030\003 \002(\t\"\247\010\n\rConfigu"
+    "e\030\002 \002(\t\022\023\n\013granularity\030\003 \002(\t\"\254\010\n\rConfigu"
     "ration\022J\n\026additional_metric_dims\030\200\001 \003(\0132"
     ").aws.kinesis.protobuf.AdditionalDimensi"
     "on\022!\n\023aggregation_enabled\030\001 \001(\010:\004true\022)\n"
@@ -162,12 +162,12 @@ void protobuf_AddDesc_config_2eproto() {
     "max_buffered_time\030\025 \001(\004:\003100\022\031\n\nrecord_t"
     "tl\030\026 \001(\004:\00530000\022\020\n\006region\030\027 \001(\t:\000\022\035\n\017req"
     "uest_timeout\030\030 \001(\004:\0046000\022 \n\022verify_certi"
-    "ficate\030\031 \001(\010:\004true\022O\n\rthread_config\030\032 \001("
+    "ficate\030\031 \001(\010:\004true\022T\n\rthread_config\030\032 \001("
     "\01620.aws.kinesis.protobuf.Configuration.T"
-    "hreadConfig:\006POOLED\022\034\n\020thread_pool_size\030"
-    "\033 \001(\r:\00264\"+\n\014ThreadConfig\022\017\n\013PER_REQUEST"
-    "\020\000\022\n\n\006POOLED\020\001B2\n0com.amazonaws.services"
-    ".kinesis.producer.protobuf", 1226);
+    "hreadConfig:\013PER_REQUEST\022\034\n\020thread_pool_"
+    "size\030\033 \001(\r:\00264\"+\n\014ThreadConfig\022\017\n\013PER_RE"
+    "QUEST\020\000\022\n\n\006POOLED\020\001B2\n0com.amazonaws.ser"
+    "vices.kinesis.producer.protobuf", 1231);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "config.proto", &protobuf_RegisterTypes);
   AdditionalDimension::default_instance_ = new AdditionalDimension();
@@ -658,7 +658,7 @@ void Configuration::SharedCtor() {
   region_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   request_timeout_ = GOOGLE_ULONGLONG(6000);
   verify_certificate_ = true;
-  thread_config_ = 1;
+  thread_config_ = 0;
   thread_pool_size_ = 64u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -785,7 +785,7 @@ void Configuration::Clear() {
   if (_has_bits_[24 / 32] & 251658240) {
     request_timeout_ = GOOGLE_ULONGLONG(6000);
     verify_certificate_ = true;
-    thread_config_ = 1;
+    thread_config_ = 0;
     thread_pool_size_ = 64u;
   }
 
@@ -1195,7 +1195,7 @@ bool Configuration::MergePartialFromCodedStream(
         break;
       }
 
-      // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = POOLED];
+      // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];
       case 26: {
         if (tag == 208) {
          parse_thread_config:
@@ -1429,7 +1429,7 @@ void Configuration::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteBool(25, this->verify_certificate(), output);
   }
 
-  // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = POOLED];
+  // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];
   if (has_thread_config()) {
     ::google::protobuf::internal::WireFormatLite::WriteEnum(
       26, this->thread_config(), output);
@@ -1623,7 +1623,7 @@ void Configuration::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(25, this->verify_certificate(), target);
   }
 
-  // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = POOLED];
+  // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];
   if (has_thread_config()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
       26, this->thread_config(), target);
@@ -1826,7 +1826,7 @@ int Configuration::ByteSize() const {
       total_size += 2 + 1;
     }
 
-    // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = POOLED];
+    // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];
     if (has_thread_config()) {
       total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::EnumSize(this->thread_config());
