@@ -183,6 +183,7 @@ class Pipeline : boost::noncopyable {
   std::string stream_;
   std::string region_;
   std::shared_ptr<Configuration> config_;
+  aws::utils::processing_statistics_logger stats_logger_;
   std::shared_ptr<aws::utils::Executor> executor_;
   std::shared_ptr<Aws::Kinesis::KinesisClient> kinesis_client_;
   std::shared_ptr<aws::metrics::MetricsManager> metrics_manager_;
@@ -197,7 +198,7 @@ class Pipeline : boost::noncopyable {
   std::shared_ptr<aws::metrics::Metric> user_records_rcvd_metric_;
   std::atomic<uint64_t> outstanding_user_records_;
 
-  aws::utils::processing_statistics_logger stats_logger_;
+
 };
 
 } //namespace core
