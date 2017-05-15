@@ -18,6 +18,31 @@
 
 using namespace aws::utils;
 
+flush_statistics_context& flush_statistics_context::manual(bool value) {
+  manual_ = value;
+  return *this;
+}
+
+flush_statistics_context& flush_statistics_context::record_count(bool value) {
+  record_count_ = value;
+  return *this;
+}
+
+flush_statistics_context& flush_statistics_context::data_size(bool value) {
+  data_size_ = value;
+  return *this;
+}
+
+flush_statistics_context& flush_statistics_context::predicate_match(bool value) {
+  predicate_match_ = value;
+  return *this;
+}
+
+flush_statistics_context& flush_statistics_context::timed(bool value) {
+  timed_ = value;
+  return *this;
+}
+
 flush_statistics_aggregator::flush_statistics_aggregator(const std::string &stream_name, const std::string &input_type,
                                                          const std::string &output_type) :
         stream_name_(stream_name),

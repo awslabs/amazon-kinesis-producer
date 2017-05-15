@@ -33,15 +33,20 @@ namespace aws {
       bool timed_ = false;
 
     public:
-      bool &manual() { return manual_; }
+      bool manual() { return manual_; }
+      flush_statistics_context& manual(bool value);
 
-      bool &record_count() { return record_count_; }
+      bool record_count() { return record_count_; }
+      flush_statistics_context& record_count(bool value);
 
-      bool &data_size() { return data_size_; }
+      bool data_size() { return data_size_; }
+      flush_statistics_context& data_size(bool value);
 
-      bool &predicate_match() { return predicate_match_; }
+      bool predicate_match() { return predicate_match_; }
+      flush_statistics_context& predicate_match(bool value);
 
-      bool &timed() { return timed_; }
+      bool timed() { return timed_; }
+      flush_statistics_context& timed(bool value);
 
       bool flush_required() {
         return manual_ || record_count_ || data_size_ || predicate_match_ || timed_;

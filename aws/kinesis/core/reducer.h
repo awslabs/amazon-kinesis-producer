@@ -83,9 +83,8 @@ class Reducer : boost::noncopyable {
     auto flush_predicate_result = flush_predicate_(input);
 
     aws::utils::flush_statistics_context flush_reason;
-    flush_reason.record_count() = size >= count_limit_;
-    flush_reason.data_size() = estimated_size >= size_limit_;
-    flush_reason.predicate_match() = flush_predicate_result;
+    flush_reason.record_count(size >= count_limit_).data_size(estimated_size >= size_limit_)
+            .predicate_match(flush_predicate_result);
 
     if (flush_reason.flush_required()) {
       auto output = flush(lock, flush_reason);
@@ -102,7 +101,7 @@ class Reducer : boost::noncopyable {
   // Manually trigger a flush, as though a deadline has been reached
   void flush() {
     aws::utils::flush_statistics_context flush_reason;
-    flush_reason.manual() = true;
+    flush_reason.manual(true);
     trigger_flush(flush_reason);
   }
 
@@ -180,7 +179,7 @@ class Reducer : boost::noncopyable {
 
   void deadline_reached() {
     aws::utils::flush_statistics_context flush_reason;
-    flush_reason.timed() = true;
+    flush_reason.timed(true);
     trigger_flush(flush_reason);
   }
 
