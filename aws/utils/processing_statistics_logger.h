@@ -79,6 +79,8 @@ namespace aws {
 
     };
 
+    std::ostream &operator<<(std::ostream &os, const flush_statistics_aggregator &fs);
+
     class processing_statistics_logger {
     public:
 
