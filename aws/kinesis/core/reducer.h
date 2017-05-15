@@ -16,7 +16,6 @@
 
 #include <mutex>
 
-#include <aws/kinesis/core/FlushStats.h>
 #include <aws/utils/logging.h>
 #include <aws/utils/executor.h>
 #include <aws/utils/processing_statistics_logger.h>
