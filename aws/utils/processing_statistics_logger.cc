@@ -66,6 +66,7 @@ std::ostream &aws::utils::operator<<(std::ostream &os, const flush_statistics_ag
 }
 
 processing_statistics_logger::processing_statistics_logger(std::string &stream, const std::uint64_t max_buffer_time) :
+        stream_(stream),
         stage1_(stream, "UserRecords", "KinesisRecords"),
         stage2_(stream, "KinesisRecords", "PutRecords"),
         total_time_(0),
