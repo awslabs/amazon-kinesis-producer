@@ -17,6 +17,7 @@
 #include <aws/utils/utils.h>
 #include <aws/utils/io_service_executor.h>
 #include <aws/kinesis/core/test/test_utils.h>
+#include <aws/utils/processing_statistics_logger.h>
 
 namespace {
 
@@ -27,11 +28,13 @@ using Reducer =
 using FlushCallback =
     std::function<void (std::shared_ptr<aws::kinesis::core::KinesisRecord>)>;
 
+  aws::utils::flush_statistics_aggregator flush_stats("Test", "TestRecords", "TestRecords2");
+
 std::shared_ptr<Reducer> make_reducer(size_t size_limit = 256 * 1024,
                                       size_t count_limit = 1000,
                                       FlushCallback cb = [](auto) {}) {
   auto executor = std::make_shared<aws::utils::IoServiceExecutor>(8);
-  return std::make_shared<Reducer>(executor, cb, size_limit, count_limit);
+  return std::make_shared<Reducer>(executor, cb, size_limit, count_limit, flush_stats);
 }
 
 template <typename T>

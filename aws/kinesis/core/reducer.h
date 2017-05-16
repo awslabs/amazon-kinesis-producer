@@ -17,8 +17,8 @@
 #include <mutex>
 
 #include <aws/utils/logging.h>
-
 #include <aws/utils/executor.h>
+#include <aws/utils/processing_statistics_logger.h>
 #include <aws/mutex.h>
 
 namespace aws {
@@ -51,17 +51,20 @@ template <typename T, typename U>
 class Reducer : boost::noncopyable {
  public:
   using FlushPredicate = std::function<bool (const std::shared_ptr<T>&)>;
+  using FlushReason = aws::utils::flush_statistics_context;
 
   Reducer(
       const std::shared_ptr<aws::utils::Executor>& executor,
       const std::function<void (std::shared_ptr<U>)>& flush_callback,
       size_t size_limit,
       size_t count_limit,
+      aws::utils::flush_statistics_aggregator& flush_stats,
       FlushPredicate flush_predicate = [](auto) { return false; })
       : executor_(executor),
         flush_callback_(flush_callback),
         size_limit_(size_limit),
         count_limit_(count_limit),
+        flush_stats_(flush_stats),
         flush_predicate_(flush_predicate),
         container_(std::make_shared<U>()),
         scheduled_callback_(
@@ -79,11 +82,13 @@ class Reducer : boost::noncopyable {
     auto size = container_->size();
     auto estimated_size = container_->estimated_size();
     auto flush_predicate_result = flush_predicate_(input);
-    if (size >= count_limit_ ||
-        estimated_size >= size_limit_ ||
-        flush_predicate_result) {
 
-      auto output = flush(lock);
+    FlushReason flush_reason;
+    flush_reason.record_count(size >= count_limit_).data_size(estimated_size >= size_limit_)
+            .predicate_match(flush_predicate_result);
+
+    if (flush_reason.flush_required()) {
+      auto output = flush(lock, flush_reason);
       if (output && output->size() > 0) {
         return output;
       }
@@ -96,7 +101,9 @@ class Reducer : boost::noncopyable {
 
   // Manually trigger a flush, as though a deadline has been reached
   void flush() {
-    deadline_reached();
+    FlushReason flush_reason;
+    flush_reason.manual(true);
+    trigger_flush(flush_reason);
   }
 
   // Records in the process of being flushed won't be counted
@@ -116,7 +123,8 @@ class Reducer : boost::noncopyable {
   using Mutex = aws::mutex;
   using Lock = aws::unique_lock<Mutex>;
 
-  std::shared_ptr<U> flush(Lock& lock) {
+
+  std::shared_ptr<U> flush(Lock &lock, FlushReason &flush_reason) {
     if (!lock) {
       lock.lock();
     }
@@ -154,6 +162,7 @@ class Reducer : boost::noncopyable {
     }
 
     set_deadline();
+    flush_stats_.merge(flush_reason, flush_container->size());
 
     return flush_container;
   }
@@ -171,8 +180,14 @@ class Reducer : boost::noncopyable {
   }
 
   void deadline_reached() {
+    FlushReason flush_reason;
+    flush_reason.timed(true);
+    trigger_flush(flush_reason);
+  }
+
+  void trigger_flush(FlushReason &reason) {
     Lock lock(lock_);
-    auto r = flush(lock);
+    auto r = flush(lock, reason);
     lock.unlock();
     if (r && r->size() > 0) {
       flush_callback_(r);
@@ -187,6 +202,7 @@ class Reducer : boost::noncopyable {
   Mutex lock_;
   std::shared_ptr<U> container_;
   std::shared_ptr<aws::utils::ScheduledCallback> scheduled_callback_;
+  aws::utils::flush_statistics_aggregator& flush_stats_;
 };
 
 } //namespace core

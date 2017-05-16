@@ -18,6 +18,7 @@
 #include <aws/kinesis/core/reducer.h>
 #include <aws/kinesis/core/configuration.h>
 #include <aws/utils/concurrent_hash_map.h>
+#include <aws/utils/processing_statistics_logger.h>
 
 namespace aws {
 namespace kinesis {
@@ -32,6 +33,7 @@ class Collector : boost::noncopyable {
       const std::shared_ptr<aws::utils::Executor>& executor,
       const FlushCallback& flush_callback,
       const std::shared_ptr<aws::kinesis::core::Configuration>& config,
+      aws::utils::flush_statistics_aggregator& flush_stats,
       const std::shared_ptr<aws::metrics::MetricsManager>& metrics_manager =
           std::make_shared<aws::metrics::NullMetricsManager>())
       : flush_callback_(flush_callback),
@@ -39,6 +41,7 @@ class Collector : boost::noncopyable {
                  [this](auto prr) { this->handle_flush(std::move(prr)); },
                  config->collection_max_size(),
                  config->collection_max_count(),
+                 flush_stats,
                  [this](auto kr) { return this->should_flush(kr); }),
         buffered_data_([](auto) { return new std::atomic<size_t>(0); }) {}
 

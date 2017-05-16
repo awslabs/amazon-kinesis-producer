@@ -17,6 +17,7 @@
 #include <aws/kinesis/core/test/test_utils.h>
 #include <aws/utils/io_service_executor.h>
 #include <aws/utils/utils.h>
+#include <aws/utils/processing_statistics_logger.h>
 
 namespace {
 
@@ -67,6 +68,8 @@ class MockShardMap : public aws::kinesis::core::ShardMap {
   std::vector<boost::multiprecision::uint128_t> limits_;
 };
 
+  aws::utils::flush_statistics_aggregator flush_stats("Test", "InRecords", "OutRecords");
+
 auto make_aggregator(
     bool shard_map_down = false,
     FlushCallback cb = [](auto) {},
@@ -81,7 +84,8 @@ auto make_aggregator(
           std::make_shared<aws::utils::IoServiceExecutor>(4),
           std::make_shared<MockShardMap>(shard_map_down),
           cb,
-          config);
+          config,
+          flush_stats);
 }
 
 } //namespace
