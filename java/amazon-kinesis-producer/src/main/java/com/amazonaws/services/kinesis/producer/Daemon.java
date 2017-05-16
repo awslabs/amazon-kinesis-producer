@@ -39,6 +39,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -428,6 +429,8 @@ public class Daemon {
         }
         args.add("-w");
         args.add(protobufToHex(makeSetCredentialsMessage(metricsCreds, true)));
+
+        log.debug("Starting Native Process: {}", StringUtils.join(args, " "));
 
         final ProcessBuilder pb = new ProcessBuilder(args);
         for (Entry<String, String> e : environmentVariables.entrySet()) {

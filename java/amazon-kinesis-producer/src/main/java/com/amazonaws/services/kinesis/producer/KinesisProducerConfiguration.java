@@ -42,43 +42,36 @@ public class KinesisProducerConfiguration {
     private AWSCredentialsProvider credentialsProvider = new DefaultAWSCredentialsProviderChain();
     private AWSCredentialsProvider metricsCredentialsProvider = null;
 
-   /**
+    /**
      * Add an additional, custom dimension to the metrics emitted by the KPL.
      *
      * <p>
-     * For example, you can make the KPL emit per-host metrics by adding
-     * HostName as the key and the domain name of the current host as the value.
+     * For example, you can make the KPL emit per-host metrics by adding HostName as the key and the domain name of the
+     * current host as the value.
      *
      * <p>
-     * The granularity of the custom dimension must be specified with the
-     * granularity parameter. The options are "global", "stream" and "shard",
-     * just like {@link #setMetricsGranularity(String)}. If global is chosen,
-     * the custom dimension will be inserted before the stream name; if stream
-     * is chosen then the custom metric will be inserted after the stream name,
-     * but before the shard id. Lastly, if shard is chosen, the custom metric is
-     * inserted after the shard id.
+     * The granularity of the custom dimension must be specified with the granularity parameter. The options are
+     * "global", "stream" and "shard", just like {@link #setMetricsGranularity(String)}. If global is chosen, the custom
+     * dimension will be inserted before the stream name; if stream is chosen then the custom metric will be inserted
+     * after the stream name, but before the shard id. Lastly, if shard is chosen, the custom metric is inserted after
+     * the shard id.
      *
      * <p>
-     * For example, if you want to see how different hosts are affecting a
-     * single stream, you can choose a granularity of stream for your HostName
-     * custom dimension. This will produce per-host metrics for every stream. On
-     * the other hand, if you want to see how a single host is distributing its
-     * load across different streams, you can choose a granularity of global.
-     * This will produce per-stream metrics for each host.
+     * For example, if you want to see how different hosts are affecting a single stream, you can choose a granularity
+     * of stream for your HostName custom dimension. This will produce per-host metrics for every stream. On the other
+     * hand, if you want to see how a single host is distributing its load across different streams, you can choose a
+     * granularity of global. This will produce per-stream metrics for each host.
      *
      * <p>
-     * Note that custom dimensions will multiplicatively increase the number of
-     * metrics emitted by the KPL into CloudWatch.
+     * Note that custom dimensions will multiplicatively increase the number of metrics emitted by the KPL into
+     * CloudWatch.
      *
      * @param key
-     *            Name of the dimension, e.g. "HostName". Length must be between
-     *            1 and 255.
+     *            Name of the dimension, e.g. "HostName". Length must be between 1 and 255.
      * @param value
-     *            Value of the dimension, e.g. "my-host-1.my-domain.com". Length
-     *            must be between 1 and 255.
+     *            Value of the dimension, e.g. "my-host-1.my-domain.com". Length must be between 1 and 255.
      * @param granularity
-     *            Granularity of the custom dimension, must be one of "global",
-     *            "stream" or "shard"
+     *            Granularity of the custom dimension, must be one of "global", "stream" or "shard"
      * @throws IllegalArgumentException
      *             If granularity is not one of the allowed values.
      */
@@ -90,10 +83,9 @@ public class KinesisProducerConfiguration {
     }
     
     /**
-     * {@link AWSCredentialsProvider} that supplies credentials used to put
-     * records to Kinesis. These credentials will also be used to upload metrics
-     * to CloudWatch, unless {@link setMetricsCredentialsProvider} is used to
-     * provide separate credentials for that.
+     * {@link AWSCredentialsProvider} that supplies credentials used to put records to Kinesis. These credentials will
+     * also be used to upload metrics to CloudWatch, unless {@link #setMetricsCredentialsProvider} is used to provide
+     * separate credentials for that.
      * 
      * @see #setCredentialsProvider(AWSCredentialsProvider)
      */
@@ -102,12 +94,10 @@ public class KinesisProducerConfiguration {
     }
 
     /**
-     * {@link AWSCredentialsProvider} that supplies credentials used to put
-     * records to Kinesis.
+     * {@link AWSCredentialsProvider} that supplies credentials used to put records to Kinesis.
      * <p>
-     * These credentials will also be used to upload metrics
-     * to CloudWatch, unless {@link setMetricsCredentialsProvider} is used to
-     * provide separate credentials for that.
+     * These credentials will also be used to upload metrics to CloudWatch, unless
+     * {@link #setMetricsCredentialsProvider} is used to provide separate credentials for that.
      * <p>
      * Defaults to an instance of {@link DefaultAWSCredentialsProviderChain}
      * 
@@ -228,7 +218,28 @@ public class KinesisProducerConfiguration {
     protected Configuration.Builder additionalConfigsToProtobuf(Configuration.Builder builder) {
         return builder.addAllAdditionalMetricDims(additionalDims);
     }
-    
+
+    /**
+     * Configures the threading model used by the native process for handling requests to AWS Services.
+     */
+    public enum ThreadingModel {
+        /**
+         * Tells the native process to create a thread for each request.
+         */
+        PER_REQUEST(Configuration.ThreadConfig.PER_REQUEST),
+        /**
+         * Tells the native process to use a thread pool. The size of the pool can be controlled by
+         * {@link KinesisProducerConfiguration#setThreadPoolSize(int)}.
+         */
+        POOLED(Configuration.ThreadConfig.POOLED);
+
+        final Configuration.ThreadConfig threadConfig;
+
+        ThreadingModel(Configuration.ThreadConfig threadConfig) {
+            this.threadConfig = threadConfig;
+        }
+    }
+
     // __GENERATED_CODE__
     private boolean aggregationEnabled = true;
     private long aggregationMaxCount = 4294967295L;
@@ -258,6 +269,8 @@ public class KinesisProducerConfiguration {
     private long requestTimeout = 6000L;
     private String tempDirectory = "";
     private boolean verifyCertificate = true;
+    private ThreadingModel threadingModel = ThreadingModel.PER_REQUEST;
+    private int threadPoolSize = 0;
 
     /**
      * Enable aggregation. With aggregation, multiple user records are packed into a single
@@ -723,6 +736,33 @@ public class KinesisProducerConfiguration {
      */
     public boolean isVerifyCertificate() {
       return verifyCertificate;
+    }
+
+    /**
+     * Returns the threading model that the native process will use to handle requests to AWS services
+     * 
+     * @return the {@link ThreadingModel} the native process will use.
+     */
+    public ThreadingModel getThreadingModel() {
+        return threadingModel;
+    }
+
+    /**
+     * This configures the maximum number of threads the thread pool in the native process will use. This is only used
+     * when {@link #getThreadingModel()} is set to {@link ThreadingModel#POOLED}.
+     *
+     * <dl>
+     * <dt>Default</dt>
+     * <dd>The default value is 0 which allows the native process to choose the size of the thread pool</dd>
+     * <dt>Maximum</dt>
+     * <dd>There is no specific maximum, but operation systems may impose a maximum. If the native process exceeds that
+     * maximum it may be terminated.</dd>
+     * </dl>
+     * 
+     * @return the size of the thread pool for the native process.
+     */
+    public int getThreadPoolSize() {
+        return threadPoolSize;
     }
 
     /**
@@ -1285,10 +1325,42 @@ public class KinesisProducerConfiguration {
         return this;
     }
 
+    /**
+     * Sets the threading model that the native process will use.
+     *
+     * See {@link #getThreadingModel()} for more information
+     * 
+     * @param threadingModel
+     *            the threading model to use
+     * @return this configuration object
+     */
+    public KinesisProducerConfiguration setThreadingModel(ThreadingModel threadingModel) {
+        this.threadingModel = threadingModel;
+        return this;
+    }
+
+    /**
+     * Sets the maximum number of threads that the native process' thread pool will be configured with.
+     *
+     * See {@link #getThreadPoolSize()} for more information
+     * 
+     * @param threadPoolSize
+     *            the maximum number of threads that the thread pool can use.
+     * @throws IllegalArgumentException
+     *             if threadPoolSize is less than 0
+     * @return this configuration object
+     */
+    public KinesisProducerConfiguration setThreadPoolSize(int threadPoolSize) {
+        if (threadPoolSize < 0) {
+            throw new IllegalArgumentException("Max threads must greater than or equal to 0");
+        }
+        this.threadPoolSize = threadPoolSize;
+        return this;
+    }
 
     protected Message toProtobufMessage() {
-        Configuration c = this.additionalConfigsToProtobuf(
-            Configuration.newBuilder()
+        Configuration.Builder builder = Configuration.newBuilder()
+                //@formatter:off
                 .setAggregationEnabled(aggregationEnabled)
                 .setAggregationMaxCount(aggregationMaxCount)
                 .setAggregationMaxSize(aggregationMaxSize)
@@ -1314,10 +1386,13 @@ public class KinesisProducerConfiguration {
                 .setRegion(region)
                 .setRequestTimeout(requestTimeout)
                 .setVerifyCertificate(verifyCertificate)
-                ).build();
-       return Message.newBuilder()
-                      .setConfiguration(c)
-                      .setId(0)
-                      .build();
+                .setThreadConfig(threadingModel.threadConfig);
+        //@formatter:on
+        if (threadPoolSize > 0) {
+            builder = builder.setThreadPoolSize(threadPoolSize);
+        }
+
+        Configuration c = this.additionalConfigsToProtobuf(builder).build();
+        return Message.newBuilder().setConfiguration(c).setId(0).build();
     }
 }

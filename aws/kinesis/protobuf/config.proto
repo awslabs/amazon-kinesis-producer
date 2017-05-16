@@ -1,5 +1,7 @@
-
+syntax = "proto2";
 package aws.kinesis.protobuf;
+
+option java_package = "com.amazonaws.services.kinesis.producer.protobuf";
 
 message AdditionalDimension {
   required string key         = 1;
@@ -35,4 +37,10 @@ message Configuration {
   optional string region = 23 [default = ""];
   optional uint64 request_timeout = 24 [default = 6000];
   optional bool verify_certificate = 25 [default = true];
+  enum ThreadConfig {
+    PER_REQUEST = 0;
+    POOLED = 1;
+  }
+  optional ThreadConfig thread_config = 26 [default = PER_REQUEST];
+  optional uint32 thread_pool_size = 27 [default = 64];
 }

@@ -23,6 +23,7 @@
 #include <google/protobuf/message.h>
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/extension_set.h>
+#include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
 // @@protoc_insertion_point(includes)
 
@@ -38,6 +39,25 @@ void protobuf_ShutdownFile_config_2eproto();
 class AdditionalDimension;
 class Configuration;
 
+enum Configuration_ThreadConfig {
+  Configuration_ThreadConfig_PER_REQUEST = 0,
+  Configuration_ThreadConfig_POOLED = 1
+};
+bool Configuration_ThreadConfig_IsValid(int value);
+const Configuration_ThreadConfig Configuration_ThreadConfig_ThreadConfig_MIN = Configuration_ThreadConfig_PER_REQUEST;
+const Configuration_ThreadConfig Configuration_ThreadConfig_ThreadConfig_MAX = Configuration_ThreadConfig_POOLED;
+const int Configuration_ThreadConfig_ThreadConfig_ARRAYSIZE = Configuration_ThreadConfig_ThreadConfig_MAX + 1;
+
+const ::google::protobuf::EnumDescriptor* Configuration_ThreadConfig_descriptor();
+inline const ::std::string& Configuration_ThreadConfig_Name(Configuration_ThreadConfig value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    Configuration_ThreadConfig_descriptor(), value);
+}
+inline bool Configuration_ThreadConfig_Parse(
+    const ::std::string& name, Configuration_ThreadConfig* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<Configuration_ThreadConfig>(
+    Configuration_ThreadConfig_descriptor(), name, value);
+}
 // ===================================================================
 
 class AdditionalDimension : public ::google::protobuf::Message {
@@ -204,6 +224,30 @@ class Configuration : public ::google::protobuf::Message {
   ::google::protobuf::Metadata GetMetadata() const;
 
   // nested types ----------------------------------------------------
+
+  typedef Configuration_ThreadConfig ThreadConfig;
+  static const ThreadConfig PER_REQUEST = Configuration_ThreadConfig_PER_REQUEST;
+  static const ThreadConfig POOLED = Configuration_ThreadConfig_POOLED;
+  static inline bool ThreadConfig_IsValid(int value) {
+    return Configuration_ThreadConfig_IsValid(value);
+  }
+  static const ThreadConfig ThreadConfig_MIN =
+    Configuration_ThreadConfig_ThreadConfig_MIN;
+  static const ThreadConfig ThreadConfig_MAX =
+    Configuration_ThreadConfig_ThreadConfig_MAX;
+  static const int ThreadConfig_ARRAYSIZE =
+    Configuration_ThreadConfig_ThreadConfig_ARRAYSIZE;
+  static inline const ::google::protobuf::EnumDescriptor*
+  ThreadConfig_descriptor() {
+    return Configuration_ThreadConfig_descriptor();
+  }
+  static inline const ::std::string& ThreadConfig_Name(ThreadConfig value) {
+    return Configuration_ThreadConfig_Name(value);
+  }
+  static inline bool ThreadConfig_Parse(const ::std::string& name,
+      ThreadConfig* value) {
+    return Configuration_ThreadConfig_Parse(name, value);
+  }
 
   // accessors -------------------------------------------------------
 
@@ -429,6 +473,20 @@ class Configuration : public ::google::protobuf::Message {
   inline bool verify_certificate() const;
   inline void set_verify_certificate(bool value);
 
+  // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];
+  inline bool has_thread_config() const;
+  inline void clear_thread_config();
+  static const int kThreadConfigFieldNumber = 26;
+  inline ::aws::kinesis::protobuf::Configuration_ThreadConfig thread_config() const;
+  inline void set_thread_config(::aws::kinesis::protobuf::Configuration_ThreadConfig value);
+
+  // optional uint32 thread_pool_size = 27 [default = 64];
+  inline bool has_thread_pool_size() const;
+  inline void clear_thread_pool_size();
+  static const int kThreadPoolSizeFieldNumber = 27;
+  inline ::google::protobuf::uint32 thread_pool_size() const;
+  inline void set_thread_pool_size(::google::protobuf::uint32 value);
+
   // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.Configuration)
  private:
   inline void set_has_aggregation_enabled();
@@ -481,6 +539,10 @@ class Configuration : public ::google::protobuf::Message {
   inline void clear_has_request_timeout();
   inline void set_has_verify_certificate();
   inline void clear_has_verify_certificate();
+  inline void set_has_thread_config();
+  inline void clear_has_thread_config();
+  inline void set_has_thread_pool_size();
+  inline void clear_has_thread_pool_size();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -499,6 +561,11 @@ class Configuration : public ::google::protobuf::Message {
   static ::std::string* _default_log_level_;
   ::std::string* log_level_;
   ::google::protobuf::uint64 max_connections_;
+  bool aggregation_enabled_;
+  bool enable_core_dumps_;
+  bool fail_if_throttled_;
+  bool verify_certificate_;
+  int thread_config_;
   static ::std::string* _default_metrics_granularity_;
   ::std::string* metrics_granularity_;
   static ::std::string* _default_metrics_level_;
@@ -512,10 +579,7 @@ class Configuration : public ::google::protobuf::Message {
   ::google::protobuf::uint64 record_ttl_;
   ::std::string* region_;
   ::google::protobuf::uint64 request_timeout_;
-  bool aggregation_enabled_;
-  bool enable_core_dumps_;
-  bool fail_if_throttled_;
-  bool verify_certificate_;
+  ::google::protobuf::uint32 thread_pool_size_;
   friend void  protobuf_AddDesc_config_2eproto();
   friend void protobuf_AssignDesc_config_2eproto();
   friend void protobuf_ShutdownFile_config_2eproto();
@@ -1756,6 +1820,55 @@ inline void Configuration::set_verify_certificate(bool value) {
   // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.verify_certificate)
 }
 
+// optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];
+inline bool Configuration::has_thread_config() const {
+  return (_has_bits_[0] & 0x04000000u) != 0;
+}
+inline void Configuration::set_has_thread_config() {
+  _has_bits_[0] |= 0x04000000u;
+}
+inline void Configuration::clear_has_thread_config() {
+  _has_bits_[0] &= ~0x04000000u;
+}
+inline void Configuration::clear_thread_config() {
+  thread_config_ = 0;
+  clear_has_thread_config();
+}
+inline ::aws::kinesis::protobuf::Configuration_ThreadConfig Configuration::thread_config() const {
+  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.Configuration.thread_config)
+  return static_cast< ::aws::kinesis::protobuf::Configuration_ThreadConfig >(thread_config_);
+}
+inline void Configuration::set_thread_config(::aws::kinesis::protobuf::Configuration_ThreadConfig value) {
+  assert(::aws::kinesis::protobuf::Configuration_ThreadConfig_IsValid(value));
+  set_has_thread_config();
+  thread_config_ = value;
+  // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.thread_config)
+}
+
+// optional uint32 thread_pool_size = 27 [default = 64];
+inline bool Configuration::has_thread_pool_size() const {
+  return (_has_bits_[0] & 0x08000000u) != 0;
+}
+inline void Configuration::set_has_thread_pool_size() {
+  _has_bits_[0] |= 0x08000000u;
+}
+inline void Configuration::clear_has_thread_pool_size() {
+  _has_bits_[0] &= ~0x08000000u;
+}
+inline void Configuration::clear_thread_pool_size() {
+  thread_pool_size_ = 64u;
+  clear_has_thread_pool_size();
+}
+inline ::google::protobuf::uint32 Configuration::thread_pool_size() const {
+  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.Configuration.thread_pool_size)
+  return thread_pool_size_;
+}
+inline void Configuration::set_thread_pool_size(::google::protobuf::uint32 value) {
+  set_has_thread_pool_size();
+  thread_pool_size_ = value;
+  // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.thread_pool_size)
+}
+
 
 // @@protoc_insertion_point(namespace_scope)
 
@@ -1767,6 +1880,11 @@ inline void Configuration::set_verify_certificate(bool value) {
 namespace google {
 namespace protobuf {
 
+template <> struct is_proto_enum< ::aws::kinesis::protobuf::Configuration_ThreadConfig> : ::google::protobuf::internal::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::aws::kinesis::protobuf::Configuration_ThreadConfig>() {
+  return ::aws::kinesis::protobuf::Configuration_ThreadConfig_descriptor();
+}
 
 }  // namespace google
 }  // namespace protobuf
