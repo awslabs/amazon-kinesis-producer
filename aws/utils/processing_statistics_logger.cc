@@ -24,7 +24,7 @@ flush_statistics_context& flush_statistics_context::manual(bool value) {
 }
 
 flush_statistics_context& flush_statistics_context::record_count(bool value) {
-  is_for_record_count = value;
+  is_for_record_count_ = value;
   return *this;
 }
 
