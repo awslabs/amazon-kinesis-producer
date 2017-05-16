@@ -51,6 +51,7 @@ template <typename T, typename U>
 class Reducer : boost::noncopyable {
  public:
   using FlushPredicate = std::function<bool (const std::shared_ptr<T>&)>;
+  using FlushReason = aws::utils::flush_statistics_context;
 
   Reducer(
       const std::shared_ptr<aws::utils::Executor>& executor,
@@ -82,7 +83,7 @@ class Reducer : boost::noncopyable {
     auto estimated_size = container_->estimated_size();
     auto flush_predicate_result = flush_predicate_(input);
 
-    aws::utils::flush_statistics_context flush_reason;
+    FlushReason flush_reason;
     flush_reason.record_count(size >= count_limit_).data_size(estimated_size >= size_limit_)
             .predicate_match(flush_predicate_result);
 
@@ -100,7 +101,7 @@ class Reducer : boost::noncopyable {
 
   // Manually trigger a flush, as though a deadline has been reached
   void flush() {
-    aws::utils::flush_statistics_context flush_reason;
+    FlushReason flush_reason;
     flush_reason.manual(true);
     trigger_flush(flush_reason);
   }
@@ -122,7 +123,8 @@ class Reducer : boost::noncopyable {
   using Mutex = aws::mutex;
   using Lock = aws::unique_lock<Mutex>;
 
-  std::shared_ptr<U> flush(Lock &lock, aws::utils::flush_statistics_context &flush_reason) {
+
+  std::shared_ptr<U> flush(Lock &lock, FlushReason &flush_reason) {
     if (!lock) {
       lock.lock();
     }
@@ -178,12 +180,12 @@ class Reducer : boost::noncopyable {
   }
 
   void deadline_reached() {
-    aws::utils::flush_statistics_context flush_reason;
+    FlushReason flush_reason;
     flush_reason.timed(true);
     trigger_flush(flush_reason);
   }
 
-  void trigger_flush(aws::utils::flush_statistics_context &reason) {
+  void trigger_flush(FlushReason &reason) {
     Lock lock(lock_);
     auto r = flush(lock, reason);
     lock.unlock();
