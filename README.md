@@ -31,11 +31,11 @@ For detailed information and installation instructions, see the article [Develop
   * Added flush statistics that record the count of events that trigger flushes of data destined for Kinesis
   * Added a log message that indicates the average time it takes for a PutRecords request to be completed.
 
-      This time is recorded from the when the request is enqueued to when it is completed.  
-  * Log a warning if the average request time rises above five times the configured flush interval.  
+      This time is recorded from the when the request is enqueued to when it is completed.
+  * Log a warning if the average request time rises above five times the configured flush interval.
 
-      If you see this warning normally it indicates that the KPL is having issues keeping up. The most likely  
-      cause is to many requests being generated, and you should investigate the flush triggers to determine why flushes  
+      If you see this warning normally it indicates that the KPL is having issues keeping up. The most likely
+      cause is to many requests being generated, and you should investigate the flush triggers to determine why flushes
       are being triggered.
   * [PR #102](https://github.com/awslabs/amazon-kinesis-producer/pull/102)
 
