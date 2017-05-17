@@ -8,6 +8,37 @@ For detailed information and installation instructions, see the article [Develop
 
 ## Release Notes
 
+### 0.12.4
+
+#### Java
+
+* Upgraded dependency on aws-java-sdk-core to 1.11.128, and removed version range.
+  * [PR #84](https://github.com/awslabs/amazon-kinesis-producer/pull/84)
+  * [PR #106](https://github.com/awslabs/amazon-kinesis-producer/pull/106)
+* Use an explicit lock file to manage access to the native KPL binaries.
+  * [Issue #91](https://github.com/awslabs/amazon-kinesis-producer/issues/91)
+  * [PR #92](https://github.com/awslabs/amazon-kinesis-producer/pull/92)
+* Log reader threads should be shut down when the native process exits.
+  * [Issue #93](https://github.com/awslabs/amazon-kinesis-producer/issues/93)
+  * [PR #94](https://github.com/awslabs/amazon-kinesis-producer/pull/94)
+
+#### C++ Core
+
+* Add support for using a thread pool, instead of a thread per request.
+  The thread pool model guarantees a fixed number of threads, but have issue catching up if the KPL is overloaded.
+  * [PR #100](https://github.com/awslabs/amazon-kinesis-producer/pull/100)
+* Add log messages, and statistics about sending data to Kinesis.
+  * Added flush statistics that record the count of events that trigger flushes of data destined for Kinesis
+  * Added a log message that indicates the average time it takes for a PutRecords request to be completed.
+
+      This time is recorded from the when the request is enqueued to when it is completed.  
+  * Log a warning if the average request time rises above five times the configured flush interval.  
+
+      If you see this warning normally it indicates that the KPL is having issues keeping up. The most likely  
+      cause is to many requests being generated, and you should investigate the flush triggers to determine why flushes  
+      are being triggered.
+  * [PR #102](https://github.com/awslabs/amazon-kinesis-producer/pull/102)
+
 ### 0.12.3
 
 #### Java
