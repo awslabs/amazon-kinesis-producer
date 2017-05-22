@@ -15,9 +15,8 @@ if [ $1 == "clang" ] || [ $(uname) == 'Darwin' ]; then
   export C_INCLUDE_PATH="$INSTALL_DIR/include"
 
   if [ $(uname) == 'Linux' ]; then
-    export LDFLAGS="-L$INSTALL_DIR/lib -L/usr/local/lib -nodefaultlibs -lpthread -ldl -lc++ -lc++abi -lm -lc -lgcc_s"
-    export CPLUS_INCLUDE_PATH="/usr/local/include/c++/v1:/usr/include/c++/v1"
-    export LD_LIBRARY_PATH="$INSTALL_DIR/lib:/usr/local/lib:$LD_LIBRARY_PATH"
+    export LDFLAGS="-L$INSTALL_DIR/lib -nodefaultlibs -lpthread -ldl -lc++ -lc++abi -lm -lc -lgcc_s"
+    export LD_LIBRARY_PATH="$INSTALL_DIR/lib:$LD_LIBRARY_PATH"
   else
     export LDFLAGS="-L$INSTALL_DIR/lib"
     export DYLD_LIBRARY_PATH="$INSTALL_DIR/lib:$DYLD_LIBRARY_PATH"
@@ -26,8 +25,8 @@ else
   export CC="gcc"
   export CXX="g++"
   export CXXFLAGS="-I$INSTALL_DIR/include -O3"
-  export LDFLAGS="-L$INSTALL_DIR/lib -L/usr/local/lib64/"
-  export LD_LIBRARY_PATH="$INSTALL_DIR/lib:/usr/local/lib:/usr/local/lib64:$LD_LIBRARY_PATH"
+  export LDFLAGS="-L$INSTALL_DIR/lib "
+  export LD_LIBRARY_PATH="$INSTALL_DIR/lib:$LD_LIBRARY_PATH"
 fi
 
 SED="sed -i"
@@ -59,7 +58,6 @@ function conf {
     LDFLAGS="$LDFLAGS" \
     CXXFLAGS="$CXXFLAGS" \
     C_INCLUDE_PATH="$C_INCLUDE_PATH" \
-    CPLUS_INCLUDE_PATH="$CPLUS_INCLUDE_PATH" \
     $@
   fi
 }
@@ -73,7 +71,7 @@ if [ ! -d "openssl-1.0.1m" ]; then
   cd openssl-1.0.1m
 
   # Have to leave MD4 enabled because curl expects it
-  OPTS="threads no-shared no-idea no-camellia no-seed no-bf no-cast no-rc2 no-rc4 no-rc5 no-md2 no-ripemd no-mdc2 no-ssl2 no-ssl3 no-krb5 no-jpake no-capieng"
+  OPTS="threads no-shared no-idea no-camellia no-seed no-bf no-cast no-rc2 no-rc4 no-rc5 no-md2 no-ripemd no-mdc2 no-ssl2 no-ssl3 no-krb5 no-jpake no-capieng no-dso"
 
   if [[ $(uname) == 'Darwin' ]]; then
     ./Configure darwin64-x86_64-cc $OPTS --prefix=$INSTALL_DIR
@@ -162,7 +160,7 @@ if [ ! -d "curl-7.47.0" ]; then
   cd curl-7.47.0
 
   conf --disable-shared --disable-ldap --disable-ldaps \
-    --enable-threaded-resolver --disable-debug --without-libssh2 --without-ca-bundle
+    --enable-threaded-resolver --disable-debug --without-libssh2 --without-ca-bundle --with-ssl="${INSTALL_DIR}" --without-libidn
   make -j
   make install
 
@@ -190,6 +188,7 @@ if [ ! -d "aws-sdk-cpp" ]; then
     -DCMAKE_CXX_COMPILER="$CXX" \
     -DCMAKE_CXX_FLAGS="$CXXFLAGS" \
     -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR" \
+    -DCMAKE_FIND_FRAMEWORK=LAST \
     -DENABLE_TESTING="OFF" \
     ../aws-sdk-cpp
   make -j 4
