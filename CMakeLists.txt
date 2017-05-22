@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 3.5)
 project(amazon_kinesis_producer)
 
-set(THIRD_PARTY_LIB_DIR "${amazon_kinesis_producer_internal_SOURCE_DIR}/third_party/lib")
+set(THIRD_PARTY_LIB_DIR "${amazon_kinesis_producer_SOURCE_DIR}/third_party/lib")
 
 if (CMAKE_COMPILER_IS_GNUCXX)
-    set(ADDL_LINK_CONFIG "-static-libstdc++")
+    set(ADDL_LINK_CONFIG "-static-libstdc++ -Wl,--wrap=memcpy")
     add_compile_options("-fpermissive")
+    set(WRAP_MEMCPY aws/utils/wrap_memcpy.c)
 endif ()
 
 IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
@@ -71,7 +72,8 @@ set(SOURCE_FILES
         aws/utils/utils.cc
         aws/utils/utils.h
         aws/utils/processing_statistics_logger.cc
-        aws/utils/processing_statistics_logger.h)
+        aws/utils/processing_statistics_logger.h
+        ${WRAP_MEMCPY})
 
 
 
