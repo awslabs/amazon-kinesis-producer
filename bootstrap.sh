@@ -188,6 +188,7 @@ if [ ! -d "aws-sdk-cpp" ]; then
     -DCMAKE_CXX_COMPILER="$CXX" \
     -DCMAKE_CXX_FLAGS="$CXXFLAGS" \
     -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR" \
+    -DCMAKE_FIND_FRAMEWORK=LAST \
     -DENABLE_TESTING="OFF" \
     ../aws-sdk-cpp
   make -j 4
