@@ -8,6 +8,15 @@ For detailed information and installation instructions, see the article [Develop
 
 ## Release Notes
 
+### 0.12.5
+
+#### C++ Core
+
+* Revert to an older version of glibc.
+  * [PR #108](https://github.com/awslabs/amazon-kinesis-producer/pull/108)
+* Update bootstrap.sh to include new compiler options for the newer version of GCC.
+  * [PR #109](https://github.com/awslabs/amazon-kinesis-producer/pull/109)
+
 ### 0.12.4
 
 #### Java
