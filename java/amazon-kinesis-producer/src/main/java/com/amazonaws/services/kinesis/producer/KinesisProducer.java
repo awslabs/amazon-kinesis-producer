@@ -131,7 +131,7 @@ public class KinesisProducer {
     private class MessageHandler implements Daemon.MessageHandler {
         @Override
         public void onMessage(final Message m) {
-            callbackCompletionExecutor.submit(new Runnable() {
+            callbackCompletionExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
                     if (m.hasPutRecordResult()) {
@@ -154,7 +154,7 @@ public class KinesisProducer {
 
             // Fail all outstanding futures
             for (final Map.Entry<Long, SettableFuture<?>> entry : futures.entrySet()) {
-                callbackCompletionExecutor.submit(new Runnable() {
+                callbackCompletionExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
                         entry.getValue().setException(t);
