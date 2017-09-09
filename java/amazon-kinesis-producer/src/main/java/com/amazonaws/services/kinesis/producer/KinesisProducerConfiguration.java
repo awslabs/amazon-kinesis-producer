@@ -1331,6 +1331,10 @@ public class KinesisProducerConfiguration {
      * Sets the threading model that the native process will use.
      * <p>
      * See {@link #getThreadingModel()} for more information
+     * <p>
+     * Valid inputs:
+     * defPER_REQUEST - Tells the native process to create a thread per request.
+     * POOLED -  Tells the native process to use a thread pool. The size of the pool can be controlled by ThreadPoolSize.
      *
      * @param threadingModel the String representation of the threading model to use.
      * @return this configuration object

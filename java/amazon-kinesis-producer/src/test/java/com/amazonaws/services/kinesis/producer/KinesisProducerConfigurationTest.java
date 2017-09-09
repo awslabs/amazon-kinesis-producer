@@ -89,11 +89,19 @@ public class KinesisProducerConfigurationTest {
     }
 
     @Test
-    public void setThreadingModelFromProperties() {
+    public void setThreadingModelToPooledFromProperties() {
         Properties p = new Properties();
         p.setProperty("ThreadingModel", "POOLED");
         KinesisProducerConfiguration cfg = KinesisProducerConfiguration.fromPropertiesFile(writeFile(p));
         assertEquals(KinesisProducerConfiguration.ThreadingModel.POOLED, cfg.getThreadingModel());
+    }
+
+    @Test
+    public void setThreadingModelToPerRequestFromProperties() {
+        Properties p = new Properties();
+        p.setProperty("ThreadingModel", "PER_REQUEST");
+        KinesisProducerConfiguration cfg = KinesisProducerConfiguration.fromPropertiesFile(writeFile(p));
+        assertEquals(KinesisProducerConfiguration.ThreadingModel.PER_REQUEST, cfg.getThreadingModel());
     }
 
     @Test
