@@ -83,7 +83,7 @@ import com.google.protobuf.ByteString;
  * @author chaodeng
  *
  */
-public class KinesisProducer {
+public class KinesisProducer implements IKinesisProducer {
     private static final Logger log = LoggerFactory.getLogger(KinesisProducer.class);
     
     private static final BigInteger UINT_128_MAX = new BigInteger(StringUtils.repeat("FF", 16), 16);
@@ -344,10 +344,68 @@ public class KinesisProducer {
      * @see KinesisProducerConfiguration#setRecordTtl(long)
      * @see UserRecordFailedException
      */
+    @Override
     public ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, ByteBuffer data) {
         return addUserRecord(stream, partitionKey, null, data);
     }
-    
+
+    /**
+     * Put a record asynchronously. A {@link ListenableFuture} is returned that
+     * can be used to retrieve the result, either by polling or by registering a
+     * callback.
+     *
+     * <p>
+     * The return value can be disregarded if you do not wish to process the
+     * result. Under the covers, the KPL will automatically re-attempt puts in
+     * case of transient errors (including throttling). A failed result is
+     * generally returned only if an irrecoverable error is detected (e.g.
+     * trying to put to a stream that doesn't exist), or if the record expires.
+     *
+     * <p>
+     * <b>Thread safe.</b>
+     *
+     * <p>
+     * To add a listener to the future:
+     * <p>
+     * <code>
+     * ListenableFuture&lt;PutRecordResult&gt; f = myKinesisProducer.addUserRecord(...);
+     * com.google.common.util.concurrent.Futures.addCallback(f, callback, executor);
+     * </code>
+     * <p>
+     * where <code>callback</code> is an instance of
+     * {@link com.google.common.util.concurrent.FutureCallback} and
+     * <code>executor</code> is an instance of
+     * {@link java.util.concurrent.Executor}.
+     * <p>
+     * <b>Important:</b>
+     * <p>
+     * If long-running tasks are performed in the callbacks, it is recommended
+     * that a custom executor be provided when registering callbacks to ensure
+     * that there are enough threads to achieve the desired level of
+     * parallelism. By default, the KPL will use an internal thread pool to
+     * execute callbacks, but this pool may not have a sufficient number of
+     * threads if a large number is desired.
+     * <p>
+     * Another option would be to hand the result off to a different component
+     * for processing and keep the callback routine fast.
+     *
+     * @param userRecord
+     *            All data necessary to write to the stream.
+     * @return A future for the result of the put.
+     * @throws IllegalArgumentException
+     *             if input does not meet stated constraints
+     * @throws DaemonException
+     *             if the child process is dead
+     * @see ListenableFuture
+     * @see UserRecordResult
+     * @see KinesisProducerConfiguration#setRecordTtl(long)
+     * @see UserRecordFailedException
+     */
+    @Override
+    public ListenableFuture<UserRecordResult> addUserRecord(UserRecord userRecord) {
+        return addUserRecord(userRecord.getStreamName(), userRecord.getPartitionKey(), userRecord.getExplicitHashKey(), userRecord.getData());
+    }
+
     /**
      * Put a record asynchronously. A {@link ListenableFuture} is returned that
      * can be used to retrieve the result, either by polling or by registering a
@@ -410,6 +468,7 @@ public class KinesisProducer {
      * @see KinesisProducerConfiguration#setRecordTtl(long)
      * @see UserRecordFailedException
      */
+    @Override
     public ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data) {
         if (stream == null) {
             throw new IllegalArgumentException("Stream name cannot be null");
@@ -490,6 +549,7 @@ public class KinesisProducer {
      * 
      * @return The number of unfinished records currently being processed.
      */
+    @Override
     public int getOutstandingRecordsCount() {
         return futures.size();
     }
@@ -530,6 +590,7 @@ public class KinesisProducer {
      *             from the child process.
      * @see Metric
      */
+    @Override
     public List<Metric> getMetrics(String metricName, int windowSeconds) throws InterruptedException, ExecutionException {
         MetricsRequest.Builder mrb = MetricsRequest.newBuilder();
         if (metricName != null) {
@@ -587,6 +648,7 @@ public class KinesisProducer {
      *             from the child process.
      * @see Metric
      */
+    @Override
     public List<Metric> getMetrics(String metricName) throws InterruptedException, ExecutionException {
         return getMetrics(metricName, -1);
     }
@@ -624,6 +686,7 @@ public class KinesisProducer {
      *             from the child process.
      * @see Metric
      */
+    @Override
     public List<Metric> getMetrics() throws InterruptedException, ExecutionException {
         return getMetrics(null);
     }
@@ -661,6 +724,7 @@ public class KinesisProducer {
      *             from the child process.
      * @see Metric
      */
+    @Override
     public List<Metric> getMetrics(int windowSeconds) throws InterruptedException, ExecutionException {
         return getMetrics(null, windowSeconds);
     }
@@ -684,6 +748,7 @@ public class KinesisProducer {
      * terminate the child process. If you are terminating the JVM then calling
      * destroy is unnecessary since it will be done automatically.
      */
+    @Override
     public void destroy() {
         destroyed = true;
         child.destroy();
@@ -706,6 +771,7 @@ public class KinesisProducer {
      * @throws DaemonException
      *             if the child process is dead
      */
+    @Override
     public void flush(String stream) {
         Flush.Builder f = Flush.newBuilder();
         if (stream != null) {
@@ -733,6 +799,7 @@ public class KinesisProducer {
      * @throws DaemonException
      *             if the child process is dead
      */
+    @Override
     public void flush() {
         flush(null);
     }
@@ -757,6 +824,7 @@ public class KinesisProducer {
      * @see KinesisProducerConfiguration#setRecordTtl(long)
      * @see KinesisProducerConfiguration#setRequestTimeout(long)
      */
+    @Override
     public void flushSync() {
         while (getOutstandingRecordsCount() > 0) {
             flush();

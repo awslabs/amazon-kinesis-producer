@@ -36,7 +36,7 @@ public class UserRecordResult {
     private String shardId;
     private boolean successful;
     
-    private UserRecordResult(List<Attempt> attempts, String sequenceNumber, String shardId, boolean successful) {
+    public UserRecordResult(List<Attempt> attempts, String sequenceNumber, String shardId, boolean successful) {
         this.attempts = attempts;
         this.sequenceNumber = sequenceNumber;
         this.shardId = shardId;
