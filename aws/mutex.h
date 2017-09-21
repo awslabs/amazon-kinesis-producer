@@ -20,6 +20,7 @@
   #include <shared_mutex>
   #include <condition_variable>
   #include <thread>
+  #include <mutex>
 #endif
 
 #include <boost/thread.hpp>

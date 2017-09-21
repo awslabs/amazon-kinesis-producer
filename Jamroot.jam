@@ -4,6 +4,7 @@ project : requirements
   <cxxflags>-g
   <cxxflags>"-isystem ./third_party/include"
   <cxxflags>-std=c++1y
+  <cxxflags>-fpermissive
   <linkflags>-L./third_party/lib
   [ conditional <host-os>windows :
       <linkflags>-lgdi32
