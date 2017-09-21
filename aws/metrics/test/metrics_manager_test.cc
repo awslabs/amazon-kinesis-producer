@@ -17,6 +17,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <aws/core/NoResult.h>
+#include <aws/core/Aws.h>
 #include <aws/metrics/metrics_manager.h>
 #include <aws/monitoring/model/PutMetricDataRequest.h>
 #include <aws/utils/io_service_executor.h>
@@ -118,6 +119,9 @@ BOOST_AUTO_TEST_SUITE(MetricsManager)
 
 BOOST_AUTO_TEST_CASE(RequestGeneration) {
   using aws::metrics::constants::Names;
+
+  Aws::SDKOptions sdk_options;
+  Aws::InitAPI(sdk_options);
 
   auto mock_cw = std::make_shared<MockCloudWatchClient>();
   auto metrics_manager = make_metrics_manager(mock_cw);
