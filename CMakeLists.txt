@@ -3,17 +3,18 @@ project(amazon_kinesis_producer)
 
 set(THIRD_PARTY_LIB_DIR "${amazon_kinesis_producer_SOURCE_DIR}/third_party/lib")
 
-if(CMAKE_COMPILER_IS_GNUCXX)
+if (CMAKE_COMPILER_IS_GNUCXX)
     set(ADDL_LINK_CONFIG "-static-libstdc++ -Wl,--wrap=memcpy")
     add_compile_options("-fpermissive")
-endif()
+    set(WRAP_MEMCPY aws/utils/wrap_memcpy.c)
+endif ()
 
-if(CMAKE_BUILD_TYPE MATCHES DEBUG)
+IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
     if (CMAKE_COMPILER_IS_GNUCXX)
         set(ADDL_LINK_CONFIG "${ADDL_LINK_CONFIG} -static-libasan")
     endif (CMAKE_COMPILER_IS_GNUCXX)
-endif(CMAKE_BUILD_TYPE MATCHES DEBUG)
+ENDIF(CMAKE_BUILD_TYPE MATCHES DEBUG)
 
 if(APPLE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmacosx-version-min=10.9")
@@ -75,7 +76,11 @@ set(SOURCE_FILES
         aws/utils/utils.cc
         aws/utils/utils.h
         aws/utils/processing_statistics_logger.cc
-        aws/utils/processing_statistics_logger.h)
+        aws/utils/processing_statistics_logger.h
+        ${WRAP_MEMCPY})
+
+
+
 
 if(ENABLE_SEGFAULT_TRIGGER)
     list(APPEND LOGGING_TRIGGERS aws/utils/segfault_signal.cc)
@@ -120,49 +125,41 @@ if(LINUX)
     set(ADDITIONAL_LIBS idn)
 endif()
 
-# Ensure that we can find the necessar libraries for Linux builds
 include(CheckLibraryExists)
 if(LINUX)
-    #
-    # Ensure that librt is abailable
-    #
     check_library_exists(rt clock_gettime "" HAVE_CLOCK_GETTIME )
     if(NOT HAVE_CLOCK_GETTIME)
         message(FATAL_ERROR "clock_gettime not found")
     endif(NOT HAVE_CLOCK_GETTIME)
     set(LIBRT_LIBRARIES rt)
-
-    #
-    # Ensure that we have to the dynamic loader
-    #
     check_library_exists(dl dlopen "" HAVE_DL_OPEN)
     if (NOT HAVE_DL_OPEN)
         message(FATAL_ERROR "dl_open not found")
     endif(NOT HAVE_DL_OPEN)
     set(LIBDL_LIBRARIES dl)
 
-    #
-    # Find libidn which is required as part of the AWS C++ SDK
-    #
     add_library(libIdn STATIC IMPORTED)
     set_property(TARGET libIdn PROPERTY IMPORTED_LOCATION ${THIRD_PARTY_LIB_DIR}/libidn.a)
     set(LIBIDN_LIBRARIES idn)
 
-    #
-    # Find libuuid which is another dependency of the AWS C++ SDK
-    # TODO: Normalize this with the rest of the library checks
-    #
-    find_library(UUID_LIBRARIES uuid NAMES libuuid.a)
-    if("${UUID_INCLUDE_DIR}" STREQUAL "UUID_INCLUDE_DIR-NOTFOUND" OR "${UUID_LIBRARIES}" STREQUAL "UUID_LIBRARIES-NOTFOUND")
-        message(FATAL_ERROR "Could not find uuid components")
-    else()
-        message(STATUS "  Uuid library: ${UUID_LIBRARIES}")
-    endif()
-
-    add_library(libUUID STATIC IMPORTED)
 
 endif(LINUX)
 
+
+if(LINUX)
+  message(STATUS "Finding uuid")
+
+  find_library(UUID_LIBRARIES uuid NAMES libuuid.a)
+
+  if("${UUID_INCLUDE_DIR}" STREQUAL "UUID_INCLUDE_DIR-NOTFOUND" OR "${UUID_LIBRARIES}" STREQUAL "UUID_LIBRARIES-NOTFOUND")
+    message(FATAL_ERROR "Could not find uuid components")
+  else()
+    message(STATUS "  Uuid library: ${UUID_LIBRARIES}")
+  endif()
+
+  add_library(libUUID STATIC IMPORTED)
+
+endif()
 
 
 set(LOGGING_TRIGGERS
