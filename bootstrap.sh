@@ -85,7 +85,6 @@ if [ ! -d "openssl-1.0.1m" ]; then
     ./config $OPTS --prefix=$INSTALL_DIR
   fi
 
-  make clean
   make # don't use -j, doesn't work half the time
   make install
 
@@ -130,7 +129,6 @@ if [ ! -d "zlib-1.2.8" ]; then
   rm zlib.tgz
 
   cd zlib-1.2.8
-  make clean
   ./configure --static --prefix="$INSTALL_DIR"
   make -j
   make install
@@ -145,7 +143,6 @@ if [ ! -d "protobuf-2.6.1" ]; then
   rm protobuf.tgz
 
   cd protobuf-2.6.1
-  make clean
   conf --enable-shared=no
   make -j
   make install
@@ -165,7 +162,6 @@ if [ ! -d "curl-7.47.0" ]; then
 
   conf --disable-shared --disable-ldap --disable-ldaps \
        --enable-threaded-resolver --disable-debug --without-libssh2 --without-ca-bundle --with-ssl="${INSTALL_DIR}" --without-libidn
-  make clean
   make -j
   make install
 
