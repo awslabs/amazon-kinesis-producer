@@ -72,9 +72,9 @@ if [ ! -d "openssl-1.0.1m" ]; then
 
   if [[ $(uname) == 'Darwin' ]]; then
     ./Configure darwin64-x86_64-cc $OPTS --prefix=$INSTALL_DIR
-  elif [[ $(uname) == MINGW* ]]; then
+  elif [[ $(uname) == MINGW* || if $(uname) == MSYS* ]]; then
     ./Configure mingw64 $OPTS --prefix=$INSTALL_DIR
-    find ./ -name Makefile | while read f; do echo >> $f; echo "%.o: %.c" >> $f; echo -e '\t$(COMPILE.c) $(OUTPUT_OPTION) $<;' >> $f; done
+#    find ./ -name Makefile | while read f; do echo >> $f; echo "%.o: %.c" >> $f; echo -e '\t$(COMPILE.c) $(OUTPUT_OPTION) $<;' >> $f; done
   else
     ./config $OPTS --prefix=$INSTALL_DIR
   fi
@@ -99,7 +99,7 @@ if [ ! -d "boost_1_58_0" ]; then
   if [[ $(uname) == 'Darwin' ]]; then
     ./bootstrap.sh --with-libraries=$LIBS
     ./b2 toolset=clang-darwin $OPTS
-  elif [[ $(uname) == MINGW* ]]; then
+  elif [[ $(uname) == MINGW* || $(uname) == MSYS* ]]; then
     ./bootstrap.sh --with-libraries=$LIBS --with-toolset=mingw
     sed -i 's/\bmingw\b/gcc/' project-config.jam
     ./b2 $OPTS
