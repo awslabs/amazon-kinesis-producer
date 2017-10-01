@@ -13,14 +13,6 @@
 
 package com.amazonaws.services.kinesis.producer;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension;
-import com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration;
-import com.amazonaws.services.kinesis.producer.protobuf.Messages.Message;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -29,6 +21,15 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension;
+import com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration;
+import com.amazonaws.services.kinesis.producer.protobuf.Messages.Message;
 
 /**
  * Configuration for {@link KinesisProducer}. See each each individual set
@@ -43,32 +44,36 @@ public class KinesisProducerConfiguration {
 
     /**
      * Add an additional, custom dimension to the metrics emitted by the KPL.
-     * <p>
+     *
      * <p>
      * For example, you can make the KPL emit per-host metrics by adding HostName as the key and the domain name of the
      * current host as the value.
-     * <p>
+     *
      * <p>
      * The granularity of the custom dimension must be specified with the granularity parameter. The options are
      * "global", "stream" and "shard", just like {@link #setMetricsGranularity(String)}. If global is chosen, the custom
      * dimension will be inserted before the stream name; if stream is chosen then the custom metric will be inserted
      * after the stream name, but before the shard id. Lastly, if shard is chosen, the custom metric is inserted after
      * the shard id.
-     * <p>
+     *
      * <p>
      * For example, if you want to see how different hosts are affecting a single stream, you can choose a granularity
      * of stream for your HostName custom dimension. This will produce per-host metrics for every stream. On the other
      * hand, if you want to see how a single host is distributing its load across different streams, you can choose a
      * granularity of global. This will produce per-stream metrics for each host.
-     * <p>
+     *
      * <p>
      * Note that custom dimensions will multiplicatively increase the number of metrics emitted by the KPL into
      * CloudWatch.
      *
-     * @param key         Name of the dimension, e.g. "HostName". Length must be between 1 and 255.
-     * @param value       Value of the dimension, e.g. "my-host-1.my-domain.com". Length must be between 1 and 255.
-     * @param granularity Granularity of the custom dimension, must be one of "global", "stream" or "shard"
-     * @throws IllegalArgumentException If granularity is not one of the allowed values.
+     * @param key
+     *            Name of the dimension, e.g. "HostName". Length must be between 1 and 255.
+     * @param value
+     *            Value of the dimension, e.g. "my-host-1.my-domain.com". Length must be between 1 and 255.
+     * @param granularity
+     *            Granularity of the custom dimension, must be one of "global", "stream" or "shard"
+     * @throws IllegalArgumentException
+     *             If granularity is not one of the allowed values.
      */
     public void addAdditionalMetricsDimension(String key, String value, String granularity) {
         if (!Pattern.matches("global|stream|shard", granularity)) {
@@ -76,12 +81,12 @@ public class KinesisProducerConfiguration {
         }
         additionalDims.add(AdditionalDimension.newBuilder().setKey(key).setValue(value).setGranularity(granularity).build());
     }
-
+    
     /**
      * {@link AWSCredentialsProvider} that supplies credentials used to put records to Kinesis. These credentials will
      * also be used to upload metrics to CloudWatch, unless {@link #setMetricsCredentialsProvider} is used to provide
      * separate credentials for that.
-     *
+     * 
      * @see #setCredentialsProvider(AWSCredentialsProvider)
      */
     public AWSCredentialsProvider getCredentialsProvider() {
@@ -95,7 +100,7 @@ public class KinesisProducerConfiguration {
      * {@link #setMetricsCredentialsProvider} is used to provide separate credentials for that.
      * <p>
      * Defaults to an instance of {@link DefaultAWSCredentialsProviderChain}
-     *
+     * 
      * @see #setMetricsCredentialsProvider(AWSCredentialsProvider)
      */
     public KinesisProducerConfiguration setCredentialsProvider(AWSCredentialsProvider credentialsProvider) {
@@ -110,40 +115,42 @@ public class KinesisProducerConfiguration {
      * {@link AWSCredentialsProvider} that supplies credentials used to upload
      * metrics to CloudWatch. If not given, the credentials used to put records
      * to Kinesis are also used for CloudWatch.
-     *
+     * 
      * @see #setMetricsCredentialsProvider(AWSCredentialsProvider)
      */
     public AWSCredentialsProvider getMetricsCredentialsProvider() {
         return metricsCredentialsProvider;
     }
-
+    
     /**
      * {@link AWSCredentialsProvider} that supplies credentials used to upload
      * metrics to CloudWatch.
      * <p>
      * If not given, the credentials used to put records
      * to Kinesis are also used for CloudWatch.
-     *
+     * 
      * @see #setCredentialsProvider(AWSCredentialsProvider)
      */
     public KinesisProducerConfiguration setMetricsCredentialsProvider(AWSCredentialsProvider metricsCredentialsProvider) {
         this.metricsCredentialsProvider = metricsCredentialsProvider;
         return this;
     }
-
+    
     /**
      * Load configuration from a properties file. Any fields not found in the
      * target file will take on default values.
-     * <p>
+     *
      * <p>
      * The values loaded are checked against any constraints that each
      * respective field may have. If there are invalid values an
      * IllegalArgumentException will be thrown.
      *
-     * @param path Path to the properties file containing KPL config.
+     * @param path
+     *            Path to the properties file containing KPL config.
      * @return A {@link KinesisProducerConfiguration} instance containing values
-     * loaded from the specified file.
-     * @throws IllegalArgumentException If one or more config values are invalid.
+     *         loaded from the specified file.
+     * @throws IllegalArgumentException
+     *             If one or more config values are invalid.
      */
     public static KinesisProducerConfiguration fromPropertiesFile(String path) {
         log.info("Attempting to load config from file " + path);
@@ -161,16 +168,18 @@ public class KinesisProducerConfiguration {
     /**
      * Load configuration from a {@link Properties} object. Any fields not found
      * in the properties instance will take on default values.
-     * <p>
+     *
      * <p>
      * The values loaded are checked against any constraints that each
      * respective field may have. If there are invalid values an
      * IllegalArgumentException will be thrown.
      *
-     * @param props {@link Properties} object containing KPL config.
+     * @param props
+     *            {@link Properties} object containing KPL config.
      * @return A {@link KinesisProducerConfiguration} instance containing values
-     * loaded from the specified file.
-     * @throws IllegalArgumentException If one or more config values are invalid.
+     *         loaded from the specified file.
+     * @throws IllegalArgumentException
+     *             If one or more config values are invalid.
      */
     public static KinesisProducerConfiguration fromProperties(Properties props) {
         KinesisProducerConfiguration config = new KinesisProducerConfiguration();
@@ -204,10 +213,10 @@ public class KinesisProducerConfiguration {
                         KinesisProducerConfiguration.class.getSimpleName());
             }
         }
-
+        
         return config;
     }
-
+    
     protected Configuration.Builder additionalConfigsToProtobuf(Configuration.Builder builder) {
         return builder.addAllAdditionalMetricDims(additionalDims);
     }
@@ -268,152 +277,152 @@ public class KinesisProducerConfiguration {
     /**
      * Enable aggregation. With aggregation, multiple user records are packed into a single
      * KinesisRecord. If disabled, each user record is sent in its own KinesisRecord.
-     * <p>
+     * 
      * <p>
      * If your records are small, enabling aggregation will allow you to put many more records
      * than you would otherwise be able to for a shard before getting throttled.
-     * <p>
+     * 
      * <p><b>Default</b>: true
      */
     public boolean isAggregationEnabled() {
-        return aggregationEnabled;
+      return aggregationEnabled;
     }
 
     /**
      * Maximum number of items to pack into an aggregated record.
-     * <p>
+     * 
      * <p>
      * There should be normally no need to adjust this. If you want to limit the time records
      * spend buffering, look into record_max_buffered_time instead.
-     * <p>
+     * 
      * <p><b>Default</b>: 4294967295
      * <p><b>Minimum</b>: 1
      * <p><b>Maximum (inclusive)</b>: 9223372036854775807
      */
     public long getAggregationMaxCount() {
-        return aggregationMaxCount;
+      return aggregationMaxCount;
     }
 
     /**
      * Maximum number of bytes to pack into an aggregated Kinesis record.
-     * <p>
+     * 
      * <p>
      * There should be normally no need to adjust this. If you want to limit the time records
      * spend buffering, look into record_max_buffered_time instead.
-     * <p>
+     * 
      * <p>
      * If a record has more data by itself than this limit, it will bypass the aggregator. Note
      * the backend enforces a limit of 50KB on record size. If you set this beyond 50KB, oversize
      * records will be rejected at the backend.
-     * <p>
+     * 
      * <p><b>Default</b>: 51200
      * <p><b>Minimum</b>: 64
      * <p><b>Maximum (inclusive)</b>: 1048576
      */
     public long getAggregationMaxSize() {
-        return aggregationMaxSize;
+      return aggregationMaxSize;
     }
 
     /**
      * Use a custom CloudWatch endpoint.
-     * <p>
+     * 
      * <p>
      * Note this does not accept protocols or paths, only host names or ip addresses. There is no
      * way to disable TLS. The KPL always connects with TLS.
-     * <p>
+     * 
      * <p><b>Expected pattern</b>: ^([A-Za-z0-9-\\.]+)?$
      */
     public String getCloudwatchEndpoint() {
-        return cloudwatchEndpoint;
+      return cloudwatchEndpoint;
     }
 
     /**
      * Server port to connect to for CloudWatch.
-     * <p>
+     * 
      * <p><b>Default</b>: 443
      * <p><b>Minimum</b>: 1
      * <p><b>Maximum (inclusive)</b>: 65535
      */
     public long getCloudwatchPort() {
-        return cloudwatchPort;
+      return cloudwatchPort;
     }
 
     /**
      * Maximum number of items to pack into an PutRecords request.
-     * <p>
+     * 
      * <p>
      * There should be normally no need to adjust this. If you want to limit the time records
      * spend buffering, look into record_max_buffered_time instead.
-     * <p>
+     * 
      * <p><b>Default</b>: 500
      * <p><b>Minimum</b>: 1
      * <p><b>Maximum (inclusive)</b>: 500
      */
     public long getCollectionMaxCount() {
-        return collectionMaxCount;
+      return collectionMaxCount;
     }
 
     /**
      * Maximum amount of data to send with a PutRecords request.
-     * <p>
+     * 
      * <p>
      * There should be normally no need to adjust this. If you want to limit the time records
      * spend buffering, look into record_max_buffered_time instead.
-     * <p>
+     * 
      * <p>
      * Records larger than the limit will still be sent, but will not be grouped with others.
-     * <p>
+     * 
      * <p><b>Default</b>: 5242880
      * <p><b>Minimum</b>: 52224
      * <p><b>Maximum (inclusive)</b>: 9223372036854775807
      */
     public long getCollectionMaxSize() {
-        return collectionMaxSize;
+      return collectionMaxSize;
     }
 
     /**
      * Timeout (milliseconds) for establishing TLS connections.
-     * <p>
+     * 
      * <p><b>Default</b>: 6000
      * <p><b>Minimum</b>: 100
      * <p><b>Maximum (inclusive)</b>: 300000
      */
     public long getConnectTimeout() {
-        return connectTimeout;
+      return connectTimeout;
     }
 
     /**
      * How often to refresh credentials (in milliseconds).
-     * <p>
+     * 
      * <p>
      * During a refresh, credentials are retrieved from any SDK credentials providers attached to
      * the wrapper and pushed to the core.
-     * <p>
+     * 
      * <p><b>Default</b>: 5000
      * <p><b>Minimum</b>: 1
      * <p><b>Maximum (inclusive)</b>: 300000
      */
     public long getCredentialsRefreshDelay() {
-        return credentialsRefreshDelay;
+      return credentialsRefreshDelay;
     }
 
     /**
      * This has no effect on Windows.
-     * <p>
+     * 
      * <p>
      * If set to true, the KPL native process will attempt to raise its own core file size soft
      * limit to 128MB, or the hard limit, whichever is lower. If the soft limit is already at or
      * above the target amount, it is not changed.
-     * <p>
+     * 
      * <p>
      * Note that even if the limit is successfully raised (or already sufficient), it does not
      * guarantee that core files will be written on a crash, since that is dependent on operation
      * system settings that's beyond the control of individual processes.
-     * <p>
+     * 
      * <p><b>Default</b>: false
      */
     public boolean isEnableCoreDumps() {
-        return enableCoreDumps;
+      return enableCoreDumps;
     }
 
     /**
@@ -421,74 +430,74 @@ public class KinesisProducerConfiguration {
      * immediately upon receiving the throttling error. This is useful if you want to react
      * immediately to any throttling without waiting for the KPL to retry. For example, you can
      * use a different hash key to send the throttled record to a backup shard.
-     * <p>
+     * 
      * <p>
      * If false, the KPL will automatically retry throttled puts. The KPL performs backoff for
      * shards that it has received throttling errors from, and will avoid flooding them with
      * retries. Note that records may fail from expiration (see record_ttl) if they get delayed
      * for too long because of throttling.
-     * <p>
+     * 
      * <p><b>Default</b>: false
      */
     public boolean isFailIfThrottled() {
-        return failIfThrottled;
+      return failIfThrottled;
     }
 
     /**
      * Use a custom Kinesis endpoint.
-     * <p>
+     * 
      * <p>
      * Note this does not accept protocols or paths, only host names or ip addresses. There is no
      * way to disable TLS. The KPL always connects with TLS.
-     * <p>
+     * 
      * <p><b>Expected pattern</b>: ^([A-Za-z0-9-\\.]+)?$
      */
     public String getKinesisEndpoint() {
-        return kinesisEndpoint;
+      return kinesisEndpoint;
     }
 
     /**
      * Server port to connect to for Kinesis.
-     * <p>
+     * 
      * <p><b>Default</b>: 443
      * <p><b>Minimum</b>: 1
      * <p><b>Maximum (inclusive)</b>: 65535
      */
     public long getKinesisPort() {
-        return kinesisPort;
+      return kinesisPort;
     }
 
     /**
      * Minimum level of logs. Messages below the specified level will not be logged. Logs for the
      * native KPL daemon show up on stderr.
-     * <p>
+     * 
      * <p><b>Default</b>: info
      * <p><b>Expected pattern</b>: info|warning|error
      */
     public String getLogLevel() {
-        return logLevel;
+      return logLevel;
     }
 
     /**
      * Maximum number of connections to open to the backend. HTTP requests are sent in parallel
      * over multiple connections.
-     * <p>
+     * 
      * <p>
      * Setting this too high may impact latency and consume additional resources without
      * increasing throughput.
-     * <p>
+     * 
      * <p><b>Default</b>: 24
      * <p><b>Minimum</b>: 1
      * <p><b>Maximum (inclusive)</b>: 256
      */
     public long getMaxConnections() {
-        return maxConnections;
+      return maxConnections;
     }
 
     /**
      * Controls the granularity of metrics that are uploaded to CloudWatch. Greater granularity
      * produces more metrics.
-     * <p>
+     * 
      * <p>
      * When "shard" is selected, metrics are emitted with the stream name and shard id as
      * dimensions. On top of this, the same metric is also emitted with only the stream name
@@ -496,242 +505,244 @@ public class KinesisProducerConfiguration {
      * streams with 2 shards (each) will produce 7 CloudWatch metrics, one for each shard, one for
      * each stream, and one overall, all describing the same statistics, but at different levels
      * of granularity.
-     * <p>
+     * 
      * <p>
      * When "stream" is selected, per shard metrics are not uploaded; when "global" is selected,
      * only the total aggregate for all streams and all shards are uploaded.
-     * <p>
+     * 
      * <p>
      * Consider reducing the granularity if you're not interested in shard-level metrics, or if
      * you have a large number of shards.
-     * <p>
+     * 
      * <p>
      * If you only have 1 stream, select "global"; the global data will be equivalent to that for
      * the stream.
-     * <p>
+     * 
      * <p>
      * Refer to the metrics documentation for details about each metric.
-     * <p>
+     * 
      * <p><b>Default</b>: shard
      * <p><b>Expected pattern</b>: global|stream|shard
      */
     public String getMetricsGranularity() {
-        return metricsGranularity;
+      return metricsGranularity;
     }
 
     /**
      * Controls the number of metrics that are uploaded to CloudWatch.
-     * <p>
+     * 
      * <p>
      * "none" disables all metrics.
-     * <p>
+     * 
      * <p>
      * "summary" enables the following metrics: UserRecordsPut, KinesisRecordsPut, ErrorsByCode,
      * AllErrors, BufferingTime.
-     * <p>
+     * 
      * <p>
      * "detailed" enables all remaining metrics.
-     * <p>
+     * 
      * <p>
      * Refer to the metrics documentation for details about each metric.
-     * <p>
+     * 
      * <p><b>Default</b>: detailed
      * <p><b>Expected pattern</b>: none|summary|detailed
      */
     public String getMetricsLevel() {
-        return metricsLevel;
+      return metricsLevel;
     }
 
     /**
      * The namespace to upload metrics under.
-     * <p>
+     * 
      * <p>
      * If you have multiple applications running the KPL under the same AWS account, you should
      * use a different namespace for each application.
-     * <p>
+     * 
      * <p>
      * If you are also using the KCL, you may wish to use the application name you have configured
      * for the KCL as the the namespace here. This way both your KPL and KCL metrics show up under
      * the same namespace.
-     * <p>
+     * 
      * <p><b>Default</b>: KinesisProducerLibrary
      * <p><b>Expected pattern</b>: (?!AWS/).{1,255}
      */
     public String getMetricsNamespace() {
-        return metricsNamespace;
+      return metricsNamespace;
     }
 
     /**
      * Delay (in milliseconds) between each metrics upload.
-     * <p>
+     * 
      * <p>
      * For testing only. There is no benefit in setting this lower or higher in production.
-     * <p>
+     * 
      * <p><b>Default</b>: 60000
      * <p><b>Minimum</b>: 1
      * <p><b>Maximum (inclusive)</b>: 60000
      */
     public long getMetricsUploadDelay() {
-        return metricsUploadDelay;
+      return metricsUploadDelay;
     }
 
     /**
      * Minimum number of connections to keep open to the backend.
-     * <p>
+     * 
      * <p>
      * There should be no need to increase this in general.
-     * <p>
+     * 
      * <p><b>Default</b>: 1
      * <p><b>Minimum</b>: 1
      * <p><b>Maximum (inclusive)</b>: 16
      */
     public long getMinConnections() {
-        return minConnections;
+      return minConnections;
     }
 
     /**
      * Path to the native KPL binary. Only use this setting if you want to use a custom build of
      * the native code.
+     * 
      */
     public String getNativeExecutable() {
-        return nativeExecutable;
+      return nativeExecutable;
     }
 
     /**
      * Limits the maximum allowed put rate for a shard, as a percentage of the backend limits.
-     * <p>
+     * 
      * <p>
      * The rate limit prevents the producer from sending data too fast to a shard. Such a limit is
      * useful for reducing bandwidth and CPU cycle wastage from sending requests that we know are
      * going to fail from throttling.
-     * <p>
+     * 
      * <p>
      * Kinesis enforces limits on both the number of records and number of bytes per second. This
      * setting applies to both.
-     * <p>
+     * 
      * <p>
      * The default value of 150% is chosen to allow a single producer instance to completely
      * saturate the allowance for a shard. This is an aggressive setting. If you prefer to reduce
      * throttling errors rather than completely saturate the shard, consider reducing this
      * setting.
-     * <p>
+     * 
      * <p><b>Default</b>: 150
      * <p><b>Minimum</b>: 1
      * <p><b>Maximum (inclusive)</b>: 9223372036854775807
      */
     public long getRateLimit() {
-        return rateLimit;
+      return rateLimit;
     }
 
     /**
      * Maximum amount of itme (milliseconds) a record may spend being buffered before it gets
      * sent. Records may be sent sooner than this depending on the other buffering limits.
-     * <p>
+     * 
      * <p>
      * This setting provides coarse ordering among records - any two records will be reordered by
      * no more than twice this amount (assuming no failures and retries and equal network
      * latency).
-     * <p>
+     * 
      * <p>
      * The library makes a best effort to enforce this time, but cannot guarantee that it will be
      * precisely met. In general, if the CPU is not overloaded, the library will meet this
      * deadline to within 10ms.
-     * <p>
+     * 
      * <p>
      * Failures and retries can additionally increase the amount of time records spend in the KPL.
      * If your application cannot tolerate late records, use the record_ttl setting to drop
      * records that do not get transmitted in time.
-     * <p>
+     * 
      * <p>
      * Setting this too low can negatively impact throughput.
-     * <p>
+     * 
      * <p><b>Default</b>: 100
      * <p><b>Maximum (inclusive)</b>: 9223372036854775807
      */
     public long getRecordMaxBufferedTime() {
-        return recordMaxBufferedTime;
+      return recordMaxBufferedTime;
     }
 
     /**
      * Set a time-to-live on records (milliseconds). Records that do not get successfully put
      * within the limit are failed.
-     * <p>
+     * 
      * <p>
      * This setting is useful if your application cannot or does not wish to tolerate late
      * records. Records will still incur network latency after they leave the KPL, so take that
      * into consideration when choosing a value for this setting.
-     * <p>
+     * 
      * <p>
      * If you do not wish to lose records and prefer to retry indefinitely, set record_ttl to a
      * large value like INT_MAX. This has the potential to cause head-of-line blocking if network
      * issues or throttling occur. You can respond to such situations by using the metrics
      * reporting functions of the KPL. You may also set fail_if_throttled to true to prevent
      * automatic retries in case of throttling.
-     * <p>
+     * 
      * <p><b>Default</b>: 30000
      * <p><b>Minimum</b>: 100
      * <p><b>Maximum (inclusive)</b>: 9223372036854775807
      */
     public long getRecordTtl() {
-        return recordTtl;
+      return recordTtl;
     }
 
     /**
      * Which region to send records to.
-     * <p>
+     * 
      * <p>
      * If you do not specify the region and are running in EC2, the library will use the region
      * the instance is in.
-     * <p>
+     * 
      * <p>
      * The region is also used to sign requests.
-     * <p>
+     * 
      * <p><b>Expected pattern</b>: ^([a-z]+-[a-z]+-[0-9])?$
      */
     public String getRegion() {
-        return region;
+      return region;
     }
 
     /**
      * The maximum total time (milliseconds) elapsed between when we begin a HTTP request and
      * receiving all of the response. If it goes over, the request will be timed-out.
-     * <p>
+     * 
      * <p>
      * Note that a timed-out request may actually succeed at the backend. Retrying then leads to
      * duplicates. Setting the timeout too low will therefore increase the probability of
      * duplicates.
-     * <p>
+     * 
      * <p><b>Default</b>: 6000
      * <p><b>Minimum</b>: 100
      * <p><b>Maximum (inclusive)</b>: 600000
      */
     public long getRequestTimeout() {
-        return requestTimeout;
+      return requestTimeout;
     }
 
     /**
      * Temp directory into which to extract the native binaries. The KPL requires write
      * permissions in this directory.
-     * <p>
+     * 
      * <p>
      * If not specified, defaults to /tmp in Unix. (Windows TBD)
+     * 
      */
     public String getTempDirectory() {
-        return tempDirectory;
+      return tempDirectory;
     }
 
     /**
      * Verify SSL certificates. Always enable in production for security.
-     * <p>
+     * 
      * <p><b>Default</b>: true
      */
     public boolean isVerifyCertificate() {
-        return verifyCertificate;
+      return verifyCertificate;
     }
 
     /**
      * Returns the threading model that the native process will use to handle requests to AWS services
-     *
+     * 
      * @return the {@link ThreadingModel} the native process will use.
      */
     public ThreadingModel getThreadingModel() {
@@ -741,7 +752,7 @@ public class KinesisProducerConfiguration {
     /**
      * This configures the maximum number of threads the thread pool in the native process will use. This is only used
      * when {@link #getThreadingModel()} is set to {@link ThreadingModel#POOLED}.
-     * <p>
+     *
      * <dl>
      * <dt>Default</dt>
      * <dd>The default value is 0 which allows the native process to choose the size of the thread pool</dd>
@@ -749,7 +760,7 @@ public class KinesisProducerConfiguration {
      * <dd>There is no specific maximum, but operation systems may impose a maximum. If the native process exceeds that
      * maximum it may be terminated.</dd>
      * </dl>
-     *
+     * 
      * @return the size of the thread pool for the native process.
      */
     public int getThreadPoolSize() {
@@ -759,11 +770,11 @@ public class KinesisProducerConfiguration {
     /**
      * Enable aggregation. With aggregation, multiple user records are packed into a single
      * KinesisRecord. If disabled, each user record is sent in its own KinesisRecord.
-     * <p>
+     * 
      * <p>
      * If your records are small, enabling aggregation will allow you to put many more records
      * than you would otherwise be able to for a shard before getting throttled.
-     * <p>
+     * 
      * <p><b>Default</b>: true
      */
     public KinesisProducerConfiguration setAggregationEnabled(boolean val) {
@@ -773,11 +784,11 @@ public class KinesisProducerConfiguration {
 
     /**
      * Maximum number of items to pack into an aggregated record.
-     * <p>
+     * 
      * <p>
      * There should be normally no need to adjust this. If you want to limit the time records
      * spend buffering, look into record_max_buffered_time instead.
-     * <p>
+     * 
      * <p><b>Default</b>: 4294967295
      * <p><b>Minimum</b>: 1
      * <p><b>Maximum (inclusive)</b>: 9223372036854775807
@@ -792,16 +803,16 @@ public class KinesisProducerConfiguration {
 
     /**
      * Maximum number of bytes to pack into an aggregated Kinesis record.
-     * <p>
+     * 
      * <p>
      * There should be normally no need to adjust this. If you want to limit the time records
      * spend buffering, look into record_max_buffered_time instead.
-     * <p>
+     * 
      * <p>
      * If a record has more data by itself than this limit, it will bypass the aggregator. Note
      * the backend enforces a limit of 50KB on record size. If you set this beyond 50KB, oversize
      * records will be rejected at the backend.
-     * <p>
+     * 
      * <p><b>Default</b>: 51200
      * <p><b>Minimum</b>: 64
      * <p><b>Maximum (inclusive)</b>: 1048576
@@ -816,11 +827,11 @@ public class KinesisProducerConfiguration {
 
     /**
      * Use a custom CloudWatch endpoint.
-     * <p>
+     * 
      * <p>
      * Note this does not accept protocols or paths, only host names or ip addresses. There is no
      * way to disable TLS. The KPL always connects with TLS.
-     * <p>
+     * 
      * <p><b>Expected pattern</b>: ^([A-Za-z0-9-\\.]+)?$
      */
     public KinesisProducerConfiguration setCloudwatchEndpoint(String val) {
@@ -833,7 +844,7 @@ public class KinesisProducerConfiguration {
 
     /**
      * Server port to connect to for CloudWatch.
-     * <p>
+     * 
      * <p><b>Default</b>: 443
      * <p><b>Minimum</b>: 1
      * <p><b>Maximum (inclusive)</b>: 65535
@@ -848,11 +859,11 @@ public class KinesisProducerConfiguration {
 
     /**
      * Maximum number of items to pack into an PutRecords request.
-     * <p>
+     * 
      * <p>
      * There should be normally no need to adjust this. If you want to limit the time records
      * spend buffering, look into record_max_buffered_time instead.
-     * <p>
+     * 
      * <p><b>Default</b>: 500
      * <p><b>Minimum</b>: 1
      * <p><b>Maximum (inclusive)</b>: 500
@@ -867,14 +878,14 @@ public class KinesisProducerConfiguration {
 
     /**
      * Maximum amount of data to send with a PutRecords request.
-     * <p>
+     * 
      * <p>
      * There should be normally no need to adjust this. If you want to limit the time records
      * spend buffering, look into record_max_buffered_time instead.
-     * <p>
+     * 
      * <p>
      * Records larger than the limit will still be sent, but will not be grouped with others.
-     * <p>
+     * 
      * <p><b>Default</b>: 5242880
      * <p><b>Minimum</b>: 52224
      * <p><b>Maximum (inclusive)</b>: 9223372036854775807
@@ -889,7 +900,7 @@ public class KinesisProducerConfiguration {
 
     /**
      * Timeout (milliseconds) for establishing TLS connections.
-     * <p>
+     * 
      * <p><b>Default</b>: 6000
      * <p><b>Minimum</b>: 100
      * <p><b>Maximum (inclusive)</b>: 300000
@@ -904,11 +915,11 @@ public class KinesisProducerConfiguration {
 
     /**
      * How often to refresh credentials (in milliseconds).
-     * <p>
+     * 
      * <p>
      * During a refresh, credentials are retrieved from any SDK credentials providers attached to
      * the wrapper and pushed to the core.
-     * <p>
+     * 
      * <p><b>Default</b>: 5000
      * <p><b>Minimum</b>: 1
      * <p><b>Maximum (inclusive)</b>: 300000
@@ -923,17 +934,17 @@ public class KinesisProducerConfiguration {
 
     /**
      * This has no effect on Windows.
-     * <p>
+     * 
      * <p>
      * If set to true, the KPL native process will attempt to raise its own core file size soft
      * limit to 128MB, or the hard limit, whichever is lower. If the soft limit is already at or
      * above the target amount, it is not changed.
-     * <p>
+     * 
      * <p>
      * Note that even if the limit is successfully raised (or already sufficient), it does not
      * guarantee that core files will be written on a crash, since that is dependent on operation
      * system settings that's beyond the control of individual processes.
-     * <p>
+     * 
      * <p><b>Default</b>: false
      */
     public KinesisProducerConfiguration setEnableCoreDumps(boolean val) {
@@ -946,13 +957,13 @@ public class KinesisProducerConfiguration {
      * immediately upon receiving the throttling error. This is useful if you want to react
      * immediately to any throttling without waiting for the KPL to retry. For example, you can
      * use a different hash key to send the throttled record to a backup shard.
-     * <p>
+     * 
      * <p>
      * If false, the KPL will automatically retry throttled puts. The KPL performs backoff for
      * shards that it has received throttling errors from, and will avoid flooding them with
      * retries. Note that records may fail from expiration (see record_ttl) if they get delayed
      * for too long because of throttling.
-     * <p>
+     * 
      * <p><b>Default</b>: false
      */
     public KinesisProducerConfiguration setFailIfThrottled(boolean val) {
@@ -962,11 +973,11 @@ public class KinesisProducerConfiguration {
 
     /**
      * Use a custom Kinesis endpoint.
-     * <p>
+     * 
      * <p>
      * Note this does not accept protocols or paths, only host names or ip addresses. There is no
      * way to disable TLS. The KPL always connects with TLS.
-     * <p>
+     * 
      * <p><b>Expected pattern</b>: ^([A-Za-z0-9-\\.]+)?$
      */
     public KinesisProducerConfiguration setKinesisEndpoint(String val) {
@@ -979,7 +990,7 @@ public class KinesisProducerConfiguration {
 
     /**
      * Server port to connect to for Kinesis.
-     * <p>
+     * 
      * <p><b>Default</b>: 443
      * <p><b>Minimum</b>: 1
      * <p><b>Maximum (inclusive)</b>: 65535
@@ -995,7 +1006,7 @@ public class KinesisProducerConfiguration {
     /**
      * Minimum level of logs. Messages below the specified level will not be logged. Logs for the
      * native KPL daemon show up on stderr.
-     * <p>
+     * 
      * <p><b>Default</b>: info
      * <p><b>Expected pattern</b>: info|warning|error
      */
@@ -1010,11 +1021,11 @@ public class KinesisProducerConfiguration {
     /**
      * Maximum number of connections to open to the backend. HTTP requests are sent in parallel
      * over multiple connections.
-     * <p>
+     * 
      * <p>
      * Setting this too high may impact latency and consume additional resources without
      * increasing throughput.
-     * <p>
+     * 
      * <p><b>Default</b>: 24
      * <p><b>Minimum</b>: 1
      * <p><b>Maximum (inclusive)</b>: 256
@@ -1030,7 +1041,7 @@ public class KinesisProducerConfiguration {
     /**
      * Controls the granularity of metrics that are uploaded to CloudWatch. Greater granularity
      * produces more metrics.
-     * <p>
+     * 
      * <p>
      * When "shard" is selected, metrics are emitted with the stream name and shard id as
      * dimensions. On top of this, the same metric is also emitted with only the stream name
@@ -1038,22 +1049,22 @@ public class KinesisProducerConfiguration {
      * streams with 2 shards (each) will produce 7 CloudWatch metrics, one for each shard, one for
      * each stream, and one overall, all describing the same statistics, but at different levels
      * of granularity.
-     * <p>
+     * 
      * <p>
      * When "stream" is selected, per shard metrics are not uploaded; when "global" is selected,
      * only the total aggregate for all streams and all shards are uploaded.
-     * <p>
+     * 
      * <p>
      * Consider reducing the granularity if you're not interested in shard-level metrics, or if
      * you have a large number of shards.
-     * <p>
+     * 
      * <p>
      * If you only have 1 stream, select "global"; the global data will be equivalent to that for
      * the stream.
-     * <p>
+     * 
      * <p>
      * Refer to the metrics documentation for details about each metric.
-     * <p>
+     * 
      * <p><b>Default</b>: shard
      * <p><b>Expected pattern</b>: global|stream|shard
      */
@@ -1067,20 +1078,20 @@ public class KinesisProducerConfiguration {
 
     /**
      * Controls the number of metrics that are uploaded to CloudWatch.
-     * <p>
+     * 
      * <p>
      * "none" disables all metrics.
-     * <p>
+     * 
      * <p>
      * "summary" enables the following metrics: UserRecordsPut, KinesisRecordsPut, ErrorsByCode,
      * AllErrors, BufferingTime.
-     * <p>
+     * 
      * <p>
      * "detailed" enables all remaining metrics.
-     * <p>
+     * 
      * <p>
      * Refer to the metrics documentation for details about each metric.
-     * <p>
+     * 
      * <p><b>Default</b>: detailed
      * <p><b>Expected pattern</b>: none|summary|detailed
      */
@@ -1094,16 +1105,16 @@ public class KinesisProducerConfiguration {
 
     /**
      * The namespace to upload metrics under.
-     * <p>
+     * 
      * <p>
      * If you have multiple applications running the KPL under the same AWS account, you should
      * use a different namespace for each application.
-     * <p>
+     * 
      * <p>
      * If you are also using the KCL, you may wish to use the application name you have configured
      * for the KCL as the the namespace here. This way both your KPL and KCL metrics show up under
      * the same namespace.
-     * <p>
+     * 
      * <p><b>Default</b>: KinesisProducerLibrary
      * <p><b>Expected pattern</b>: (?!AWS/).{1,255}
      */
@@ -1117,10 +1128,10 @@ public class KinesisProducerConfiguration {
 
     /**
      * Delay (in milliseconds) between each metrics upload.
-     * <p>
+     * 
      * <p>
      * For testing only. There is no benefit in setting this lower or higher in production.
-     * <p>
+     * 
      * <p><b>Default</b>: 60000
      * <p><b>Minimum</b>: 1
      * <p><b>Maximum (inclusive)</b>: 60000
@@ -1135,10 +1146,10 @@ public class KinesisProducerConfiguration {
 
     /**
      * Minimum number of connections to keep open to the backend.
-     * <p>
+     * 
      * <p>
      * There should be no need to increase this in general.
-     * <p>
+     * 
      * <p><b>Default</b>: 1
      * <p><b>Minimum</b>: 1
      * <p><b>Maximum (inclusive)</b>: 16
@@ -1154,6 +1165,7 @@ public class KinesisProducerConfiguration {
     /**
      * Path to the native KPL binary. Only use this setting if you want to use a custom build of
      * the native code.
+     * 
      */
     public KinesisProducerConfiguration setNativeExecutable(String val) {
         nativeExecutable = val;
@@ -1162,22 +1174,22 @@ public class KinesisProducerConfiguration {
 
     /**
      * Limits the maximum allowed put rate for a shard, as a percentage of the backend limits.
-     * <p>
+     * 
      * <p>
      * The rate limit prevents the producer from sending data too fast to a shard. Such a limit is
      * useful for reducing bandwidth and CPU cycle wastage from sending requests that we know are
      * going to fail from throttling.
-     * <p>
+     * 
      * <p>
      * Kinesis enforces limits on both the number of records and number of bytes per second. This
      * setting applies to both.
-     * <p>
+     * 
      * <p>
      * The default value of 150% is chosen to allow a single producer instance to completely
      * saturate the allowance for a shard. This is an aggressive setting. If you prefer to reduce
      * throttling errors rather than completely saturate the shard, consider reducing this
      * setting.
-     * <p>
+     * 
      * <p><b>Default</b>: 150
      * <p><b>Minimum</b>: 1
      * <p><b>Maximum (inclusive)</b>: 9223372036854775807
@@ -1193,25 +1205,25 @@ public class KinesisProducerConfiguration {
     /**
      * Maximum amount of itme (milliseconds) a record may spend being buffered before it gets
      * sent. Records may be sent sooner than this depending on the other buffering limits.
-     * <p>
+     * 
      * <p>
      * This setting provides coarse ordering among records - any two records will be reordered by
      * no more than twice this amount (assuming no failures and retries and equal network
      * latency).
-     * <p>
+     * 
      * <p>
      * The library makes a best effort to enforce this time, but cannot guarantee that it will be
      * precisely met. In general, if the CPU is not overloaded, the library will meet this
      * deadline to within 10ms.
-     * <p>
+     * 
      * <p>
      * Failures and retries can additionally increase the amount of time records spend in the KPL.
      * If your application cannot tolerate late records, use the record_ttl setting to drop
      * records that do not get transmitted in time.
-     * <p>
+     * 
      * <p>
      * Setting this too low can negatively impact throughput.
-     * <p>
+     * 
      * <p><b>Default</b>: 100
      * <p><b>Maximum (inclusive)</b>: 9223372036854775807
      */
@@ -1226,19 +1238,19 @@ public class KinesisProducerConfiguration {
     /**
      * Set a time-to-live on records (milliseconds). Records that do not get successfully put
      * within the limit are failed.
-     * <p>
+     * 
      * <p>
      * This setting is useful if your application cannot or does not wish to tolerate late
      * records. Records will still incur network latency after they leave the KPL, so take that
      * into consideration when choosing a value for this setting.
-     * <p>
+     * 
      * <p>
      * If you do not wish to lose records and prefer to retry indefinitely, set record_ttl to a
      * large value like INT_MAX. This has the potential to cause head-of-line blocking if network
      * issues or throttling occur. You can respond to such situations by using the metrics
      * reporting functions of the KPL. You may also set fail_if_throttled to true to prevent
      * automatic retries in case of throttling.
-     * <p>
+     * 
      * <p><b>Default</b>: 30000
      * <p><b>Minimum</b>: 100
      * <p><b>Maximum (inclusive)</b>: 9223372036854775807
@@ -1253,14 +1265,14 @@ public class KinesisProducerConfiguration {
 
     /**
      * Which region to send records to.
-     * <p>
+     * 
      * <p>
      * If you do not specify the region and are running in EC2, the library will use the region
      * the instance is in.
-     * <p>
+     * 
      * <p>
      * The region is also used to sign requests.
-     * <p>
+     * 
      * <p><b>Expected pattern</b>: ^([a-z]+-[a-z]+-[0-9])?$
      */
     public KinesisProducerConfiguration setRegion(String val) {
@@ -1274,12 +1286,12 @@ public class KinesisProducerConfiguration {
     /**
      * The maximum total time (milliseconds) elapsed between when we begin a HTTP request and
      * receiving all of the response. If it goes over, the request will be timed-out.
-     * <p>
+     * 
      * <p>
      * Note that a timed-out request may actually succeed at the backend. Retrying then leads to
      * duplicates. Setting the timeout too low will therefore increase the probability of
      * duplicates.
-     * <p>
+     * 
      * <p><b>Default</b>: 6000
      * <p><b>Minimum</b>: 100
      * <p><b>Maximum (inclusive)</b>: 600000
@@ -1295,9 +1307,10 @@ public class KinesisProducerConfiguration {
     /**
      * Temp directory into which to extract the native binaries. The KPL requires write
      * permissions in this directory.
-     * <p>
+     * 
      * <p>
      * If not specified, defaults to /tmp in Unix. (Windows TBD)
+     * 
      */
     public KinesisProducerConfiguration setTempDirectory(String val) {
         tempDirectory = val;
@@ -1306,7 +1319,7 @@ public class KinesisProducerConfiguration {
 
     /**
      * Verify SSL certificates. Always enable in production for security.
-     * <p>
+     * 
      * <p><b>Default</b>: true
      */
     public KinesisProducerConfiguration setVerifyCertificate(boolean val) {
@@ -1316,10 +1329,11 @@ public class KinesisProducerConfiguration {
 
     /**
      * Sets the threading model that the native process will use.
-     * <p>
-     * See {@link #getThreadingModel()} for more information
      *
-     * @param threadingModel the threading model to use
+     * See {@link #getThreadingModel()} for more information
+     * 
+     * @param threadingModel
+     *            the threading model to use
      * @return this configuration object
      */
     public KinesisProducerConfiguration setThreadingModel(ThreadingModel threadingModel) {
@@ -1345,12 +1359,14 @@ public class KinesisProducerConfiguration {
 
     /**
      * Sets the maximum number of threads that the native process' thread pool will be configured with.
-     * <p>
-     * See {@link #getThreadPoolSize()} for more information
      *
-     * @param threadPoolSize the maximum number of threads that the thread pool can use.
+     * See {@link #getThreadPoolSize()} for more information
+     * 
+     * @param threadPoolSize
+     *            the maximum number of threads that the thread pool can use.
+     * @throws IllegalArgumentException
+     *             if threadPoolSize is less than 0
      * @return this configuration object
-     * @throws IllegalArgumentException if threadPoolSize is less than 0
      */
     public KinesisProducerConfiguration setThreadPoolSize(int threadPoolSize) {
         if (threadPoolSize < 0) {
