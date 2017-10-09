@@ -15,6 +15,7 @@
 #define AWS_UTILS_TIME_SENSITIVE_H_
 
 #include <chrono>
+#include <limits>
 
 #include <boost/noncopyable.hpp>
 
@@ -63,6 +64,9 @@ class TimeSensitive : private boost::noncopyable {
 
   void set_expiration_from_now(std::chrono::milliseconds ms) {
     expiration_ = Clock::now() + ms;
+    if ((std::numeric_limits<int>::max() - Clock::now().time_since_epoch().count()) < ms.count()) {
+      expiration_ = TimePoint::max();
+    }
   }
 
   bool expired() const noexcept {
