@@ -85,10 +85,12 @@ public class KinesisProducerConfigurationTest {
         KinesisProducerConfiguration defaultConfig = new KinesisProducerConfiguration();
         Properties p = new Properties();
         long v = defaultConfig.getConnectTimeout() + 1;
-        p.setProperty("ConnectTimeout", Long.toString(v));
+        p.setProperty("connectTimeOut", Long.toString(v));
         KinesisProducerConfiguration cfg = KinesisProducerConfiguration.fromPropertiesFile(writeFile(p));
         assertEquals(v, cfg.getConnectTimeout());
     }
+
+
     
     @Test
     public void unknownProperty() { 
