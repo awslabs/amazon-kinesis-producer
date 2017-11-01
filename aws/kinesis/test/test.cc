@@ -18,6 +18,8 @@
 #include "aws/utils/md5_hasher.h"
 #endif
 
+#include <aws/core/Aws.h>
+
 
 
 struct HashInitFixture {
@@ -29,3 +31,12 @@ struct HashInitFixture {
 };
 
 BOOST_TEST_GLOBAL_FIXTURE(HashInitFixture);
+
+struct AwsSdkInitFixture {
+  AwsSdkInitFixture() {
+    Aws::SDKOptions sdkOptions;
+    Aws::InitAPI(sdkOptions);
+  }
+};
+
+BOOST_TEST_GLOBAL_FIXTURE(AwsSdkInitFixture);
