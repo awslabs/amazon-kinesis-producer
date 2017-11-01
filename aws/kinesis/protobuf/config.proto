@@ -1,6 +1,6 @@
 syntax = "proto2";
-package aws.kinesis.protobuf;
 
+package aws.kinesis.protobuf;
 option java_package = "com.amazonaws.services.kinesis.producer.protobuf";
 
 message AdditionalDimension {

@@ -18,7 +18,7 @@
 
 #include <boost/noncopyable.hpp>
 
-#include <aws/kinesis/protobuf/messages.pb.h>
+#include "messages.pb.h"
 
 namespace aws {
 namespace kinesis {

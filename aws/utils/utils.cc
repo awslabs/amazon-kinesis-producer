@@ -31,7 +31,11 @@
 #include <aws/core/utils/logging/LogLevel.h>
 #include <aws/utils/logging.h>
 
+#ifdef WIN32
+#include "md5_hasher.h"
+#else
 #include <openssl/md5.h>
+#endif
 
 namespace aws {
 namespace utils {
@@ -77,16 +81,20 @@ std::string hex(const unsigned char* hash, size_t len) {
 }
 
 std::string md5(const std::string& data) {
-  return std::string((char*) md5_binary(data).data(), MD5_DIGEST_LENGTH);
+  return std::string((char*) md5_binary(data).data(), aws::utils::MD5::kMD5ByteLength);
 }
 
 std::array<uint8_t, 16> md5_binary(const std::string& data) {
+#ifdef WIN32
+  return aws::utils::MD5::hash(data);
+#else
   MD5_CTX ctx;
   checked_invoke(&MD5_Init, &ctx);
   checked_invoke(&MD5_Update, &ctx, data.data(), data.length());
   std::array<uint8_t, MD5_DIGEST_LENGTH> buf;
   checked_invoke(&MD5_Final, (unsigned char*) buf.data(), &ctx);
   return buf;
+#endif
 }
 
 std::string md5_hex(const std::string& data) {

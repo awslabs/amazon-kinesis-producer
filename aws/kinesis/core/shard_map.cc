@@ -84,6 +84,8 @@ void ShardMap::update(const std::string& start_shard_id) {
   }
 
   Aws::Kinesis::Model::DescribeStreamRequest req;
+  std::string test;
+  Aws::String str(stream_);
   req.SetStreamName(stream_);
   req.SetLimit(10000);
   if (start_shard_id.size() > 0) {

@@ -1,3 +1,4 @@
+syntax = "proto2";
 import "config.proto";
 
 package aws.kinesis.protobuf;

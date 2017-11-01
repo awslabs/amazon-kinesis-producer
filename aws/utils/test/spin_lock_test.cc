@@ -66,19 +66,19 @@ BOOST_AUTO_TEST_SUITE(SpinLock)
 
 BOOST_AUTO_TEST_CASE(SpinLock) {
   for (size_t i : {1, 4, 8}) {
-    test<aws::utils::SpinLock, 100000>("SpinLock", i);
+    test<aws::utils::SpinLock, 10000>("SpinLock", i);
   }
 }
 
 BOOST_AUTO_TEST_CASE(TicketSpinLock) {
   for (size_t i : {1, 4, 8}) {
-    test<aws::utils::TicketSpinLock, 100000>("TicketSpinLock", i);
+    test<aws::utils::TicketSpinLock, 10000>("TicketSpinLock", i);
   }
 }
 
 BOOST_AUTO_TEST_CASE(StdMutex) {
   for (size_t i : {1, 4, 8}) {
-    test<aws::mutex, 100000>("std::mutex", i);
+    test<aws::mutex, 10000>("std::mutex", i);
   }
 }
 

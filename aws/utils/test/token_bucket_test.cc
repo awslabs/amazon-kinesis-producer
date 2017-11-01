@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE(Basic) {
   b.add_token_stream(max, rate);
 
   BOOST_CHECK(!b.try_take({max + 1}));
-  BOOST_CHECK(b.try_take({max}));
+  BOOST_CHECK(b.try_take({static_cast<double>(max)}));
 
   aws::utils::sleep_until(start + std::chrono::milliseconds(100));
 
@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(Basic) {
   aws::utils::sleep_until(start + std::chrono::milliseconds(max + 200));
 
   BOOST_CHECK(!b.try_take({max + 1}));
-  BOOST_CHECK(b.try_take({max}));
+  BOOST_CHECK(b.try_take({static_cast<double>(max)}));
 }
 
 BOOST_AUTO_TEST_CASE(Multiple) {

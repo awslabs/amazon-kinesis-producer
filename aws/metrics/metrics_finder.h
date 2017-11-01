@@ -14,6 +14,9 @@
 #ifndef AWS_METRICS_METRICS_FINDER_H_
 #define AWS_METRICS_METRICS_FINDER_H_
 
+#include <string>
+#include <vector>
+
 namespace aws {
 namespace metrics {
 

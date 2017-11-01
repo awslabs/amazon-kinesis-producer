@@ -12,7 +12,7 @@
 // permissions and limitations under the License.
 
 #include <boost/predef.h>
-#include <getopt.h>
+// #include <getopt.h>
 #include <algorithm>
 
 #if !BOOST_OS_WINDOWS
@@ -37,7 +37,10 @@
 
 #include <aws/core/Aws.h>
 #include <aws/core/utils/logging/LogLevel.h>
-#include <aws/core/internal/EC2MetadataClient.h>
+#ifdef WIN32
+#include "aws/utils/md5_hasher.h"
+#endif
+//#include <aws/core/internal/EC2MetadataClient.h>
 
 namespace {
 
@@ -53,22 +56,23 @@ struct {
   boost::log::trivial::severity_level boost_log_level = boost::log::trivial::info;
 } options;
 
-struct option long_opts[]{
-        {"input-pipe",             required_argument, NULL, 'i'},
-        {"output-pipe",            required_argument, NULL, 'o'},
-        {"configuration",          required_argument, NULL, 'c'},
-        {"kinesis-credentials",    required_argument, NULL, 'k'},
-        {"cloudwatch-credentials", required_argument, NULL, 'w'},
-        {"log-level",              required_argument, NULL, 'l'},
-        {"enable-stack-trace",     no_argument,       NULL, 't'},
-        {"ca-path",                required_argument, NULL, 'a'},
-        {NULL,                     0,                 NULL,  0}
-};
+//struct option long_opts[]{
+//        {"input-pipe",             required_argument, NULL, 'i'},
+//        {"output-pipe",            required_argument, NULL, 'o'},
+//        {"configuration",          required_argument, NULL, 'c'},
+//        {"kinesis-credentials",    required_argument, NULL, 'k'},
+//        {"cloudwatch-credentials", required_argument, NULL, 'w'},
+//        {"log-level",              required_argument, NULL, 'l'},
+//        {"enable-stack-trace",     no_argument,       NULL, 't'},
+//        {"ca-path",                required_argument, NULL, 'a'},
+//        {NULL,                     0,                 NULL,  0}
+//};
 
 void handle_log_level(std::string input_level) {
     std::string level = input_level;
     std::transform(level.begin(), level.end(), level.begin(), ::tolower);
     using AwsLog = Aws::Utils::Logging::LogLevel;
+	
     using BoostLog = boost::log::trivial::severity_level;
     std::unordered_map< std::string, std::pair<AwsLog, BoostLog> > level_mapping;
 
@@ -120,7 +124,7 @@ void usage(const std::string program_name, const std::string& message) {
 
 void process_options(int argc, char* const* argv) {
   int ch;
-
+#ifndef WIN32
   while ((ch = getopt_long(argc, argv, "i:o:c:k:w:l:t", long_opts, NULL)) != -1) {
     switch (ch) {
     case 'i':
@@ -163,6 +167,7 @@ void process_options(int argc, char* const* argv) {
   if (options.kinesis_credentials.empty()) {
       usage(argv[0], "-k, or --kinesis-credentials is required.");
   }
+#endif
 }
 
 void check_pipe(std::string& path) {
@@ -354,15 +359,25 @@ std::string get_ca_path() {
 
 int main(int argc, char* const* argv) {
 
-  process_options(argc, argv);
-  aws::utils::setup_logging(options.boost_log_level);
-  aws::utils::setup_aws_logging(options.aws_log_level);
+#ifdef WIN32
+  aws::utils::MD5::initialize();
+#endif
+  options.input_pipe = argv[1];
+  options.output_pipe = argv[2];
+  options.configuration = argv[3];
+  options.kinesis_credentials = argv[4];
+  if (argc > 4) {
+    options.cloudwatch_credentials = argv[5];
+  }
+  //process_options(argc, argv);
+  //aws::utils::setup_logging(options.boost_log_level);
+  //aws::utils::setup_aws_logging(options.aws_log_level);
 
   Aws::SDKOptions sdk_options;
   Aws::InitAPI(sdk_options);
 
   if (options.enable_stack_trace) {
-    aws::utils::setup_stack_trace(argv[0]);
+  //  aws::utils::setup_stack_trace(argv[0]);
   }
 
   try {

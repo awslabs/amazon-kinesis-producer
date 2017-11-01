@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 project(amazon_kinesis_producer)
 
-set(THIRD_PARTY_LIB_DIR "${amazon_kinesis_producer_SOURCE_DIR}/third_party/lib")
-
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -30,12 +28,12 @@ set(SOURCE_FILES
         aws/kinesis/core/shard_map.h
         aws/kinesis/core/user_record.cc
         aws/kinesis/core/user_record.h
-        aws/kinesis/protobuf/config.pb.cc
-        aws/kinesis/protobuf/config.pb.h
-        aws/kinesis/protobuf/config.proto
-        aws/kinesis/protobuf/messages.pb.cc
-        aws/kinesis/protobuf/messages.pb.h
-        aws/kinesis/protobuf/messages.proto
+#        aws/kinesis/protobuf/config.pb.cc
+#        aws/kinesis/protobuf/config.pb.h
+#        aws/kinesis/protobuf/config.proto
+#        aws/kinesis/protobuf/messages.pb.cc
+#        aws/kinesis/protobuf/messages.pb.h
+#        aws/kinesis/protobuf/messages.proto
         aws/metrics/accumulator.h
         aws/metrics/metric.h
         aws/metrics/metrics_constants.cc
@@ -59,7 +57,8 @@ set(SOURCE_FILES
         aws/utils/utils.cc
         aws/utils/utils.h
         aws/utils/processing_statistics_logger.cc
-        aws/utils/processing_statistics_logger.h)
+        aws/utils/processing_statistics_logger.h
+		aws/utils/md5_hasher.cc)
 
 set(TESTS_SOURCE
     aws/utils/test/concurrent_hash_map_test.cc
@@ -82,39 +81,73 @@ set(TESTS_SOURCE
     aws/metrics/test/metrics_manager_test.cc
     )
 
+message("Source Dir: ${amazon_kinesis_producer_SOURCE_DIR}")
+include_directories(SYSTEM "${amazon_kinesis_producer_SOURCE_DIR}")
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+if (WIN32)
+    macro(get_WIN32_WINNT version)
+        if (CMAKE_SYSTEM_VERSION)
+            set(ver ${CMAKE_SYSTEM_VERSION})
+            string(REGEX MATCH "^([0-9]+).([0-9])" ver ${ver})
+            string(REGEX MATCH "^([0-9]+)" verMajor ${ver})
+            # Check for Windows 10, b/c we'll need to convert to hex 'A'.
+            if ("${verMajor}" MATCHES "10")
+                set(verMajor "A")
+                string(REGEX REPLACE "^([0-9]+)" ${verMajor} ver ${ver})
+            endif ("${verMajor}" MATCHES "10")
+            # Remove all remaining '.' characters.
+            string(REPLACE "." "" ver ${ver})
+            # Prepend each digit with a zero.
+            string(REGEX REPLACE "([0-9A-Z])" "0\\1" ver ${ver})
+            set(${version} "0x${ver}")
+        endif(CMAKE_SYSTEM_VERSION)
+    endmacro(get_WIN32_WINNT)
 
+    get_WIN32_WINNT(ver)
+    add_definitions(-D_WIN32_WINNT=${ver})
+endif(WIN32)
 
-find_package(aws-sdk-cpp)
-find_package(Boost)
-find_package(Protobuf)
+find_package(aws-sdk-cpp REQUIRED)
+find_package(Boost REQUIRED COMPONENTS regex thread log system random filesystem chrono unit_test_framework)
+find_package(Protobuf REQUIRED)
 find_package(Threads)
 
-set(BOOST_LIBS
-  Boost_regex_LIBRARY
-  Boost_thread_LIBRARY 
-  Boost_log_LIBRARY
-  Boost_system_LIBRARY
-  Boost_random_LIBRARY
-  Boost_filesystem_LIBRARY
-  Boost_chrono_LIBRARY)
+set(DEFAULT_BOOST_LIBS
+	${Boost_REGEX_LIBRARY}
+	${Boost_THREAD_LIBRARY}
+	${Boost_LOG_LIBRARY}
+	${Boost_SYSTEM_LIBRARY}
+	${Boost_RANDOM_LIBRARY}
+	${Boost_FILESYSTEM_LIBRARY}
+	${Boost_CHRONO_LIBRARY}
+	${Boost_DATE_TIME_LIBRARY}
+	${Boost_ATOMIC_LIBRARY}
+	${Boost_LOG_SETUP_LIBRARY})
+
+message("Default Boost Libs: ${DEFAULT_BOOST_LIBS}")
+message("Boost Libraries:    ${Boost_LIBRARIES}")
+
+add_definitions("-DDLL_EXPORT=__declspec(dllexport)")
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS EXPORT_MACRO DLL_EXPORT aws/kinesis/protobuf/messages.proto aws/kinesis/protobuf/config.proto)
+set_source_files_properties(${PROTO_SRCS} ${PROTO_HDRS} PROPERTIES GENERATED TRUE)
 
 set(THIRD_PARTY_LIBS
   ${CMAKE_THREAD_LIBS_INIT}     
-  ${BOOST_LIBS} 
-  Protobuf_LIBRARY)
+  ${DEFAULT_BOOST_LIBS} 
+  ${Protobuf_LIBRARIES}
+  aws-cpp-sdk-kinesis
+  aws-cpp-sdk-monitoring)
 
-# include_directories(${Boost_INCLUDE_DIRS})
-# include_directories(${Protobuf_INCLUDE_DIR})
+include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${Protobuf_INCLUDE_DIR})
 
-add_executable(kinesis_producer ${SOURCE_FILES} aws/kinesis/main.cc)  
-target_link_libraries(kinesis_producer ${THIRD_PARTY_LIBS} aws-sdk-cpp-kinesis 
-  aws-sdk-cpp-monitoring)
+add_executable(kinesis_producer ${SOURCE_FILES} aws/kinesis/main.cc ${PROTO_SRCS})
+target_link_libraries(kinesis_producer ${THIRD_PARTY_LIBS})
 
-add_executable(test_driver ${SOURCE_FILES} aws/kinesis/test_driver.cc)  
+add_executable(test_driver ${SOURCE_FILES} aws/kinesis/test_driver.cc ${PROTO_SRCS})
 target_link_libraries(test_driver ${THIRD_PARTY_LIBS})
 
-add_executable(tests ${SOURCE_FILES} ${TESTS_SOURCE} aws/kinesis/test/test.cc)  
-target_link_libraries(tests ${THIRD_PARTY_LIBS} boost_unit_test_framework)
+add_executable(tests ${SOURCE_FILES} ${TESTS_SOURCE} aws/kinesis/test/test.cc ${PROTO_SRCS})
+target_link_libraries(tests ${THIRD_PARTY_LIBS} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 

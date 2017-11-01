@@ -26,13 +26,21 @@
 #include <aws/kinesis/core/configuration.h>
 #include <aws/kinesis/core/ipc_manager.h>
 #include <aws/kinesis/core/kinesis_producer.h>
-#include <aws/kinesis/protobuf/messages.pb.h>
+#include "messages.pb.h"
 #include <aws/metrics/metrics_manager.h>
 #include <aws/utils/io_service_executor.h>
 #include <aws/utils/logging.h>
 #include <aws/utils/utils.h>
+#ifdef WIN32
+#include "aws/utils/md5_hasher.h"
+#endif
 
 int main(int argc, char** argv) {
+
+#ifdef WIN32
+  aws::utils::MD5::initialize();
+#endif
+
   aws::utils::setup_logging();
 
   //ProfilerStart("test_driver.prof");

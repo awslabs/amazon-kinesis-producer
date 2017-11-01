@@ -13,3 +13,19 @@
 
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
+
+#ifdef WIN32
+#include "aws/utils/md5_hasher.h"
+#endif
+
+
+
+struct HashInitFixture {
+  HashInitFixture() {
+#ifdef WIN32
+    aws::utils::MD5::initialize();
+#endif
+  }
+};
+
+BOOST_TEST_GLOBAL_FIXTURE(HashInitFixture);

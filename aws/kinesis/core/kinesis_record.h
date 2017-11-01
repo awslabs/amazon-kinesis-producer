@@ -16,7 +16,7 @@
 
 #include <unordered_map>
 
-#include <aws/kinesis/protobuf/messages.pb.h>
+#include "messages.pb.h"
 #include <aws/kinesis/core/serializable_container.h>
 #include <aws/kinesis/core/user_record.h>
 

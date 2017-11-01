@@ -14,7 +14,7 @@
 #if BOOST_OS_WINDOWS
   #include <windows.h>
 #else
-  #include <sys/utsname.h>
+//  #include <sys/utsname.h>
 #endif
 
 #include <aws/utils/logging.h>

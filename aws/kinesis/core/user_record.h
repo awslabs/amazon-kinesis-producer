@@ -21,7 +21,7 @@
 #include <boost/optional.hpp>
 
 #include <aws/kinesis/core/attempt.h>
-#include <aws/kinesis/protobuf/messages.pb.h>
+#include "messages.pb.h"
 #include <aws/utils/time_sensitive.h>
 #include <aws/utils/utils.h>
 

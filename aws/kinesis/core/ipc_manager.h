@@ -220,7 +220,7 @@ struct WindowsPipeManager {
     }
   }
 
-  static error(const char* msg, const char* fname) {
+  static void error(const char* msg, const char* fname) {
     std::stringstream ss;
     ss << msg << " \"" << fname << "\", error code " << GetLastError();
     throw std::runtime_error(ss.str().c_str());
