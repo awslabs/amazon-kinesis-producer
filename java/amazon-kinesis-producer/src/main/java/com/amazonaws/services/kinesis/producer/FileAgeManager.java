@@ -46,7 +46,7 @@ class FileAgeManager implements Runnable {
     }
 
     FileAgeManager(ScheduledExecutorService executorService) {
-        this.watchedFiles = new HashSet<>();
+        this.watchedFiles = new HashSet<File>();
         this.executorService = executorService;
         this.executorService.scheduleAtFixedRate(this, 1, 1, TimeUnit.MINUTES);
     }

@@ -38,7 +38,7 @@ import com.amazonaws.services.kinesis.producer.protobuf.Messages.Message;
 public class KinesisProducerConfiguration {
     private static final Logger log = LoggerFactory.getLogger(KinesisProducerConfiguration.class);
 
-    private List<AdditionalDimension> additionalDims = new ArrayList<>();
+    private List<AdditionalDimension> additionalDims = new ArrayList<AdditionalDimension>();
     private AWSCredentialsProvider credentialsProvider = new DefaultAWSCredentialsProviderChain();
     private AWSCredentialsProvider metricsCredentialsProvider = null;
 
@@ -156,7 +156,9 @@ public class KinesisProducerConfiguration {
         log.info("Attempting to load config from file " + path);
 
         Properties props = new Properties();
-        try (InputStream is = new FileInputStream(path)) {
+        
+        try {
+            InputStream is = new FileInputStream(path);
             props.load(is);
         } catch (Exception e) {
             throw new RuntimeException("Error loading config from properties file", e);
