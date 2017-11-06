@@ -14,12 +14,15 @@
 #include <aws/kinesis/core/ipc_manager.h>
 
 #include <aws/utils/utils.h>
+#include "aws/utils/error_translater.h"
 
 namespace aws {
 namespace kinesis {
 namespace core {
 
 namespace detail {
+
+  aws::utils::Interlock WindowsPipeManager::interlock_;
 
 void IpcReader::start() {
   if (channel_->open_read_channel()) {
@@ -58,7 +61,7 @@ bool IpcReader::read(size_t len) {
       if (!shutdown_) {
         std::stringstream ss;
         if (num_read < 0) {
-          ss << "IO error reading from ipc channel, errno = " << errno;
+          ss << "IO error reading from ipc channel: " << aws::utils::translate_last_error();
         } else if (num_read == 0) {
           ss << "EOF reached while reading from ipc channel";
         }

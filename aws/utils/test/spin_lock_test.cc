@@ -70,11 +70,11 @@ BOOST_AUTO_TEST_CASE(SpinLock) {
   }
 }
 
-BOOST_AUTO_TEST_CASE(TicketSpinLock) {
-  for (size_t i : {1, 4, 8}) {
-    test<aws::utils::TicketSpinLock, 10000>("TicketSpinLock", i);
-  }
-}
+//BOOST_AUTO_TEST_CASE(TicketSpinLock) {
+//  for (size_t i : {1, 4, 8}) {
+//    test<aws::utils::TicketSpinLock, 10000>("TicketSpinLock", i);
+//  }
+//}
 
 BOOST_AUTO_TEST_CASE(StdMutex) {
   for (size_t i : {1, 4, 8}) {

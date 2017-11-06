@@ -4,61 +4,30 @@ project(amazon_kinesis_producer)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(SOURCE_FILES
-        aws/auth/mutable_static_creds_provider.h
-        aws/kinesis/core/aggregator.h
-        aws/kinesis/core/attempt.h
-        aws/kinesis/core/collector.h
-        aws/kinesis/core/configuration.h
-        aws/kinesis/core/ipc_manager.cc
-        aws/kinesis/core/ipc_manager.h
-        aws/kinesis/core/kinesis_producer.cc
-        aws/kinesis/core/kinesis_producer.h
-        aws/kinesis/core/kinesis_record.cc
-        aws/kinesis/core/kinesis_record.h
-        aws/kinesis/core/limiter.h
-        aws/kinesis/core/pipeline.h
-        aws/kinesis/core/put_records_context.h
-        aws/kinesis/core/put_records_request.h
-        aws/kinesis/core/reducer.h
+if(WIN32)
+	include("cmake/win32.cmake")
+endif()
+
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+
+set(SOURCE_FILES        
+        aws/kinesis/core/ipc_manager.cc        
+        aws/kinesis/core/kinesis_producer.cc        
+        aws/kinesis/core/kinesis_record.cc                        
         aws/kinesis/core/retrier.cc
-        aws/kinesis/core/retrier.h
-        aws/kinesis/core/serializable_container.h
         aws/kinesis/core/shard_map.cc
-        aws/kinesis/core/shard_map.h
         aws/kinesis/core/user_record.cc
-        aws/kinesis/core/user_record.h
-#        aws/kinesis/protobuf/config.pb.cc
-#        aws/kinesis/protobuf/config.pb.h
-#        aws/kinesis/protobuf/config.proto
-#        aws/kinesis/protobuf/messages.pb.cc
-#        aws/kinesis/protobuf/messages.pb.h
-#        aws/kinesis/protobuf/messages.proto
-        aws/metrics/accumulator.h
-        aws/metrics/metric.h
         aws/metrics/metrics_constants.cc
-        aws/metrics/metrics_constants.h
-        aws/metrics/metrics_finder.h
         aws/metrics/metrics_index.cc
-        aws/metrics/metrics_index.h
         aws/metrics/metrics_manager.cc
-        aws/metrics/metrics_manager.h
-        aws/mutex.h
-        aws/utils/concurrent_hash_map.h
-        aws/utils/concurrent_linked_queue.h
-        aws/utils/executor.h
-        aws/utils/io_service_executor.h
         aws/utils/logging.cc
-        aws/utils/logging.h
-        aws/utils/spin_lock.h
-        aws/utils/time_sensitive.h
-        aws/utils/time_sensitive_queue.h
-        aws/utils/token_bucket.h
         aws/utils/utils.cc
-        aws/utils/utils.h
         aws/utils/processing_statistics_logger.cc
-        aws/utils/processing_statistics_logger.h
-		aws/utils/md5_hasher.cc)
+        aws/utils/wincrypt_md5_hasher.cc
+		aws/utils/error_translater.cc
+		aws/utils/interlock.cc)
 
 set(TESTS_SOURCE
     aws/utils/test/concurrent_hash_map_test.cc
@@ -81,7 +50,6 @@ set(TESTS_SOURCE
     aws/metrics/test/metrics_manager_test.cc
     )
 
-message("Source Dir: ${amazon_kinesis_producer_SOURCE_DIR}")
 include_directories(SYSTEM "${amazon_kinesis_producer_SOURCE_DIR}")
 
 if (WIN32)
@@ -108,7 +76,9 @@ if (WIN32)
 endif(WIN32)
 
 find_package(aws-sdk-cpp REQUIRED)
-find_package(Boost REQUIRED COMPONENTS regex thread log system random filesystem chrono unit_test_framework)
+
+# set(Boost_USE_STATIC_LIBS ON)
+find_package(Boost REQUIRED COMPONENTS regex thread log system random filesystem chrono program_options unit_test_framework)
 find_package(Protobuf REQUIRED)
 find_package(Threads)
 
@@ -122,7 +92,8 @@ set(DEFAULT_BOOST_LIBS
 	${Boost_CHRONO_LIBRARY}
 	${Boost_DATE_TIME_LIBRARY}
 	${Boost_ATOMIC_LIBRARY}
-	${Boost_LOG_SETUP_LIBRARY})
+	${Boost_LOG_SETUP_LIBRARY}
+	${Boost_PROGRAM_OPTIONS_LIBRARY})
 
 message("Default Boost Libs: ${DEFAULT_BOOST_LIBS}")
 message("Boost Libraries:    ${Boost_LIBRARIES}")

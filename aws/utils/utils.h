@@ -103,13 +103,6 @@ bool compare_and_set(std::atomic<T>& a, const T& expected, const T& desired) {
   return a.compare_exchange_strong(tmp, desired);
 }
 
-template <typename Func, typename ...Params>
-void checked_invoke(Func f, Params&&... params) {
-  if (f(std::forward<Params>(params)...) != 1) {
-    throw std::runtime_error("C function's return value indicated an error");
-  }
-}
-
 template <typename Duration>
 void sleep_for(Duration d) {
 #if BOOST_OS_WINDOWS

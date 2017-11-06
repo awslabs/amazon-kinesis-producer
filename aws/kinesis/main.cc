@@ -27,6 +27,7 @@
 #include <boost/algorithm/hex.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/program_options.hpp>
 
 #include <aws/auth/mutable_static_creds_provider.h>
 
@@ -39,12 +40,12 @@
 #include <aws/core/utils/logging/LogLevel.h>
 #ifdef WIN32
 #include "aws/utils/md5_hasher.h"
+#include <windows.h>
 #endif
-//#include <aws/core/internal/EC2MetadataClient.h>
 
 namespace {
 
-struct {
+struct Options {
   std::string input_pipe;
   std::string output_pipe;
   std::string configuration;
@@ -54,19 +55,72 @@ struct {
   int enable_stack_trace = 0;
   Aws::Utils::Logging::LogLevel aws_log_level = Aws::Utils::Logging::LogLevel::Warn;
   boost::log::trivial::severity_level boost_log_level = boost::log::trivial::info;
-} options;
+};
 
-//struct option long_opts[]{
-//        {"input-pipe",             required_argument, NULL, 'i'},
-//        {"output-pipe",            required_argument, NULL, 'o'},
-//        {"configuration",          required_argument, NULL, 'c'},
-//        {"kinesis-credentials",    required_argument, NULL, 'k'},
-//        {"cloudwatch-credentials", required_argument, NULL, 'w'},
-//        {"log-level",              required_argument, NULL, 'l'},
-//        {"enable-stack-trace",     no_argument,       NULL, 't'},
-//        {"ca-path",                required_argument, NULL, 'a'},
-//        {NULL,                     0,                 NULL,  0}
-//};
+Options options;
+
+void usage(const std::string& program_name, const boost::program_options::options_description& desc, const std::string& error_message = "") {
+  namespace po = boost::program_options;
+  std::cerr << "Usage: " << program_name << " -i <input pipe> -o <output pipe> -c <configuration> -k <kinesis credentials>" << std::endl;
+  if (!error_message.empty()) {
+    std::cerr << "\t" << error_message << std::endl;
+  }
+  std::cerr << desc;
+}
+
+bool parsed_options(int argc, char* const* argv) {
+  namespace po = boost::program_options;
+  po::options_description desc("Options");
+  desc.add_options()
+    ("help,h", "Usage Information")
+    ("input-pipe,i", po::value<std::string>())
+    ("output-pipe,o", po::value<std::string>())
+    ("configuration,c", po::value<std::string>())
+    ("kinesis-credentials,k", po::value<std::string>())
+    ("cloudwatch-credentials,w", po::value<std::string>())
+    ("enable-stack-trace,t", "Enable Stack Traces (Does Nothing)");
+
+  try {
+    po::variables_map vm;
+    po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
+
+    std::string program_name = argv[0];
+
+    if (vm.count("help")) {
+      usage(program_name, desc);
+      return false;
+    }
+
+    if (!vm.count("input-pipe")) {
+      usage(program_name, desc, "input-pipe is required");
+      return false;
+    }    
+    if (!vm.count("output-pipe")) {
+      usage(program_name, desc, "output-pipe is required");
+      return false;
+    }
+    if (!vm.count("configuration")) {
+      usage(program_name, desc, "output-pipe is required");
+      return false;
+    }
+    if (!vm.count("kinesis-credentials")) {
+      usage(program_name, desc, "kinesis-credential is required");
+      return false;
+    }
+    options.input_pipe = vm["input-pipe"].as<std::string>();
+    options.output_pipe = vm["output-pipe"].as<std::string>();
+    options.configuration = vm["configuration"].as<std::string>();
+    options.kinesis_credentials = vm["kinesis-credentials"].as<std::string>();
+    options.cloudwatch_credentials = vm["cloudwatch-credentials"].as<std::string>();
+    options.enable_stack_trace = vm.count("enable-stack-trace");
+  }
+  catch (std::exception& ex) {
+    std::cerr << "Unexpected exception: " << ex.what() << std::endl;
+    return false;
+  }
+
+  return true;
+}
 
 void handle_log_level(std::string input_level) {
     std::string level = input_level;
@@ -96,78 +150,6 @@ void handle_log_level(std::string input_level) {
         options.boost_log_level = BoostLog::info;
     }
 
-}
-
-void option_description(const std::string& short_option, const std::string& long_option, const std::string& message, bool is_serialized = false) {
-    std::cerr << "\t" << short_option << ", " << long_option << std::endl;
-    std::cerr << "\t\t" << message << std::endl;
-    if (is_serialized) {
-        std::cerr << "\t\tThe argument to this option must be a base 64 encoded serialized object." << std::endl;
-    }
-    std::cerr << std::endl;
-}
-
-void usage(const std::string program_name, const std::string& message) {
-    std::cerr << "Usage: " << program_name << "-i <input pipe> -o <output pipe> -c <configuration> -k <kinesis credentials>" << std::endl;
-    std::cerr << "\tError: " << message << std::endl;
-    std::cerr << "Options:" << std::endl;
-    option_description("-i", "--input-pipe", "The pipe used to accept incoming commands, and data objects");
-    option_description("-o", "--output-pipe", "The pipe used to write the response back to the owning process");
-    option_description("-c", "--configuration", "The initial configuration to start up the producer with", true);
-    option_description("-k", "--kinesis-credentials", "The credentials used to communicate with Amazon Kinesis", true);
-    option_description("-w", "--cloudwatch-credentials", "The credentials used to communicate with Amazon Cloudwatch.  If this isn't present the Kinesis credentials are used", true);
-    option_description("-l", "--log-level", "Controls the level of detail emitted from the producer.  Valid: ['trace', 'debug', 'info', 'warn', 'error', 'fatal']");
-    option_description("-t", "--enable-stack-trace", "Will dump a stack trace and abort if certain memory errors are triggered");
-    option_description("-a", "--ca-path", "Location of the CA root certificate that the producer will use for TLS connections.");
-    exit(1);
-}
-
-void process_options(int argc, char* const* argv) {
-  int ch;
-#ifndef WIN32
-  while ((ch = getopt_long(argc, argv, "i:o:c:k:w:l:t", long_opts, NULL)) != -1) {
-    switch (ch) {
-    case 'i':
-        options.input_pipe = std::string(optarg);
-        break;
-    case 'o':
-        options.output_pipe = std::string(optarg);
-        break;
-    case 'c':
-        options.configuration = std::string(optarg);
-        break;
-    case 'k':
-        options.kinesis_credentials = std::string(optarg);
-        break;
-    case 'w':
-        options.cloudwatch_credentials = std::string(optarg);
-        break;
-    case 'l':
-        handle_log_level(optarg);
-        break;
-    case 't':
-        options.enable_stack_trace = 1;
-        break;
-    case 'a':
-        options.ca_path = std::string(optarg);
-        break;
-    default:
-        usage(argv[0], "Unknown option: " + std::string(argv[optind]));
-    }
-  }
-  if (options.input_pipe.empty()) {
-      usage(argv[0], "-i, or --input-pipe is required.");
-  }
-  if (options.output_pipe.empty()) {
-      usage(argv[0], "-o, or --output-pipe is required.");
-  }
-  if (options.configuration.empty()) {
-      usage(argv[0], "-c, or --configuration is required.");
-  }
-  if (options.kinesis_credentials.empty()) {
-      usage(argv[0], "-k, or --kinesis-credentials is required.");
-  }
-#endif
 }
 
 void check_pipe(std::string& path) {
@@ -352,6 +334,15 @@ std::string get_ca_path() {
   return p;
 }
 
+void wait_for_debugger() {
+#if defined(WIN32) && defined(WAIT_FOR_DEBUGGER)
+  while (!IsDebuggerPresent()) {
+    std::cerr << "Awaiting debugger" << std::endl;
+    Sleep(1000);
+  }
+#endif
+}
+
 } // namespace
 
 
@@ -362,12 +353,8 @@ int main(int argc, char* const* argv) {
 #ifdef WIN32
   aws::utils::MD5::initialize();
 #endif
-  options.input_pipe = argv[1];
-  options.output_pipe = argv[2];
-  options.configuration = argv[3];
-  options.kinesis_credentials = argv[4];
-  if (argc > 4) {
-    options.cloudwatch_credentials = argv[5];
+  if (!parsed_options(argc, argv)) {
+    return 1;
   }
   //process_options(argc, argv);
   //aws::utils::setup_logging(options.boost_log_level);
@@ -375,10 +362,6 @@ int main(int argc, char* const* argv) {
 
   Aws::SDKOptions sdk_options;
   Aws::InitAPI(sdk_options);
-
-  if (options.enable_stack_trace) {
-  //  aws::utils::setup_stack_trace(argv[0]);
-  }
 
   try {
     auto config = get_config(options.configuration);

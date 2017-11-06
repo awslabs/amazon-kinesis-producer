@@ -54,7 +54,7 @@ MetricsIndex::get_metric(const MetricsFinder& metrics_finder) {
 
   assert(dims.size() == keys_to_add.size());
 
-  for (size_t i = dims.size() - 1; i >= 0; i--) {
+  for (int32_t i = dims.size() - 1; i >= 0; i--) {
     auto m = std::make_shared<Metric>(std::move(last_node), std::move(dims[i]));
     last_node = m;
     metrics_.emplace(std::piecewise_construct,

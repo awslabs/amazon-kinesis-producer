@@ -1,4 +1,6 @@
-#pragma once
+
+#ifndef AWS_UTILS_MD5_HASHER_H
+#define AWS_UTILS_MD5_HASHER_H
 
 #include <string>
 #include <array>
@@ -13,3 +15,4 @@ namespace aws {
     }
   }
 }
+#endif

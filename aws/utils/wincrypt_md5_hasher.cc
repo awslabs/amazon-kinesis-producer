@@ -1,7 +1,6 @@
 #include "md5_hasher.h"
 #include <Windows.h>
 #include <wincrypt.h>
-#include <atomic>
 #include <sstream>
 #include <algorithm>
 #include <array>

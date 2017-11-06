@@ -27,6 +27,8 @@
 #include <aws/utils/io_service_executor.h>
 #include <aws/utils/concurrent_linked_queue.h>
 
+#include "aws/utils/interlock.h"
+
 namespace aws {
 namespace kinesis {
 namespace core {
@@ -145,6 +147,8 @@ class IpcChannelImpl : public boost::noncopyable {
 #include <windows.h>
 
 struct WindowsPipeManager {
+  static aws::utils::Interlock interlock_;
+
   static HANDLE open_read(const char* f, bool create_pipe) {
     return open(f, false, create_pipe);
   }
@@ -164,11 +168,11 @@ struct WindowsPipeManager {
   static HANDLE open(const char* f, bool write, bool create_pipe) {
     if (create_pipe) {
       auto handle =
-          CreateNamedPipe(
+          CreateNamedPipeA(
               f,
               write ? PIPE_ACCESS_OUTBOUND : PIPE_ACCESS_INBOUND,
               PIPE_TYPE_BYTE,
-              1,
+              PIPE_UNLIMITED_INSTANCES,
               8192,
               8192,
               0,
@@ -176,15 +180,20 @@ struct WindowsPipeManager {
 
       if (handle == INVALID_HANDLE_VALUE) {
         error("Could not create pipe", f);
+      }      
+         
+      if (write) {
+        if (!ConnectNamedPipe(handle, nullptr)) {
+          error("Could not connect pipe", f);
+        }
+        WindowsPipeManager::interlock_.notify();        
       }
-
-      if (!ConnectNamedPipe(handle, nullptr)) {
-        error("Could not connect pipe", f);
+      else {
+        WindowsPipeManager::interlock_.await();
       }
-
       return handle;
     } else {
-      auto handle = CreateFile(f,
+      auto handle = CreateFileA(f,
                                write ? GENERIC_WRITE : GENERIC_READ,
                                0,
                                nullptr,
@@ -202,11 +211,17 @@ struct WindowsPipeManager {
 
   static int64_t read(HANDLE handle, void* buf, size_t capacity) {
     unsigned long int num_written = 0;
+    memset(buf, 0, capacity);
     bool ok = ReadFile(handle, buf, capacity, &num_written, nullptr);
     if (ok) {
       return num_written;
     } else {
-      return -1;
+      Sleep(2000);
+      ok = ReadFile(handle, buf, capacity, &num_written, nullptr);
+      if (!ok) {
+        return -1;
+      }
+      return num_written;
     }
   }
 
