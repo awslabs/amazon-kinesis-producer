@@ -169,11 +169,11 @@ class _ConfigTemplate {
         Properties props = new Properties();
         
         try {
-        		InputStream is = new FileInputStream(path);
+            InputStream is = new FileInputStream(path);
             props.load(is);
         } catch (Exception e) {
             throw new RuntimeException("Error loading config from properties file", e);
-        } 
+        }
 
         return fromProperties(props);
     }

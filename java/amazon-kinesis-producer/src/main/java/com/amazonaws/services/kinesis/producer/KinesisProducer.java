@@ -848,8 +848,8 @@ public class KinesisProducer {
                             extracted.setExecutable(true);
                         }
                     } finally {
-                    		if (lockFOS != null) lockFOS.close();
-                    		if (lock != null) lock.close();
+                        if (lockFOS != null) lockFOS.close();
+                        if (lock != null) lock.close();
                     }
 
                     String certFileName = "b204d74a.0";
