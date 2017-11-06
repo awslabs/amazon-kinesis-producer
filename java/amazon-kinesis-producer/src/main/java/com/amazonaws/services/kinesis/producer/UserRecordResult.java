@@ -80,7 +80,7 @@ public class UserRecordResult {
     }
     
     protected static UserRecordResult fromProtobufMessage(Messages.PutRecordResult r) {
-        final List<Attempt> attempts = new ArrayList<>(r.getAttemptsCount());
+        final List<Attempt> attempts = new ArrayList<Attempt>(r.getAttemptsCount());
         for (Messages.Attempt a : r.getAttemptsList()) {
             attempts.add(Attempt.fromProtobufMessage(a));
         }

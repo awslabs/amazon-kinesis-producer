@@ -54,7 +54,7 @@ public class FileAgeManagerTest {
     }
 
     private List<File> makeFileList() {
-        List<File> files = new ArrayList<>();
+        List<File> files = new ArrayList<File>();
         files.add(testFile);
         when(testFile.getAbsoluteFile()).thenReturn(testFile);
         return files;

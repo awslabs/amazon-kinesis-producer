@@ -74,8 +74,8 @@ public class Daemon {
         public void onError(Throwable t);
     }
     
-    private BlockingQueue<Message> outgoingMessages = new LinkedBlockingQueue<>();
-    private BlockingQueue<Message> incomingMessages = new LinkedBlockingQueue<>();
+    private BlockingQueue<Message> outgoingMessages = new LinkedBlockingQueue<Message>();
+    private BlockingQueue<Message> incomingMessages = new LinkedBlockingQueue<Message>();
 
     private ExecutorService executor = Executors
             .newCachedThreadPool(new ThreadFactoryBuilder().setDaemon(true).setNameFormat("kpl-daemon-%04d").build());
@@ -230,7 +230,9 @@ public class Daemon {
             outChannel.write(lenBuf);
             m.writeTo(outStream);
             outStream.flush();
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException ioe) {
+            fatalError("Error writing message to daemon", ioe);
+        } catch (InterruptedException e) {
             fatalError("Error writing message to daemon", e);
         }
     }
@@ -256,7 +258,9 @@ public class Daemon {
             // Deserialize message and add it to the queue
             Message m = Message.parseFrom(ByteString.copyFrom(rcvBuf));
             incomingMessages.put(m);
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException ioe) {
+            fatalError("Error reading message from daemon", ioe);
+        } catch (InterruptedException e) {
             fatalError("Error reading message from daemon", e);
         }
     }
@@ -419,7 +423,7 @@ public class Daemon {
     
     private void startChildProcess() throws IOException, InterruptedException {
         log.info("Asking for trace");
-        List<String> args = new ArrayList<>(Arrays.asList(pathToExecutable, "-o", outPipe.getAbsolutePath(), "-i",
+        List<String> args = new ArrayList<String>(Arrays.asList(pathToExecutable, "-o", outPipe.getAbsolutePath(), "-i",
                 inPipe.getAbsolutePath(), "-c", protobufToHex(config.toProtobufMessage()), "-k",
                 protobufToHex(makeSetCredentialsMessage(config.getCredentialsProvider(), false)), "-t"));
 
