@@ -24,7 +24,6 @@ import java.io.OutputStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileLock;
-import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -94,7 +93,7 @@ public class KinesisProducer {
     private final KinesisProducerConfiguration config;
     private final Map<String, String> env;
     private final AtomicLong messageNumber = new AtomicLong(1);
-    private final Map<Long, SettableFuture<?>> futures = new ConcurrentHashMap<>();
+    private final Map<Long, SettableFuture<?>> futures = new ConcurrentHashMap<Long, SettableFuture<?>>();
       
     private final ExecutorService callbackCompletionExecutor = new ThreadPoolExecutor(
             1,
@@ -201,7 +200,7 @@ public class KinesisProducer {
         private void onMetricsResponse(Message msg) {
             SettableFuture<List<Metric>> f = getFuture(msg);
             
-            List<Metric> userMetrics = new ArrayList<>();
+            List<Metric> userMetrics = new ArrayList<Metric>();
             MetricsResponse res = msg.getMetricsResponse();
             for (Messages.Metric metric : res.getMetricsList()) {
                 userMetrics.add(new Metric(metric));
@@ -768,7 +767,7 @@ public class KinesisProducer {
 
     private void extractBinaries() {
         synchronized (EXTRACT_BIN_MUTEX) {
-            final List<File> watchFiles = new ArrayList<>(2);
+            final List<File> watchFiles = new ArrayList<File>(2);
             String os = SystemUtils.OS_NAME;
             if (SystemUtils.IS_OS_WINDOWS) {
                 os = "windows";
@@ -786,7 +785,8 @@ public class KinesisProducer {
             if (tmpDir.trim().length() == 0) {
                 tmpDir = System.getProperty("java.io.tmpdir");
             }
-            tmpDir = Paths.get(tmpDir, root).toString();
+            
+            tmpDir = new File(tmpDir, root).getAbsolutePath();
             pathToTmpDir = tmpDir;
             
             String binPath = config.getNativeExecutable();
@@ -809,21 +809,28 @@ public class KinesisProducer {
                     MessageDigest md = MessageDigest.getInstance("SHA1");
                     String mdHex = DatatypeConverter.printHexBinary(md.digest(bin)).toLowerCase();
                     
-                    pathToExecutable = Paths.get(pathToTmpDir, "kinesis_producer_" + mdHex + extension).toString();
+                    pathToExecutable = new File(pathToTmpDir, "kinesis_producer_" + mdHex + extension).getAbsolutePath();
                     File extracted = new File(pathToExecutable);
                     watchFiles.add(extracted);
 
                     // use dedicated lock-file to limit access to executable by a single process
-                    final String pathToLock = Paths.get(pathToTmpDir, "kinesis_producer_" + mdHex + ".lock").toString();
+                    final String pathToLock = new File(pathToTmpDir, "kinesis_producer_" + mdHex + ".lock").getAbsolutePath();
                     final File lockFile = new File(pathToLock);
-                    try (FileOutputStream lockFOS = new FileOutputStream(lockFile);
-                         FileLock lock = lockFOS.getChannel().lock()) {
+                    
+                    FileOutputStream lockFOS = new FileOutputStream(lockFile);
+                    FileLock lock = lockFOS.getChannel().lock();
+                    
+                    try {
                         if (extracted.exists()) {
                             boolean contentEqual = false;
                             if (extracted.length() == bin.length) {
-                                try (InputStream executableIS = new FileInputStream(extracted)) {
+                                InputStream executableIS = new FileInputStream(extracted);
+                                
+                                try {
                                     byte[] existingBin = IOUtils.toByteArray(executableIS);
                                     contentEqual = Arrays.equals(bin, existingBin);
+                                } finally {
+                                    if (executableIS != null) executableIS.close();
                                 }
                             }
                             if (!contentEqual) {
@@ -831,21 +838,32 @@ public class KinesisProducer {
                                         + " is not what it's expected to be.");
                             }
                         } else {
-                            try (OutputStream fos = new FileOutputStream(extracted)) {
+                            OutputStream fos = new FileOutputStream(extracted);
+                            
+                            try {
                                 IOUtils.write(bin, fos);
+                            } finally {
+                                if (fos != null) fos.close();
                             }
                             extracted.setExecutable(true);
                         }
+                    } finally {
+                        if (lockFOS != null) lockFOS.close();
                     }
 
                     String certFileName = "b204d74a.0";
                     File certFile = new File(pathToTmpDir, certFileName);
                     if (!certFile.exists()) {
-                        try (FileOutputStream fos = new FileOutputStream(certFile);
-                                FileLock lock = fos.getChannel().lock()) {
+                    	    FileOutputStream fos = new FileOutputStream(certFile);
+                        
+                        try {
+                            lock = fos.getChannel().lock();
                             byte[] certs = IOUtils.toByteArray(
                                     this.getClass().getClassLoader().getResourceAsStream("cacerts/" + certFileName));
                             IOUtils.write(certs, fos);
+                        } finally {
+                            if (lock != null) lock.release();
+                            if (fos != null) fos.close();
                         }
                     }
 

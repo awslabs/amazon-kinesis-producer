@@ -16,14 +16,14 @@
 package com.amazonaws.services.kinesis.producer;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -74,8 +74,8 @@ public class Daemon {
         public void onError(Throwable t);
     }
     
-    private BlockingQueue<Message> outgoingMessages = new LinkedBlockingQueue<>();
-    private BlockingQueue<Message> incomingMessages = new LinkedBlockingQueue<>();
+    private BlockingQueue<Message> outgoingMessages = new LinkedBlockingQueue<Message>();
+    private BlockingQueue<Message> incomingMessages = new LinkedBlockingQueue<Message>();
 
     private ExecutorService executor = Executors
             .newCachedThreadPool(new ThreadFactoryBuilder().setDaemon(true).setNameFormat("kpl-daemon-%04d").build());
@@ -99,6 +99,8 @@ public class Daemon {
     private final String workingDir;
     private final KinesisProducerConfiguration config;
     private final Map<String, String> environmentVariables;
+    private FileInputStream fileInputStream;
+    private FileOutputStream fileOutputStream;
     
     /**
      * Starts up the child process, connects to it, and beings sending and
@@ -161,7 +163,7 @@ public class Daemon {
         try {
             connectToChild();
             startLoops();
-        } catch (IOException e) {
+        } catch (Exception e) {
             fatalError("Could not connect to child", e, false);
         }
     }
@@ -230,7 +232,9 @@ public class Daemon {
             outChannel.write(lenBuf);
             m.writeTo(outStream);
             outStream.flush();
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException ioe) {
+            fatalError("Error writing message to daemon", ioe);
+        } catch (InterruptedException e) {
             fatalError("Error writing message to daemon", e);
         }
     }
@@ -256,7 +260,9 @@ public class Daemon {
             // Deserialize message and add it to the queue
             Message m = Message.parseFrom(ByteString.copyFrom(rcvBuf));
             incomingMessages.put(m);
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException ioe) {
+            fatalError("Error reading message from daemon", ioe);
+        } catch (InterruptedException e) {
             fatalError("Error reading message from daemon", e);
         }
     }
@@ -327,21 +333,20 @@ public class Daemon {
         });
     }
     
-    private void connectToChild() throws IOException {
+    private void connectToChild() throws Exception {
         long start = System.nanoTime();
+        
         while (true) {
-            try {
-                inChannel = FileChannel.open(Paths.get(inPipe.getAbsolutePath()), StandardOpenOption.READ);
-                outChannel = FileChannel.open(Paths.get(outPipe.getAbsolutePath()), StandardOpenOption.WRITE);
+            fileInputStream = new FileInputStream(inPipe.getAbsolutePath());
+            fileOutputStream = new FileOutputStream(outPipe.getAbsolutePath());
+           
+            try {                
+                inChannel = fileInputStream.getChannel();
+                outChannel = fileOutputStream.getChannel();
+                
                 outStream = Channels.newOutputStream(outChannel);
                 break;
-            } catch (IOException e) {
-                if (inChannel != null && inChannel.isOpen()) {
-                    inChannel.close();
-                }
-                if (outChannel != null && outChannel.isOpen()) {
-                    outChannel.close();
-                }
+            } catch (Exception e) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e1) {}
@@ -365,11 +370,11 @@ public class Daemon {
     
     private void createPipesWindows() {
         do {
-            inPipe = Paths.get("\\\\.\\pipe\\amz-aws-kpl-in-pipe-" + uuid8Chars()).toFile();
+            inPipe = new File("\\\\.\\pipe\\amz-aws-kpl-in-pipe-" + uuid8Chars());
         } while (inPipe.exists());
         
         do {
-            outPipe = Paths.get("\\\\.\\pipe\\amz-aws-kpl-out-pipe-" + uuid8Chars()).toFile();
+            outPipe = new File("\\\\.\\pipe\\amz-aws-kpl-out-pipe-" + uuid8Chars());
         } while (outPipe.exists());
     }
     
@@ -380,13 +385,13 @@ public class Daemon {
         }
         
         do {
-            inPipe = Paths.get(dir.getAbsolutePath(),
-                    "amz-aws-kpl-in-pipe-" + uuid8Chars()).toFile();
+            inPipe = new File(dir.getAbsolutePath(),
+                    "amz-aws-kpl-in-pipe-" + uuid8Chars());
         } while (inPipe.exists());
         
         do {
-            outPipe = Paths.get(dir.getAbsolutePath(),
-                    "amz-aws-kpl-out-pipe-" + uuid8Chars()).toFile();
+            outPipe = new File(dir.getAbsolutePath(),
+                    "amz-aws-kpl-out-pipe-" + uuid8Chars());
         } while (outPipe.exists());
         
         try {
@@ -414,12 +419,15 @@ public class Daemon {
             outChannel.close();
             inPipe.delete();
             outPipe.delete();
+            
+            if(fileInputStream != null) fileInputStream.close();
+            if(fileOutputStream != null) fileOutputStream.close();
         } catch (Exception e) { }
     }
     
     private void startChildProcess() throws IOException, InterruptedException {
         log.info("Asking for trace");
-        List<String> args = new ArrayList<>(Arrays.asList(pathToExecutable, "-o", outPipe.getAbsolutePath(), "-i",
+        List<String> args = new ArrayList<String>(Arrays.asList(pathToExecutable, "-o", outPipe.getAbsolutePath(), "-i",
                 inPipe.getAbsolutePath(), "-c", protobufToHex(config.toProtobufMessage()), "-k",
                 protobufToHex(makeSetCredentialsMessage(config.getCredentialsProvider(), false)), "-t"));
 
@@ -444,7 +452,7 @@ public class Daemon {
                 try {
                     connectToChild();
                     startLoops();
-                } catch (IOException e) {
+                } catch (Exception e) {
                     fatalError("Unexpected error connecting to child process", e, false);
                 }
             }

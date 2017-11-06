@@ -40,7 +40,7 @@ public class LogInputStreamReader implements Runnable {
 
     private static Map<String, LoggingFunction> makeEmitters() {
 
-        Map<String, LoggingFunction> emitters = new HashMap<>();
+        Map<String, LoggingFunction> emitters = new HashMap<String, LoggingFunction>();
         emitters.put("trace", new LoggingFunction() {
             @Override
             public void apply(String message) {
@@ -94,7 +94,7 @@ public class LogInputStreamReader implements Runnable {
     private volatile boolean shuttingDown = false;
 
     private boolean isReadingRecord = false;
-    private final LinkedList<String> messageData = new LinkedList<>();
+    private final LinkedList<String> messageData = new LinkedList<String>();
 
     public LogInputStreamReader(InputStream is, String streamType, DefaultLoggingFunction logFunction) {
         this.streamType = streamType;
@@ -174,7 +174,7 @@ public class LogInputStreamReader implements Runnable {
     private LoggingFunction getLevelOrDefault(String message) {
         Matcher matcher = LEVEL_REGEX.matcher(message);
         if (matcher.find()) {
-            String level = matcher.group("level");
+            String level = matcher.group(1);
             if (level != null) {
                 LoggingFunction res = EMITTERS.get(level.toLowerCase());
                 if (res != null) {

@@ -198,7 +198,7 @@ There are two options. You can either pack the binaries into the jar like we did
 
 #### Packing Native Binaries into the Jar
 
-You will need JDK 1.7+, Apache Maven and Python 2.7 installed.
+You will need JDK 1.6+, Apache Maven and Python 2.7 installed.
 
 If you're on Windows, do the following in the git bash shell we used for building. You will need to add `java` and `python` to the `PATH`, as well as set `JAVA_HOME` for maven to work. 
 
