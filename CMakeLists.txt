@@ -4,13 +4,19 @@ project(amazon_kinesis_producer)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+option(TARGET_OS "The OS that the build will target" "")
+
 if(WIN32)
 	include("cmake/win32.cmake")
+elseif(APPLE)
+	include("cmake/macos.cmake")
+elseif(UNIX)
+	include("cmake/linux.cmake")
+elseif(TARGET_OS NOT STREQUAL "")
+	include("cmake/${TARGET_OS}")
+else()
+	message(FATAL_ERROR "Unable to detect OS, you can explicity provide the OS by setting TARGET_OS")
 endif()
-
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELEASE} /MT")
 
 set(SOURCE_FILES        
         aws/kinesis/core/ipc_manager.cc        
@@ -27,7 +33,8 @@ set(SOURCE_FILES
         aws/utils/processing_statistics_logger.cc
         aws/utils/wincrypt_md5_hasher.cc
 		aws/utils/error_translater.cc
-		aws/utils/interlock.cc)
+		aws/utils/interlock.cc
+		${PLATFORM_SPECIFIC_SOURCE})
 
 set(TESTS_SOURCE
     aws/utils/test/concurrent_hash_map_test.cc
@@ -52,29 +59,6 @@ set(TESTS_SOURCE
 
 include_directories(SYSTEM "${amazon_kinesis_producer_SOURCE_DIR}")
 
-if (WIN32)
-    macro(get_WIN32_WINNT version)
-        if (CMAKE_SYSTEM_VERSION)
-            set(ver ${CMAKE_SYSTEM_VERSION})
-            string(REGEX MATCH "^([0-9]+).([0-9])" ver ${ver})
-            string(REGEX MATCH "^([0-9]+)" verMajor ${ver})
-            # Check for Windows 10, b/c we'll need to convert to hex 'A'.
-            if ("${verMajor}" MATCHES "10")
-                set(verMajor "A")
-                string(REGEX REPLACE "^([0-9]+)" ${verMajor} ver ${ver})
-            endif ("${verMajor}" MATCHES "10")
-            # Remove all remaining '.' characters.
-            string(REPLACE "." "" ver ${ver})
-            # Prepend each digit with a zero.
-            string(REGEX REPLACE "([0-9A-Z])" "0\\1" ver ${ver})
-            set(${version} "0x${ver}")
-        endif(CMAKE_SYSTEM_VERSION)
-    endmacro(get_WIN32_WINNT)
-
-    get_WIN32_WINNT(ver)
-    add_definitions(-D_WIN32_WINNT=${ver})
-endif(WIN32)
-
 find_package(aws-sdk-cpp REQUIRED)
 
 # set(Boost_USE_STATIC_LIBS ON)
@@ -95,10 +79,6 @@ set(DEFAULT_BOOST_LIBS
 	${Boost_LOG_SETUP_LIBRARY}
 	${Boost_PROGRAM_OPTIONS_LIBRARY})
 
-message("Default Boost Libs: ${DEFAULT_BOOST_LIBS}")
-message("Boost Libraries:    ${Boost_LIBRARIES}")
-
-add_definitions("-DDLL_EXPORT=__declspec(dllexport)")
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS EXPORT_MACRO DLL_EXPORT aws/kinesis/protobuf/messages.proto aws/kinesis/protobuf/config.proto)
 set_source_files_properties(${PROTO_SRCS} ${PROTO_HDRS} PROPERTIES GENERATED TRUE)
