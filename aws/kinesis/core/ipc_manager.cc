@@ -20,9 +20,7 @@ namespace aws {
 namespace kinesis {
 namespace core {
 
-namespace detail {
-
-  aws::utils::Interlock WindowsPipeManager::interlock_;
+namespace detail {  
 
 void IpcReader::start() {
   if (channel_->open_read_channel()) {

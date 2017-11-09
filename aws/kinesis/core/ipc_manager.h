@@ -27,8 +27,6 @@
 #include <aws/utils/io_service_executor.h>
 #include <aws/utils/concurrent_linked_queue.h>
 
-#include "aws/utils/interlock.h"
-
 namespace aws {
 namespace kinesis {
 namespace core {
@@ -146,8 +144,7 @@ class IpcChannelImpl : public boost::noncopyable {
 
 #include <windows.h>
 
-struct WindowsPipeManager {
-  static aws::utils::Interlock interlock_;
+struct WindowsPipeManager {  
 
   static HANDLE open_read(const char* f, bool create_pipe) {
     return open(f, false, create_pipe);
@@ -182,15 +179,10 @@ struct WindowsPipeManager {
         error("Could not create pipe", f);
       }      
          
-      if (write) {
-        if (!ConnectNamedPipe(handle, nullptr)) {
-          error("Could not connect pipe", f);
-        }
-        WindowsPipeManager::interlock_.notify();        
+      if (!ConnectNamedPipe(handle, nullptr)) {
+        error("Could not connect pipe", f);
       }
-      else {
-        WindowsPipeManager::interlock_.await();
-      }
+
       return handle;
     } else {
       auto handle = CreateFileA(f,
@@ -215,13 +207,8 @@ struct WindowsPipeManager {
     bool ok = ReadFile(handle, buf, capacity, &num_written, nullptr);
     if (ok) {
       return num_written;
-    } else {
-      Sleep(2000);
-      ok = ReadFile(handle, buf, capacity, &num_written, nullptr);
-      if (!ok) {
-        return -1;
-      }
-      return num_written;
+    } else {     
+      return -1;
     }
   }
 
