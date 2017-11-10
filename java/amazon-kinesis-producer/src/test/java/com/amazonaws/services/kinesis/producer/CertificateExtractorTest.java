@@ -31,13 +31,6 @@ import org.junit.Test;
 
 public class CertificateExtractorTest {
 
-    static final List<String> EXPECTED_CERTIFICATES = Arrays.asList("062cdee6.0", "09789157.0", "116bf586.0",
-            "1d3472b9.0", "244b5494.0", "2c543cd1.0", "2e4eed3c.0", "3513523f.0", "480720ec.0", "4a6481c9.0",
-            "4bfab552.0", "5ad8a5d6.0", "607986c7.0", "653b494a.0", "6d41d539.0", "75d1b2ed.0", "76cb8f92.0",
-            "7d0b38bd.0", "7f3d5d1d.0", "8867006a.0", "8cb5ee0f.0", "9d04f354.0", "ad088e1d.0", "b0e59380.0",
-            "b1159c4c.0", "b204d74a.0", "ba89ed3b.0", "c01cdfa2.0", "c089bbbd.0", "c0ff1f52.0", "cbeee9e2.0",
-            "cbf06781.0", "ce5e74ef.0", "dd8e9d41.0", "de6d66f3.0", "e2799e36.0", "f081611a.0", "f387163d.0");
-
     @Test
     public void testNoCertificatesExtraction() throws Exception {
         File tempDirectory = Files.createTempDirectory("kpl-ca-test").toFile();
@@ -54,7 +47,7 @@ public class CertificateExtractorTest {
         File tempDirectory = Files.createTempDirectory("kpl-ca-test").toFile();
         File caDirectory = new File(tempDirectory, CertificateExtractor.CA_CERTS_DIRECTORY_NAME);
         assertThat(caDirectory.mkdirs(), equalTo(true));
-        File existingCert = new File(caDirectory, EXPECTED_CERTIFICATES.get(5));
+        File existingCert = new File(caDirectory, CertificateExtractor.CERTIFICATE_FILES.get(5));
 
         try (FileOutputStream fos = new FileOutputStream(existingCert)) {
             fos.write(new byte[]{1, 2, 3, 4});
@@ -73,7 +66,7 @@ public class CertificateExtractorTest {
 
         assertThat(extractedCertificates.size(), equalTo(extractor.getExtractedCertificates().size()));
 
-        for (String expectedCert : EXPECTED_CERTIFICATES) {
+        for (String expectedCert : CertificateExtractor.CERTIFICATE_FILES) {
             File resourceFile = new File(CertificateExtractor.CA_CERTS_DIRECTORY_NAME, expectedCert);
 
             InputStream is = classLoader.getResourceAsStream(resourceFile.getPath());
