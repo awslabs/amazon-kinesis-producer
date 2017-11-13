@@ -9,9 +9,12 @@ INSTALL_DIR=$(pwd)/third_party
 mkdir -p $INSTALL_DIR
 
 if [ $1 == "clang" ] || [ $(uname) == 'Darwin' ]; then
+  export MACOSX_DEPLOYMENT_TARGET='10.9'
+  export MACOSX_MIN_COMPILER_OPT="-mmacosx-version-min=${MACOSX_DEPLOYMENT_TARGET}"
   export CC=$(which clang)
   export CXX=$(which clang++)
-  export CXXFLAGS="-I$INSTALL_DIR/include -O3 -stdlib=libc++"
+  export CXXFLAGS="-I$INSTALL_DIR/include -O3 -stdlib=libc++ ${MACOSX_MIN_COMPILER_OPT} "
+  export CFLAGS="${MACOSX_MIN_COMPILER_OPT} "
   export C_INCLUDE_PATH="$INSTALL_DIR/include"
 
   if [ $(uname) == 'Linux' ]; then
@@ -101,7 +104,7 @@ if [ ! -d "boost_1_58_0" ]; then
 
   if [[ $(uname) == 'Darwin' ]]; then
     ./bootstrap.sh --with-libraries=$LIBS
-    ./b2 toolset=clang-darwin $OPTS
+    ./b2 toolset=clang-darwin $OPTS cxxflags="$MACOSX_MIN_COMPILER_OPT"
   elif [[ $(uname) == MINGW* ]]; then
     ./bootstrap.sh --with-libraries=$LIBS --with-toolset=mingw
     sed -i 's/\bmingw\b/gcc/' project-config.jam
@@ -126,14 +129,12 @@ if [ ! -d "zlib-1.2.8" ]; then
   rm zlib.tgz
 
   cd zlib-1.2.8
-
   ./configure --static --prefix="$INSTALL_DIR"
   make -j
   make install
 
   cd ..
 fi
-
 
 # Google Protocol Buffers
 if [ ! -d "protobuf-2.6.1" ]; then
@@ -142,7 +143,6 @@ if [ ! -d "protobuf-2.6.1" ]; then
   rm protobuf.tgz
 
   cd protobuf-2.6.1
-
   conf --enable-shared=no
   make -j
   make install
@@ -157,10 +157,11 @@ if [ ! -d "curl-7.47.0" ]; then
   tar xf curl.tgz
   rm curl.tgz
 
+
   cd curl-7.47.0
 
   conf --disable-shared --disable-ldap --disable-ldaps \
-    --enable-threaded-resolver --disable-debug --without-libssh2 --without-ca-bundle --with-ssl="${INSTALL_DIR}" --without-libidn
+       --enable-threaded-resolver --disable-debug --without-libssh2 --without-ca-bundle --with-ssl="${INSTALL_DIR}" --without-libidn
   make -j
   make install
 

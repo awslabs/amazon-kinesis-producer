@@ -13,3 +13,14 @@
 
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
+
+#include <aws/core/Aws.h>
+
+struct AwsSdkInitFixture {
+  AwsSdkInitFixture() {
+    Aws::SDKOptions sdkOptions;
+    Aws::InitAPI(sdkOptions);
+  }
+};
+
+BOOST_GLOBAL_FIXTURE(AwsSdkInitFixture);
