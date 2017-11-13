@@ -189,7 +189,7 @@ public class KinesisProducerConfiguration {
             String key = propNames.nextElement().toString();
             String value = props.getProperty(key);
             for (Method method : KinesisProducerConfiguration.class.getMethods()) {
-                if (method.getName().equalsIgnoreCase("set" + key)) {
+                if (method.getName().equals("set" + key)) {
                     found = true;
                     Class<?> type = method.getParameterTypes()[0];
                     try {

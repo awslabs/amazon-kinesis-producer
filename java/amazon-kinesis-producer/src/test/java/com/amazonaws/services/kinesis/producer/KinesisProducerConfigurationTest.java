@@ -90,8 +90,6 @@ public class KinesisProducerConfigurationTest {
         assertEquals(v, cfg.getConnectTimeout());
     }
 
-
-
     @Test
     public void unknownProperty() {
         Properties p = new Properties();
