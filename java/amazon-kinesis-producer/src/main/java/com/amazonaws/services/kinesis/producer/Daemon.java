@@ -125,7 +125,7 @@ public class Daemon {
         lenBuf.order(ByteOrder.BIG_ENDIAN);
         rcvBuf.order(ByteOrder.BIG_ENDIAN);
         
-        executor.submit(new Runnable() {
+        executor.execute(new Runnable() {
             @Override
             public void run() {
                 try{
@@ -285,7 +285,7 @@ public class Daemon {
      * from the child process.
      */
     private void startLoops() {
-        executor.submit(new Runnable() {
+        executor.execute(new Runnable() {
             @Override
             public void run() {
                 while (!shutdown.get()) {
@@ -294,7 +294,7 @@ public class Daemon {
             }
         });
         
-        executor.submit(new Runnable() {
+        executor.execute(new Runnable() {
             @Override
             public void run() {
                 while (!shutdown.get()) {
@@ -303,7 +303,7 @@ public class Daemon {
             }
         });
         
-        executor.submit(new Runnable() {
+        executor.execute(new Runnable() {
             @Override
             public void run() {
                 while (!shutdown.get()) {
@@ -312,7 +312,7 @@ public class Daemon {
             }
         });
         
-        executor.submit(new Runnable() {
+        executor.execute(new Runnable() {
             @Override
             public void run() {
                 while (!shutdown.get()) {
@@ -438,7 +438,7 @@ public class Daemon {
         }
 
 
-        executor.submit(new Runnable() {
+        executor.execute(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -468,8 +468,8 @@ public class Daemon {
             }
         });
 
-        executor.submit(stdOutReader);
-        executor.submit(stdErrReader);
+        executor.execute(stdOutReader);
+        executor.execute(stdErrReader);
         try {
             int code = process.waitFor();
             fatalError("Child process exited with code " + code, code != 1);
