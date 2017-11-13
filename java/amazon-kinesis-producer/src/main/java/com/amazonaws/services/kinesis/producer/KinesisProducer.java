@@ -18,8 +18,8 @@ package com.amazonaws.services.kinesis.producer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -242,12 +242,12 @@ public class KinesisProducer implements IKinesisProducer {
     public KinesisProducer(KinesisProducerConfiguration config) {
         this.config = config;
         
-        extractBinaries();
+        String caDirectory = extractBinaries();
         
         env = new ImmutableMap.Builder<String, String>()
                 .put("LD_LIBRARY_PATH", pathToLibDir)
                 .put("DYLD_LIBRARY_PATH", pathToLibDir)
-                .put("CA_DIR", pathToTmpDir)
+                .put("CA_DIR", caDirectory)
                 .build();
         
         child = new Daemon(pathToExecutable, new MessageHandler(), pathToTmpDir, config, env);
@@ -834,7 +834,7 @@ public class KinesisProducer implements IKinesisProducer {
         }
     }
 
-    private void extractBinaries() {
+    private String extractBinaries() {
         synchronized (EXTRACT_BIN_MUTEX) {
             final List<File> watchFiles = new ArrayList<>(2);
             String os = SystemUtils.OS_NAME;
@@ -862,6 +862,7 @@ public class KinesisProducer implements IKinesisProducer {
                 pathToExecutable = binPath.trim();
                 log.warn("Using non-default native binary at " + pathToExecutable);
                 pathToLibDir = "";
+                return "";
             } else {
                 log.info("Extracting binaries to " + tmpDir);
                 try {
@@ -906,20 +907,14 @@ public class KinesisProducer implements IKinesisProducer {
                         }
                     }
 
-                    String certFileName = "b204d74a.0";
-                    File certFile = new File(pathToTmpDir, certFileName);
-                    if (!certFile.exists()) {
-                        try (FileOutputStream fos = new FileOutputStream(certFile);
-                                FileLock lock = fos.getChannel().lock()) {
-                            byte[] certs = IOUtils.toByteArray(
-                                    this.getClass().getClassLoader().getResourceAsStream("cacerts/" + certFileName));
-                            IOUtils.write(certs, fos);
-                        }
-                    }
+                    CertificateExtractor certificateExtractor = new CertificateExtractor();
 
-                    watchFiles.add(certFile);
+                    String caDirectory = certificateExtractor
+                            .extractCertificates(new File(pathToTmpDir).getAbsoluteFile());
+                    watchFiles.addAll(certificateExtractor.getExtractedCertificates());
                     pathToLibDir = pathToTmpDir;
                     FileAgeManager.instance().registerFiles(watchFiles);
+                    return caDirectory;
                 } catch (Exception e) {
                     throw new RuntimeException("Could not copy native binaries to temp directory " + tmpDir, e);
                 }
