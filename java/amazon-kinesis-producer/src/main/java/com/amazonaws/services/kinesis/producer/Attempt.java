@@ -33,7 +33,7 @@ public class Attempt {
     private String errorCode;
     private boolean success;
 
-    private Attempt(int delay, int duration, String errorMessage, String errorCode, boolean success) {
+    public Attempt(int delay, int duration, String errorMessage, String errorCode, boolean success) {
         this.delay = delay;
         this.duration = duration;
         this.errorMessage = errorMessage;
