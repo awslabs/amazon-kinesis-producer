@@ -13,22 +13,22 @@
 
 package com.amazonaws.services.kinesis.producer;
 
-import static org.junit.Assert.assertEquals;
+import org.apache.commons.io.FileUtils;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Properties;
 import java.util.UUID;
 
-import org.apache.commons.io.FileUtils;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.junit.Assert.assertEquals;
 
 public class KinesisProducerConfigurationTest {
     @SuppressWarnings("unused")
     private static final Logger log = LoggerFactory.getLogger(KinesisProducerConfigurationTest.class);
-    
+
     private static String writeFile(String contents) {
         try {
             File f = File.createTempFile(UUID.randomUUID().toString(), "");
@@ -39,7 +39,7 @@ public class KinesisProducerConfigurationTest {
             throw new RuntimeException(e);
         }
     }
-    
+
     private static String writeFile(Properties p) {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -50,7 +50,7 @@ public class KinesisProducerConfigurationTest {
             throw new RuntimeException(e);
         }
     }
-    
+
     @Test
     public void loadString() {
         Properties p = new Properties();
@@ -59,7 +59,7 @@ public class KinesisProducerConfigurationTest {
         KinesisProducerConfiguration cfg = KinesisProducerConfiguration.fromPropertiesFile(writeFile(p));
         assertEquals(v, cfg.getMetricsNamespace());
     }
-    
+
     @Test
     public void loadLong() {
         KinesisProducerConfiguration defaultConfig = new KinesisProducerConfiguration();
@@ -69,7 +69,7 @@ public class KinesisProducerConfigurationTest {
         KinesisProducerConfiguration cfg = KinesisProducerConfiguration.fromPropertiesFile(writeFile(p));
         assertEquals(v, cfg.getConnectTimeout());
     }
-    
+
     @Test
     public void loadBoolean() {
         KinesisProducerConfiguration defaultConfig = new KinesisProducerConfiguration();
@@ -79,12 +79,37 @@ public class KinesisProducerConfigurationTest {
         KinesisProducerConfiguration cfg = KinesisProducerConfiguration.fromPropertiesFile(writeFile(p));
         assertEquals(v, cfg.isVerifyCertificate());
     }
-    
+
     @Test
-    public void unknownProperty() { 
+    public void unknownProperty() {
         Properties p = new Properties();
         p.setProperty("xcdfndetnedtne5tje45", "Sfbsfrne34534");
         KinesisProducerConfiguration.fromPropertiesFile(writeFile(p));
         // should not throw exception
+    }
+
+    @Test
+    public void setThreadingModelToPooledFromProperties() {
+        Properties p = new Properties();
+        p.setProperty("ThreadingModel", "POOLED");
+        KinesisProducerConfiguration cfg = KinesisProducerConfiguration.fromPropertiesFile(writeFile(p));
+        assertEquals(KinesisProducerConfiguration.ThreadingModel.POOLED, cfg.getThreadingModel());
+    }
+
+    @Test
+    public void setThreadingModelToPerRequestFromProperties() {
+        Properties p = new Properties();
+        p.setProperty("ThreadingModel", "PER_REQUEST");
+        KinesisProducerConfiguration cfg = KinesisProducerConfiguration.fromPropertiesFile(writeFile(p));
+        assertEquals(KinesisProducerConfiguration.ThreadingModel.PER_REQUEST, cfg.getThreadingModel());
+    }
+
+    @Test
+    public void setThreadPoolSizeFromProperties() {
+        Properties p = new Properties();
+        int v = 4;
+        p.setProperty("ThreadPoolSize", Integer.toString(v));
+        KinesisProducerConfiguration cfg = KinesisProducerConfiguration.fromPropertiesFile(writeFile(p));
+        assertEquals(v, cfg.getThreadPoolSize());
     }
 }

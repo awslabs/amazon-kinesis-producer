@@ -195,6 +195,8 @@ public class KinesisProducerConfiguration {
                     try {
                         if (type == long.class) {
                             method.invoke(config, Long.valueOf(value));
+                        } else if (type == int.class) {
+                            method.invoke(config, Integer.valueOf(value));
                         } else if (type == boolean.class) {
                             method.invoke(config, Boolean.valueOf(value));
                         } else if (type == String.class) {
@@ -1337,6 +1339,22 @@ public class KinesisProducerConfiguration {
     public KinesisProducerConfiguration setThreadingModel(ThreadingModel threadingModel) {
         this.threadingModel = threadingModel;
         return this;
+    }
+
+    /**
+     * Sets the threading model that the native process will use.
+     * <p>
+     * See {@link #getThreadingModel()} for more information
+     * <p>
+     * Valid inputs:
+     * PER_REQUEST - Tells the native process to create a thread per request.
+     * POOLED -  Tells the native process to use a thread pool. The size of the pool can be controlled by ThreadPoolSize.
+     *
+     * @param threadingModel the String representation of the threading model to use.
+     * @return this configuration object
+     */
+    public KinesisProducerConfiguration setThreadingModel(String threadingModel) {
+        return setThreadingModel(ThreadingModel.valueOf(threadingModel));
     }
 
     /**
