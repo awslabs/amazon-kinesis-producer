@@ -838,18 +838,10 @@ public class KinesisProducer {
                         }
                     }
 
-                    String certFileName = "b204d74a.0";
-                    File certFile = new File(pathToTmpDir, certFileName);
-                    if (!certFile.exists()) {
-                        try (FileOutputStream fos = new FileOutputStream(certFile);
-                                FileLock lock = fos.getChannel().lock()) {
-                            byte[] certs = IOUtils.toByteArray(
-                                    this.getClass().getClassLoader().getResourceAsStream("cacerts/" + certFileName));
-                            IOUtils.write(certs, fos);
-                        }
-                    }
-
-                    watchFiles.add(certFile);
+                   CertificateExtractor certificateExtractor = new CertificateExtractor();
+                    
+                     certificateExtractor.extractCertificates(new File(pathToTmpDir).getAbsoluteFile());
+                    watchFiles.addAll(certificateExtractor.getExtractedCertificates());
                     pathToLibDir = pathToTmpDir;
                     FileAgeManager.instance().registerFiles(watchFiles);
                 } catch (Exception e) {
