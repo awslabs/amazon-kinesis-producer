@@ -1,1 +1,1 @@
-set(PLATFORM_SPECIFIC_SOURCE aws/utils/openssl_md5_hasher.cc)
+set(PLATFORM_SPECIFIC_SOURCE aws/utils/openssl_md5_hasher.cc aws/kinesis/platform/nix.cc)

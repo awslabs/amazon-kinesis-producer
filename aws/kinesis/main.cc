@@ -36,10 +36,13 @@
 #include <aws/utils/logging.h>
 #include <aws/utils/signal_handler.h>
 
+#include "aws/utils/md5_hasher.h"
+#include "platform/platform.h"
+
 #include <aws/core/Aws.h>
 #include <aws/core/utils/logging/LogLevel.h>
+
 #ifdef WIN32
-#include "aws/utils/md5_hasher.h"
 #include <windows.h>
 #endif
 
@@ -349,10 +352,11 @@ void wait_for_debugger() {
 
 
 int main(int argc, char* const* argv) {
-
-#ifdef WIN32
+  //
+  // Setup platform specific configuration
+  //
+  aws::kinesis::platform::initialize();
   aws::utils::MD5::initialize();
-#endif
   if (!parsed_options(argc, argv)) {
     return 1;
   }

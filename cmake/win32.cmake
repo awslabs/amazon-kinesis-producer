@@ -2,7 +2,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELEASE} /MT")
 
-set(PLATFORM_SPECIFIC_SOURCE aws/utils/wincrypt_md5_hasher.cc)
+set(PLATFORM_SPECIFIC_SOURCE aws/utils/wincrypt_md5_hasher.cc aws/kinesis/platform/win32.cc)
 
 add_definitions("-DDLL_EXPORT=__declspec(dllexport)")
 add_definitions("-D_WIN32_WINNT=0x0601")
