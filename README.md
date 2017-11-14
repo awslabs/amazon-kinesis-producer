@@ -8,6 +8,40 @@ For detailed information and installation instructions, see the article [Develop
 
 ## Release Notes
 
+### 0.12.6
+
+#### C++ Core
+* Added Windows support  
+  The 0.12.x version now supports Windows.  
+  The Windows version is currently mastered on the branch `windows`, which will be merged at a later date.  
+  The build instructions for Windows are currently out of date, and will be updated at a later date.__
+  * [Issue #113](https://github.com/awslabs/amazon-kinesis-producer/issues/113)
+  * [Issue #74](https://github.com/awslabs/amazon-kinesis-producer/issues/74)
+  * [Issue #73](https://github.com/awslabs/amazon-kinesis-producer/issues/73)
+* Removed the libc wrapper  
+  The libc wrapper lowered the required version of glibc.  The KPL is now built with an older version of libc, which removes the need for the wrapper.  
+  * [PR #139](https://github.com/awslabs/amazon-kinesis-producer/pull/139)
+* Set the minimum required version of macOS to 10.9.  
+  The KPL is now built against macOS 10.9.  
+  * [Issue #117](https://github.com/awslabs/amazon-kinesis-producer/issues/117)
+  * [PR #138](https://github.com/awslabs/amazon-kinesis-producer/pull/138)
+
+#### Java
+* Allow exceptions to bubble to the thread exception handler for Daemon threads.  
+  Exceptions that occur on daemon threads will now be allowed to propagate to the thread exception handler.  This doesn't provide any additional monitoring or handling of thread death.  
+  * [PR #112](https://github.com/awslabs/amazon-kinesis-producer/pull/112)
+  * [Issue #111](https://github.com/awslabs/amazon-kinesis-producer/issues/111)
+* Updated `amazon-kinesis-producer-sample` to use the correct properties in its configuration file.  
+  * [PR #120](https://github.com/awslabs/amazon-kinesis-producer/pull/120)
+  * [Issue #119](https://github.com/awslabs/amazon-kinesis-producer/issues/119)
+* Updated documentation of `AggregationMaxSize` to match actual Kinesis limits.  
+  * [PR #133](https://github.com/awslabs/amazon-kinesis-producer/pull/133)
+* Added support for setting `ThreadingModel`, and `ThreadPoolSize` using a properties file.  
+  * [PR #134](https://github.com/awslabs/amazon-kinesis-producer/pull/134)
+  * [Issue #124](https://github.com/awslabs/amazon-kinesis-producer/issues/124)
+* Extracted `IKinesisProducer` from `KinesisProducer` to allow for easier testing.  
+  * [PR #136](https://github.com/awslabs/amazon-kinesis-producer/pull/136)
+
 ### 0.12.5
 
 #### C++ Core
