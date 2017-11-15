@@ -121,7 +121,7 @@ if(LINUX)
     set(ADDITIONAL_LIBS idn)
 endif()
 
-# Ensure that we can find the necessar libraries for Linux builds
+# Ensure that we can find the necessary libraries for Linux builds
 include(CheckLibraryExists)
 if(LINUX)
     #
@@ -143,17 +143,10 @@ if(LINUX)
     set(LIBDL_LIBRARIES dl)
 
     #
-    # Find libidn which is required as part of the AWS C++ SDK
-    #
-    add_library(libIdn STATIC IMPORTED)
-    set_property(TARGET libIdn PROPERTY IMPORTED_LOCATION ${THIRD_PARTY_LIB_DIR}/libidn.a)
-    set(LIBIDN_LIBRARIES idn)
-
-    #
     # Find libuuid which is another dependency of the AWS C++ SDK
     # TODO: Normalize this with the rest of the library checks
     #
-    find_library(UUID_LIBRARIES uuid NAMES libuuid.a)
+    find_library(UUID_LIBRARIES NAMES libuuid.a uuid)
     if("${UUID_INCLUDE_DIR}" STREQUAL "UUID_INCLUDE_DIR-NOTFOUND" OR "${UUID_LIBRARIES}" STREQUAL "UUID_LIBRARIES-NOTFOUND")
         message(FATAL_ERROR "Could not find uuid components")
     else()
