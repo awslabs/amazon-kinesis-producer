@@ -8,6 +8,13 @@ For detailed information and installation instructions, see the article [Develop
 
 ## Release Notes
 
+### 0.12.7
+
+#### C++ Core
+* Removed unnecessary libidn, and correctly set libuuid to static linking.  This issue only affected the Linux version.  
+  * [Issue #158](https://github.com/awslabs/amazon-kinesis-producer/issues/158)
+  * [PR #157](https://github.com/awslabs/amazon-kinesis-producer/pull/157)
+
 ### 0.12.6
 
 #### C++ Core
@@ -206,7 +213,7 @@ The KPL is written in C++ and runs as a child process to the main user process. 
 
 The Java package should run without the need to install any additional native libraries on the following operating systems:
 
-+ Linux distributions with kernel 2.6.18 (September 2006) and later
++ Linux distributions with glibc 2.9 or later (2008-11-13)
 + Apple OS X 10.9 and later
 + Windows Server 2008 and later
 
