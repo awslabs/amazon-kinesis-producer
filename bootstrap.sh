@@ -162,6 +162,14 @@ if [ ! -d "curl-7.47.0" ]; then
 
   conf --disable-shared --disable-ldap --disable-ldaps \
        --enable-threaded-resolver --disable-debug --without-libssh2 --without-ca-bundle --with-ssl="${INSTALL_DIR}" --without-libidn
+  if [[ $(uname) == 'Darwin' ]]; then
+    #
+    # Apply a patch for macOS that should prevent curl from trying to use clock_gettime
+    # This is a temporary work around for https://github.com/awslabs/amazon-kinesis-producer/issues/117
+    # until dependencies are updated
+    #
+    sed -Ei .bak 's/#define HAVE_CLOCK_GETTIME_MONOTONIC 1//' lib/curl_config.h
+  fi
   make -j
   make install
 
