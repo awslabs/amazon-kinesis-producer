@@ -14,6 +14,12 @@ For detailed information and installation instructions, see the article [Develop
 * Removed unnecessary libidn, and correctly set libuuid to static linking.  This issue only affected the Linux version.  
   * [Issue #158](https://github.com/awslabs/amazon-kinesis-producer/issues/158)
   * [PR #157](https://github.com/awslabs/amazon-kinesis-producer/pull/157)
+* Disabled clock_gettime support in Curl for macOS.  
+  This fixes an issue where the KPL was unable to run on macOS versions older than 10.12.
+  * [Issue #117](https://github.com/awslabs/amazon-kinesis-producer/issues/117)
+  * [PR #159](https://github.com/awslabs/amazon-kinesis-producer/pull/159)
+* Updated requirements for the using the KPL on Linux.  
+  The KPL on Linux now requires glibc 2.9 or later.
 
 ### 0.12.6
 
@@ -213,7 +219,7 @@ The KPL is written in C++ and runs as a child process to the main user process. 
 
 The Java package should run without the need to install any additional native libraries on the following operating systems:
 
-+ Linux distributions with glibc 2.9 or later (2008-11-13)
++ Linux distributions with glibc 2.9 or later
 + Apple OS X 10.9 and later
 + Windows Server 2008 and later
 
