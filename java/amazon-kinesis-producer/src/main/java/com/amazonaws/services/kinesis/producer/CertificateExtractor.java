@@ -104,6 +104,7 @@ class CertificateExtractor {
             File destinationCertificate = new File(destinationPath, certificate);
             log.debug("Extracting certificate '{}' to '{}'", certificate, destinationCertificate);
             byte[] certificateData = IOUtils.toByteArray(certificateSource);
+            extractedCertificates.add(destinationCertificate.getAbsoluteFile());
             if (destinationCertificate.exists()) {
                 byte[] existingData = Files.readAllBytes(destinationCertificate.toPath());
                 if (Arrays.equals(certificateData, existingData)) {
@@ -114,36 +115,6 @@ class CertificateExtractor {
             }
             Files.write(destinationCertificate.toPath(), certificateData, StandardOpenOption.WRITE,
                     StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-            extractedCertificates.add(destinationCertificate.getAbsoluteFile());
-        }
-    }
-
-    private class VerifyingVisitor extends SimpleFileVisitor<Path> {
-
-        private final Path destinationPath;
-
-        private VerifyingVisitor(Path destinationPath) {
-            this.destinationPath = destinationPath;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            if (attrs.isRegularFile()) {
-                Path destination = new File(destinationPath.toFile(), file.getFileName().toString()).toPath();
-                log.debug("Extracting certificate '{}' to '{}'", file.getFileName(), destination);
-                byte[] certificateData = Files.readAllBytes(file);
-                if (Files.exists(destination)) {
-                    byte[] existingData = Files.readAllBytes(destination);
-                    if (certificateData.length == existingData.length && Arrays.equals(certificateData, existingData)) {
-                        log.debug("Certificate '{}' already exists, and content matches. Skipping", file.getFileName());
-                        return FileVisitResult.CONTINUE;
-                    }
-                    log.info("Certificate '{}' already exists, but the content doesn't match. Overwriting", file.getFileName());
-                }
-                Files.copy(file, destination, StandardCopyOption.REPLACE_EXISTING);
-                extractedCertificates.add(destination.toFile().getAbsoluteFile());
-            }
-            return FileVisitResult.CONTINUE;
         }
     }
 }
