@@ -8,6 +8,15 @@ For detailed information and installation instructions, see the article [Develop
 
 ## Release Notes
 
+### 0.12.8
+
+#### Java
+* Ensure that all certificates are registered the `FileAgeManager` to prevent file sweepers from removing them  
+  * [PR #165](https://github.com/awslabs/amazon-kinesis-producer/pull/165)
+* Upgrade aws-java-sdk-core to 1.11.245  
+  * [Issue #164](https://github.com/awslabs/amazon-kinesis-producer/issues/164)
+  * [PR #166](https://github.com/awslabs/amazon-kinesis-producer/pull/166)
+
 ### 0.12.7
 
 #### C++ Core
