@@ -9,12 +9,12 @@
 
     <groupId>com.pivotfreight.services</groupId>
     <artifactId>amazon-kinesis-producer</artifactId>
-    <version>0.12.9</version>
+    <version>0.12.10-SNAPSHOT</version>
     <name>Amazon Kinesis Producer Library</name>
 
     <scm>
         <developerConnection>scm:git:git@github.com:getconvey/amazon-kinesis-producer-fork.git</developerConnection>
-        <tag>v0.12.9</tag>
+        <tag>HEAD</tag>
   </scm>
 
     <description>The Amazon Kinesis Producer Library for Java enables developers to easily and reliably put data into Amazon Kinesis.</description>
