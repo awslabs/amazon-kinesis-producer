@@ -1,0 +1,28 @@
+Informally speaking, a data stream is a sequence of data that is too large to be
+stored in available memory. The data may be a sequence of numbers, points,
+edges in a graph, and so on. There are many examples of data streams, such as
+internet search logs, network traffic, sensor networks, and scientific data streams
+(such as in astronomics, genomics, physical simulations, etc.). The abundance of
+data streams has led to new algorithmic paradigms for processing them, which
+often impose very stringent requirements on the algorithm’s resources.
+Formally, in the streaming model, there is a sequence of elements a1, . . . , am
+presented to an algorithm, where each element is drawn from a universe [n] =
+{1, . . . , n}. The algorithm is allowed a single or a small number of passes over
+the stream. In network applications, the algorithm is typically only given a single
+pass, since if data on a network is not physically stored somewhere, it may be
+impossible to make a second pass over it. In other applications, such as when data
+resides on external memory, it may be streamed through main memory a small
+number of times, each time constituting a pass of the algorithm.
+The algorithm would like to compute a function or relation of the data stream.
+Because of the sheer size, for many interesting problems the algorithm is necessarily
+randomized and approximate in order to be efficient. One should note that
+the randomness is in the random coin tosses of the algorithm rather than in the
+stream. That is, with high probability over the coin tosses of the algorithm, the
+algorithm should correctly compute the function or relation for any stream that is
+presented to it. This is more robust than say, if the algorithm assumed particular
+orderings of the stream that could make the problem easier to solve.
+In this survey we focus on computing or approximating order-independent
+functions f(a1, . . . , am). A function is order-independent if applying any permutation
+to its inputs results in the same function value. As we will see, this is often
+the case in numerical applications, such as if one is interested in the number of
+distinct values in the sequence a1, . . . , am.
