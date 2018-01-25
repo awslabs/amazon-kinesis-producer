@@ -25,9 +25,7 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileLock;
 import java.nio.file.Paths;
-import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,8 +37,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
-import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -873,11 +869,8 @@ public class KinesisProducer implements IKinesisProducer {
                     
                     String extension = os.equals("windows") ? ".exe" : "";
                     String executableName = "kinesis_producer" + extension;
-                    byte[] bin = IOUtils.toByteArray(
-                            this.getClass().getClassLoader().getResourceAsStream(root + "/" + os + "/" + executableName));
-                    MessageDigest md = MessageDigest.getInstance("SHA1");
-                    String mdHex = DatatypeConverter.printHexBinary(md.digest(bin)).toLowerCase();
-                    
+                    String mdHex = StreamUtil.getMD5(getBinaryInputStream(root, os, executableName));
+
                     pathToExecutable = Paths.get(pathToTmpDir, "kinesis_producer_" + mdHex + extension).toString();
                     File extracted = new File(pathToExecutable);
                     watchFiles.add(extracted);
@@ -887,21 +880,17 @@ public class KinesisProducer implements IKinesisProducer {
                     final File lockFile = new File(pathToLock);
                     try (FileOutputStream lockFOS = new FileOutputStream(lockFile);
                          FileLock lock = lockFOS.getChannel().lock()) {
+                        InputStream binaryInputStream = getBinaryInputStream(root, os, executableName);
                         if (extracted.exists()) {
-                            boolean contentEqual = false;
-                            if (extracted.length() == bin.length) {
-                                try (InputStream executableIS = new FileInputStream(extracted)) {
-                                    byte[] existingBin = IOUtils.toByteArray(executableIS);
-                                    contentEqual = Arrays.equals(bin, existingBin);
+                            try (InputStream executableIS = new FileInputStream(extracted)) {
+                                if (!StreamUtil.compareStreamsChunked(binaryInputStream, executableIS)) {
+                                    throw new SecurityException("The contents of the binary " + extracted.getAbsolutePath()
+                                                                        + " is not what it's expected to be.");
                                 }
-                            }
-                            if (!contentEqual) {
-                                throw new SecurityException("The contents of the binary " + extracted.getAbsolutePath()
-                                        + " is not what it's expected to be.");
                             }
                         } else {
                             try (OutputStream fos = new FileOutputStream(extracted)) {
-                                IOUtils.write(bin, fos);
+                                IOUtils.copyLarge(binaryInputStream, fos);
                             }
                             extracted.setExecutable(true);
                         }
@@ -921,5 +910,9 @@ public class KinesisProducer implements IKinesisProducer {
 
             }
         }
+    }
+
+    private InputStream getBinaryInputStream(String root, String os, String executableName) {
+        return this.getClass().getClassLoader().getResourceAsStream(root + "/" + os + "/" + executableName);
     }
 }
