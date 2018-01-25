@@ -1,14 +1,21 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.amazonaws</groupId>
+
+    <parent>
+        <groupId>com.getconvey</groupId>
+        <artifactId>parent-pom</artifactId>
+        <version>3.1.6</version>
+    </parent>
+
+    <groupId>com.pivotfreight.services</groupId>
     <artifactId>amazon-kinesis-producer</artifactId>
-    <version>0.12.8</version>
+    <version>0.12.10-SNAPSHOT</version>
     <name>Amazon Kinesis Producer Library</name>
 
     <scm>
-        <url>https://github.com/awslabs/amazon-kinesis-producer.git</url>
-    </scm>
+        <developerConnection>scm:git:git@github.com:getconvey/amazon-kinesis-producer-fork.git</developerConnection>
+        <tag>HEAD</tag>
+  </scm>
 
     <description>The Amazon Kinesis Producer Library for Java enables developers to easily and reliably put data into Amazon Kinesis.</description>
 
@@ -26,30 +33,18 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.3</version>
-                <configuration>
-                    <excludePackageNames>com.amazonaws.services.kinesis.producer.protobuf</excludePackageNames>
-                </configuration>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
                 <executions>
                     <execution>
-                        <id>attach-javadocs</id>
+                        <id>default</id>
                         <goals>
-                            <goal>jar</goal>
+                            <goal>prepare</goal>
+                            <goal>perform</goal>
                         </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>3.0.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
+                        <configuration>
+                            <pomFileName>java/amazon-kinesis-producer/pom.xml</pomFileName>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -57,6 +52,9 @@
     </build>
 
     <properties>
+        <maven.deploy.skip>false</maven.deploy.skip>
+        <maven.javadoc.skip>false</maven.javadoc.skip>
+        <maven.source.skip>false</maven.source.skip>
         <aws-sdk-core-version>1.11.245</aws-sdk-core-version>
     </properties>
 
