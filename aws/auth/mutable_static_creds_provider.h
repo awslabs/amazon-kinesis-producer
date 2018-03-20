@@ -37,6 +37,7 @@ class MutableStaticCredentialsProvider
   struct VersionedCredentials {
     Aws::Auth::AWSCredentials creds_;
     std::atomic<std::uint64_t> version_;
+    std::atomic<bool> updating_;
     VersionedCredentials() : version_(0) {}
   };
   std::array<VersionedCredentials, 10> slots_;
