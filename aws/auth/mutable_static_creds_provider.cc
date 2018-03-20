@@ -15,37 +15,42 @@
 #include <limits>
 
 namespace {
-  thread_local Aws::Auth::AWSCredentials* current_credentials = nullptr;
+  thread_local aws::auth::DebugStats debug_stats;
+
+  void update_step(std::uint64_t& step, std::uint64_t& outcome) {
+    step++;
+    outcome++;
+    debug_stats.attempts_++;
+  }
+  
+  void update_step(std::uint64_t& step) {
+    std::uint64_t ignored = 0;
+    update_step(step, ignored);
+  }
 }
 
 using namespace aws::auth;
 
 MutableStaticCredentialsProvider::MutableStaticCredentialsProvider(const std::string& akid,
                                                                    const std::string& sk,
-                                                                   std::string token)
-  : current_slot_(0) {
+                                                                   std::string token) {
   Aws::Auth::AWSCredentials creds(akid, sk, token);
   
-  slots_[0].creds_ = creds;
+  current_.creds_ = creds;
     
 }
 
 void MutableStaticCredentialsProvider::set_credentials(const std::string& akid, const std::string& sk, std::string token) {
   std::lock_guard<std::mutex> lock(update_mutex_);
 
-  std::size_t next_slot = (current_slot_ + 1) % slots_.size();
-
-  VersionedCredentials* next_creds = &slots_[next_slot];
+  VersionedCredentials* next_creds = &current_;
   next_creds->updating_ = true;
   next_creds->creds_.SetAWSAccessKeyId(akid);
   next_creds->creds_.SetAWSSecretKey(sk);
   next_creds->creds_.SetSessionToken(token);
   next_creds->version_++;
   next_creds->updating_ = false;
-
-  current_slot_ = next_slot;
-  
-}
+ }
 
 Aws::Auth::AWSCredentials MutableStaticCredentialsProvider::GetAWSCredentials() {
 
@@ -62,14 +67,15 @@ Aws::Auth::AWSCredentials MutableStaticCredentialsProvider::GetAWSCredentials() 
 
   std::uint64_t starting_version = 0, ending_version = 0;
   do {
-      std::size_t slot = current_slot_.load();
 
-      VersionedCredentials* creds = &slots_[slot];
+
+    VersionedCredentials* creds = &current_;
       if (creds->updating_) {
         //
         // The credentials are currently being updated.  It's not safe to read so
         // spin while we wait for them to clear
         //
+        update_step(debug_stats.update_before_load_, debug_stats.retried_);
         continue;
       }
       std::uint64_t starting_version = creds->version_.load();
@@ -84,6 +90,7 @@ Aws::Auth::AWSCredentials MutableStaticCredentialsProvider::GetAWSCredentials() 
         // The credentials object started to be updated possibly while we were
         // copying it, so discard what we have and try again.
         //
+        update_step(debug_stats.update_after_load_, debug_stats.retried_);
         continue;
       }
       
@@ -95,11 +102,17 @@ Aws::Auth::AWSCredentials MutableStaticCredentialsProvider::GetAWSCredentials() 
         // of the copy.  We can no longer trust that the resulting copy is
         // correct.  So we give up and try again.
         //
+        update_step(debug_stats.version_mismatch_, debug_stats.retried_);
         continue;
       }
+      update_step(debug_stats.success_);
       return result;
   } while (true);
 
   return result;
+}
+
+DebugStats MutableStaticCredentialsProvider::get_debug_stats() {
+  return debug_stats;
 }
 
