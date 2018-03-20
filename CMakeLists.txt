@@ -25,6 +25,7 @@ set(CMAKE_EXE_LINKER_FLAGS "-L${THIRD_PARTY_LIB_DIR} ${ADDL_LINK_CONFIG}")
 
 set(SOURCE_FILES
         aws/auth/mutable_static_creds_provider.h
+        aws/auth/mutable_static_creds_provider.cc
         aws/kinesis/core/aggregator.h
         aws/kinesis/core/attempt.h
         aws/kinesis/core/collector.h
