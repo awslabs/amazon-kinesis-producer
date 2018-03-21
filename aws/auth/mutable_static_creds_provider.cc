@@ -15,6 +15,7 @@
 #include <limits>
 
 namespace {
+#ifdef DEBUG
   thread_local aws::auth::DebugStats debug_stats;
 
   void update_step(std::uint64_t& step, std::uint64_t& outcome) {
@@ -22,11 +23,14 @@ namespace {
     outcome++;
     debug_stats.attempts_++;
   }
-  
+
   void update_step(std::uint64_t& step) {
     std::uint64_t ignored = 0;
     update_step(step, ignored);
   }
+#else
+#define update_step(...)
+#endif
 }
 
 using namespace aws::auth;
@@ -35,84 +39,104 @@ MutableStaticCredentialsProvider::MutableStaticCredentialsProvider(const std::st
                                                                    const std::string& sk,
                                                                    std::string token) {
   Aws::Auth::AWSCredentials creds(akid, sk, token);
-  
   current_.creds_ = creds;
-    
 }
 
 void MutableStaticCredentialsProvider::set_credentials(const std::string& akid, const std::string& sk, std::string token) {
   std::lock_guard<std::mutex> lock(update_mutex_);
 
-  VersionedCredentials* next_creds = &current_;
-  next_creds->updating_ = true;
-  next_creds->creds_.SetAWSAccessKeyId(akid);
-  next_creds->creds_.SetAWSSecretKey(sk);
-  next_creds->creds_.SetSessionToken(token);
-  next_creds->version_++;
-  next_creds->updating_ = false;
+  //
+  // The ordering stores here is important.  current_.updating_, and current_.version_ are atomics.
+  // Between the two of them they create an interlocked state change that allows consumers
+  // to detect that the credentials have changed during the process of copying the values.
+  //
+  // Specifically current_.version_ must be incremented before current_.updating_ is set to false.
+  // This ensures that consumers will either see a version mismatch or see the updating state change.
+  //
+
+  current_.updating_ = true;
+  current_.creds_.SetAWSAccessKeyId(akid);
+  current_.creds_.SetAWSSecretKey(sk);
+  current_.creds_.SetSessionToken(token);
+  current_.version_++;
+  current_.updating_ = false;
  }
 
 Aws::Auth::AWSCredentials MutableStaticCredentialsProvider::GetAWSCredentials() {
 
-
   Aws::Auth::AWSCredentials result;
   //
   // This is an attempt to do an optimistic read.  We assume that the contents of the
-  // credentials are unlikely to change in between a read especially since the slots
-  // constantly move forward.  So we start to read, and after the read see if the
-  // version changed.  Versions advance at the start of the modification, and after each
-  // mutation step.  If we see a version mismatch we try again.  This shouldn't hit
-  // that often, since cereds don't change that much.
+  // credentials may change in while copying to the result.
+  //
+  // 1. To handle this we first check if an update is in progress, and if it is we bounce out
+  // and retry.
+  //
+  // 2. If the credential isn't being updated we go ahead and load the current version of
+  // the credential.
+  //
+  // 3. At this point we go ahead and trigger a copy of the credential to the result.  This
+  // is what we will return if our remaining checks indicate everything is still ok.
+  //
+  // 4. We check again to see if the credential has entered updating, if it has it's possible
+  // the version of the credential we copied was split between the two updates.  So we
+  // discard our copy, and try again.
+  //
+  // 5. Finally we make check to see that the version hasn't changed since we started.  This
+  // ensures that the credential didn't enter and exit updates between our update checks.
+  //
+  // If everything is ok we are safe to return the credential, while it may be a nanosecnds
+  // out date it should be fine.
   //
 
   std::uint64_t starting_version = 0, ending_version = 0;
   do {
-
-
-    VersionedCredentials* creds = &current_;
-      if (creds->updating_) {
-        //
-        // The credentials are currently being updated.  It's not safe to read so
-        // spin while we wait for them to clear
-        //
-        update_step(debug_stats.update_before_load_, debug_stats.retried_);
-        continue;
-      }
-      std::uint64_t starting_version = creds->version_.load();
-
+    if (current_.updating_) {
       //
-      // Should trigger trivial copy
+      // The credentials are currently being updated.  It's not safe to read so
+      // spin while we wait for the update to complete.
       //
-      result = creds->creds_;
+      update_step(debug_stats.update_before_load_, debug_stats.retried_);
+      continue;
+    }
+    std::uint64_t starting_version = current_.version_.load();
 
-      if (creds->updating_) {
-        //
-        // The credentials object started to be updated possibly while we were
-        // copying it, so discard what we have and try again.
-        //
-        update_step(debug_stats.update_after_load_, debug_stats.retried_);
-        continue;
-      }
-      
-      std::uint64_t ending_version = creds->version_.load();
+    //
+    // Trigger a trivial copy to the result
+    //
+    result = current_.creds_;
 
-      if (starting_version != ending_version) {
-        //
-        // The version changed in between the start of the copy, and the end
-        // of the copy.  We can no longer trust that the resulting copy is
-        // correct.  So we give up and try again.
-        //
-        update_step(debug_stats.version_mismatch_, debug_stats.retried_);
-        continue;
-      }
-      update_step(debug_stats.success_);
-      return result;
+    if (current_.updating_) {
+      //
+      // The credentials object is being updated and the update may have started while we were
+      // copying it. For safety we discard what we have and try again.
+      //
+      update_step(debug_stats.update_after_load_, debug_stats.retried_);
+      continue;
+    }
+
+    std::uint64_t ending_version = current_.version_.load();
+
+    if (starting_version != ending_version) {
+      //
+      // The version changed in between the start of the copy, and the end
+      // of the copy.  We can no longer trust that the resulting copy is
+      // correct.  So we discard what we have and try again.
+      //
+      update_step(debug_stats.version_mismatch_, debug_stats.retried_);
+      continue;
+    }
+    update_step(debug_stats.success_);
+    return result;
   } while (true);
 
   return result;
 }
 
 DebugStats MutableStaticCredentialsProvider::get_debug_stats() {
+#ifdef DEBUG
   return debug_stats;
+#else
+  return DebugStats();
+#endif
 }
-
