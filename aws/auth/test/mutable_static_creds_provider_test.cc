@@ -44,6 +44,15 @@ struct ResultsCounter {
     ++mismatched_;
     ++total_;
   }
+
+  ResultsCounter& operator+=(const ResultsCounter& other) {
+    matched_ += other.matched_;
+    mismatched_ += other.mismatched_;
+    total_ += other.total_;
+    seconds_ += other.seconds_;
+
+    return *this;
+  }
 };
 
 BOOST_AUTO_TEST_SUITE(MutableStaticCredsProviderTest)
@@ -115,9 +124,11 @@ BOOST_AUTO_TEST_CASE(SinglePublisherMultipleReaders) {
             << std::setw(results_width) << "Total"
             << std::setw(results_width) << "Calls/s";
 
+  ResultsCounter overall;
   std::uint64_t failures = 0;
-  std::for_each(results.begin(), results.end(), [results_width, &failures](ResultsCounter& c) {
-      failures += c.mismatched_;
+
+  std::for_each(results.begin(), results.end(), [results_width, &overall](ResultsCounter& c) {
+      overall += c;
       double calls_per = c.total_ / c.seconds_;
       LOG(info) << "\t"
                 << std::setw(results_width) << c.matched_
@@ -125,13 +136,29 @@ BOOST_AUTO_TEST_CASE(SinglePublisherMultipleReaders) {
                 << std::setw(results_width) << c.total_
                 << std::setw(results_width) << std::setprecision(10) << calls_per;
     });
+
+  double divisor = results.size() * 1.0;
+  double total_average = overall.total_ / divisor;
+  double matched_average = overall.matched_ / divisor;
+  double mismatched_average = overall.mismatched_ / divisor;
+  double average_time = overall.seconds_ / divisor;
+  double overall_calls_per = total_average / average_time;
+
+  LOG(info) << "Averages";
+  LOG(info) << "\t"
+            << std::setw(results_width) << matched_average
+            << std::setw(results_width) << mismatched_average
+            << std::setw(results_width) << total_average
+            << std::setw(results_width) << overall_calls_per;
+  
 #ifdef DEBUG
   std::uint32_t debug_width = 20;
-  LOG(info) << "Debug Stats" << std::endl;
+  LOG(info) << "Debug Stats";
   LOG(info) << "\t"
             << std::setw(debug_width) << "Update Before Load"
             << std::setw(debug_width) << "Update After Load"
             << std::setw(debug_width) << "Version Mismatch"
+            << std::setw(debug_width) << "Used Lock"
             << std::setw(debug_width) << "Retried"
             << std::setw(debug_width) << "Success"
             << std::setw(debug_width) << "Total";
@@ -140,6 +167,7 @@ BOOST_AUTO_TEST_CASE(SinglePublisherMultipleReaders) {
                 << std::setw(debug_width) << d.update_before_load_
                 << std::setw(debug_width) << d.update_after_load_
                 << std::setw(debug_width) << d.version_mismatch_
+                << std::setw(debug_width) << d.used_lock_
                 << std::setw(debug_width) << d.retried_
                 << std::setw(debug_width) << d.success_
                 << std::setw(debug_width) << d.attempts_;

@@ -46,7 +46,7 @@ void MutableStaticCredentialsProvider::set_credentials(const std::string& akid, 
   std::lock_guard<std::mutex> lock(update_mutex_);
 
   //
-  // The ordering stores here is important.  current_.updating_, and current_.version_ are atomics.
+  // The ordering of stores here is important.  current_.updating_, and current_.version_ are atomics.
   // Between the two of them they create an interlocked state change that allows consumers
   // to detect that the credentials have changed during the process of copying the values.
   //
@@ -60,11 +60,9 @@ void MutableStaticCredentialsProvider::set_credentials(const std::string& akid, 
   current_.creds_.SetSessionToken(token);
   current_.version_++;
   current_.updating_ = false;
- }
+}
 
-Aws::Auth::AWSCredentials MutableStaticCredentialsProvider::GetAWSCredentials() {
-
-  Aws::Auth::AWSCredentials result;
+bool MutableStaticCredentialsProvider::optimistic_read(Aws::Auth::AWSCredentials& destination) {
   //
   // This is an attempt to do an optimistic read.  We assume that the contents of the
   // credentials may change in while copying to the result.
@@ -89,46 +87,57 @@ Aws::Auth::AWSCredentials MutableStaticCredentialsProvider::GetAWSCredentials() 
   // out date it should be fine.
   //
 
-  std::uint64_t starting_version = 0, ending_version = 0;
-  do {
-    if (current_.updating_) {
-      //
-      // The credentials are currently being updated.  It's not safe to read so
-      // spin while we wait for the update to complete.
-      //
-      update_step(debug_stats.update_before_load_, debug_stats.retried_);
-      continue;
-    }
-    std::uint64_t starting_version = current_.version_.load();
+  if (current_.updating_) {
+    //
+    // The credentials are currently being updated.  It's not safe to read so
+    // spin while we wait for the update to complete.
+    //
+    update_step(debug_stats.update_before_load_, debug_stats.retried_);
+    return false;
+  }
+  std::uint64_t starting_version = current_.version_;
 
+  //
+  // Trigger a trivial copy to the result
+  //
+  destination = current_.creds_;
+
+  if (current_.updating_) {
     //
-    // Trigger a trivial copy to the result
+    // The credentials object is being updated and the update may have started while we were
+    // copying it. For safety we discard what we have and try again.
     //
+    update_step(debug_stats.update_after_load_, debug_stats.retried_);
+    return false;
+  }
+
+  std::uint64_t ending_version = current_.version_;
+
+  if (starting_version != ending_version) {
+    //
+    // The version changed in between the start of the copy, and the end
+    // of the copy.  We can no longer trust that the resulting copy is
+    // correct.  So we discard what we have and try again.
+    //
+    update_step(debug_stats.version_mismatch_, debug_stats.retried_);
+    return false;
+  }
+  update_step(debug_stats.success_);
+  return true;
+}
+
+Aws::Auth::AWSCredentials MutableStaticCredentialsProvider::GetAWSCredentials() {
+
+  Aws::Auth::AWSCredentials result;
+
+  if (!optimistic_read(result)) {
+    //
+    // The optimistic read failed, so just give up and use the lock to acquire the credentials.
+    //
+    std::lock_guard<std::mutex> lock(update_mutex_);
+    update_step(debug_stats.used_lock_, debug_stats.success_);
     result = current_.creds_;
-
-    if (current_.updating_) {
-      //
-      // The credentials object is being updated and the update may have started while we were
-      // copying it. For safety we discard what we have and try again.
-      //
-      update_step(debug_stats.update_after_load_, debug_stats.retried_);
-      continue;
-    }
-
-    std::uint64_t ending_version = current_.version_.load();
-
-    if (starting_version != ending_version) {
-      //
-      // The version changed in between the start of the copy, and the end
-      // of the copy.  We can no longer trust that the resulting copy is
-      // correct.  So we discard what we have and try again.
-      //
-      update_step(debug_stats.version_mismatch_, debug_stats.retried_);
-      continue;
-    }
-    update_step(debug_stats.success_);
-    return result;
-  } while (true);
+  }
 
   return result;
 }

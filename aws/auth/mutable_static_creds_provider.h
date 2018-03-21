@@ -30,9 +30,10 @@ struct DebugStats {
   std::uint64_t success_;
   std::uint64_t retried_;
   std::uint64_t attempts_;
+  std::uint64_t used_lock_;
 
   DebugStats() : update_before_load_(0), update_after_load_(0), version_mismatch_(0),
-                 success_(0), retried_(0), attempts_(0) {}
+                 success_(0), retried_(0), attempts_(0), used_lock_(0) {}
 };
 
 // Like basic static creds, but with an atomic set operation
@@ -58,6 +59,8 @@ class MutableStaticCredentialsProvider
   VersionedCredentials current_;
 
   std::mutex update_mutex_;
+
+  bool optimistic_read(Aws::Auth::AWSCredentials& destination);
 
 };
 
