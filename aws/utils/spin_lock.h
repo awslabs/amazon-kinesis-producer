@@ -81,9 +81,9 @@ class TicketSpinLock : boost::noncopyable {
   inline std::condition_variable& cv_for_ticket(const std::size_t& ticket) noexcept {
     return unlocked_cv_[lock_shard(ticket)];
   }
-  static const std::uint32_t kMaxSpinCount = 1000;
+  static const std::uint32_t kMaxSpinCount = 100;
 
-  static const std::size_t kLockShards = 13;
+  static const std::size_t kLockShards = 31;
   std::array<std::mutex, kLockShards> condition_locks_;
   std::array<std::condition_variable, kLockShards> unlocked_cv_;
   std::atomic<size_t> now_serving_;

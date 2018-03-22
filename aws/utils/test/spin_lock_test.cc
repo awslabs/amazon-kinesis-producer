@@ -87,11 +87,11 @@ void test(const std::string test_name,
 
 BOOST_AUTO_TEST_SUITE(SpinLock)
 
-// BOOST_AUTO_TEST_CASE(SpinLock) {
-//   for (size_t i : {1, 4, 8}) {
-//     test<aws::utils::SpinLock, 100000>("SpinLock", i);
-//   }
-// }
+BOOST_AUTO_TEST_CASE(SpinLock) {
+  for (size_t i : {1, 4, 8}) {
+    test<aws::utils::SpinLock, 100000>("SpinLock", i);
+  }
+}
 
 BOOST_AUTO_TEST_CASE(TicketSpinLock) {
   for (size_t i : {1, 4, 8, 16, 32}) {
@@ -99,10 +99,10 @@ BOOST_AUTO_TEST_CASE(TicketSpinLock) {
   }
 }
 
-// BOOST_AUTO_TEST_CASE(StdMutex) {
-//   for (size_t i : {1, 4, 8}) {
-//     test<aws::mutex, 100000>("std::mutex", i);
-//   }
-// }
+BOOST_AUTO_TEST_CASE(StdMutex) {
+  for (size_t i : {1, 4, 8}) {
+    test<aws::mutex, 100000>("std::mutex", i);
+  }
+}
 
 BOOST_AUTO_TEST_SUITE_END()

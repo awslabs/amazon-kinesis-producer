@@ -14,7 +14,7 @@
 #include "spin_lock.h"
 
 using namespace aws::utils;
-
+#ifdef DEBUG
 namespace {
   thread_local TicketSpinLock::DebugStats debug_stats;
 }
@@ -34,3 +34,4 @@ void TicketSpinLock::add_spin() {
 TicketSpinLock::DebugStats TicketSpinLock::get_debug_stats() {
   return debug_stats;
 }
+#endif
