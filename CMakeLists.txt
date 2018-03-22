@@ -8,12 +8,13 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     add_compile_options("-fpermissive")
 endif()
 
-if(CMAKE_BUILD_TYPE MATCHES DEBUG)
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+    add_definitions(-DDEBUG)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
     if (CMAKE_COMPILER_IS_GNUCXX)
         set(ADDL_LINK_CONFIG "${ADDL_LINK_CONFIG} -static-libasan")
     endif (CMAKE_COMPILER_IS_GNUCXX)
-endif(CMAKE_BUILD_TYPE MATCHES DEBUG)
+endif(CMAKE_BUILD_TYPE MATCHES Debug)
 
 if(APPLE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmacosx-version-min=10.9")
@@ -25,6 +26,7 @@ set(CMAKE_EXE_LINKER_FLAGS "-L${THIRD_PARTY_LIB_DIR} ${ADDL_LINK_CONFIG}")
 
 set(SOURCE_FILES
         aws/auth/mutable_static_creds_provider.h
+        aws/auth/mutable_static_creds_provider.cc
         aws/kinesis/core/aggregator.h
         aws/kinesis/core/attempt.h
         aws/kinesis/core/collector.h
@@ -102,7 +104,7 @@ set(TESTS_SOURCE
     aws/metrics/test/accumulator_test.cc
     aws/metrics/test/metric_test.cc
     aws/metrics/test/metrics_manager_test.cc
-    )
+    aws/auth/test/mutable_static_creds_provider_test.cc)
 
 
 set(THIRD_PARTY_LIBS third_party/lib)

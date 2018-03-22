@@ -1,4 +1,4 @@
-// Copyright 2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Amazon Software License (the "License").
 // You may not use this file except in compliance with the License.
@@ -15,39 +15,53 @@
 #define AWS_AUTH_MUTABLE_STATIC_CREDS_PROVIDER_H_
 
 #include <aws/core/auth/AWSCredentialsProvider.h>
-#include <aws/utils/spin_lock.h>
+#include <atomic>
+#include <cstdint>
+#include <mutex>
+#include <array>
 
 namespace aws {
 namespace auth {
+
+struct DebugStats {
+  std::uint64_t update_before_load_;
+  std::uint64_t update_after_load_;
+  std::uint64_t version_mismatch_;
+  std::uint64_t success_;
+  std::uint64_t retried_;
+  std::uint64_t attempts_;
+  std::uint64_t used_lock_;
+
+  DebugStats() : update_before_load_(0), update_after_load_(0), version_mismatch_(0),
+                 success_(0), retried_(0), attempts_(0), used_lock_(0) {}
+};
 
 // Like basic static creds, but with an atomic set operation
 class MutableStaticCredentialsProvider
     : public Aws::Auth::AWSCredentialsProvider {
  public:
-  MutableStaticCredentialsProvider(std::string akid,
-                                   std::string sk,
-                                   std::string token = "")
-      : creds_(akid, sk, token) {}
+  MutableStaticCredentialsProvider(const std::string& akid, const std::string& sk, std::string token = "");
 
-  void set_credentials(std::string akid,
-                       std::string sk,
-                       std::string token = "") {
-    Lock lock_(mutex_);
-    creds_.SetAWSAccessKeyId(akid);
-    creds_.SetAWSSecretKey(sk);
-    creds_.SetSessionToken(token);
-  }
+  void set_credentials(const std::string& akid, const std::string& sk, std::string token = "");
 
-  Aws::Auth::AWSCredentials GetAWSCredentials() override {
-    Lock lock_(mutex_);
-    return creds_;
-  }
+  Aws::Auth::AWSCredentials GetAWSCredentials() override;
+
+  DebugStats get_debug_stats();
+
 
  private:
-  using Mutex = aws::utils::TicketSpinLock;
-  using Lock = std::lock_guard<Mutex>;
-  Mutex mutex_;
-  Aws::Auth::AWSCredentials creds_;
+  struct VersionedCredentials {
+    Aws::Auth::AWSCredentials creds_;
+    std::atomic<std::uint64_t> version_;
+    std::atomic<bool> updating_;
+    VersionedCredentials() : version_(0) {}
+  };
+  VersionedCredentials current_;
+
+  std::mutex update_mutex_;
+
+  bool try_optimistic_read(Aws::Auth::AWSCredentials& destination);
+
 };
 
 } //namespace auth
