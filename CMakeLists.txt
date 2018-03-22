@@ -7,13 +7,13 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     set(ADDL_LINK_CONFIG "-static-libstdc++")
     add_compile_options("-fpermissive")
 endif()
-
+add_definitions(-DDEBUG)
 if(CMAKE_BUILD_TYPE MATCHES Debug)
     add_definitions(-DDEBUG)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
-    if (CMAKE_COMPILER_IS_GNUCXX)
-        set(ADDL_LINK_CONFIG "${ADDL_LINK_CONFIG} -static-libasan")
-    endif (CMAKE_COMPILER_IS_GNUCXX)
+    # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+    # if (CMAKE_COMPILER_IS_GNUCXX)
+    #     set(ADDL_LINK_CONFIG "${ADDL_LINK_CONFIG} -static-libasan")
+    # endif (CMAKE_COMPILER_IS_GNUCXX)
 endif(CMAKE_BUILD_TYPE MATCHES Debug)
 
 if(APPLE)
@@ -71,6 +71,7 @@ set(SOURCE_FILES
         aws/utils/io_service_executor.h
         aws/utils/logging.cc
         aws/utils/logging.h
+        aws/utils/spin_lock.cc
         aws/utils/spin_lock.h
         aws/utils/time_sensitive.h
         aws/utils/time_sensitive_queue.h
@@ -86,26 +87,26 @@ if(ENABLE_SEGFAULT_TRIGGER)
 endif(ENABLE_SEGFAULT_TRIGGER)
 
 set(TESTS_SOURCE
-    aws/utils/test/concurrent_hash_map_test.cc
-    aws/utils/test/concurrent_linked_queue_test.cc
+    # aws/utils/test/concurrent_hash_map_test.cc
+    # aws/utils/test/concurrent_linked_queue_test.cc
     aws/utils/test/spin_lock_test.cc
-    aws/utils/test/token_bucket_test.cc
-    aws/kinesis/core/test/aggregator_test.cc
-    aws/kinesis/core/test/ipc_manager_test.cc
-    aws/kinesis/core/test/kinesis_record_test.cc
-    aws/kinesis/core/test/limiter_test.cc
-    aws/kinesis/core/test/put_records_request_test.cc
-    aws/kinesis/core/test/reducer_test.cc
-    aws/kinesis/core/test/retrier_test.cc
-    aws/kinesis/core/test/shard_map_test.cc
-    aws/kinesis/core/test/test_utils.cc
-    aws/kinesis/core/test/test_utils.h
-    aws/kinesis/core/test/user_record_test.cc
-    aws/metrics/test/accumulator_test.cc
-    aws/metrics/test/metric_test.cc
-    aws/metrics/test/metrics_manager_test.cc
-    aws/auth/test/mutable_static_creds_provider_test.cc)
-
+    # aws/utils/test/token_bucket_test.cc
+    # aws/kinesis/core/test/aggregator_test.cc
+    # aws/kinesis/core/test/ipc_manager_test.cc
+    # aws/kinesis/core/test/kinesis_record_test.cc
+    # aws/kinesis/core/test/limiter_test.cc
+    # aws/kinesis/core/test/put_records_request_test.cc
+    # aws/kinesis/core/test/reducer_test.cc
+    # aws/kinesis/core/test/retrier_test.cc
+    # aws/kinesis/core/test/shard_map_test.cc
+    # aws/kinesis/core/test/test_utils.cc
+    # aws/kinesis/core/test/test_utils.h
+    # aws/kinesis/core/test/user_record_test.cc
+    # aws/metrics/test/accumulator_test.cc
+    # aws/metrics/test/metric_test.cc
+    # aws/metrics/test/metrics_manager_test.cc
+    # aws/auth/test/mutable_static_creds_provider_test.cc)
+)
 
 set(THIRD_PARTY_LIBS third_party/lib)
 set(THIRD_PARTY_INCLUDE third_party/include)
