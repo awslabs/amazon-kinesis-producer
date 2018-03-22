@@ -62,7 +62,7 @@ void MutableStaticCredentialsProvider::set_credentials(const std::string& akid, 
   current_.updating_ = false;
 }
 
-bool MutableStaticCredentialsProvider::optimistic_read(Aws::Auth::AWSCredentials& destination) {
+bool MutableStaticCredentialsProvider::try_optimistic_read(Aws::Auth::AWSCredentials& destination) {
   //
   // This is an attempt to do an optimistic read.  We assume that the contents of the
   // credentials may change in while copying to the result.
@@ -130,7 +130,7 @@ Aws::Auth::AWSCredentials MutableStaticCredentialsProvider::GetAWSCredentials() 
 
   Aws::Auth::AWSCredentials result;
 
-  if (!optimistic_read(result)) {
+  if (!try_optimistic_read(result)) {
     //
     // The optimistic read failed, so just give up and use the lock to acquire the credentials.
     //

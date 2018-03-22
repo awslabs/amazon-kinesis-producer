@@ -60,7 +60,7 @@ class MutableStaticCredentialsProvider
 
   std::mutex update_mutex_;
 
-  bool optimistic_read(Aws::Auth::AWSCredentials& destination);
+  bool try_optimistic_read(Aws::Auth::AWSCredentials& destination);
 
 };
 
