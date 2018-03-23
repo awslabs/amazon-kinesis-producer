@@ -157,7 +157,6 @@ BOOST_AUTO_TEST_CASE(Concurrent) {
   for (size_t num_threads = 2;
        num_threads < kThreadCount;
        num_threads *= 2) {
-    LOG(info) << "Starting ConcurrentLinkedQueue test for " << num_threads << " threads";
     auto duration = f(num_threads);
     auto nanos =
         std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
