@@ -152,9 +152,12 @@ BOOST_AUTO_TEST_CASE(Concurrent) {
     return end - start;
   };
 
+  const std::size_t kThreadCount = 128;
+
   for (size_t num_threads = 2;
-       num_threads < std::max(aws::thread::hardware_concurrency(), 8u);
+       num_threads < kThreadCount;
        num_threads *= 2) {
+    LOG(info) << "Starting ConcurrentLinkedQueue test for " << num_threads << " threads";
     auto duration = f(num_threads);
     auto nanos =
         std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
