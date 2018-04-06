@@ -71,6 +71,7 @@ set(SOURCE_FILES
         aws/utils/io_service_executor.h
         aws/utils/logging.cc
         aws/utils/logging.h
+        aws/utils/spin_lock.cc
         aws/utils/spin_lock.h
         aws/utils/time_sensitive.h
         aws/utils/time_sensitive_queue.h
@@ -104,8 +105,8 @@ set(TESTS_SOURCE
     aws/metrics/test/accumulator_test.cc
     aws/metrics/test/metric_test.cc
     aws/metrics/test/metrics_manager_test.cc
-    aws/auth/test/mutable_static_creds_provider_test.cc)
-
+    aws/auth/test/mutable_static_creds_provider_test.cc
+)
 
 set(THIRD_PARTY_LIBS third_party/lib)
 set(THIRD_PARTY_INCLUDE third_party/include)

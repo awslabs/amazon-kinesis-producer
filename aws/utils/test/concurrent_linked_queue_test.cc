@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(Destructor) {
 }
 
 BOOST_AUTO_TEST_CASE(Concurrent) {
-  const size_t total_num_items = 1 << 22;
+  const size_t total_num_items = 1 << 20;
 
   auto f = [&](const size_t num_threads) {
     LOG(info) << "Starting concurrent queue test for " << num_threads
@@ -152,8 +152,10 @@ BOOST_AUTO_TEST_CASE(Concurrent) {
     return end - start;
   };
 
+  const std::size_t kThreadCount = 128;
+
   for (size_t num_threads = 2;
-       num_threads < std::max(aws::thread::hardware_concurrency(), 8u);
+       num_threads < kThreadCount;
        num_threads *= 2) {
     auto duration = f(num_threads);
     auto nanos =

@@ -1,4 +1,4 @@
-// Copyright 2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Amazon Software License (the "License").
 // You may not use this file except in compliance with the License.
@@ -33,9 +33,15 @@ void test(const std::string test_name,
   Mutex mutex;
   volatile size_t counter = 0;
   std::vector<aws::thread> threads;
+#ifdef DEBUG
+  std::vector<typename Mutex::DebugStats> debug_stats;
+  debug_stats.resize(num_threads);
+#endif
 
+  std::size_t thread_count = 0;
   while (threads.size() < num_threads) {
-    threads.push_back(aws::thread([&] {
+    std::size_t thread_index = thread_count++;
+    threads.push_back(aws::thread([&, thread_index] {
       aws::utils::sleep_until(start);
       for (size_t i = 0; i < cycles_per_thread; i++) {
         aws::lock_guard<Mutex> lk(mutex);
@@ -43,6 +49,9 @@ void test(const std::string test_name,
           counter++;
         }
       }
+#ifdef DEBUG
+      debug_stats[thread_index] = mutex.get_debug_stats();
+#endif
     }));
   }
 
@@ -58,6 +67,20 @@ void test(const std::string test_name,
   LOG(info) << test_name << ": " << num_threads << " threads: "
             << cycles_per_thread * num_threads / seconds
             << " ops per sec";
+
+#ifdef DEBUG
+  LOG(info) << test_name << ": DebugStats";
+  LOG(info) << "\t"
+            << std::setw(20) << "Acquired Count"
+            << std::setw(20) << "Acquired with Lock"
+            << std::setw(20) << "Total Spins";
+  std::for_each(debug_stats.begin(), debug_stats.end(), [](typename Mutex::DebugStats& d) {
+      LOG(info) << "\t"
+                << std::setw(20) << d.acquired_count
+                << std::setw(20) << d.acquired_with_lock
+                << std::setw(20) << d.total_spins;
+    });
+#endif
 }
 
 } //namespace
@@ -71,7 +94,7 @@ BOOST_AUTO_TEST_CASE(SpinLock) {
 }
 
 BOOST_AUTO_TEST_CASE(TicketSpinLock) {
-  for (size_t i : {1, 4, 8}) {
+  for (size_t i : {1, 4, 8, 16, 32}) {
     test<aws::utils::TicketSpinLock, 100000>("TicketSpinLock", i);
   }
 }
