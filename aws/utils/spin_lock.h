@@ -56,7 +56,18 @@ class TicketSpinLock : boost::noncopyable {
       add_spin();
       spin_count++;
       if (spin_count > kMaxSpinCount) {
+        //
+        // Condition variables in C++ are interesting.  They require you take a lock before waiting on the variable.
+        // Once you start waiting the lock you originally took is released, which will allow the notifier to pick up
+        // the lock on the notification step.
+        //
         std::unique_lock<std::mutex> lock(lock_for_ticket(my_ticket));
+        //
+        // We start waiting on the curent lock holder to notify us that they have completed their work.
+        // When the lock holder triggers the notification the provided lambda is used to determine whether this
+        // thread should wake up, or instead re-enter the blocked state.  This prevents us from needing to
+        // re-enter this blocked state explicitly.
+        //
         cv_for_ticket(my_ticket).wait(lock, [this, &my_ticket] { return now_serving_ == my_ticket; });
         spin_count = 0;
         add_acquired_lock();
