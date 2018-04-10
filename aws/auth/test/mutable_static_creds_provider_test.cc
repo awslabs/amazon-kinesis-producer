@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE(SinglePublisherMultipleReaders) {
         ++counter;
         std::stringstream ss;
         std::time_t now_time = system_clock::to_time_t(now);
-        ss << std::put_time(std::gmtime(&now_time), "%FT%T") << "-" << std::setfill('0') << std::setw(10) << counter;
+        ss << now_time << "-" << std::setfill('0') << std::setw(10) << counter;
         std::string value = ss.str();
         provider.set_credentials(value, value, value);
       } while (now < end);
