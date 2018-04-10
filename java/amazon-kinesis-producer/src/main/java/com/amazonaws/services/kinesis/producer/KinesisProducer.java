@@ -861,8 +861,21 @@ public class KinesisProducer implements IKinesisProducer {
             if (binPath != null && !binPath.trim().isEmpty()) {
                 pathToExecutable = binPath.trim();
                 log.warn("Using non-default native binary at " + pathToExecutable);
-                pathToLibDir = "";
-                return "";
+
+                File parent = new File(binPath).getParentFile();
+                pathToLibDir = parent.getAbsolutePath();
+                CertificateExtractor certificateExtractor = new CertificateExtractor();
+
+                try {
+                    String caDirectory = certificateExtractor
+                            .extractCertificates(parent.getAbsoluteFile());
+                    watchFiles.addAll(certificateExtractor.getExtractedCertificates());
+                    FileAgeManager.instance().registerFiles(watchFiles);
+                    return caDirectory;
+                } catch (IOException ioex) {
+                    log.error("Exception while extracting certificates.  Returning no CA directory", ioex);
+                    return "";
+                }
             } else {
                 log.info("Extracting binaries to " + tmpDir);
                 try {
@@ -873,39 +886,14 @@ public class KinesisProducer implements IKinesisProducer {
                     
                     String extension = os.equals("windows") ? ".exe" : "";
                     String executableName = "kinesis_producer" + extension;
-                    byte[] bin = IOUtils.toByteArray(
-                            this.getClass().getClassLoader().getResourceAsStream(root + "/" + os + "/" + executableName));
-                    MessageDigest md = MessageDigest.getInstance("SHA1");
-                    String mdHex = DatatypeConverter.printHexBinary(md.digest(bin)).toLowerCase();
-                    
-                    pathToExecutable = Paths.get(pathToTmpDir, "kinesis_producer_" + mdHex + extension).toString();
-                    File extracted = new File(pathToExecutable);
-                    watchFiles.add(extracted);
 
-                    // use dedicated lock-file to limit access to executable by a single process
-                    final String pathToLock = Paths.get(pathToTmpDir, "kinesis_producer_" + mdHex + ".lock").toString();
-                    final File lockFile = new File(pathToLock);
-                    try (FileOutputStream lockFOS = new FileOutputStream(lockFile);
-                         FileLock lock = lockFOS.getChannel().lock()) {
-                        if (extracted.exists()) {
-                            boolean contentEqual = false;
-                            if (extracted.length() == bin.length) {
-                                try (InputStream executableIS = new FileInputStream(extracted)) {
-                                    byte[] existingBin = IOUtils.toByteArray(executableIS);
-                                    contentEqual = Arrays.equals(bin, existingBin);
-                                }
-                            }
-                            if (!contentEqual) {
-                                throw new SecurityException("The contents of the binary " + extracted.getAbsolutePath()
-                                        + " is not what it's expected to be.");
-                            }
-                        } else {
-                            try (OutputStream fos = new FileOutputStream(extracted)) {
-                                IOUtils.write(bin, fos);
-                            }
-                            extracted.setExecutable(true);
-                        }
-                    }
+                    InputStream is = this.getClass().getClassLoader().getResourceAsStream(root + "/" + os + "/" + executableName);
+                    String resultFileFormat = "kinesis_producer_%s" + extension;
+
+                    File extracted = HashedFileCopier.copyFileFrom(is, tmpDirFile, resultFileFormat);
+                    watchFiles.add(extracted);
+                    extracted.setExecutable(true);
+                    pathToExecutable = extracted.getAbsolutePath();
 
                     CertificateExtractor certificateExtractor = new CertificateExtractor();
 
