@@ -15,6 +15,38 @@ This is a restatement of the [notice published](https://docs.aws.amazon.com/stre
 
 ## Release Notes
 
+### 0.12.9
+
+#### Java
+* Stream the native application to disk instead of loading into memory.
+  Extracting the native component will now stream it to disk, instead of copying it into memory.  This should reduce
+  memory use of the KPL during startup.  
+  * [PR #198](https://github.com/awslabs/amazon-kinesis-producer/pull/198)
+* Extract certificates when using a custom binary.
+  Certificates will now be extracted to the directory of the custom binary.  
+  * [PR #198](https://github.com/awslabs/amazon-kinesis-producer/pull/198)
+  * [Issue #161](https://github.com/awslabs/amazon-kinesis-producer/issues/161)
+* Improve exception handling in the credential update threads.
+  Runtime exceptions are now caught, and ignored while updating the credentials.  This should avoid the thread death
+  that could occur if the credentials supplier threw an exception.  At this only `RuntimeException`s are handled,
+  `Throwable`s will still cause the issue.  
+  * [PR #199](https://github.com/awslabs/amazon-kinesis-producer/pull/199)
+  * [Issue #49](https://github.com/awslabs/amazon-kinesis-producer/issues/49)
+  * [Issue #34](https://github.com/awslabs/amazon-kinesis-producer/issues/34)
+
+#### C++ Core
+* Removed the spin lock protecting credentials access.
+  Credential access is now handled by atomic swaps, and when necessary a standard explicit lock.  This significantly
+  reduces contention retrieving credentials when a large number of threads are being used.  
+  * [PR #191](https://github.com/awslabs/amazon-kinesis-producer/pull/191)
+  * [Issue #183](https://github.com/awslabs/amazon-kinesis-producer/issues/183)
+* Ticket spin locks will now fall back to standard locking after a set number of spins.
+  The ticket spin lock is now a hybrid spin lock.  After a set number of spins the lock will switch to a conventional
+  lock, and condition variable.  This reduces CPU utilization when a large number of threads are accessing the
+  spin lock.  
+  * [PR #193](https://github.com/awslabs/amazon-kinesis-producer/pull/193)
+  * [Issue #183](https://github.com/awslabs/amazon-kinesis-producer/issues/183)
+
 ### 0.12.8
 
 #### Java
