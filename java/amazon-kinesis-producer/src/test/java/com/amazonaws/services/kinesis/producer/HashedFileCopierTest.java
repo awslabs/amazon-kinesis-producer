@@ -37,9 +37,7 @@ public class HashedFileCopierTest {
 
     @Before
     public void before() throws Exception {
-        tempDir = File.createTempFile("kpl-unit-tests", "");
-        tempDir.delete();
-        tempDir.mkdirs();
+        tempDir = Files.createTempDirectory("kpl-unit-tests").toFile();
     }
 
     @Test
