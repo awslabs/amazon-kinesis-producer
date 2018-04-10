@@ -21,17 +21,28 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.io.IOUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HashedFileCopierTest {
+
+    private static final Logger log = LoggerFactory.getLogger(HashedFileCopierTest.class);
+
+    private static final String TEST_FILE_PREFIX = "res-file.";
+    private static final String TEST_FILE_SUFFIX = ".txt";
+    private static final String TEST_FILE_FORMAT = TEST_FILE_PREFIX + "%s" + TEST_FILE_SUFFIX;
 
     private File tempDir;
 
@@ -40,11 +51,40 @@ public class HashedFileCopierTest {
         tempDir = Files.createTempDirectory("kpl-unit-tests").toFile();
     }
 
+    @After
+    public void after() throws Exception {
+        int extraTempFiles = 0;
+        if (tempDir != null && tempDir.isDirectory()) {
+            DirectoryStream<Path> directoryStream = Files.newDirectoryStream(tempDir.toPath());
+            for (Path entry : directoryStream) {
+                String filename = entry.toFile().getName();
+                if (filename.startsWith(HashedFileCopier.TEMP_PREFIX)
+                        && filename.endsWith(HashedFileCopier.TEMP_SUFFIX)) {
+                    Files.delete(entry);
+                    extraTempFiles++;
+                    continue;
+                }
+                if (filename.startsWith(TEST_FILE_PREFIX) && filename.endsWith(TEST_FILE_SUFFIX)) {
+                    Files.delete(entry);
+                    continue;
+                }
+                if (filename.startsWith(TEST_FILE_PREFIX) && filename.endsWith(HashedFileCopier.LOCK_SUFFIX)) {
+                    Files.delete(entry);
+                    continue;
+                }
+                log.warn("Unexpected file {} found. Not deleting the file.", entry);
+            }
+            Files.delete(tempDir.toPath());
+        }
+
+        assertThat("Copier didn't clean up all temporary files.", extraTempFiles, equalTo(0));
+    }
+
     @Test
     public void normalFileCopyTest() throws Exception {
 
-        File resultFile = HashedFileCopier.copyFileFrom(testDataInputStream(), tempDir, "res-file.%s.txt");
-        File expectedFile = new File(tempDir, "res-file." + hexDigestForTestData() + ".txt");
+        File resultFile = HashedFileCopier.copyFileFrom(testDataInputStream(), tempDir, TEST_FILE_FORMAT);
+        File expectedFile = makeTestFile();
 
         assertThat(resultFile, equalTo(expectedFile));
         assertThat(expectedFile.exists(), equalTo(true));
@@ -58,12 +98,11 @@ public class HashedFileCopierTest {
 
     @Test
     public void fileExistsTest() throws Exception {
-        String executableFormat = "res-file.%s.txt";
-        File expectedFile = new File(tempDir, String.format(executableFormat, hexDigestForTestData()));
+        File expectedFile = makeTestFile();
         try (FileOutputStream fso = new FileOutputStream(expectedFile)) {
             IOUtils.copy(testDataInputStream(), fso);
         }
-        File resultFile = HashedFileCopier.copyFileFrom(testDataInputStream(), tempDir, executableFormat);
+        File resultFile = HashedFileCopier.copyFileFrom(testDataInputStream(), tempDir, TEST_FILE_FORMAT);
         assertThat(resultFile, equalTo(expectedFile));
 
         byte[] expectedData = testDataBytes();
@@ -74,14 +113,13 @@ public class HashedFileCopierTest {
 
     @Test
     public void lengthMismatchTest() throws Exception {
-        String executableFormat = "res-file.%s.txt";
-        File expectedFile = new File(tempDir, String.format(executableFormat, hexDigestForTestData()));
+        File expectedFile = makeTestFile();
         FileOutputStream fso = new FileOutputStream(expectedFile);
         IOUtils.copy(testDataInputStream(), fso);
         fso.write("This is some extra crap".getBytes(Charset.forName("UTF-8")));
         fso.close();
 
-        File resultFile = HashedFileCopier.copyFileFrom(testDataInputStream(), tempDir, executableFormat);
+        File resultFile = HashedFileCopier.copyFileFrom(testDataInputStream(), tempDir, TEST_FILE_FORMAT);
         assertThat(resultFile, equalTo(expectedFile));
 
         byte[] expectedData = testDataBytes();
@@ -92,20 +130,23 @@ public class HashedFileCopierTest {
 
     @Test
     public void hashMismatchTest() throws Exception {
-        String executableFormat = "res-file.%s.txt";
-        File expectedFile = new File(tempDir, String.format(executableFormat, hexDigestForTestData()));
+        File expectedFile = makeTestFile();
         byte[] testData = testDataBytes();
         testData[10] = (byte)~testData[10];
 
         Files.write(expectedFile.toPath(), testData);
 
-        File resultFile = HashedFileCopier.copyFileFrom(testDataInputStream(), tempDir, executableFormat);
+        File resultFile = HashedFileCopier.copyFileFrom(testDataInputStream(), tempDir, TEST_FILE_FORMAT);
         assertThat(resultFile, equalTo(expectedFile));
 
         byte[] expectedData = testDataBytes();
         byte[] actualData = Files.readAllBytes(resultFile.toPath());
 
         assertThat(actualData, equalTo(expectedData));
+    }
+
+    private File makeTestFile() throws Exception {
+        return new File(tempDir, String.format(TEST_FILE_FORMAT, hexDigestForTestData()));
     }
 
     private String hexDigestForTestData() throws Exception {

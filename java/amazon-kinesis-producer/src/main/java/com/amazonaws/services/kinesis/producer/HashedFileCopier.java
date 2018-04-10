@@ -35,12 +35,15 @@ public class HashedFileCopier {
     private static final Logger log = LoggerFactory.getLogger(HashedFileCopier.class);
 
     static final String MESSAGE_DIGEST_ALGORITHM = "SHA-1";
+    static final String TEMP_PREFIX = "kpl";
+    static final String TEMP_SUFFIX = ".tmp";
+    static final String LOCK_SUFFIX = ".lock";
 
     public static File copyFileFrom(InputStream sourceData, File destinationDirectory, String fileNameFormat)
             throws Exception {
         File tempFile = null;
         try {
-            tempFile = File.createTempFile("kpl", ".tmp", destinationDirectory);
+            tempFile = File.createTempFile(TEMP_PREFIX, TEMP_SUFFIX, destinationDirectory);
             log.debug("Extracting file with format {}", fileNameFormat);
             FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
 
@@ -52,7 +55,7 @@ public class HashedFileCopier {
             log.debug("Calculated digest of new file: {}", Arrays.toString(digest));
             String digestHex = DatatypeConverter.printHexBinary(digest);
             File finalFile = new File(destinationDirectory, String.format(fileNameFormat, digestHex));
-            File lockFile = new File(destinationDirectory, String.format(fileNameFormat + ".lock", digestHex));
+            File lockFile = new File(destinationDirectory, String.format(fileNameFormat + LOCK_SUFFIX, digestHex));
             log.debug("Preparing to check and copy {} to {}", tempFile.getAbsolutePath(), finalFile.getAbsolutePath());
             try (FileOutputStream lockFOS = new FileOutputStream(lockFile);
                     FileLock lock = lockFOS.getChannel().lock()) {
