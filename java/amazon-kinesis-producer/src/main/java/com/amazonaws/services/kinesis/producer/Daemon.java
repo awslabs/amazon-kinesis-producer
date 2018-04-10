@@ -318,9 +318,22 @@ public class Daemon {
                 while (!shutdown.get()) {
                     try {
                         updateCredentials();
-                        Thread.sleep(config.getCredentialsRefreshDelay());
                     } catch (InterruptedException e) {
-                        log.warn("Exception during updateCredentials", e);
+                        //
+                        // If interrupted it's likely the KPL is shutting down. So clear the
+                        // interrupted status and allow the loop to continue.
+                        //
+                    } catch (RuntimeException re) {
+                        log.error(
+                                "Caught runtime exception while updating credentials.  Will retry after refresh delay",
+                                re);
+                    }
+                    try {
+                        Thread.sleep(config.getCredentialsRefreshDelay());
+                    } catch (InterruptedException ie) {
+                        //
+                        // Same as above it's likely safe to ignore this as the KPL is probably shutting down.
+                        //
                     }
                 }
             }
