@@ -19,6 +19,8 @@
 #include <cstdint>
 #include <mutex>
 #include <array>
+#include <condition_variable>
+#include <memory>
 
 namespace aws {
 namespace auth {
@@ -50,17 +52,8 @@ class MutableStaticCredentialsProvider
 
 
  private:
-  struct VersionedCredentials {
-    Aws::Auth::AWSCredentials creds_;
-    std::atomic<std::uint64_t> version_;
-    std::atomic<bool> updating_;
-    VersionedCredentials() : version_(0) {}
-  };
-  VersionedCredentials current_;
-
   std::mutex update_mutex_;
-
-  bool try_optimistic_read(Aws::Auth::AWSCredentials& destination);
+  std::shared_ptr<Aws::Auth::AWSCredentials> creds_;
 
 };
 
