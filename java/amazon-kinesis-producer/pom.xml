@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.amazonaws</groupId>
     <artifactId>amazon-kinesis-producer</artifactId>
-    <version>0.12.9-SNAPSHOT</version>
+    <version>0.12.9</version>
     <name>Amazon Kinesis Producer Library</name>
 
     <scm>
@@ -57,7 +57,7 @@
     </build>
 
     <properties>
-        <aws-sdk-core-version>1.11.245</aws-sdk-core-version>
+        <aws-sdk-core-version>1.11.312</aws-sdk-core-version>
     </properties>
 
     <dependencies>
