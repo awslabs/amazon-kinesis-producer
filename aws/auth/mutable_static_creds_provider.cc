@@ -14,25 +14,37 @@
 #include "mutable_static_creds_provider.h"
 #include <limits>
 
+namespace {
+  thread_local aws::auth::VersionedCredentials current_creds;
+}
+
 using namespace aws::auth;
+
+VersionedCredentials::VersionedCredentials(std::uint64_t version, const std::string& akid, const std::string& sk, const std::string& token) :
+  version_(version), creds_(Aws::Auth::AWSCredentials(akid, sk, token)) {
+}
 
 MutableStaticCredentialsProvider::MutableStaticCredentialsProvider(const std::string& akid,
                                                                    const std::string& sk,
-                                                                   std::string token) {
-  creds_ = std::make_shared<Aws::Auth::AWSCredentials>(akid, sk, token);
+                                                                   std::string token) :
+  creds_(std::make_shared<VersionedCredentials>(1, akid, sk, token)), version_(1) {
 }
 
 void MutableStaticCredentialsProvider::set_credentials(const std::string& akid, const std::string& sk, std::string token) {
   std::lock_guard<std::mutex> lock(update_mutex_);
 
-  std::shared_ptr<Aws::Auth::AWSCredentials> new_credentials = std::make_shared<Aws::Auth::AWSCredentials>(akid, sk, token);
-  Aws::Auth::AWSCredentials new_creds(akid, sk, token);
+  std::uint64_t next_version = version_ + 1;
+  
+
+  std::shared_ptr<VersionedCredentials> new_credentials = std::make_shared<VersionedCredentials>(next_version, akid, sk, token);
   std::atomic_store(&creds_, new_credentials);
-//  *creds_ = new_creds;
-//  std::atomic_store(&creds_, new_credentials);
+  version_ = next_version;
 }
 
 Aws::Auth::AWSCredentials MutableStaticCredentialsProvider::GetAWSCredentials() {
-  std::shared_ptr<Aws::Auth::AWSCredentials> result = std::atomic_load(&creds_);
-  return *result;
+  if (current_creds.version_ != version_) {
+    std::shared_ptr<VersionedCredentials> updated = std::atomic_load(&creds_);
+    current_creds = *updated;
+  }
+  return current_creds.creds_;
 }
