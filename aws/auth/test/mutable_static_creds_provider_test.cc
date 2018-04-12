@@ -61,7 +61,6 @@ BOOST_AUTO_TEST_CASE(SinglePublisherMultipleReaders) {
   const std::uint32_t kReaderThreadCount = 128;
   std::atomic<bool> test_running(true);
   std::array<ResultsCounter, kReaderThreadCount> results;
-  std::array<aws::auth::DebugStats, kReaderThreadCount> debug_stats;
   std::vector<std::thread> reader_threads;
 
   aws::auth::MutableStaticCredentialsProvider provider("initial-0", "initial-0", "initial-0");
@@ -83,14 +82,14 @@ BOOST_AUTO_TEST_CASE(SinglePublisherMultipleReaders) {
         std::string value = ss.str();
         provider.set_credentials(value, value, value);
         using namespace std::chrono_literals;
-        std::this_thread::sleep_for(20ms);
+//        std::this_thread::sleep_for(20ms);
       } while (now < end);
       LOG(info) << "Producer thread completed";
     });
 
   LOG(info) << "Starting " << kReaderThreadCount << " consumer threads";
   for(std::uint32_t i = 0; i < kReaderThreadCount; ++i) {
-    reader_threads.emplace_back([i, &provider, &results, &test_running, &debug_stats] {
+    reader_threads.emplace_back([i, &provider, &results, &test_running] {
         using namespace std::chrono;
         auto start = high_resolution_clock::now();
         while(test_running) {
@@ -106,7 +105,6 @@ BOOST_AUTO_TEST_CASE(SinglePublisherMultipleReaders) {
         milliseconds millis_taken = duration_cast<milliseconds>(taken);
         double seconds = millis_taken.count() / 1000.0;
         results[i].seconds_ = seconds;
-        debug_stats[i] = provider.get_debug_stats();
       });
   }
 
@@ -153,29 +151,6 @@ BOOST_AUTO_TEST_CASE(SinglePublisherMultipleReaders) {
             << std::setw(results_width) << total_average
             << std::setw(results_width) << overall_calls_per;
   
-#ifdef DEBUG
-  std::uint32_t debug_width = 20;
-  LOG(info) << "Debug Stats";
-  LOG(info) << "\t"
-            << std::setw(debug_width) << "Update Before Load"
-            << std::setw(debug_width) << "Update After Load"
-            << std::setw(debug_width) << "Version Mismatch"
-            << std::setw(debug_width) << "Used Lock"
-            << std::setw(debug_width) << "Retried"
-            << std::setw(debug_width) << "Success"
-            << std::setw(debug_width) << "Total";
-  std::for_each(debug_stats.begin(), debug_stats.end(), [debug_width](aws::auth::DebugStats& d) {
-      LOG(info) << "\t"
-                << std::setw(debug_width) << d.update_before_load_
-                << std::setw(debug_width) << d.update_after_load_
-                << std::setw(debug_width) << d.version_mismatch_
-                << std::setw(debug_width) << d.used_lock_
-                << std::setw(debug_width) << d.retried_
-                << std::setw(debug_width) << d.success_
-                << std::setw(debug_width) << d.attempts_;
-
-    });
-#endif
   BOOST_CHECK_EQUAL(failures, 0);
   LOG(info) << "Test Completed";
 }
