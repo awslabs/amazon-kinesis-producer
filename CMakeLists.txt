@@ -87,24 +87,24 @@ if(ENABLE_SEGFAULT_TRIGGER)
 endif(ENABLE_SEGFAULT_TRIGGER)
 
 set(TESTS_SOURCE
-    # aws/utils/test/concurrent_hash_map_test.cc
-    # aws/utils/test/concurrent_linked_queue_test.cc
-    # aws/utils/test/spin_lock_test.cc
-    # aws/utils/test/token_bucket_test.cc
-    # aws/kinesis/core/test/aggregator_test.cc
-    # aws/kinesis/core/test/ipc_manager_test.cc
-    # aws/kinesis/core/test/kinesis_record_test.cc
-    # aws/kinesis/core/test/limiter_test.cc
-    # aws/kinesis/core/test/put_records_request_test.cc
-    # aws/kinesis/core/test/reducer_test.cc
-    # aws/kinesis/core/test/retrier_test.cc
-    # aws/kinesis/core/test/shard_map_test.cc
-    # aws/kinesis/core/test/test_utils.cc
-    # aws/kinesis/core/test/test_utils.h
-    # aws/kinesis/core/test/user_record_test.cc
-    # aws/metrics/test/accumulator_test.cc
-    # aws/metrics/test/metric_test.cc
-    # aws/metrics/test/metrics_manager_test.cc
+    aws/utils/test/concurrent_hash_map_test.cc
+    aws/utils/test/concurrent_linked_queue_test.cc
+    aws/utils/test/spin_lock_test.cc
+    aws/utils/test/token_bucket_test.cc
+    aws/kinesis/core/test/aggregator_test.cc
+    aws/kinesis/core/test/ipc_manager_test.cc
+    aws/kinesis/core/test/kinesis_record_test.cc
+    aws/kinesis/core/test/limiter_test.cc
+    aws/kinesis/core/test/put_records_request_test.cc
+    aws/kinesis/core/test/reducer_test.cc
+    aws/kinesis/core/test/retrier_test.cc
+    aws/kinesis/core/test/shard_map_test.cc
+    aws/kinesis/core/test/test_utils.cc
+    aws/kinesis/core/test/test_utils.h
+    aws/kinesis/core/test/user_record_test.cc
+    aws/metrics/test/accumulator_test.cc
+    aws/metrics/test/metric_test.cc
+    aws/metrics/test/metrics_manager_test.cc
     aws/auth/test/mutable_static_creds_provider_test.cc
 )
 
