@@ -58,7 +58,7 @@ struct ResultsCounter {
 BOOST_AUTO_TEST_SUITE(MutableStaticCredsProviderTest)
 
 BOOST_AUTO_TEST_CASE(SinglePublisherMultipleReaders) {
-  const std::uint32_t kReaderThreadCount = 20;
+  const std::uint32_t kReaderThreadCount = 128;
   std::atomic<bool> test_running(true);
   std::array<ResultsCounter, kReaderThreadCount> results;
   std::array<aws::auth::DebugStats, kReaderThreadCount> debug_stats;
