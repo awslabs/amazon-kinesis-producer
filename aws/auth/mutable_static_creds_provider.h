@@ -18,8 +18,6 @@
 #include <atomic>
 #include <cstdint>
 #include <mutex>
-#include <array>
-#include <condition_variable>
 #include <memory>
 
 namespace aws {
