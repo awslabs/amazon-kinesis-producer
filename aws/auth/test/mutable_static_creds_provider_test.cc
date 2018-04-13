@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(SinglePublisherMultipleReaders) {
         std::string value = ss.str();
         provider.set_credentials(value, value, value);
         using namespace std::chrono_literals;
-//        std::this_thread::sleep_for(20ms);
+        std::this_thread::sleep_for(20ms);
       } while (now < end);
       LOG(info) << "Producer thread completed";
     });
