@@ -18,22 +18,17 @@
 #include <atomic>
 #include <cstdint>
 #include <mutex>
-#include <array>
+#include <memory>
 
 namespace aws {
 namespace auth {
 
-struct DebugStats {
-  std::uint64_t update_before_load_;
-  std::uint64_t update_after_load_;
-  std::uint64_t version_mismatch_;
-  std::uint64_t success_;
-  std::uint64_t retried_;
-  std::uint64_t attempts_;
-  std::uint64_t used_lock_;
+struct VersionedCredentials {
+  std::uint64_t version_;
+  Aws::Auth::AWSCredentials creds_;
 
-  DebugStats() : update_before_load_(0), update_after_load_(0), version_mismatch_(0),
-                 success_(0), retried_(0), attempts_(0), used_lock_(0) {}
+  VersionedCredentials() : version_(0), creds_("", "", "") {}
+  VersionedCredentials(std::uint64_t version, const std::string& akid, const std::string& sk, const std::string& token);
 };
 
 // Like basic static creds, but with an atomic set operation
@@ -46,21 +41,10 @@ class MutableStaticCredentialsProvider
 
   Aws::Auth::AWSCredentials GetAWSCredentials() override;
 
-  DebugStats get_debug_stats();
-
-
  private:
-  struct VersionedCredentials {
-    Aws::Auth::AWSCredentials creds_;
-    std::atomic<std::uint64_t> version_;
-    std::atomic<bool> updating_;
-    VersionedCredentials() : version_(0) {}
-  };
-  VersionedCredentials current_;
-
   std::mutex update_mutex_;
-
-  bool try_optimistic_read(Aws::Auth::AWSCredentials& destination);
+  std::shared_ptr<VersionedCredentials> creds_;
+  std::atomic<std::uint64_t> version_;
 
 };
 
