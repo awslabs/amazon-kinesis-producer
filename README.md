@@ -39,6 +39,7 @@ This is a restatement of the [notice published](https://docs.aws.amazon.com/stre
   Credential access is now handled by atomic swaps, and when necessary a standard explicit lock.  This significantly
   reduces contention retrieving credentials when a large number of threads are being used.  
   * [PR #191](https://github.com/awslabs/amazon-kinesis-producer/pull/191)
+  * [PR #202](https://github.com/awslabs/amazon-kinesis-producer/pull/202)
   * [Issue #183](https://github.com/awslabs/amazon-kinesis-producer/issues/183)
 * Ticket spin locks will now fall back to standard locking after a set number of spins.
   The ticket spin lock is now a hybrid spin lock.  After a set number of spins the lock will switch to a conventional
