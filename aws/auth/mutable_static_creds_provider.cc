@@ -12,9 +12,13 @@
 // permissions and limitations under the License.
 
 #include "mutable_static_creds_provider.h"
-#include <limits>
 
 namespace {
+  //
+  // Provides a thread scoped copy of the current credentials to an executing thread.
+  // This makes the most difference when using a thread pool, as the retrieval of the
+  // credentials will only require a lock when the credentials version changes.
+  //
   thread_local aws::auth::VersionedCredentials current_creds;
 }
 
@@ -34,14 +38,26 @@ void MutableStaticCredentialsProvider::set_credentials(const std::string& akid, 
   std::lock_guard<std::mutex> lock(update_mutex_);
 
   std::uint64_t next_version = version_ + 1;
-  
 
   std::shared_ptr<VersionedCredentials> new_credentials = std::make_shared<VersionedCredentials>(next_version, akid, sk, token);
+
+  //
+  // This update the credentials atomically using the shared_ptr specific atomic operations,
+  // and doesn't require a specific lock on the shared_ptr during the update.  The lock
+  // taken previously is to prevent two credential updates at the same time.
+  //
+  // The global version change allows the threads to detect the updated version.  Once detected
+  // the threads will pull the updated credential to their own thread local copy.  
+  //
   std::atomic_store(&creds_, new_credentials);
   version_ = next_version;
 }
 
 Aws::Auth::AWSCredentials MutableStaticCredentialsProvider::GetAWSCredentials() {
+  //
+  // Check to see if the credentials have been updated.  If they have load the credentials
+  // and update the thread local.
+  //
   if (current_creds.version_ != version_) {
     std::shared_ptr<VersionedCredentials> updated = std::atomic_load(&creds_);
     current_creds = *updated;
