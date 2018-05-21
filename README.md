@@ -11,7 +11,7 @@ Starting on February 9, 2018 Amazon Kinesis Data Streams will begin transitionin
 
 If you have further questions [please open a GitHub Issue](https://github.com/awslabs/amazon-kinesis-producer/issues), or [create a case with the AWS Support Center](https://console.aws.amazon.com/support/v1#/case/create).
 
-This is a restatement of the [notice published](https://docs.aws.amazon.com/streams/latest/dev/introduction.html) in the [Amazon Kinesis Data Streams Developer Guide][kinesis-developer-guide]
+This is a restatement of the [notice published](https://docs.aws.amazon.com/streams/latest/dev/kinesis-kpl-upgrades.html) in the [Amazon Kinesis Data Streams Developer Guide][kinesis-developer-guide]
 
 ## Release Notes
 
