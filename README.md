@@ -7,7 +7,7 @@ The Amazon Kinesis Producer Library (KPL) performs many tasks common to creating
 For detailed information and installation instructions, see the article [Developing Producer Applications for Amazon Kinesis Using the Amazon Kinesis Producer Library][amazon-kpl-docs] in the [Amazon Kinesis Developer Guide][kinesis-developer-guide].
 
 ## Required Upgrade
-Starting on February 9, 2018 Amazon Kinesis Data Streams will begin transitioning to certificates issued by [Amazon Trust Services (ATS)](https://www.amazontrust.com/).  To continue using the Kinesis Producer Library (KPL) you must upgrade the KPL to version [0.12.6](http://search.maven.org/#artifactdetails|com.amazonaws|amazon-kinesis-producer|0.12.6|jar) or [later](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.amazonaws%22%20AND%20a%3A%22amazon-kinesis-producer%22).  This change affects all regions except for AWS GovCloud (US), China (Beijing), and China (Ningxia).
+Starting on February 9, 2018 Amazon Kinesis Data Streams will begin transitioning to certificates issued by [Amazon Trust Services (ATS)](https://www.amazontrust.com/).  To continue using the Kinesis Producer Library (KPL) you must upgrade the KPL to version [0.12.6](http://search.maven.org/#artifactdetails|com.amazonaws|amazon-kinesis-producer|0.12.6|jar) or [later](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.amazonaws%22%20AND%20a%3A%22amazon-kinesis-producer%22).
 
 If you have further questions [please open a GitHub Issue](https://github.com/awslabs/amazon-kinesis-producer/issues), or [create a case with the AWS Support Center](https://console.aws.amazon.com/support/v1#/case/create).
 
