@@ -751,6 +751,7 @@ public class KinesisProducer implements IKinesisProducer {
     @Override
     public void destroy() {
         destroyed = true;
+        this.callbackCompletionExecutor.shutdownNow();
         child.destroy();
     }
 
