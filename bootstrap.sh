@@ -3,7 +3,12 @@
 set -e
 set -x
 
-LIB_MIRROR="http://d3mddf4lzrx5uw.cloudfront.net"
+LIB_OPENSSL="https://ftp.openssl.org/source/old/1.0.1/openssl-1.0.1m.tar.gz"
+LIB_BOOST="https://astuteinternet.dl.sourceforge.net/project/boost/boost/1.58.0/boost_1_58_0.tar.gz"
+LIB_ZLIB="https://zlib.net/fossils/zlib-1.2.8.tar.gz"
+LIB_PROTOBUF="https://github.com/protocolbuffers/protobuf/releases/download/v2.6.1/protobuf-2.6.1.tar.gz"
+LIB_CURL="https://curl.haxx.se/download/curl-7.47.0.tar.gz"
+
 
 INSTALL_DIR=$(pwd)/third_party
 mkdir -p $INSTALL_DIR
@@ -67,7 +72,7 @@ function conf {
 
 # OpenSSL
 if [ ! -d "openssl-1.0.1m" ]; then
-  _curl "$LIB_MIRROR/openssl-1.0.1m.tar.gz" > openssl.tgz
+  _curl "$LIB_OPENSSL" > openssl.tgz
   tar xf openssl.tgz
   rm openssl.tgz
 
@@ -93,7 +98,7 @@ fi
 
 # Boost C++ Libraries
 if [ ! -d "boost_1_58_0" ]; then
-  _curl "$LIB_MIRROR/boost_1_58_0.tar.gz" > boost.tgz
+  _curl "$LIB_BOOST" > boost.tgz
   tar xf boost.tgz
   rm boost.tgz
 
@@ -124,7 +129,7 @@ fi
 
 # zlib
 if [ ! -d "zlib-1.2.8" ]; then
-  _curl "$LIB_MIRROR/zlib-1.2.8.tar.gz" > zlib.tgz
+  _curl "$LIB_ZLIB" > zlib.tgz
   tar xf zlib.tgz
   rm zlib.tgz
 
@@ -138,7 +143,7 @@ fi
 
 # Google Protocol Buffers
 if [ ! -d "protobuf-2.6.1" ]; then
-  _curl "$LIB_MIRROR/protobuf-2.6.1.tar.gz" > protobuf.tgz
+  _curl "$LIB_PROTOBUF" > protobuf.tgz
   tar xf protobuf.tgz
   rm protobuf.tgz
 
@@ -153,7 +158,7 @@ fi
 
 # libcurl
 if [ ! -d "curl-7.47.0" ]; then
-  _curl "$LIB_MIRROR/curl-7.47.0.tar.gz" > curl.tgz
+  _curl "$LIB_CURL" > curl.tgz
   tar xf curl.tgz
   rm curl.tgz
 
