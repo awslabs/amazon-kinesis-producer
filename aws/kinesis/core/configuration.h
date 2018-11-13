@@ -363,7 +363,7 @@ class Configuration : private boost::noncopyable {
   //
   // The region is also used to sign requests.
   //
-  // Expected pattern: ^([a-z]+-[a-z]+-[0-9])?$
+  // Expected pattern: ^([a-z]+-([a-z]+-)?[a-z]+-[0-9])?$
   const std::string& region() const noexcept {
     return region_;
   }
@@ -892,14 +892,14 @@ class Configuration : private boost::noncopyable {
   //
   // The region is also used to sign requests.
   //
-  // Expected pattern: ^([a-z]+-[a-z]+-[0-9])?$
+  // Expected pattern: ^([a-z]+-([a-z]+-)?[a-z]+-[0-9])?$
   Configuration& region(std::string val) {
     static std::regex pattern(
-        "^([a-z]+-[a-z]+-[0-9])?$",
+        "^([a-z]+-([a-z]+-)?[a-z]+-[0-9])?$",
         std::regex::ECMAScript | std::regex::optimize);
     if (!std::regex_match(val, pattern)) {
       std::string err;
-      err += "region must match the pattern ^([a-z]+-[a-z]+-[0-9])?$, got ";
+      err += "region must match the pattern ^([a-z]+-([a-z]+-)?[a-z]+-[0-9])?$, got ";
       err += val;
       throw std::runtime_error(err);
     }
