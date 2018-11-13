@@ -15,6 +15,18 @@ This is a restatement of the [notice published](https://docs.aws.amazon.com/stre
 
 ## Release Notes
 
+### 0.12.10
+
+#### Java
+* Support for additional AWS regions.
+* Bug fix to avoid Heap Out of Memory Exception.
+  * [PR #225](https://github.com/awslabs/amazon-kinesis-producer/pull/225)
+  * [Issue #224](https://github.com/awslabs/amazon-kinesis-producer/issues/224)
+
+#### C++ Core
+* Support for additional AWS regions.
+* Update the CloudWatch upload logic to timeout retries at 10 Minutes instead of 30 Minutes and backoff between retries.
+
 ### 0.12.9
 
 #### Java

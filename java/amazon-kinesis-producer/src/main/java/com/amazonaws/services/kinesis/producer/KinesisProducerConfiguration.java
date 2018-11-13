@@ -696,7 +696,7 @@ public class KinesisProducerConfiguration {
      * <p>
      * The region is also used to sign requests.
      * 
-     * <p><b>Expected pattern</b>: ^([a-z]+-[a-z]+-[0-9])?$
+     * <p><b>Expected pattern</b>: ^([a-z]+-([a-z]+-)?[a-z]+-[0-9])?$
      */
     public String getRegion() {
       return region;
@@ -1273,11 +1273,11 @@ public class KinesisProducerConfiguration {
      * <p>
      * The region is also used to sign requests.
      * 
-     * <p><b>Expected pattern</b>: ^([a-z]+-[a-z]+-[0-9])?$
+     * <p><b>Expected pattern</b>: ^([a-z]+-([a-z]+-)?[a-z]+-[0-9])?$
      */
     public KinesisProducerConfiguration setRegion(String val) {
-        if (!Pattern.matches("^([a-z]+-[a-z]+-[0-9])?$", val)) {
-            throw new IllegalArgumentException("region must match the pattern ^([a-z]+-[a-z]+-[0-9])?$, got " + val);
+        if (!Pattern.matches("^([a-z]+-([a-z]+-)?[a-z]+-[0-9])?$", val)) {
+            throw new IllegalArgumentException("region must match the pattern ^([a-z]+-([a-z]+-)?[a-z]+-[0-9])?$, got " + val);
         }
         region = val;
         return this;
