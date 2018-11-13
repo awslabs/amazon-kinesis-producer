@@ -25,7 +25,7 @@ This is a restatement of the [notice published](https://docs.aws.amazon.com/stre
 
 #### C++ Core
 * Support for additional AWS regions.
-* Update the CloudWatch upload login to timeout retries at 10 Minutes instead of 30 Minutes and backoff between retries.
+* Update the CloudWatch upload logic to timeout retries at 10 Minutes instead of 30 Minutes and backoff between retries.
 
 ### 0.12.9
 
