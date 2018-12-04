@@ -15,6 +15,13 @@ This is a restatement of the [notice published](https://docs.aws.amazon.com/stre
 
 ## Release Notes
 
+### 0.12.11
+
+#### Java
+
+* Bump up the version to 0.12.11.
+  * Fixes [Issue #231](https://github.com/awslabs/amazon-kinesis-producer/issues/231)
+
 ### 0.12.10
 
 #### Java
