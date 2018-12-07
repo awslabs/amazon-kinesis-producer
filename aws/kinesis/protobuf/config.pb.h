@@ -473,17 +473,60 @@ class Configuration : public ::google::protobuf::Message {
   inline bool verify_certificate() const;
   inline void set_verify_certificate(bool value);
 
-  // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];
+  // optional string proxy_host = 26 [default = ""];
+  inline bool has_proxy_host() const;
+  inline void clear_proxy_host();
+  static const int kProxyHostFieldNumber = 26;
+  inline const ::std::string& proxy_host() const;
+  inline void set_proxy_host(const ::std::string& value);
+  inline void set_proxy_host(const char* value);
+  inline void set_proxy_host(const char* value, size_t size);
+  inline ::std::string* mutable_proxy_host();
+  inline ::std::string* release_proxy_host();
+  inline void set_allocated_proxy_host(::std::string* proxy_host);
+
+  // optional uint64 proxy_port = 27 [default = 8080];
+  inline bool has_proxy_port() const;
+  inline void clear_proxy_port();
+  static const int kProxyPortFieldNumber = 27;
+  inline ::google::protobuf::uint64 proxy_port() const;
+  inline void set_proxy_port(::google::protobuf::uint64 value);
+
+  // optional string proxy_user_name = 28 [default = ""];
+  inline bool has_proxy_user_name() const;
+  inline void clear_proxy_user_name();
+  static const int kProxyUserNameFieldNumber = 28;
+  inline const ::std::string& proxy_user_name() const;
+  inline void set_proxy_user_name(const ::std::string& value);
+  inline void set_proxy_user_name(const char* value);
+  inline void set_proxy_user_name(const char* value, size_t size);
+  inline ::std::string* mutable_proxy_user_name();
+  inline ::std::string* release_proxy_user_name();
+  inline void set_allocated_proxy_user_name(::std::string* proxy_user_name);
+
+  // optional string proxy_password = 29 [default = ""];
+  inline bool has_proxy_password() const;
+  inline void clear_proxy_password();
+  static const int kProxyPasswordFieldNumber = 29;
+  inline const ::std::string& proxy_password() const;
+  inline void set_proxy_password(const ::std::string& value);
+  inline void set_proxy_password(const char* value);
+  inline void set_proxy_password(const char* value, size_t size);
+  inline ::std::string* mutable_proxy_password();
+  inline ::std::string* release_proxy_password();
+  inline void set_allocated_proxy_password(::std::string* proxy_password);
+
+  // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 30 [default = PER_REQUEST];
   inline bool has_thread_config() const;
   inline void clear_thread_config();
-  static const int kThreadConfigFieldNumber = 26;
+  static const int kThreadConfigFieldNumber = 30;
   inline ::aws::kinesis::protobuf::Configuration_ThreadConfig thread_config() const;
   inline void set_thread_config(::aws::kinesis::protobuf::Configuration_ThreadConfig value);
 
-  // optional uint32 thread_pool_size = 27 [default = 64];
+  // optional uint32 thread_pool_size = 31 [default = 64];
   inline bool has_thread_pool_size() const;
   inline void clear_thread_pool_size();
-  static const int kThreadPoolSizeFieldNumber = 27;
+  static const int kThreadPoolSizeFieldNumber = 31;
   inline ::google::protobuf::uint32 thread_pool_size() const;
   inline void set_thread_pool_size(::google::protobuf::uint32 value);
 
@@ -539,6 +582,14 @@ class Configuration : public ::google::protobuf::Message {
   inline void clear_has_request_timeout();
   inline void set_has_verify_certificate();
   inline void clear_has_verify_certificate();
+  inline void set_has_proxy_host();
+  inline void clear_has_proxy_host();
+  inline void set_has_proxy_port();
+  inline void clear_has_proxy_port();
+  inline void set_has_proxy_user_name();
+  inline void clear_has_proxy_user_name();
+  inline void set_has_proxy_password();
+  inline void clear_has_proxy_password();
   inline void set_has_thread_config();
   inline void clear_has_thread_config();
   inline void set_has_thread_pool_size();
@@ -561,13 +612,13 @@ class Configuration : public ::google::protobuf::Message {
   static ::std::string* _default_log_level_;
   ::std::string* log_level_;
   ::google::protobuf::uint64 max_connections_;
+  static ::std::string* _default_metrics_granularity_;
+  ::std::string* metrics_granularity_;
   bool aggregation_enabled_;
   bool enable_core_dumps_;
   bool fail_if_throttled_;
   bool verify_certificate_;
   int thread_config_;
-  static ::std::string* _default_metrics_granularity_;
-  ::std::string* metrics_granularity_;
   static ::std::string* _default_metrics_level_;
   ::std::string* metrics_level_;
   static ::std::string* _default_metrics_namespace_;
@@ -579,6 +630,10 @@ class Configuration : public ::google::protobuf::Message {
   ::google::protobuf::uint64 record_ttl_;
   ::std::string* region_;
   ::google::protobuf::uint64 request_timeout_;
+  ::std::string* proxy_host_;
+  ::google::protobuf::uint64 proxy_port_;
+  ::std::string* proxy_user_name_;
+  ::std::string* proxy_password_;
   ::google::protobuf::uint32 thread_pool_size_;
   friend void  protobuf_AddDesc_config_2eproto();
   friend void protobuf_AssignDesc_config_2eproto();
@@ -1820,15 +1875,267 @@ inline void Configuration::set_verify_certificate(bool value) {
   // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.verify_certificate)
 }
 
-// optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];
-inline bool Configuration::has_thread_config() const {
+// optional string proxy_host = 26 [default = ""];
+inline bool Configuration::has_proxy_host() const {
   return (_has_bits_[0] & 0x04000000u) != 0;
 }
-inline void Configuration::set_has_thread_config() {
+inline void Configuration::set_has_proxy_host() {
   _has_bits_[0] |= 0x04000000u;
 }
-inline void Configuration::clear_has_thread_config() {
+inline void Configuration::clear_has_proxy_host() {
   _has_bits_[0] &= ~0x04000000u;
+}
+inline void Configuration::clear_proxy_host() {
+  if (proxy_host_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    proxy_host_->clear();
+  }
+  clear_has_proxy_host();
+}
+inline const ::std::string& Configuration::proxy_host() const {
+  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.Configuration.proxy_host)
+  return *proxy_host_;
+}
+inline void Configuration::set_proxy_host(const ::std::string& value) {
+  set_has_proxy_host();
+  if (proxy_host_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    proxy_host_ = new ::std::string;
+  }
+  proxy_host_->assign(value);
+  // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.proxy_host)
+}
+inline void Configuration::set_proxy_host(const char* value) {
+  set_has_proxy_host();
+  if (proxy_host_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    proxy_host_ = new ::std::string;
+  }
+  proxy_host_->assign(value);
+  // @@protoc_insertion_point(field_set_char:aws.kinesis.protobuf.Configuration.proxy_host)
+}
+inline void Configuration::set_proxy_host(const char* value, size_t size) {
+  set_has_proxy_host();
+  if (proxy_host_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    proxy_host_ = new ::std::string;
+  }
+  proxy_host_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:aws.kinesis.protobuf.Configuration.proxy_host)
+}
+inline ::std::string* Configuration::mutable_proxy_host() {
+  set_has_proxy_host();
+  if (proxy_host_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    proxy_host_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:aws.kinesis.protobuf.Configuration.proxy_host)
+  return proxy_host_;
+}
+inline ::std::string* Configuration::release_proxy_host() {
+  clear_has_proxy_host();
+  if (proxy_host_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = proxy_host_;
+    proxy_host_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void Configuration::set_allocated_proxy_host(::std::string* proxy_host) {
+  if (proxy_host_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete proxy_host_;
+  }
+  if (proxy_host) {
+    set_has_proxy_host();
+    proxy_host_ = proxy_host;
+  } else {
+    clear_has_proxy_host();
+    proxy_host_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:aws.kinesis.protobuf.Configuration.proxy_host)
+}
+
+// optional uint64 proxy_port = 27 [default = 8080];
+inline bool Configuration::has_proxy_port() const {
+  return (_has_bits_[0] & 0x08000000u) != 0;
+}
+inline void Configuration::set_has_proxy_port() {
+  _has_bits_[0] |= 0x08000000u;
+}
+inline void Configuration::clear_has_proxy_port() {
+  _has_bits_[0] &= ~0x08000000u;
+}
+inline void Configuration::clear_proxy_port() {
+  proxy_port_ = GOOGLE_ULONGLONG(8080);
+  clear_has_proxy_port();
+}
+inline ::google::protobuf::uint64 Configuration::proxy_port() const {
+  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.Configuration.proxy_port)
+  return proxy_port_;
+}
+inline void Configuration::set_proxy_port(::google::protobuf::uint64 value) {
+  set_has_proxy_port();
+  proxy_port_ = value;
+  // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.proxy_port)
+}
+
+// optional string proxy_user_name = 28 [default = ""];
+inline bool Configuration::has_proxy_user_name() const {
+  return (_has_bits_[0] & 0x10000000u) != 0;
+}
+inline void Configuration::set_has_proxy_user_name() {
+  _has_bits_[0] |= 0x10000000u;
+}
+inline void Configuration::clear_has_proxy_user_name() {
+  _has_bits_[0] &= ~0x10000000u;
+}
+inline void Configuration::clear_proxy_user_name() {
+  if (proxy_user_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    proxy_user_name_->clear();
+  }
+  clear_has_proxy_user_name();
+}
+inline const ::std::string& Configuration::proxy_user_name() const {
+  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.Configuration.proxy_user_name)
+  return *proxy_user_name_;
+}
+inline void Configuration::set_proxy_user_name(const ::std::string& value) {
+  set_has_proxy_user_name();
+  if (proxy_user_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    proxy_user_name_ = new ::std::string;
+  }
+  proxy_user_name_->assign(value);
+  // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.proxy_user_name)
+}
+inline void Configuration::set_proxy_user_name(const char* value) {
+  set_has_proxy_user_name();
+  if (proxy_user_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    proxy_user_name_ = new ::std::string;
+  }
+  proxy_user_name_->assign(value);
+  // @@protoc_insertion_point(field_set_char:aws.kinesis.protobuf.Configuration.proxy_user_name)
+}
+inline void Configuration::set_proxy_user_name(const char* value, size_t size) {
+  set_has_proxy_user_name();
+  if (proxy_user_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    proxy_user_name_ = new ::std::string;
+  }
+  proxy_user_name_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:aws.kinesis.protobuf.Configuration.proxy_user_name)
+}
+inline ::std::string* Configuration::mutable_proxy_user_name() {
+  set_has_proxy_user_name();
+  if (proxy_user_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    proxy_user_name_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:aws.kinesis.protobuf.Configuration.proxy_user_name)
+  return proxy_user_name_;
+}
+inline ::std::string* Configuration::release_proxy_user_name() {
+  clear_has_proxy_user_name();
+  if (proxy_user_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = proxy_user_name_;
+    proxy_user_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void Configuration::set_allocated_proxy_user_name(::std::string* proxy_user_name) {
+  if (proxy_user_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete proxy_user_name_;
+  }
+  if (proxy_user_name) {
+    set_has_proxy_user_name();
+    proxy_user_name_ = proxy_user_name;
+  } else {
+    clear_has_proxy_user_name();
+    proxy_user_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:aws.kinesis.protobuf.Configuration.proxy_user_name)
+}
+
+// optional string proxy_password = 29 [default = ""];
+inline bool Configuration::has_proxy_password() const {
+  return (_has_bits_[0] & 0x20000000u) != 0;
+}
+inline void Configuration::set_has_proxy_password() {
+  _has_bits_[0] |= 0x20000000u;
+}
+inline void Configuration::clear_has_proxy_password() {
+  _has_bits_[0] &= ~0x20000000u;
+}
+inline void Configuration::clear_proxy_password() {
+  if (proxy_password_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    proxy_password_->clear();
+  }
+  clear_has_proxy_password();
+}
+inline const ::std::string& Configuration::proxy_password() const {
+  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.Configuration.proxy_password)
+  return *proxy_password_;
+}
+inline void Configuration::set_proxy_password(const ::std::string& value) {
+  set_has_proxy_password();
+  if (proxy_password_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    proxy_password_ = new ::std::string;
+  }
+  proxy_password_->assign(value);
+  // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.proxy_password)
+}
+inline void Configuration::set_proxy_password(const char* value) {
+  set_has_proxy_password();
+  if (proxy_password_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    proxy_password_ = new ::std::string;
+  }
+  proxy_password_->assign(value);
+  // @@protoc_insertion_point(field_set_char:aws.kinesis.protobuf.Configuration.proxy_password)
+}
+inline void Configuration::set_proxy_password(const char* value, size_t size) {
+  set_has_proxy_password();
+  if (proxy_password_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    proxy_password_ = new ::std::string;
+  }
+  proxy_password_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:aws.kinesis.protobuf.Configuration.proxy_password)
+}
+inline ::std::string* Configuration::mutable_proxy_password() {
+  set_has_proxy_password();
+  if (proxy_password_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    proxy_password_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:aws.kinesis.protobuf.Configuration.proxy_password)
+  return proxy_password_;
+}
+inline ::std::string* Configuration::release_proxy_password() {
+  clear_has_proxy_password();
+  if (proxy_password_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = proxy_password_;
+    proxy_password_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void Configuration::set_allocated_proxy_password(::std::string* proxy_password) {
+  if (proxy_password_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete proxy_password_;
+  }
+  if (proxy_password) {
+    set_has_proxy_password();
+    proxy_password_ = proxy_password;
+  } else {
+    clear_has_proxy_password();
+    proxy_password_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:aws.kinesis.protobuf.Configuration.proxy_password)
+}
+
+// optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 30 [default = PER_REQUEST];
+inline bool Configuration::has_thread_config() const {
+  return (_has_bits_[0] & 0x40000000u) != 0;
+}
+inline void Configuration::set_has_thread_config() {
+  _has_bits_[0] |= 0x40000000u;
+}
+inline void Configuration::clear_has_thread_config() {
+  _has_bits_[0] &= ~0x40000000u;
 }
 inline void Configuration::clear_thread_config() {
   thread_config_ = 0;
@@ -1845,15 +2152,15 @@ inline void Configuration::set_thread_config(::aws::kinesis::protobuf::Configura
   // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.thread_config)
 }
 
-// optional uint32 thread_pool_size = 27 [default = 64];
+// optional uint32 thread_pool_size = 31 [default = 64];
 inline bool Configuration::has_thread_pool_size() const {
-  return (_has_bits_[0] & 0x08000000u) != 0;
+  return (_has_bits_[0] & 0x80000000u) != 0;
 }
 inline void Configuration::set_has_thread_pool_size() {
-  _has_bits_[0] |= 0x08000000u;
+  _has_bits_[0] |= 0x80000000u;
 }
 inline void Configuration::clear_has_thread_pool_size() {
-  _has_bits_[0] &= ~0x08000000u;
+  _has_bits_[0] &= ~0x80000000u;
 }
 inline void Configuration::clear_thread_pool_size() {
   thread_pool_size_ = 64u;

@@ -481,7 +481,8 @@ void protobuf_AddDesc_messages_2eproto() {
     "ds\030\004 \002(\004\"/\n\016MetricsRequest\022\014\n\004name\030\001 \001(\t"
     "\022\017\n\007seconds\030\002 \001(\004\"@\n\017MetricsResponse\022-\n\007"
     "metrics\030\001 \003(\0132\034.aws.kinesis.protobuf.Met"
-    "ric", 1723);
+    "ricB2\n0com.amazonaws.services.kinesis.pr"
+    "oducer.protobuf", 1775);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "messages.proto", &protobuf_RegisterTypes);
   Tag::default_instance_ = new Tag();

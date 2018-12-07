@@ -37,10 +37,14 @@ message Configuration {
   optional string region = 23 [default = ""];
   optional uint64 request_timeout = 24 [default = 6000];
   optional bool verify_certificate = 25 [default = true];
+  optional string proxy_host = 26 [default = ""];
+  optional uint64 proxy_port = 27 [default = 8080];
+  optional string proxy_user_name = 28 [default = ""];
+  optional string proxy_password = 29 [default = ""];
   enum ThreadConfig {
     PER_REQUEST = 0;
     POOLED = 1;
   }
-  optional ThreadConfig thread_config = 26 [default = PER_REQUEST];
-  optional uint32 thread_pool_size = 27 [default = 64];
+  optional ThreadConfig thread_config = 30 [default = PER_REQUEST];
+  optional uint32 thread_pool_size = 31 [default = 64];
 }

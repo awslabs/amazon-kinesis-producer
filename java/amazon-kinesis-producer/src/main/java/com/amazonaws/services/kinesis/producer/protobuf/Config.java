@@ -1111,20 +1111,71 @@ public final class Config {
     boolean getVerifyCertificate();
 
     /**
-     * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];</code>
+     * <code>optional string proxy_host = 26 [default = ""];</code>
+     */
+    boolean hasProxyHost();
+    /**
+     * <code>optional string proxy_host = 26 [default = ""];</code>
+     */
+    java.lang.String getProxyHost();
+    /**
+     * <code>optional string proxy_host = 26 [default = ""];</code>
+     */
+    com.google.protobuf.ByteString
+        getProxyHostBytes();
+
+    /**
+     * <code>optional uint64 proxy_port = 27 [default = 8080];</code>
+     */
+    boolean hasProxyPort();
+    /**
+     * <code>optional uint64 proxy_port = 27 [default = 8080];</code>
+     */
+    long getProxyPort();
+
+    /**
+     * <code>optional string proxy_user_name = 28 [default = ""];</code>
+     */
+    boolean hasProxyUserName();
+    /**
+     * <code>optional string proxy_user_name = 28 [default = ""];</code>
+     */
+    java.lang.String getProxyUserName();
+    /**
+     * <code>optional string proxy_user_name = 28 [default = ""];</code>
+     */
+    com.google.protobuf.ByteString
+        getProxyUserNameBytes();
+
+    /**
+     * <code>optional string proxy_password = 29 [default = ""];</code>
+     */
+    boolean hasProxyPassword();
+    /**
+     * <code>optional string proxy_password = 29 [default = ""];</code>
+     */
+    java.lang.String getProxyPassword();
+    /**
+     * <code>optional string proxy_password = 29 [default = ""];</code>
+     */
+    com.google.protobuf.ByteString
+        getProxyPasswordBytes();
+
+    /**
+     * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 30 [default = PER_REQUEST];</code>
      */
     boolean hasThreadConfig();
     /**
-     * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];</code>
+     * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 30 [default = PER_REQUEST];</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig getThreadConfig();
 
     /**
-     * <code>optional uint32 thread_pool_size = 27 [default = 64];</code>
+     * <code>optional uint32 thread_pool_size = 31 [default = 64];</code>
      */
     boolean hasThreadPoolSize();
     /**
-     * <code>optional uint32 thread_pool_size = 27 [default = 64];</code>
+     * <code>optional uint32 thread_pool_size = 31 [default = 64];</code>
      */
     int getThreadPoolSize();
   }
@@ -1312,19 +1363,42 @@ public final class Config {
               verifyCertificate_ = input.readBool();
               break;
             }
-            case 208: {
-              int rawValue = input.readEnum();
-              com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig value = com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.valueOf(rawValue);
-              if (value == null) {
-                unknownFields.mergeVarintField(26, rawValue);
-              } else {
-                bitField0_ |= 0x02000000;
-                threadConfig_ = value;
-              }
+            case 210: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x02000000;
+              proxyHost_ = bs;
               break;
             }
             case 216: {
               bitField0_ |= 0x04000000;
+              proxyPort_ = input.readUInt64();
+              break;
+            }
+            case 226: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x08000000;
+              proxyUserName_ = bs;
+              break;
+            }
+            case 234: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x10000000;
+              proxyPassword_ = bs;
+              break;
+            }
+            case 240: {
+              int rawValue = input.readEnum();
+              com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig value = com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.valueOf(rawValue);
+              if (value == null) {
+                unknownFields.mergeVarintField(30, rawValue);
+              } else {
+                bitField0_ |= 0x20000000;
+                threadConfig_ = value;
+              }
+              break;
+            }
+            case 248: {
+              bitField0_ |= 0x40000000;
               threadPoolSize_ = input.readUInt32();
               break;
             }
@@ -2060,31 +2134,172 @@ public final class Config {
       return verifyCertificate_;
     }
 
-    public static final int THREAD_CONFIG_FIELD_NUMBER = 26;
-    private com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig threadConfig_;
+    public static final int PROXY_HOST_FIELD_NUMBER = 26;
+    private java.lang.Object proxyHost_;
     /**
-     * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];</code>
+     * <code>optional string proxy_host = 26 [default = ""];</code>
      */
-    public boolean hasThreadConfig() {
+    public boolean hasProxyHost() {
       return ((bitField0_ & 0x02000000) == 0x02000000);
     }
     /**
-     * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];</code>
+     * <code>optional string proxy_host = 26 [default = ""];</code>
+     */
+    public java.lang.String getProxyHost() {
+      java.lang.Object ref = proxyHost_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          proxyHost_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string proxy_host = 26 [default = ""];</code>
+     */
+    public com.google.protobuf.ByteString
+        getProxyHostBytes() {
+      java.lang.Object ref = proxyHost_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        proxyHost_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int PROXY_PORT_FIELD_NUMBER = 27;
+    private long proxyPort_;
+    /**
+     * <code>optional uint64 proxy_port = 27 [default = 8080];</code>
+     */
+    public boolean hasProxyPort() {
+      return ((bitField0_ & 0x04000000) == 0x04000000);
+    }
+    /**
+     * <code>optional uint64 proxy_port = 27 [default = 8080];</code>
+     */
+    public long getProxyPort() {
+      return proxyPort_;
+    }
+
+    public static final int PROXY_USER_NAME_FIELD_NUMBER = 28;
+    private java.lang.Object proxyUserName_;
+    /**
+     * <code>optional string proxy_user_name = 28 [default = ""];</code>
+     */
+    public boolean hasProxyUserName() {
+      return ((bitField0_ & 0x08000000) == 0x08000000);
+    }
+    /**
+     * <code>optional string proxy_user_name = 28 [default = ""];</code>
+     */
+    public java.lang.String getProxyUserName() {
+      java.lang.Object ref = proxyUserName_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          proxyUserName_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string proxy_user_name = 28 [default = ""];</code>
+     */
+    public com.google.protobuf.ByteString
+        getProxyUserNameBytes() {
+      java.lang.Object ref = proxyUserName_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        proxyUserName_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int PROXY_PASSWORD_FIELD_NUMBER = 29;
+    private java.lang.Object proxyPassword_;
+    /**
+     * <code>optional string proxy_password = 29 [default = ""];</code>
+     */
+    public boolean hasProxyPassword() {
+      return ((bitField0_ & 0x10000000) == 0x10000000);
+    }
+    /**
+     * <code>optional string proxy_password = 29 [default = ""];</code>
+     */
+    public java.lang.String getProxyPassword() {
+      java.lang.Object ref = proxyPassword_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          proxyPassword_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string proxy_password = 29 [default = ""];</code>
+     */
+    public com.google.protobuf.ByteString
+        getProxyPasswordBytes() {
+      java.lang.Object ref = proxyPassword_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        proxyPassword_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int THREAD_CONFIG_FIELD_NUMBER = 30;
+    private com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig threadConfig_;
+    /**
+     * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 30 [default = PER_REQUEST];</code>
+     */
+    public boolean hasThreadConfig() {
+      return ((bitField0_ & 0x20000000) == 0x20000000);
+    }
+    /**
+     * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 30 [default = PER_REQUEST];</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig getThreadConfig() {
       return threadConfig_;
     }
 
-    public static final int THREAD_POOL_SIZE_FIELD_NUMBER = 27;
+    public static final int THREAD_POOL_SIZE_FIELD_NUMBER = 31;
     private int threadPoolSize_;
     /**
-     * <code>optional uint32 thread_pool_size = 27 [default = 64];</code>
+     * <code>optional uint32 thread_pool_size = 31 [default = 64];</code>
      */
     public boolean hasThreadPoolSize() {
-      return ((bitField0_ & 0x04000000) == 0x04000000);
+      return ((bitField0_ & 0x40000000) == 0x40000000);
     }
     /**
-     * <code>optional uint32 thread_pool_size = 27 [default = 64];</code>
+     * <code>optional uint32 thread_pool_size = 31 [default = 64];</code>
      */
     public int getThreadPoolSize() {
       return threadPoolSize_;
@@ -2117,6 +2332,10 @@ public final class Config {
       region_ = "";
       requestTimeout_ = 6000L;
       verifyCertificate_ = true;
+      proxyHost_ = "";
+      proxyPort_ = 8080L;
+      proxyUserName_ = "";
+      proxyPassword_ = "";
       threadConfig_ = com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.PER_REQUEST;
       threadPoolSize_ = 64;
     }
@@ -2215,10 +2434,22 @@ public final class Config {
         output.writeBool(25, verifyCertificate_);
       }
       if (((bitField0_ & 0x02000000) == 0x02000000)) {
-        output.writeEnum(26, threadConfig_.getNumber());
+        output.writeBytes(26, getProxyHostBytes());
       }
       if (((bitField0_ & 0x04000000) == 0x04000000)) {
-        output.writeUInt32(27, threadPoolSize_);
+        output.writeUInt64(27, proxyPort_);
+      }
+      if (((bitField0_ & 0x08000000) == 0x08000000)) {
+        output.writeBytes(28, getProxyUserNameBytes());
+      }
+      if (((bitField0_ & 0x10000000) == 0x10000000)) {
+        output.writeBytes(29, getProxyPasswordBytes());
+      }
+      if (((bitField0_ & 0x20000000) == 0x20000000)) {
+        output.writeEnum(30, threadConfig_.getNumber());
+      }
+      if (((bitField0_ & 0x40000000) == 0x40000000)) {
+        output.writeUInt32(31, threadPoolSize_);
       }
       for (int i = 0; i < additionalMetricDims_.size(); i++) {
         output.writeMessage(128, additionalMetricDims_.get(i));
@@ -2334,11 +2565,27 @@ public final class Config {
       }
       if (((bitField0_ & 0x02000000) == 0x02000000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(26, threadConfig_.getNumber());
+          .computeBytesSize(26, getProxyHostBytes());
       }
       if (((bitField0_ & 0x04000000) == 0x04000000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeUInt32Size(27, threadPoolSize_);
+          .computeUInt64Size(27, proxyPort_);
+      }
+      if (((bitField0_ & 0x08000000) == 0x08000000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(28, getProxyUserNameBytes());
+      }
+      if (((bitField0_ & 0x10000000) == 0x10000000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(29, getProxyPasswordBytes());
+      }
+      if (((bitField0_ & 0x20000000) == 0x20000000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(30, threadConfig_.getNumber());
+      }
+      if (((bitField0_ & 0x40000000) == 0x40000000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt32Size(31, threadPoolSize_);
       }
       for (int i = 0; i < additionalMetricDims_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
@@ -2518,10 +2765,18 @@ public final class Config {
         bitField0_ = (bitField0_ & ~0x01000000);
         verifyCertificate_ = true;
         bitField0_ = (bitField0_ & ~0x02000000);
-        threadConfig_ = com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.PER_REQUEST;
+        proxyHost_ = "";
         bitField0_ = (bitField0_ & ~0x04000000);
-        threadPoolSize_ = 64;
+        proxyPort_ = 8080L;
         bitField0_ = (bitField0_ & ~0x08000000);
+        proxyUserName_ = "";
+        bitField0_ = (bitField0_ & ~0x10000000);
+        proxyPassword_ = "";
+        bitField0_ = (bitField0_ & ~0x20000000);
+        threadConfig_ = com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.PER_REQUEST;
+        bitField0_ = (bitField0_ & ~0x40000000);
+        threadPoolSize_ = 64;
+        bitField0_ = (bitField0_ & ~0x80000000);
         return this;
       }
 
@@ -2662,9 +2917,25 @@ public final class Config {
         if (((from_bitField0_ & 0x04000000) == 0x04000000)) {
           to_bitField0_ |= 0x02000000;
         }
-        result.threadConfig_ = threadConfig_;
+        result.proxyHost_ = proxyHost_;
         if (((from_bitField0_ & 0x08000000) == 0x08000000)) {
           to_bitField0_ |= 0x04000000;
+        }
+        result.proxyPort_ = proxyPort_;
+        if (((from_bitField0_ & 0x10000000) == 0x10000000)) {
+          to_bitField0_ |= 0x08000000;
+        }
+        result.proxyUserName_ = proxyUserName_;
+        if (((from_bitField0_ & 0x20000000) == 0x20000000)) {
+          to_bitField0_ |= 0x10000000;
+        }
+        result.proxyPassword_ = proxyPassword_;
+        if (((from_bitField0_ & 0x40000000) == 0x40000000)) {
+          to_bitField0_ |= 0x20000000;
+        }
+        result.threadConfig_ = threadConfig_;
+        if (((from_bitField0_ & 0x80000000) == 0x80000000)) {
+          to_bitField0_ |= 0x40000000;
         }
         result.threadPoolSize_ = threadPoolSize_;
         result.bitField0_ = to_bitField0_;
@@ -2797,6 +3068,24 @@ public final class Config {
         }
         if (other.hasVerifyCertificate()) {
           setVerifyCertificate(other.getVerifyCertificate());
+        }
+        if (other.hasProxyHost()) {
+          bitField0_ |= 0x04000000;
+          proxyHost_ = other.proxyHost_;
+          onChanged();
+        }
+        if (other.hasProxyPort()) {
+          setProxyPort(other.getProxyPort());
+        }
+        if (other.hasProxyUserName()) {
+          bitField0_ |= 0x10000000;
+          proxyUserName_ = other.proxyUserName_;
+          onChanged();
+        }
+        if (other.hasProxyPassword()) {
+          bitField0_ |= 0x20000000;
+          proxyPassword_ = other.proxyPassword_;
+          onChanged();
         }
         if (other.hasThreadConfig()) {
           setThreadConfig(other.getThreadConfig());
@@ -4185,36 +4474,296 @@ public final class Config {
         return this;
       }
 
-      private com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig threadConfig_ = com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.PER_REQUEST;
+      private java.lang.Object proxyHost_ = "";
       /**
-       * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];</code>
+       * <code>optional string proxy_host = 26 [default = ""];</code>
        */
-      public boolean hasThreadConfig() {
+      public boolean hasProxyHost() {
         return ((bitField0_ & 0x04000000) == 0x04000000);
       }
       /**
-       * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];</code>
+       * <code>optional string proxy_host = 26 [default = ""];</code>
+       */
+      public java.lang.String getProxyHost() {
+        java.lang.Object ref = proxyHost_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            proxyHost_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string proxy_host = 26 [default = ""];</code>
+       */
+      public com.google.protobuf.ByteString
+          getProxyHostBytes() {
+        java.lang.Object ref = proxyHost_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          proxyHost_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string proxy_host = 26 [default = ""];</code>
+       */
+      public Builder setProxyHost(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x04000000;
+        proxyHost_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string proxy_host = 26 [default = ""];</code>
+       */
+      public Builder clearProxyHost() {
+        bitField0_ = (bitField0_ & ~0x04000000);
+        proxyHost_ = getDefaultInstance().getProxyHost();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string proxy_host = 26 [default = ""];</code>
+       */
+      public Builder setProxyHostBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x04000000;
+        proxyHost_ = value;
+        onChanged();
+        return this;
+      }
+
+      private long proxyPort_ = 8080L;
+      /**
+       * <code>optional uint64 proxy_port = 27 [default = 8080];</code>
+       */
+      public boolean hasProxyPort() {
+        return ((bitField0_ & 0x08000000) == 0x08000000);
+      }
+      /**
+       * <code>optional uint64 proxy_port = 27 [default = 8080];</code>
+       */
+      public long getProxyPort() {
+        return proxyPort_;
+      }
+      /**
+       * <code>optional uint64 proxy_port = 27 [default = 8080];</code>
+       */
+      public Builder setProxyPort(long value) {
+        bitField0_ |= 0x08000000;
+        proxyPort_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional uint64 proxy_port = 27 [default = 8080];</code>
+       */
+      public Builder clearProxyPort() {
+        bitField0_ = (bitField0_ & ~0x08000000);
+        proxyPort_ = 8080L;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object proxyUserName_ = "";
+      /**
+       * <code>optional string proxy_user_name = 28 [default = ""];</code>
+       */
+      public boolean hasProxyUserName() {
+        return ((bitField0_ & 0x10000000) == 0x10000000);
+      }
+      /**
+       * <code>optional string proxy_user_name = 28 [default = ""];</code>
+       */
+      public java.lang.String getProxyUserName() {
+        java.lang.Object ref = proxyUserName_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            proxyUserName_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string proxy_user_name = 28 [default = ""];</code>
+       */
+      public com.google.protobuf.ByteString
+          getProxyUserNameBytes() {
+        java.lang.Object ref = proxyUserName_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          proxyUserName_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string proxy_user_name = 28 [default = ""];</code>
+       */
+      public Builder setProxyUserName(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x10000000;
+        proxyUserName_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string proxy_user_name = 28 [default = ""];</code>
+       */
+      public Builder clearProxyUserName() {
+        bitField0_ = (bitField0_ & ~0x10000000);
+        proxyUserName_ = getDefaultInstance().getProxyUserName();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string proxy_user_name = 28 [default = ""];</code>
+       */
+      public Builder setProxyUserNameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x10000000;
+        proxyUserName_ = value;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object proxyPassword_ = "";
+      /**
+       * <code>optional string proxy_password = 29 [default = ""];</code>
+       */
+      public boolean hasProxyPassword() {
+        return ((bitField0_ & 0x20000000) == 0x20000000);
+      }
+      /**
+       * <code>optional string proxy_password = 29 [default = ""];</code>
+       */
+      public java.lang.String getProxyPassword() {
+        java.lang.Object ref = proxyPassword_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            proxyPassword_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string proxy_password = 29 [default = ""];</code>
+       */
+      public com.google.protobuf.ByteString
+          getProxyPasswordBytes() {
+        java.lang.Object ref = proxyPassword_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          proxyPassword_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string proxy_password = 29 [default = ""];</code>
+       */
+      public Builder setProxyPassword(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x20000000;
+        proxyPassword_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string proxy_password = 29 [default = ""];</code>
+       */
+      public Builder clearProxyPassword() {
+        bitField0_ = (bitField0_ & ~0x20000000);
+        proxyPassword_ = getDefaultInstance().getProxyPassword();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string proxy_password = 29 [default = ""];</code>
+       */
+      public Builder setProxyPasswordBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x20000000;
+        proxyPassword_ = value;
+        onChanged();
+        return this;
+      }
+
+      private com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig threadConfig_ = com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.PER_REQUEST;
+      /**
+       * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 30 [default = PER_REQUEST];</code>
+       */
+      public boolean hasThreadConfig() {
+        return ((bitField0_ & 0x40000000) == 0x40000000);
+      }
+      /**
+       * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 30 [default = PER_REQUEST];</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig getThreadConfig() {
         return threadConfig_;
       }
       /**
-       * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];</code>
+       * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 30 [default = PER_REQUEST];</code>
        */
       public Builder setThreadConfig(com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig value) {
         if (value == null) {
           throw new NullPointerException();
         }
-        bitField0_ |= 0x04000000;
+        bitField0_ |= 0x40000000;
         threadConfig_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];</code>
+       * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 30 [default = PER_REQUEST];</code>
        */
       public Builder clearThreadConfig() {
-        bitField0_ = (bitField0_ & ~0x04000000);
+        bitField0_ = (bitField0_ & ~0x40000000);
         threadConfig_ = com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.PER_REQUEST;
         onChanged();
         return this;
@@ -4222,31 +4771,31 @@ public final class Config {
 
       private int threadPoolSize_ = 64;
       /**
-       * <code>optional uint32 thread_pool_size = 27 [default = 64];</code>
+       * <code>optional uint32 thread_pool_size = 31 [default = 64];</code>
        */
       public boolean hasThreadPoolSize() {
-        return ((bitField0_ & 0x08000000) == 0x08000000);
+        return ((bitField0_ & 0x80000000) == 0x80000000);
       }
       /**
-       * <code>optional uint32 thread_pool_size = 27 [default = 64];</code>
+       * <code>optional uint32 thread_pool_size = 31 [default = 64];</code>
        */
       public int getThreadPoolSize() {
         return threadPoolSize_;
       }
       /**
-       * <code>optional uint32 thread_pool_size = 27 [default = 64];</code>
+       * <code>optional uint32 thread_pool_size = 31 [default = 64];</code>
        */
       public Builder setThreadPoolSize(int value) {
-        bitField0_ |= 0x08000000;
+        bitField0_ |= 0x80000000;
         threadPoolSize_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional uint32 thread_pool_size = 27 [default = 64];</code>
+       * <code>optional uint32 thread_pool_size = 31 [default = 64];</code>
        */
       public Builder clearThreadPoolSize() {
-        bitField0_ = (bitField0_ & ~0x08000000);
+        bitField0_ = (bitField0_ & ~0x80000000);
         threadPoolSize_ = 64;
         onChanged();
         return this;
@@ -4284,7 +4833,7 @@ public final class Config {
     java.lang.String[] descriptorData = {
       "\n\014config.proto\022\024aws.kinesis.protobuf\"F\n\023" +
       "AdditionalDimension\022\013\n\003key\030\001 \002(\t\022\r\n\005valu" +
-      "e\030\002 \002(\t\022\023\n\013granularity\030\003 \002(\t\"\254\010\n\rConfigu" +
+      "e\030\002 \002(\t\022\023\n\013granularity\030\003 \002(\t\"\221\t\n\rConfigu" +
       "ration\022J\n\026additional_metric_dims\030\200\001 \003(\0132" +
       ").aws.kinesis.protobuf.AdditionalDimensi" +
       "on\022!\n\023aggregation_enabled\030\001 \001(\010:\004true\022)\n" +
@@ -4307,12 +4856,15 @@ public final class Config {
       "max_buffered_time\030\025 \001(\004:\003100\022\031\n\nrecord_t" +
       "tl\030\026 \001(\004:\00530000\022\020\n\006region\030\027 \001(\t:\000\022\035\n\017req" +
       "uest_timeout\030\030 \001(\004:\0046000\022 \n\022verify_certi" +
-      "ficate\030\031 \001(\010:\004true\022T\n\rthread_config\030\032 \001(" +
-      "\01620.aws.kinesis.protobuf.Configuration.T" +
-      "hreadConfig:\013PER_REQUEST\022\034\n\020thread_pool_" +
-      "size\030\033 \001(\r:\00264\"+\n\014ThreadConfig\022\017\n\013PER_RE" +
-      "QUEST\020\000\022\n\n\006POOLED\020\001B2\n0com.amazonaws.ser",
-      "vices.kinesis.producer.protobuf"
+      "ficate\030\031 \001(\010:\004true\022\024\n\nproxy_host\030\032 \001(\t:\000" +
+      "\022\030\n\nproxy_port\030\033 \001(\004:\0048080\022\031\n\017proxy_user" +
+      "_name\030\034 \001(\t:\000\022\030\n\016proxy_password\030\035 \001(\t:\000\022" +
+      "T\n\rthread_config\030\036 \001(\01620.aws.kinesis.pro" +
+      "tobuf.Configuration.ThreadConfig:\013PER_RE",
+      "QUEST\022\034\n\020thread_pool_size\030\037 \001(\r:\00264\"+\n\014T" +
+      "hreadConfig\022\017\n\013PER_REQUEST\020\000\022\n\n\006POOLED\020\001" +
+      "B2\n0com.amazonaws.services.kinesis.produ" +
+      "cer.protobuf"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -4337,7 +4889,7 @@ public final class Config {
     internal_static_aws_kinesis_protobuf_Configuration_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_aws_kinesis_protobuf_Configuration_descriptor,
-        new java.lang.String[] { "AdditionalMetricDims", "AggregationEnabled", "AggregationMaxCount", "AggregationMaxSize", "CloudwatchEndpoint", "CloudwatchPort", "CollectionMaxCount", "CollectionMaxSize", "ConnectTimeout", "EnableCoreDumps", "FailIfThrottled", "KinesisEndpoint", "KinesisPort", "LogLevel", "MaxConnections", "MetricsGranularity", "MetricsLevel", "MetricsNamespace", "MetricsUploadDelay", "MinConnections", "RateLimit", "RecordMaxBufferedTime", "RecordTtl", "Region", "RequestTimeout", "VerifyCertificate", "ThreadConfig", "ThreadPoolSize", });
+        new java.lang.String[] { "AdditionalMetricDims", "AggregationEnabled", "AggregationMaxCount", "AggregationMaxSize", "CloudwatchEndpoint", "CloudwatchPort", "CollectionMaxCount", "CollectionMaxSize", "ConnectTimeout", "EnableCoreDumps", "FailIfThrottled", "KinesisEndpoint", "KinesisPort", "LogLevel", "MaxConnections", "MetricsGranularity", "MetricsLevel", "MetricsNamespace", "MetricsUploadDelay", "MinConnections", "RateLimit", "RecordMaxBufferedTime", "RecordTtl", "Region", "RequestTimeout", "VerifyCertificate", "ProxyHost", "ProxyPort", "ProxyUserName", "ProxyPassword", "ThreadConfig", "ThreadPoolSize", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

@@ -9,7 +9,7 @@ public final class Messages {
       com.google.protobuf.ExtensionRegistry registry) {
   }
   public interface TagOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:com.amazonaws.services.kinesis.producer.protobuf.Tag)
+      // @@protoc_insertion_point(interface_extends:aws.kinesis.protobuf.Tag)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -41,11 +41,11 @@ public final class Messages {
         getValueBytes();
   }
   /**
-   * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.Tag}
+   * Protobuf type {@code aws.kinesis.protobuf.Tag}
    */
   public static final class Tag extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:com.amazonaws.services.kinesis.producer.protobuf.Tag)
+      // @@protoc_insertion_point(message_implements:aws.kinesis.protobuf.Tag)
       TagOrBuilder {
     // Use Tag.newBuilder() to construct.
     private Tag(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
@@ -118,12 +118,12 @@ public final class Messages {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Tag_descriptor;
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Tag_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Tag_fieldAccessorTable
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Tag_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag.Builder.class);
     }
@@ -351,20 +351,20 @@ public final class Messages {
       return builder;
     }
     /**
-     * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.Tag}
+     * Protobuf type {@code aws.kinesis.protobuf.Tag}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:com.amazonaws.services.kinesis.producer.protobuf.Tag)
+        // @@protoc_insertion_point(builder_implements:aws.kinesis.protobuf.Tag)
         com.amazonaws.services.kinesis.producer.protobuf.Messages.TagOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Tag_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Tag_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Tag_fieldAccessorTable
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Tag_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag.Builder.class);
       }
@@ -402,7 +402,7 @@ public final class Messages {
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Tag_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Tag_descriptor;
       }
 
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag getDefaultInstanceForType() {
@@ -638,7 +638,7 @@ public final class Messages {
         return this;
       }
 
-      // @@protoc_insertion_point(builder_scope:com.amazonaws.services.kinesis.producer.protobuf.Tag)
+      // @@protoc_insertion_point(builder_scope:aws.kinesis.protobuf.Tag)
     }
 
     static {
@@ -646,11 +646,11 @@ public final class Messages {
       defaultInstance.initFields();
     }
 
-    // @@protoc_insertion_point(class_scope:com.amazonaws.services.kinesis.producer.protobuf.Tag)
+    // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.Tag)
   }
 
   public interface RecordOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:com.amazonaws.services.kinesis.producer.protobuf.Record)
+      // @@protoc_insertion_point(interface_extends:aws.kinesis.protobuf.Record)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -681,35 +681,35 @@ public final class Messages {
     com.google.protobuf.ByteString getData();
 
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+     * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
      */
     java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag> 
         getTagsList();
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+     * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag getTags(int index);
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+     * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
      */
     int getTagsCount();
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+     * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
      */
     java.util.List<? extends com.amazonaws.services.kinesis.producer.protobuf.Messages.TagOrBuilder> 
         getTagsOrBuilderList();
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+     * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.TagOrBuilder getTagsOrBuilder(
         int index);
   }
   /**
-   * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.Record}
+   * Protobuf type {@code aws.kinesis.protobuf.Record}
    */
   public static final class Record extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:com.amazonaws.services.kinesis.producer.protobuf.Record)
+      // @@protoc_insertion_point(message_implements:aws.kinesis.protobuf.Record)
       RecordOrBuilder {
     // Use Record.newBuilder() to construct.
     private Record(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
@@ -796,12 +796,12 @@ public final class Messages {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Record_descriptor;
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Record_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Record_fieldAccessorTable
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Record_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               com.amazonaws.services.kinesis.producer.protobuf.Messages.Record.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.Record.Builder.class);
     }
@@ -870,32 +870,32 @@ public final class Messages {
     public static final int TAGS_FIELD_NUMBER = 4;
     private java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag> tags_;
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+     * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
      */
     public java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag> getTagsList() {
       return tags_;
     }
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+     * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
      */
     public java.util.List<? extends com.amazonaws.services.kinesis.producer.protobuf.Messages.TagOrBuilder> 
         getTagsOrBuilderList() {
       return tags_;
     }
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+     * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
      */
     public int getTagsCount() {
       return tags_.size();
     }
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+     * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag getTags(int index) {
       return tags_.get(index);
     }
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+     * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.TagOrBuilder getTagsOrBuilder(
         int index) {
@@ -1051,20 +1051,20 @@ public final class Messages {
       return builder;
     }
     /**
-     * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.Record}
+     * Protobuf type {@code aws.kinesis.protobuf.Record}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:com.amazonaws.services.kinesis.producer.protobuf.Record)
+        // @@protoc_insertion_point(builder_implements:aws.kinesis.protobuf.Record)
         com.amazonaws.services.kinesis.producer.protobuf.Messages.RecordOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Record_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Record_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Record_fieldAccessorTable
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Record_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 com.amazonaws.services.kinesis.producer.protobuf.Messages.Record.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.Record.Builder.class);
       }
@@ -1111,7 +1111,7 @@ public final class Messages {
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Record_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Record_descriptor;
       }
 
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Record getDefaultInstanceForType() {
@@ -1355,7 +1355,7 @@ public final class Messages {
           com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag, com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag.Builder, com.amazonaws.services.kinesis.producer.protobuf.Messages.TagOrBuilder> tagsBuilder_;
 
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+       * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
        */
       public java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag> getTagsList() {
         if (tagsBuilder_ == null) {
@@ -1365,7 +1365,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+       * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
        */
       public int getTagsCount() {
         if (tagsBuilder_ == null) {
@@ -1375,7 +1375,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+       * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag getTags(int index) {
         if (tagsBuilder_ == null) {
@@ -1385,7 +1385,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+       * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
        */
       public Builder setTags(
           int index, com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag value) {
@@ -1402,7 +1402,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+       * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
        */
       public Builder setTags(
           int index, com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag.Builder builderForValue) {
@@ -1416,7 +1416,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+       * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
        */
       public Builder addTags(com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag value) {
         if (tagsBuilder_ == null) {
@@ -1432,7 +1432,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+       * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
        */
       public Builder addTags(
           int index, com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag value) {
@@ -1449,7 +1449,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+       * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
        */
       public Builder addTags(
           com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag.Builder builderForValue) {
@@ -1463,7 +1463,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+       * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
        */
       public Builder addTags(
           int index, com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag.Builder builderForValue) {
@@ -1477,7 +1477,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+       * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
        */
       public Builder addAllTags(
           java.lang.Iterable<? extends com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag> values) {
@@ -1492,7 +1492,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+       * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
        */
       public Builder clearTags() {
         if (tagsBuilder_ == null) {
@@ -1505,7 +1505,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+       * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
        */
       public Builder removeTags(int index) {
         if (tagsBuilder_ == null) {
@@ -1518,14 +1518,14 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+       * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag.Builder getTagsBuilder(
           int index) {
         return getTagsFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+       * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.TagOrBuilder getTagsOrBuilder(
           int index) {
@@ -1535,7 +1535,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+       * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
        */
       public java.util.List<? extends com.amazonaws.services.kinesis.producer.protobuf.Messages.TagOrBuilder> 
            getTagsOrBuilderList() {
@@ -1546,14 +1546,14 @@ public final class Messages {
         }
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+       * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag.Builder addTagsBuilder() {
         return getTagsFieldBuilder().addBuilder(
             com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag.getDefaultInstance());
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+       * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag.Builder addTagsBuilder(
           int index) {
@@ -1561,7 +1561,7 @@ public final class Messages {
             index, com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag.getDefaultInstance());
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Tag tags = 4;</code>
+       * <code>repeated .aws.kinesis.protobuf.Tag tags = 4;</code>
        */
       public java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Messages.Tag.Builder> 
            getTagsBuilderList() {
@@ -1582,7 +1582,7 @@ public final class Messages {
         return tagsBuilder_;
       }
 
-      // @@protoc_insertion_point(builder_scope:com.amazonaws.services.kinesis.producer.protobuf.Record)
+      // @@protoc_insertion_point(builder_scope:aws.kinesis.protobuf.Record)
     }
 
     static {
@@ -1590,11 +1590,11 @@ public final class Messages {
       defaultInstance.initFields();
     }
 
-    // @@protoc_insertion_point(class_scope:com.amazonaws.services.kinesis.producer.protobuf.Record)
+    // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.Record)
   }
 
   public interface AggregatedRecordOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:com.amazonaws.services.kinesis.producer.protobuf.AggregatedRecord)
+      // @@protoc_insertion_point(interface_extends:aws.kinesis.protobuf.AggregatedRecord)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -1636,35 +1636,35 @@ public final class Messages {
         getExplicitHashKeyTableBytes(int index);
 
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+     * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
      */
     java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Messages.Record> 
         getRecordsList();
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+     * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.Record getRecords(int index);
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+     * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
      */
     int getRecordsCount();
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+     * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
      */
     java.util.List<? extends com.amazonaws.services.kinesis.producer.protobuf.Messages.RecordOrBuilder> 
         getRecordsOrBuilderList();
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+     * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.RecordOrBuilder getRecordsOrBuilder(
         int index);
   }
   /**
-   * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.AggregatedRecord}
+   * Protobuf type {@code aws.kinesis.protobuf.AggregatedRecord}
    */
   public static final class AggregatedRecord extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:com.amazonaws.services.kinesis.producer.protobuf.AggregatedRecord)
+      // @@protoc_insertion_point(message_implements:aws.kinesis.protobuf.AggregatedRecord)
       AggregatedRecordOrBuilder {
     // Use AggregatedRecord.newBuilder() to construct.
     private AggregatedRecord(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
@@ -1760,12 +1760,12 @@ public final class Messages {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_AggregatedRecord_descriptor;
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_AggregatedRecord_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_AggregatedRecord_fieldAccessorTable
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_AggregatedRecord_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               com.amazonaws.services.kinesis.producer.protobuf.Messages.AggregatedRecord.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.AggregatedRecord.Builder.class);
     }
@@ -1846,32 +1846,32 @@ public final class Messages {
     public static final int RECORDS_FIELD_NUMBER = 3;
     private java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Messages.Record> records_;
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+     * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
      */
     public java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Messages.Record> getRecordsList() {
       return records_;
     }
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+     * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
      */
     public java.util.List<? extends com.amazonaws.services.kinesis.producer.protobuf.Messages.RecordOrBuilder> 
         getRecordsOrBuilderList() {
       return records_;
     }
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+     * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
      */
     public int getRecordsCount() {
       return records_.size();
     }
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+     * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.Record getRecords(int index) {
       return records_.get(index);
     }
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+     * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.RecordOrBuilder getRecordsOrBuilder(
         int index) {
@@ -2021,20 +2021,20 @@ public final class Messages {
       return builder;
     }
     /**
-     * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.AggregatedRecord}
+     * Protobuf type {@code aws.kinesis.protobuf.AggregatedRecord}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:com.amazonaws.services.kinesis.producer.protobuf.AggregatedRecord)
+        // @@protoc_insertion_point(builder_implements:aws.kinesis.protobuf.AggregatedRecord)
         com.amazonaws.services.kinesis.producer.protobuf.Messages.AggregatedRecordOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_AggregatedRecord_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_AggregatedRecord_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_AggregatedRecord_fieldAccessorTable
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_AggregatedRecord_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 com.amazonaws.services.kinesis.producer.protobuf.Messages.AggregatedRecord.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.AggregatedRecord.Builder.class);
       }
@@ -2079,7 +2079,7 @@ public final class Messages {
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_AggregatedRecord_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_AggregatedRecord_descriptor;
       }
 
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.AggregatedRecord getDefaultInstanceForType() {
@@ -2409,7 +2409,7 @@ public final class Messages {
           com.amazonaws.services.kinesis.producer.protobuf.Messages.Record, com.amazonaws.services.kinesis.producer.protobuf.Messages.Record.Builder, com.amazonaws.services.kinesis.producer.protobuf.Messages.RecordOrBuilder> recordsBuilder_;
 
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+       * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
        */
       public java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Messages.Record> getRecordsList() {
         if (recordsBuilder_ == null) {
@@ -2419,7 +2419,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+       * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
        */
       public int getRecordsCount() {
         if (recordsBuilder_ == null) {
@@ -2429,7 +2429,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+       * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Record getRecords(int index) {
         if (recordsBuilder_ == null) {
@@ -2439,7 +2439,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+       * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
        */
       public Builder setRecords(
           int index, com.amazonaws.services.kinesis.producer.protobuf.Messages.Record value) {
@@ -2456,7 +2456,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+       * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
        */
       public Builder setRecords(
           int index, com.amazonaws.services.kinesis.producer.protobuf.Messages.Record.Builder builderForValue) {
@@ -2470,7 +2470,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+       * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
        */
       public Builder addRecords(com.amazonaws.services.kinesis.producer.protobuf.Messages.Record value) {
         if (recordsBuilder_ == null) {
@@ -2486,7 +2486,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+       * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
        */
       public Builder addRecords(
           int index, com.amazonaws.services.kinesis.producer.protobuf.Messages.Record value) {
@@ -2503,7 +2503,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+       * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
        */
       public Builder addRecords(
           com.amazonaws.services.kinesis.producer.protobuf.Messages.Record.Builder builderForValue) {
@@ -2517,7 +2517,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+       * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
        */
       public Builder addRecords(
           int index, com.amazonaws.services.kinesis.producer.protobuf.Messages.Record.Builder builderForValue) {
@@ -2531,7 +2531,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+       * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
        */
       public Builder addAllRecords(
           java.lang.Iterable<? extends com.amazonaws.services.kinesis.producer.protobuf.Messages.Record> values) {
@@ -2546,7 +2546,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+       * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
        */
       public Builder clearRecords() {
         if (recordsBuilder_ == null) {
@@ -2559,7 +2559,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+       * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
        */
       public Builder removeRecords(int index) {
         if (recordsBuilder_ == null) {
@@ -2572,14 +2572,14 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+       * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Record.Builder getRecordsBuilder(
           int index) {
         return getRecordsFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+       * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.RecordOrBuilder getRecordsOrBuilder(
           int index) {
@@ -2589,7 +2589,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+       * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
        */
       public java.util.List<? extends com.amazonaws.services.kinesis.producer.protobuf.Messages.RecordOrBuilder> 
            getRecordsOrBuilderList() {
@@ -2600,14 +2600,14 @@ public final class Messages {
         }
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+       * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Record.Builder addRecordsBuilder() {
         return getRecordsFieldBuilder().addBuilder(
             com.amazonaws.services.kinesis.producer.protobuf.Messages.Record.getDefaultInstance());
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+       * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Record.Builder addRecordsBuilder(
           int index) {
@@ -2615,7 +2615,7 @@ public final class Messages {
             index, com.amazonaws.services.kinesis.producer.protobuf.Messages.Record.getDefaultInstance());
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Record records = 3;</code>
+       * <code>repeated .aws.kinesis.protobuf.Record records = 3;</code>
        */
       public java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Messages.Record.Builder> 
            getRecordsBuilderList() {
@@ -2636,7 +2636,7 @@ public final class Messages {
         return recordsBuilder_;
       }
 
-      // @@protoc_insertion_point(builder_scope:com.amazonaws.services.kinesis.producer.protobuf.AggregatedRecord)
+      // @@protoc_insertion_point(builder_scope:aws.kinesis.protobuf.AggregatedRecord)
     }
 
     static {
@@ -2644,11 +2644,11 @@ public final class Messages {
       defaultInstance.initFields();
     }
 
-    // @@protoc_insertion_point(class_scope:com.amazonaws.services.kinesis.producer.protobuf.AggregatedRecord)
+    // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.AggregatedRecord)
   }
 
   public interface MessageOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:com.amazonaws.services.kinesis.producer.protobuf.Message)
+      // @@protoc_insertion_point(interface_extends:aws.kinesis.protobuf.Message)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -2670,102 +2670,102 @@ public final class Messages {
     long getSourceId();
 
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecord put_record = 3;</code>
+     * <code>optional .aws.kinesis.protobuf.PutRecord put_record = 3;</code>
      */
     boolean hasPutRecord();
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecord put_record = 3;</code>
+     * <code>optional .aws.kinesis.protobuf.PutRecord put_record = 3;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecord getPutRecord();
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecord put_record = 3;</code>
+     * <code>optional .aws.kinesis.protobuf.PutRecord put_record = 3;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordOrBuilder getPutRecordOrBuilder();
 
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Flush flush = 4;</code>
+     * <code>optional .aws.kinesis.protobuf.Flush flush = 4;</code>
      */
     boolean hasFlush();
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Flush flush = 4;</code>
+     * <code>optional .aws.kinesis.protobuf.Flush flush = 4;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.Flush getFlush();
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Flush flush = 4;</code>
+     * <code>optional .aws.kinesis.protobuf.Flush flush = 4;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.FlushOrBuilder getFlushOrBuilder();
 
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecordResult put_record_result = 5;</code>
+     * <code>optional .aws.kinesis.protobuf.PutRecordResult put_record_result = 5;</code>
      */
     boolean hasPutRecordResult();
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecordResult put_record_result = 5;</code>
+     * <code>optional .aws.kinesis.protobuf.PutRecordResult put_record_result = 5;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordResult getPutRecordResult();
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecordResult put_record_result = 5;</code>
+     * <code>optional .aws.kinesis.protobuf.PutRecordResult put_record_result = 5;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordResultOrBuilder getPutRecordResultOrBuilder();
 
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Configuration configuration = 6;</code>
+     * <code>optional .aws.kinesis.protobuf.Configuration configuration = 6;</code>
      */
     boolean hasConfiguration();
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Configuration configuration = 6;</code>
+     * <code>optional .aws.kinesis.protobuf.Configuration configuration = 6;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration getConfiguration();
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Configuration configuration = 6;</code>
+     * <code>optional .aws.kinesis.protobuf.Configuration configuration = 6;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Config.ConfigurationOrBuilder getConfigurationOrBuilder();
 
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsRequest metrics_request = 7;</code>
+     * <code>optional .aws.kinesis.protobuf.MetricsRequest metrics_request = 7;</code>
      */
     boolean hasMetricsRequest();
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsRequest metrics_request = 7;</code>
+     * <code>optional .aws.kinesis.protobuf.MetricsRequest metrics_request = 7;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsRequest getMetricsRequest();
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsRequest metrics_request = 7;</code>
+     * <code>optional .aws.kinesis.protobuf.MetricsRequest metrics_request = 7;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsRequestOrBuilder getMetricsRequestOrBuilder();
 
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsResponse metrics_response = 8;</code>
+     * <code>optional .aws.kinesis.protobuf.MetricsResponse metrics_response = 8;</code>
      */
     boolean hasMetricsResponse();
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsResponse metrics_response = 8;</code>
+     * <code>optional .aws.kinesis.protobuf.MetricsResponse metrics_response = 8;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsResponse getMetricsResponse();
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsResponse metrics_response = 8;</code>
+     * <code>optional .aws.kinesis.protobuf.MetricsResponse metrics_response = 8;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsResponseOrBuilder getMetricsResponseOrBuilder();
 
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.SetCredentials set_credentials = 9;</code>
+     * <code>optional .aws.kinesis.protobuf.SetCredentials set_credentials = 9;</code>
      */
     boolean hasSetCredentials();
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.SetCredentials set_credentials = 9;</code>
+     * <code>optional .aws.kinesis.protobuf.SetCredentials set_credentials = 9;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.SetCredentials getSetCredentials();
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.SetCredentials set_credentials = 9;</code>
+     * <code>optional .aws.kinesis.protobuf.SetCredentials set_credentials = 9;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.SetCredentialsOrBuilder getSetCredentialsOrBuilder();
   }
   /**
-   * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.Message}
+   * Protobuf type {@code aws.kinesis.protobuf.Message}
    */
   public static final class Message extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:com.amazonaws.services.kinesis.producer.protobuf.Message)
+      // @@protoc_insertion_point(message_implements:aws.kinesis.protobuf.Message)
       MessageOrBuilder {
     // Use Message.newBuilder() to construct.
     private Message(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
@@ -2927,12 +2927,12 @@ public final class Messages {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Message_descriptor;
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Message_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Message_fieldAccessorTable
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Message_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               com.amazonaws.services.kinesis.producer.protobuf.Messages.Message.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.Message.Builder.class);
     }
@@ -3026,13 +3026,13 @@ public final class Messages {
 
     public static final int PUT_RECORD_FIELD_NUMBER = 3;
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecord put_record = 3;</code>
+     * <code>optional .aws.kinesis.protobuf.PutRecord put_record = 3;</code>
      */
     public boolean hasPutRecord() {
       return actualMessageCase_ == 3;
     }
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecord put_record = 3;</code>
+     * <code>optional .aws.kinesis.protobuf.PutRecord put_record = 3;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecord getPutRecord() {
       if (actualMessageCase_ == 3) {
@@ -3041,7 +3041,7 @@ public final class Messages {
       return com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecord.getDefaultInstance();
     }
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecord put_record = 3;</code>
+     * <code>optional .aws.kinesis.protobuf.PutRecord put_record = 3;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordOrBuilder getPutRecordOrBuilder() {
       if (actualMessageCase_ == 3) {
@@ -3052,13 +3052,13 @@ public final class Messages {
 
     public static final int FLUSH_FIELD_NUMBER = 4;
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Flush flush = 4;</code>
+     * <code>optional .aws.kinesis.protobuf.Flush flush = 4;</code>
      */
     public boolean hasFlush() {
       return actualMessageCase_ == 4;
     }
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Flush flush = 4;</code>
+     * <code>optional .aws.kinesis.protobuf.Flush flush = 4;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.Flush getFlush() {
       if (actualMessageCase_ == 4) {
@@ -3067,7 +3067,7 @@ public final class Messages {
       return com.amazonaws.services.kinesis.producer.protobuf.Messages.Flush.getDefaultInstance();
     }
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Flush flush = 4;</code>
+     * <code>optional .aws.kinesis.protobuf.Flush flush = 4;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.FlushOrBuilder getFlushOrBuilder() {
       if (actualMessageCase_ == 4) {
@@ -3078,13 +3078,13 @@ public final class Messages {
 
     public static final int PUT_RECORD_RESULT_FIELD_NUMBER = 5;
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecordResult put_record_result = 5;</code>
+     * <code>optional .aws.kinesis.protobuf.PutRecordResult put_record_result = 5;</code>
      */
     public boolean hasPutRecordResult() {
       return actualMessageCase_ == 5;
     }
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecordResult put_record_result = 5;</code>
+     * <code>optional .aws.kinesis.protobuf.PutRecordResult put_record_result = 5;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordResult getPutRecordResult() {
       if (actualMessageCase_ == 5) {
@@ -3093,7 +3093,7 @@ public final class Messages {
       return com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordResult.getDefaultInstance();
     }
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecordResult put_record_result = 5;</code>
+     * <code>optional .aws.kinesis.protobuf.PutRecordResult put_record_result = 5;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordResultOrBuilder getPutRecordResultOrBuilder() {
       if (actualMessageCase_ == 5) {
@@ -3104,13 +3104,13 @@ public final class Messages {
 
     public static final int CONFIGURATION_FIELD_NUMBER = 6;
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Configuration configuration = 6;</code>
+     * <code>optional .aws.kinesis.protobuf.Configuration configuration = 6;</code>
      */
     public boolean hasConfiguration() {
       return actualMessageCase_ == 6;
     }
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Configuration configuration = 6;</code>
+     * <code>optional .aws.kinesis.protobuf.Configuration configuration = 6;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration getConfiguration() {
       if (actualMessageCase_ == 6) {
@@ -3119,7 +3119,7 @@ public final class Messages {
       return com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.getDefaultInstance();
     }
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Configuration configuration = 6;</code>
+     * <code>optional .aws.kinesis.protobuf.Configuration configuration = 6;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Config.ConfigurationOrBuilder getConfigurationOrBuilder() {
       if (actualMessageCase_ == 6) {
@@ -3130,13 +3130,13 @@ public final class Messages {
 
     public static final int METRICS_REQUEST_FIELD_NUMBER = 7;
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsRequest metrics_request = 7;</code>
+     * <code>optional .aws.kinesis.protobuf.MetricsRequest metrics_request = 7;</code>
      */
     public boolean hasMetricsRequest() {
       return actualMessageCase_ == 7;
     }
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsRequest metrics_request = 7;</code>
+     * <code>optional .aws.kinesis.protobuf.MetricsRequest metrics_request = 7;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsRequest getMetricsRequest() {
       if (actualMessageCase_ == 7) {
@@ -3145,7 +3145,7 @@ public final class Messages {
       return com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsRequest.getDefaultInstance();
     }
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsRequest metrics_request = 7;</code>
+     * <code>optional .aws.kinesis.protobuf.MetricsRequest metrics_request = 7;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsRequestOrBuilder getMetricsRequestOrBuilder() {
       if (actualMessageCase_ == 7) {
@@ -3156,13 +3156,13 @@ public final class Messages {
 
     public static final int METRICS_RESPONSE_FIELD_NUMBER = 8;
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsResponse metrics_response = 8;</code>
+     * <code>optional .aws.kinesis.protobuf.MetricsResponse metrics_response = 8;</code>
      */
     public boolean hasMetricsResponse() {
       return actualMessageCase_ == 8;
     }
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsResponse metrics_response = 8;</code>
+     * <code>optional .aws.kinesis.protobuf.MetricsResponse metrics_response = 8;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsResponse getMetricsResponse() {
       if (actualMessageCase_ == 8) {
@@ -3171,7 +3171,7 @@ public final class Messages {
       return com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsResponse.getDefaultInstance();
     }
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsResponse metrics_response = 8;</code>
+     * <code>optional .aws.kinesis.protobuf.MetricsResponse metrics_response = 8;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsResponseOrBuilder getMetricsResponseOrBuilder() {
       if (actualMessageCase_ == 8) {
@@ -3182,13 +3182,13 @@ public final class Messages {
 
     public static final int SET_CREDENTIALS_FIELD_NUMBER = 9;
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.SetCredentials set_credentials = 9;</code>
+     * <code>optional .aws.kinesis.protobuf.SetCredentials set_credentials = 9;</code>
      */
     public boolean hasSetCredentials() {
       return actualMessageCase_ == 9;
     }
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.SetCredentials set_credentials = 9;</code>
+     * <code>optional .aws.kinesis.protobuf.SetCredentials set_credentials = 9;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.SetCredentials getSetCredentials() {
       if (actualMessageCase_ == 9) {
@@ -3197,7 +3197,7 @@ public final class Messages {
       return com.amazonaws.services.kinesis.producer.protobuf.Messages.SetCredentials.getDefaultInstance();
     }
     /**
-     * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.SetCredentials set_credentials = 9;</code>
+     * <code>optional .aws.kinesis.protobuf.SetCredentials set_credentials = 9;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.SetCredentialsOrBuilder getSetCredentialsOrBuilder() {
       if (actualMessageCase_ == 9) {
@@ -3408,20 +3408,20 @@ public final class Messages {
       return builder;
     }
     /**
-     * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.Message}
+     * Protobuf type {@code aws.kinesis.protobuf.Message}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:com.amazonaws.services.kinesis.producer.protobuf.Message)
+        // @@protoc_insertion_point(builder_implements:aws.kinesis.protobuf.Message)
         com.amazonaws.services.kinesis.producer.protobuf.Messages.MessageOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Message_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Message_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Message_fieldAccessorTable
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Message_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 com.amazonaws.services.kinesis.producer.protobuf.Messages.Message.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.Message.Builder.class);
       }
@@ -3461,7 +3461,7 @@ public final class Messages {
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Message_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Message_descriptor;
       }
 
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Message getDefaultInstanceForType() {
@@ -3736,13 +3736,13 @@ public final class Messages {
       private com.google.protobuf.SingleFieldBuilder<
           com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecord, com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecord.Builder, com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordOrBuilder> putRecordBuilder_;
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecord put_record = 3;</code>
+       * <code>optional .aws.kinesis.protobuf.PutRecord put_record = 3;</code>
        */
       public boolean hasPutRecord() {
         return actualMessageCase_ == 3;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecord put_record = 3;</code>
+       * <code>optional .aws.kinesis.protobuf.PutRecord put_record = 3;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecord getPutRecord() {
         if (putRecordBuilder_ == null) {
@@ -3758,7 +3758,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecord put_record = 3;</code>
+       * <code>optional .aws.kinesis.protobuf.PutRecord put_record = 3;</code>
        */
       public Builder setPutRecord(com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecord value) {
         if (putRecordBuilder_ == null) {
@@ -3774,7 +3774,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecord put_record = 3;</code>
+       * <code>optional .aws.kinesis.protobuf.PutRecord put_record = 3;</code>
        */
       public Builder setPutRecord(
           com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecord.Builder builderForValue) {
@@ -3788,7 +3788,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecord put_record = 3;</code>
+       * <code>optional .aws.kinesis.protobuf.PutRecord put_record = 3;</code>
        */
       public Builder mergePutRecord(com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecord value) {
         if (putRecordBuilder_ == null) {
@@ -3810,7 +3810,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecord put_record = 3;</code>
+       * <code>optional .aws.kinesis.protobuf.PutRecord put_record = 3;</code>
        */
       public Builder clearPutRecord() {
         if (putRecordBuilder_ == null) {
@@ -3829,13 +3829,13 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecord put_record = 3;</code>
+       * <code>optional .aws.kinesis.protobuf.PutRecord put_record = 3;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecord.Builder getPutRecordBuilder() {
         return getPutRecordFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecord put_record = 3;</code>
+       * <code>optional .aws.kinesis.protobuf.PutRecord put_record = 3;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordOrBuilder getPutRecordOrBuilder() {
         if ((actualMessageCase_ == 3) && (putRecordBuilder_ != null)) {
@@ -3848,7 +3848,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecord put_record = 3;</code>
+       * <code>optional .aws.kinesis.protobuf.PutRecord put_record = 3;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
           com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecord, com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecord.Builder, com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordOrBuilder> 
@@ -3871,13 +3871,13 @@ public final class Messages {
       private com.google.protobuf.SingleFieldBuilder<
           com.amazonaws.services.kinesis.producer.protobuf.Messages.Flush, com.amazonaws.services.kinesis.producer.protobuf.Messages.Flush.Builder, com.amazonaws.services.kinesis.producer.protobuf.Messages.FlushOrBuilder> flushBuilder_;
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Flush flush = 4;</code>
+       * <code>optional .aws.kinesis.protobuf.Flush flush = 4;</code>
        */
       public boolean hasFlush() {
         return actualMessageCase_ == 4;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Flush flush = 4;</code>
+       * <code>optional .aws.kinesis.protobuf.Flush flush = 4;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Flush getFlush() {
         if (flushBuilder_ == null) {
@@ -3893,7 +3893,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Flush flush = 4;</code>
+       * <code>optional .aws.kinesis.protobuf.Flush flush = 4;</code>
        */
       public Builder setFlush(com.amazonaws.services.kinesis.producer.protobuf.Messages.Flush value) {
         if (flushBuilder_ == null) {
@@ -3909,7 +3909,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Flush flush = 4;</code>
+       * <code>optional .aws.kinesis.protobuf.Flush flush = 4;</code>
        */
       public Builder setFlush(
           com.amazonaws.services.kinesis.producer.protobuf.Messages.Flush.Builder builderForValue) {
@@ -3923,7 +3923,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Flush flush = 4;</code>
+       * <code>optional .aws.kinesis.protobuf.Flush flush = 4;</code>
        */
       public Builder mergeFlush(com.amazonaws.services.kinesis.producer.protobuf.Messages.Flush value) {
         if (flushBuilder_ == null) {
@@ -3945,7 +3945,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Flush flush = 4;</code>
+       * <code>optional .aws.kinesis.protobuf.Flush flush = 4;</code>
        */
       public Builder clearFlush() {
         if (flushBuilder_ == null) {
@@ -3964,13 +3964,13 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Flush flush = 4;</code>
+       * <code>optional .aws.kinesis.protobuf.Flush flush = 4;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Flush.Builder getFlushBuilder() {
         return getFlushFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Flush flush = 4;</code>
+       * <code>optional .aws.kinesis.protobuf.Flush flush = 4;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.FlushOrBuilder getFlushOrBuilder() {
         if ((actualMessageCase_ == 4) && (flushBuilder_ != null)) {
@@ -3983,7 +3983,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Flush flush = 4;</code>
+       * <code>optional .aws.kinesis.protobuf.Flush flush = 4;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
           com.amazonaws.services.kinesis.producer.protobuf.Messages.Flush, com.amazonaws.services.kinesis.producer.protobuf.Messages.Flush.Builder, com.amazonaws.services.kinesis.producer.protobuf.Messages.FlushOrBuilder> 
@@ -4006,13 +4006,13 @@ public final class Messages {
       private com.google.protobuf.SingleFieldBuilder<
           com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordResult, com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordResult.Builder, com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordResultOrBuilder> putRecordResultBuilder_;
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecordResult put_record_result = 5;</code>
+       * <code>optional .aws.kinesis.protobuf.PutRecordResult put_record_result = 5;</code>
        */
       public boolean hasPutRecordResult() {
         return actualMessageCase_ == 5;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecordResult put_record_result = 5;</code>
+       * <code>optional .aws.kinesis.protobuf.PutRecordResult put_record_result = 5;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordResult getPutRecordResult() {
         if (putRecordResultBuilder_ == null) {
@@ -4028,7 +4028,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecordResult put_record_result = 5;</code>
+       * <code>optional .aws.kinesis.protobuf.PutRecordResult put_record_result = 5;</code>
        */
       public Builder setPutRecordResult(com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordResult value) {
         if (putRecordResultBuilder_ == null) {
@@ -4044,7 +4044,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecordResult put_record_result = 5;</code>
+       * <code>optional .aws.kinesis.protobuf.PutRecordResult put_record_result = 5;</code>
        */
       public Builder setPutRecordResult(
           com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordResult.Builder builderForValue) {
@@ -4058,7 +4058,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecordResult put_record_result = 5;</code>
+       * <code>optional .aws.kinesis.protobuf.PutRecordResult put_record_result = 5;</code>
        */
       public Builder mergePutRecordResult(com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordResult value) {
         if (putRecordResultBuilder_ == null) {
@@ -4080,7 +4080,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecordResult put_record_result = 5;</code>
+       * <code>optional .aws.kinesis.protobuf.PutRecordResult put_record_result = 5;</code>
        */
       public Builder clearPutRecordResult() {
         if (putRecordResultBuilder_ == null) {
@@ -4099,13 +4099,13 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecordResult put_record_result = 5;</code>
+       * <code>optional .aws.kinesis.protobuf.PutRecordResult put_record_result = 5;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordResult.Builder getPutRecordResultBuilder() {
         return getPutRecordResultFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecordResult put_record_result = 5;</code>
+       * <code>optional .aws.kinesis.protobuf.PutRecordResult put_record_result = 5;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordResultOrBuilder getPutRecordResultOrBuilder() {
         if ((actualMessageCase_ == 5) && (putRecordResultBuilder_ != null)) {
@@ -4118,7 +4118,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.PutRecordResult put_record_result = 5;</code>
+       * <code>optional .aws.kinesis.protobuf.PutRecordResult put_record_result = 5;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
           com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordResult, com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordResult.Builder, com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordResultOrBuilder> 
@@ -4141,13 +4141,13 @@ public final class Messages {
       private com.google.protobuf.SingleFieldBuilder<
           com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration, com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.Builder, com.amazonaws.services.kinesis.producer.protobuf.Config.ConfigurationOrBuilder> configurationBuilder_;
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Configuration configuration = 6;</code>
+       * <code>optional .aws.kinesis.protobuf.Configuration configuration = 6;</code>
        */
       public boolean hasConfiguration() {
         return actualMessageCase_ == 6;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Configuration configuration = 6;</code>
+       * <code>optional .aws.kinesis.protobuf.Configuration configuration = 6;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration getConfiguration() {
         if (configurationBuilder_ == null) {
@@ -4163,7 +4163,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Configuration configuration = 6;</code>
+       * <code>optional .aws.kinesis.protobuf.Configuration configuration = 6;</code>
        */
       public Builder setConfiguration(com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration value) {
         if (configurationBuilder_ == null) {
@@ -4179,7 +4179,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Configuration configuration = 6;</code>
+       * <code>optional .aws.kinesis.protobuf.Configuration configuration = 6;</code>
        */
       public Builder setConfiguration(
           com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.Builder builderForValue) {
@@ -4193,7 +4193,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Configuration configuration = 6;</code>
+       * <code>optional .aws.kinesis.protobuf.Configuration configuration = 6;</code>
        */
       public Builder mergeConfiguration(com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration value) {
         if (configurationBuilder_ == null) {
@@ -4215,7 +4215,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Configuration configuration = 6;</code>
+       * <code>optional .aws.kinesis.protobuf.Configuration configuration = 6;</code>
        */
       public Builder clearConfiguration() {
         if (configurationBuilder_ == null) {
@@ -4234,13 +4234,13 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Configuration configuration = 6;</code>
+       * <code>optional .aws.kinesis.protobuf.Configuration configuration = 6;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.Builder getConfigurationBuilder() {
         return getConfigurationFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Configuration configuration = 6;</code>
+       * <code>optional .aws.kinesis.protobuf.Configuration configuration = 6;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Config.ConfigurationOrBuilder getConfigurationOrBuilder() {
         if ((actualMessageCase_ == 6) && (configurationBuilder_ != null)) {
@@ -4253,7 +4253,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.Configuration configuration = 6;</code>
+       * <code>optional .aws.kinesis.protobuf.Configuration configuration = 6;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
           com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration, com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.Builder, com.amazonaws.services.kinesis.producer.protobuf.Config.ConfigurationOrBuilder> 
@@ -4276,13 +4276,13 @@ public final class Messages {
       private com.google.protobuf.SingleFieldBuilder<
           com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsRequest, com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsRequest.Builder, com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsRequestOrBuilder> metricsRequestBuilder_;
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsRequest metrics_request = 7;</code>
+       * <code>optional .aws.kinesis.protobuf.MetricsRequest metrics_request = 7;</code>
        */
       public boolean hasMetricsRequest() {
         return actualMessageCase_ == 7;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsRequest metrics_request = 7;</code>
+       * <code>optional .aws.kinesis.protobuf.MetricsRequest metrics_request = 7;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsRequest getMetricsRequest() {
         if (metricsRequestBuilder_ == null) {
@@ -4298,7 +4298,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsRequest metrics_request = 7;</code>
+       * <code>optional .aws.kinesis.protobuf.MetricsRequest metrics_request = 7;</code>
        */
       public Builder setMetricsRequest(com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsRequest value) {
         if (metricsRequestBuilder_ == null) {
@@ -4314,7 +4314,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsRequest metrics_request = 7;</code>
+       * <code>optional .aws.kinesis.protobuf.MetricsRequest metrics_request = 7;</code>
        */
       public Builder setMetricsRequest(
           com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsRequest.Builder builderForValue) {
@@ -4328,7 +4328,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsRequest metrics_request = 7;</code>
+       * <code>optional .aws.kinesis.protobuf.MetricsRequest metrics_request = 7;</code>
        */
       public Builder mergeMetricsRequest(com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsRequest value) {
         if (metricsRequestBuilder_ == null) {
@@ -4350,7 +4350,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsRequest metrics_request = 7;</code>
+       * <code>optional .aws.kinesis.protobuf.MetricsRequest metrics_request = 7;</code>
        */
       public Builder clearMetricsRequest() {
         if (metricsRequestBuilder_ == null) {
@@ -4369,13 +4369,13 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsRequest metrics_request = 7;</code>
+       * <code>optional .aws.kinesis.protobuf.MetricsRequest metrics_request = 7;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsRequest.Builder getMetricsRequestBuilder() {
         return getMetricsRequestFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsRequest metrics_request = 7;</code>
+       * <code>optional .aws.kinesis.protobuf.MetricsRequest metrics_request = 7;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsRequestOrBuilder getMetricsRequestOrBuilder() {
         if ((actualMessageCase_ == 7) && (metricsRequestBuilder_ != null)) {
@@ -4388,7 +4388,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsRequest metrics_request = 7;</code>
+       * <code>optional .aws.kinesis.protobuf.MetricsRequest metrics_request = 7;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
           com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsRequest, com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsRequest.Builder, com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsRequestOrBuilder> 
@@ -4411,13 +4411,13 @@ public final class Messages {
       private com.google.protobuf.SingleFieldBuilder<
           com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsResponse, com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsResponse.Builder, com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsResponseOrBuilder> metricsResponseBuilder_;
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsResponse metrics_response = 8;</code>
+       * <code>optional .aws.kinesis.protobuf.MetricsResponse metrics_response = 8;</code>
        */
       public boolean hasMetricsResponse() {
         return actualMessageCase_ == 8;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsResponse metrics_response = 8;</code>
+       * <code>optional .aws.kinesis.protobuf.MetricsResponse metrics_response = 8;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsResponse getMetricsResponse() {
         if (metricsResponseBuilder_ == null) {
@@ -4433,7 +4433,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsResponse metrics_response = 8;</code>
+       * <code>optional .aws.kinesis.protobuf.MetricsResponse metrics_response = 8;</code>
        */
       public Builder setMetricsResponse(com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsResponse value) {
         if (metricsResponseBuilder_ == null) {
@@ -4449,7 +4449,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsResponse metrics_response = 8;</code>
+       * <code>optional .aws.kinesis.protobuf.MetricsResponse metrics_response = 8;</code>
        */
       public Builder setMetricsResponse(
           com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsResponse.Builder builderForValue) {
@@ -4463,7 +4463,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsResponse metrics_response = 8;</code>
+       * <code>optional .aws.kinesis.protobuf.MetricsResponse metrics_response = 8;</code>
        */
       public Builder mergeMetricsResponse(com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsResponse value) {
         if (metricsResponseBuilder_ == null) {
@@ -4485,7 +4485,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsResponse metrics_response = 8;</code>
+       * <code>optional .aws.kinesis.protobuf.MetricsResponse metrics_response = 8;</code>
        */
       public Builder clearMetricsResponse() {
         if (metricsResponseBuilder_ == null) {
@@ -4504,13 +4504,13 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsResponse metrics_response = 8;</code>
+       * <code>optional .aws.kinesis.protobuf.MetricsResponse metrics_response = 8;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsResponse.Builder getMetricsResponseBuilder() {
         return getMetricsResponseFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsResponse metrics_response = 8;</code>
+       * <code>optional .aws.kinesis.protobuf.MetricsResponse metrics_response = 8;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsResponseOrBuilder getMetricsResponseOrBuilder() {
         if ((actualMessageCase_ == 8) && (metricsResponseBuilder_ != null)) {
@@ -4523,7 +4523,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.MetricsResponse metrics_response = 8;</code>
+       * <code>optional .aws.kinesis.protobuf.MetricsResponse metrics_response = 8;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
           com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsResponse, com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsResponse.Builder, com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsResponseOrBuilder> 
@@ -4546,13 +4546,13 @@ public final class Messages {
       private com.google.protobuf.SingleFieldBuilder<
           com.amazonaws.services.kinesis.producer.protobuf.Messages.SetCredentials, com.amazonaws.services.kinesis.producer.protobuf.Messages.SetCredentials.Builder, com.amazonaws.services.kinesis.producer.protobuf.Messages.SetCredentialsOrBuilder> setCredentialsBuilder_;
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.SetCredentials set_credentials = 9;</code>
+       * <code>optional .aws.kinesis.protobuf.SetCredentials set_credentials = 9;</code>
        */
       public boolean hasSetCredentials() {
         return actualMessageCase_ == 9;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.SetCredentials set_credentials = 9;</code>
+       * <code>optional .aws.kinesis.protobuf.SetCredentials set_credentials = 9;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.SetCredentials getSetCredentials() {
         if (setCredentialsBuilder_ == null) {
@@ -4568,7 +4568,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.SetCredentials set_credentials = 9;</code>
+       * <code>optional .aws.kinesis.protobuf.SetCredentials set_credentials = 9;</code>
        */
       public Builder setSetCredentials(com.amazonaws.services.kinesis.producer.protobuf.Messages.SetCredentials value) {
         if (setCredentialsBuilder_ == null) {
@@ -4584,7 +4584,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.SetCredentials set_credentials = 9;</code>
+       * <code>optional .aws.kinesis.protobuf.SetCredentials set_credentials = 9;</code>
        */
       public Builder setSetCredentials(
           com.amazonaws.services.kinesis.producer.protobuf.Messages.SetCredentials.Builder builderForValue) {
@@ -4598,7 +4598,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.SetCredentials set_credentials = 9;</code>
+       * <code>optional .aws.kinesis.protobuf.SetCredentials set_credentials = 9;</code>
        */
       public Builder mergeSetCredentials(com.amazonaws.services.kinesis.producer.protobuf.Messages.SetCredentials value) {
         if (setCredentialsBuilder_ == null) {
@@ -4620,7 +4620,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.SetCredentials set_credentials = 9;</code>
+       * <code>optional .aws.kinesis.protobuf.SetCredentials set_credentials = 9;</code>
        */
       public Builder clearSetCredentials() {
         if (setCredentialsBuilder_ == null) {
@@ -4639,13 +4639,13 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.SetCredentials set_credentials = 9;</code>
+       * <code>optional .aws.kinesis.protobuf.SetCredentials set_credentials = 9;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.SetCredentials.Builder getSetCredentialsBuilder() {
         return getSetCredentialsFieldBuilder().getBuilder();
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.SetCredentials set_credentials = 9;</code>
+       * <code>optional .aws.kinesis.protobuf.SetCredentials set_credentials = 9;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.SetCredentialsOrBuilder getSetCredentialsOrBuilder() {
         if ((actualMessageCase_ == 9) && (setCredentialsBuilder_ != null)) {
@@ -4658,7 +4658,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>optional .com.amazonaws.services.kinesis.producer.protobuf.SetCredentials set_credentials = 9;</code>
+       * <code>optional .aws.kinesis.protobuf.SetCredentials set_credentials = 9;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
           com.amazonaws.services.kinesis.producer.protobuf.Messages.SetCredentials, com.amazonaws.services.kinesis.producer.protobuf.Messages.SetCredentials.Builder, com.amazonaws.services.kinesis.producer.protobuf.Messages.SetCredentialsOrBuilder> 
@@ -4678,7 +4678,7 @@ public final class Messages {
         return setCredentialsBuilder_;
       }
 
-      // @@protoc_insertion_point(builder_scope:com.amazonaws.services.kinesis.producer.protobuf.Message)
+      // @@protoc_insertion_point(builder_scope:aws.kinesis.protobuf.Message)
     }
 
     static {
@@ -4686,11 +4686,11 @@ public final class Messages {
       defaultInstance.initFields();
     }
 
-    // @@protoc_insertion_point(class_scope:com.amazonaws.services.kinesis.producer.protobuf.Message)
+    // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.Message)
   }
 
   public interface PutRecordOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:com.amazonaws.services.kinesis.producer.protobuf.PutRecord)
+      // @@protoc_insertion_point(interface_extends:aws.kinesis.protobuf.PutRecord)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -4745,11 +4745,11 @@ public final class Messages {
     com.google.protobuf.ByteString getData();
   }
   /**
-   * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.PutRecord}
+   * Protobuf type {@code aws.kinesis.protobuf.PutRecord}
    */
   public static final class PutRecord extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:com.amazonaws.services.kinesis.producer.protobuf.PutRecord)
+      // @@protoc_insertion_point(message_implements:aws.kinesis.protobuf.PutRecord)
       PutRecordOrBuilder {
     // Use PutRecord.newBuilder() to construct.
     private PutRecord(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
@@ -4833,12 +4833,12 @@ public final class Messages {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_PutRecord_descriptor;
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_PutRecord_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_PutRecord_fieldAccessorTable
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_PutRecord_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecord.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecord.Builder.class);
     }
@@ -5147,20 +5147,20 @@ public final class Messages {
       return builder;
     }
     /**
-     * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.PutRecord}
+     * Protobuf type {@code aws.kinesis.protobuf.PutRecord}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:com.amazonaws.services.kinesis.producer.protobuf.PutRecord)
+        // @@protoc_insertion_point(builder_implements:aws.kinesis.protobuf.PutRecord)
         com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_PutRecord_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_PutRecord_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_PutRecord_fieldAccessorTable
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_PutRecord_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecord.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecord.Builder.class);
       }
@@ -5202,7 +5202,7 @@ public final class Messages {
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_PutRecord_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_PutRecord_descriptor;
       }
 
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecord getDefaultInstanceForType() {
@@ -5573,7 +5573,7 @@ public final class Messages {
         return this;
       }
 
-      // @@protoc_insertion_point(builder_scope:com.amazonaws.services.kinesis.producer.protobuf.PutRecord)
+      // @@protoc_insertion_point(builder_scope:aws.kinesis.protobuf.PutRecord)
     }
 
     static {
@@ -5581,11 +5581,11 @@ public final class Messages {
       defaultInstance.initFields();
     }
 
-    // @@protoc_insertion_point(class_scope:com.amazonaws.services.kinesis.producer.protobuf.PutRecord)
+    // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.PutRecord)
   }
 
   public interface FlushOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:com.amazonaws.services.kinesis.producer.protobuf.Flush)
+      // @@protoc_insertion_point(interface_extends:aws.kinesis.protobuf.Flush)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -5603,11 +5603,11 @@ public final class Messages {
         getStreamNameBytes();
   }
   /**
-   * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.Flush}
+   * Protobuf type {@code aws.kinesis.protobuf.Flush}
    */
   public static final class Flush extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:com.amazonaws.services.kinesis.producer.protobuf.Flush)
+      // @@protoc_insertion_point(message_implements:aws.kinesis.protobuf.Flush)
       FlushOrBuilder {
     // Use Flush.newBuilder() to construct.
     private Flush(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
@@ -5674,12 +5674,12 @@ public final class Messages {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Flush_descriptor;
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Flush_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Flush_fieldAccessorTable
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Flush_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               com.amazonaws.services.kinesis.producer.protobuf.Messages.Flush.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.Flush.Builder.class);
     }
@@ -5853,20 +5853,20 @@ public final class Messages {
       return builder;
     }
     /**
-     * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.Flush}
+     * Protobuf type {@code aws.kinesis.protobuf.Flush}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:com.amazonaws.services.kinesis.producer.protobuf.Flush)
+        // @@protoc_insertion_point(builder_implements:aws.kinesis.protobuf.Flush)
         com.amazonaws.services.kinesis.producer.protobuf.Messages.FlushOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Flush_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Flush_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Flush_fieldAccessorTable
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Flush_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 com.amazonaws.services.kinesis.producer.protobuf.Messages.Flush.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.Flush.Builder.class);
       }
@@ -5902,7 +5902,7 @@ public final class Messages {
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Flush_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Flush_descriptor;
       }
 
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Flush getDefaultInstanceForType() {
@@ -6049,7 +6049,7 @@ public final class Messages {
         return this;
       }
 
-      // @@protoc_insertion_point(builder_scope:com.amazonaws.services.kinesis.producer.protobuf.Flush)
+      // @@protoc_insertion_point(builder_scope:aws.kinesis.protobuf.Flush)
     }
 
     static {
@@ -6057,11 +6057,11 @@ public final class Messages {
       defaultInstance.initFields();
     }
 
-    // @@protoc_insertion_point(class_scope:com.amazonaws.services.kinesis.producer.protobuf.Flush)
+    // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.Flush)
   }
 
   public interface AttemptOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:com.amazonaws.services.kinesis.producer.protobuf.Attempt)
+      // @@protoc_insertion_point(interface_extends:aws.kinesis.protobuf.Attempt)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -6120,11 +6120,11 @@ public final class Messages {
         getErrorMessageBytes();
   }
   /**
-   * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.Attempt}
+   * Protobuf type {@code aws.kinesis.protobuf.Attempt}
    */
   public static final class Attempt extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:com.amazonaws.services.kinesis.producer.protobuf.Attempt)
+      // @@protoc_insertion_point(message_implements:aws.kinesis.protobuf.Attempt)
       AttemptOrBuilder {
     // Use Attempt.newBuilder() to construct.
     private Attempt(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
@@ -6212,12 +6212,12 @@ public final class Messages {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Attempt_descriptor;
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Attempt_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Attempt_fieldAccessorTable
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Attempt_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt.Builder.class);
     }
@@ -6522,20 +6522,20 @@ public final class Messages {
       return builder;
     }
     /**
-     * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.Attempt}
+     * Protobuf type {@code aws.kinesis.protobuf.Attempt}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:com.amazonaws.services.kinesis.producer.protobuf.Attempt)
+        // @@protoc_insertion_point(builder_implements:aws.kinesis.protobuf.Attempt)
         com.amazonaws.services.kinesis.producer.protobuf.Messages.AttemptOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Attempt_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Attempt_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Attempt_fieldAccessorTable
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Attempt_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt.Builder.class);
       }
@@ -6579,7 +6579,7 @@ public final class Messages {
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Attempt_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Attempt_descriptor;
       }
 
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt getDefaultInstanceForType() {
@@ -6940,7 +6940,7 @@ public final class Messages {
         return this;
       }
 
-      // @@protoc_insertion_point(builder_scope:com.amazonaws.services.kinesis.producer.protobuf.Attempt)
+      // @@protoc_insertion_point(builder_scope:aws.kinesis.protobuf.Attempt)
     }
 
     static {
@@ -6948,33 +6948,33 @@ public final class Messages {
       defaultInstance.initFields();
     }
 
-    // @@protoc_insertion_point(class_scope:com.amazonaws.services.kinesis.producer.protobuf.Attempt)
+    // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.Attempt)
   }
 
   public interface PutRecordResultOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:com.amazonaws.services.kinesis.producer.protobuf.PutRecordResult)
+      // @@protoc_insertion_point(interface_extends:aws.kinesis.protobuf.PutRecordResult)
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+     * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
      */
     java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt> 
         getAttemptsList();
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+     * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt getAttempts(int index);
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+     * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
      */
     int getAttemptsCount();
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+     * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
      */
     java.util.List<? extends com.amazonaws.services.kinesis.producer.protobuf.Messages.AttemptOrBuilder> 
         getAttemptsOrBuilderList();
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+     * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.AttemptOrBuilder getAttemptsOrBuilder(
         int index);
@@ -7017,11 +7017,11 @@ public final class Messages {
         getSequenceNumberBytes();
   }
   /**
-   * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.PutRecordResult}
+   * Protobuf type {@code aws.kinesis.protobuf.PutRecordResult}
    */
   public static final class PutRecordResult extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:com.amazonaws.services.kinesis.producer.protobuf.PutRecordResult)
+      // @@protoc_insertion_point(message_implements:aws.kinesis.protobuf.PutRecordResult)
       PutRecordResultOrBuilder {
     // Use PutRecordResult.newBuilder() to construct.
     private PutRecordResult(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
@@ -7110,12 +7110,12 @@ public final class Messages {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_PutRecordResult_descriptor;
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_PutRecordResult_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_PutRecordResult_fieldAccessorTable
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_PutRecordResult_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordResult.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordResult.Builder.class);
     }
@@ -7139,32 +7139,32 @@ public final class Messages {
     public static final int ATTEMPTS_FIELD_NUMBER = 1;
     private java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt> attempts_;
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+     * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
      */
     public java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt> getAttemptsList() {
       return attempts_;
     }
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+     * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
      */
     public java.util.List<? extends com.amazonaws.services.kinesis.producer.protobuf.Messages.AttemptOrBuilder> 
         getAttemptsOrBuilderList() {
       return attempts_;
     }
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+     * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
      */
     public int getAttemptsCount() {
       return attempts_.size();
     }
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+     * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt getAttempts(int index) {
       return attempts_.get(index);
     }
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+     * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.AttemptOrBuilder getAttemptsOrBuilder(
         int index) {
@@ -7415,20 +7415,20 @@ public final class Messages {
       return builder;
     }
     /**
-     * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.PutRecordResult}
+     * Protobuf type {@code aws.kinesis.protobuf.PutRecordResult}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:com.amazonaws.services.kinesis.producer.protobuf.PutRecordResult)
+        // @@protoc_insertion_point(builder_implements:aws.kinesis.protobuf.PutRecordResult)
         com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordResultOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_PutRecordResult_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_PutRecordResult_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_PutRecordResult_fieldAccessorTable
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_PutRecordResult_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordResult.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordResult.Builder.class);
       }
@@ -7475,7 +7475,7 @@ public final class Messages {
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_PutRecordResult_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_PutRecordResult_descriptor;
       }
 
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecordResult getDefaultInstanceForType() {
@@ -7620,7 +7620,7 @@ public final class Messages {
           com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt, com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt.Builder, com.amazonaws.services.kinesis.producer.protobuf.Messages.AttemptOrBuilder> attemptsBuilder_;
 
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
        */
       public java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt> getAttemptsList() {
         if (attemptsBuilder_ == null) {
@@ -7630,7 +7630,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
        */
       public int getAttemptsCount() {
         if (attemptsBuilder_ == null) {
@@ -7640,7 +7640,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt getAttempts(int index) {
         if (attemptsBuilder_ == null) {
@@ -7650,7 +7650,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
        */
       public Builder setAttempts(
           int index, com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt value) {
@@ -7667,7 +7667,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
        */
       public Builder setAttempts(
           int index, com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt.Builder builderForValue) {
@@ -7681,7 +7681,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
        */
       public Builder addAttempts(com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt value) {
         if (attemptsBuilder_ == null) {
@@ -7697,7 +7697,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
        */
       public Builder addAttempts(
           int index, com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt value) {
@@ -7714,7 +7714,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
        */
       public Builder addAttempts(
           com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt.Builder builderForValue) {
@@ -7728,7 +7728,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
        */
       public Builder addAttempts(
           int index, com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt.Builder builderForValue) {
@@ -7742,7 +7742,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
        */
       public Builder addAllAttempts(
           java.lang.Iterable<? extends com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt> values) {
@@ -7757,7 +7757,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
        */
       public Builder clearAttempts() {
         if (attemptsBuilder_ == null) {
@@ -7770,7 +7770,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
        */
       public Builder removeAttempts(int index) {
         if (attemptsBuilder_ == null) {
@@ -7783,14 +7783,14 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt.Builder getAttemptsBuilder(
           int index) {
         return getAttemptsFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.AttemptOrBuilder getAttemptsOrBuilder(
           int index) {
@@ -7800,7 +7800,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
        */
       public java.util.List<? extends com.amazonaws.services.kinesis.producer.protobuf.Messages.AttemptOrBuilder> 
            getAttemptsOrBuilderList() {
@@ -7811,14 +7811,14 @@ public final class Messages {
         }
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt.Builder addAttemptsBuilder() {
         return getAttemptsFieldBuilder().addBuilder(
             com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt.getDefaultInstance());
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt.Builder addAttemptsBuilder(
           int index) {
@@ -7826,7 +7826,7 @@ public final class Messages {
             index, com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt.getDefaultInstance());
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Attempt attempts = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Attempt attempts = 1;</code>
        */
       public java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Messages.Attempt.Builder> 
            getAttemptsBuilderList() {
@@ -8031,7 +8031,7 @@ public final class Messages {
         return this;
       }
 
-      // @@protoc_insertion_point(builder_scope:com.amazonaws.services.kinesis.producer.protobuf.PutRecordResult)
+      // @@protoc_insertion_point(builder_scope:aws.kinesis.protobuf.PutRecordResult)
     }
 
     static {
@@ -8039,11 +8039,11 @@ public final class Messages {
       defaultInstance.initFields();
     }
 
-    // @@protoc_insertion_point(class_scope:com.amazonaws.services.kinesis.producer.protobuf.PutRecordResult)
+    // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.PutRecordResult)
   }
 
   public interface CredentialsOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:com.amazonaws.services.kinesis.producer.protobuf.Credentials)
+      // @@protoc_insertion_point(interface_extends:aws.kinesis.protobuf.Credentials)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -8089,11 +8089,11 @@ public final class Messages {
         getTokenBytes();
   }
   /**
-   * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.Credentials}
+   * Protobuf type {@code aws.kinesis.protobuf.Credentials}
    */
   public static final class Credentials extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:com.amazonaws.services.kinesis.producer.protobuf.Credentials)
+      // @@protoc_insertion_point(message_implements:aws.kinesis.protobuf.Credentials)
       CredentialsOrBuilder {
     // Use Credentials.newBuilder() to construct.
     private Credentials(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
@@ -8172,12 +8172,12 @@ public final class Messages {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Credentials_descriptor;
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Credentials_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Credentials_fieldAccessorTable
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Credentials_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               com.amazonaws.services.kinesis.producer.protobuf.Messages.Credentials.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.Credentials.Builder.class);
     }
@@ -8459,20 +8459,20 @@ public final class Messages {
       return builder;
     }
     /**
-     * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.Credentials}
+     * Protobuf type {@code aws.kinesis.protobuf.Credentials}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:com.amazonaws.services.kinesis.producer.protobuf.Credentials)
+        // @@protoc_insertion_point(builder_implements:aws.kinesis.protobuf.Credentials)
         com.amazonaws.services.kinesis.producer.protobuf.Messages.CredentialsOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Credentials_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Credentials_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Credentials_fieldAccessorTable
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Credentials_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 com.amazonaws.services.kinesis.producer.protobuf.Messages.Credentials.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.Credentials.Builder.class);
       }
@@ -8512,7 +8512,7 @@ public final class Messages {
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Credentials_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Credentials_descriptor;
       }
 
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Credentials getDefaultInstanceForType() {
@@ -8837,7 +8837,7 @@ public final class Messages {
         return this;
       }
 
-      // @@protoc_insertion_point(builder_scope:com.amazonaws.services.kinesis.producer.protobuf.Credentials)
+      // @@protoc_insertion_point(builder_scope:aws.kinesis.protobuf.Credentials)
     }
 
     static {
@@ -8845,11 +8845,11 @@ public final class Messages {
       defaultInstance.initFields();
     }
 
-    // @@protoc_insertion_point(class_scope:com.amazonaws.services.kinesis.producer.protobuf.Credentials)
+    // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.Credentials)
   }
 
   public interface SetCredentialsOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:com.amazonaws.services.kinesis.producer.protobuf.SetCredentials)
+      // @@protoc_insertion_point(interface_extends:aws.kinesis.protobuf.SetCredentials)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -8862,24 +8862,24 @@ public final class Messages {
     boolean getForMetrics();
 
     /**
-     * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Credentials credentials = 2;</code>
+     * <code>required .aws.kinesis.protobuf.Credentials credentials = 2;</code>
      */
     boolean hasCredentials();
     /**
-     * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Credentials credentials = 2;</code>
+     * <code>required .aws.kinesis.protobuf.Credentials credentials = 2;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.Credentials getCredentials();
     /**
-     * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Credentials credentials = 2;</code>
+     * <code>required .aws.kinesis.protobuf.Credentials credentials = 2;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.CredentialsOrBuilder getCredentialsOrBuilder();
   }
   /**
-   * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.SetCredentials}
+   * Protobuf type {@code aws.kinesis.protobuf.SetCredentials}
    */
   public static final class SetCredentials extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:com.amazonaws.services.kinesis.producer.protobuf.SetCredentials)
+      // @@protoc_insertion_point(message_implements:aws.kinesis.protobuf.SetCredentials)
       SetCredentialsOrBuilder {
     // Use SetCredentials.newBuilder() to construct.
     private SetCredentials(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
@@ -8958,12 +8958,12 @@ public final class Messages {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_SetCredentials_descriptor;
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_SetCredentials_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_SetCredentials_fieldAccessorTable
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_SetCredentials_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               com.amazonaws.services.kinesis.producer.protobuf.Messages.SetCredentials.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.SetCredentials.Builder.class);
     }
@@ -9002,19 +9002,19 @@ public final class Messages {
     public static final int CREDENTIALS_FIELD_NUMBER = 2;
     private com.amazonaws.services.kinesis.producer.protobuf.Messages.Credentials credentials_;
     /**
-     * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Credentials credentials = 2;</code>
+     * <code>required .aws.kinesis.protobuf.Credentials credentials = 2;</code>
      */
     public boolean hasCredentials() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
-     * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Credentials credentials = 2;</code>
+     * <code>required .aws.kinesis.protobuf.Credentials credentials = 2;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.Credentials getCredentials() {
       return credentials_;
     }
     /**
-     * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Credentials credentials = 2;</code>
+     * <code>required .aws.kinesis.protobuf.Credentials credentials = 2;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.CredentialsOrBuilder getCredentialsOrBuilder() {
       return credentials_;
@@ -9147,20 +9147,20 @@ public final class Messages {
       return builder;
     }
     /**
-     * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.SetCredentials}
+     * Protobuf type {@code aws.kinesis.protobuf.SetCredentials}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:com.amazonaws.services.kinesis.producer.protobuf.SetCredentials)
+        // @@protoc_insertion_point(builder_implements:aws.kinesis.protobuf.SetCredentials)
         com.amazonaws.services.kinesis.producer.protobuf.Messages.SetCredentialsOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_SetCredentials_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_SetCredentials_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_SetCredentials_fieldAccessorTable
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_SetCredentials_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 com.amazonaws.services.kinesis.producer.protobuf.Messages.SetCredentials.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.SetCredentials.Builder.class);
       }
@@ -9203,7 +9203,7 @@ public final class Messages {
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_SetCredentials_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_SetCredentials_descriptor;
       }
 
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.SetCredentials getDefaultInstanceForType() {
@@ -9327,13 +9327,13 @@ public final class Messages {
       private com.google.protobuf.SingleFieldBuilder<
           com.amazonaws.services.kinesis.producer.protobuf.Messages.Credentials, com.amazonaws.services.kinesis.producer.protobuf.Messages.Credentials.Builder, com.amazonaws.services.kinesis.producer.protobuf.Messages.CredentialsOrBuilder> credentialsBuilder_;
       /**
-       * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Credentials credentials = 2;</code>
+       * <code>required .aws.kinesis.protobuf.Credentials credentials = 2;</code>
        */
       public boolean hasCredentials() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
       /**
-       * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Credentials credentials = 2;</code>
+       * <code>required .aws.kinesis.protobuf.Credentials credentials = 2;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Credentials getCredentials() {
         if (credentialsBuilder_ == null) {
@@ -9343,7 +9343,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Credentials credentials = 2;</code>
+       * <code>required .aws.kinesis.protobuf.Credentials credentials = 2;</code>
        */
       public Builder setCredentials(com.amazonaws.services.kinesis.producer.protobuf.Messages.Credentials value) {
         if (credentialsBuilder_ == null) {
@@ -9359,7 +9359,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Credentials credentials = 2;</code>
+       * <code>required .aws.kinesis.protobuf.Credentials credentials = 2;</code>
        */
       public Builder setCredentials(
           com.amazonaws.services.kinesis.producer.protobuf.Messages.Credentials.Builder builderForValue) {
@@ -9373,7 +9373,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Credentials credentials = 2;</code>
+       * <code>required .aws.kinesis.protobuf.Credentials credentials = 2;</code>
        */
       public Builder mergeCredentials(com.amazonaws.services.kinesis.producer.protobuf.Messages.Credentials value) {
         if (credentialsBuilder_ == null) {
@@ -9392,7 +9392,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Credentials credentials = 2;</code>
+       * <code>required .aws.kinesis.protobuf.Credentials credentials = 2;</code>
        */
       public Builder clearCredentials() {
         if (credentialsBuilder_ == null) {
@@ -9405,7 +9405,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Credentials credentials = 2;</code>
+       * <code>required .aws.kinesis.protobuf.Credentials credentials = 2;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Credentials.Builder getCredentialsBuilder() {
         bitField0_ |= 0x00000002;
@@ -9413,7 +9413,7 @@ public final class Messages {
         return getCredentialsFieldBuilder().getBuilder();
       }
       /**
-       * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Credentials credentials = 2;</code>
+       * <code>required .aws.kinesis.protobuf.Credentials credentials = 2;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.CredentialsOrBuilder getCredentialsOrBuilder() {
         if (credentialsBuilder_ != null) {
@@ -9423,7 +9423,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Credentials credentials = 2;</code>
+       * <code>required .aws.kinesis.protobuf.Credentials credentials = 2;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
           com.amazonaws.services.kinesis.producer.protobuf.Messages.Credentials, com.amazonaws.services.kinesis.producer.protobuf.Messages.Credentials.Builder, com.amazonaws.services.kinesis.producer.protobuf.Messages.CredentialsOrBuilder> 
@@ -9439,7 +9439,7 @@ public final class Messages {
         return credentialsBuilder_;
       }
 
-      // @@protoc_insertion_point(builder_scope:com.amazonaws.services.kinesis.producer.protobuf.SetCredentials)
+      // @@protoc_insertion_point(builder_scope:aws.kinesis.protobuf.SetCredentials)
     }
 
     static {
@@ -9447,11 +9447,11 @@ public final class Messages {
       defaultInstance.initFields();
     }
 
-    // @@protoc_insertion_point(class_scope:com.amazonaws.services.kinesis.producer.protobuf.SetCredentials)
+    // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.SetCredentials)
   }
 
   public interface DimensionOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:com.amazonaws.services.kinesis.producer.protobuf.Dimension)
+      // @@protoc_insertion_point(interface_extends:aws.kinesis.protobuf.Dimension)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -9483,11 +9483,11 @@ public final class Messages {
         getValueBytes();
   }
   /**
-   * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.Dimension}
+   * Protobuf type {@code aws.kinesis.protobuf.Dimension}
    */
   public static final class Dimension extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:com.amazonaws.services.kinesis.producer.protobuf.Dimension)
+      // @@protoc_insertion_point(message_implements:aws.kinesis.protobuf.Dimension)
       DimensionOrBuilder {
     // Use Dimension.newBuilder() to construct.
     private Dimension(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
@@ -9560,12 +9560,12 @@ public final class Messages {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Dimension_descriptor;
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Dimension_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Dimension_fieldAccessorTable
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Dimension_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension.Builder.class);
     }
@@ -9797,20 +9797,20 @@ public final class Messages {
       return builder;
     }
     /**
-     * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.Dimension}
+     * Protobuf type {@code aws.kinesis.protobuf.Dimension}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:com.amazonaws.services.kinesis.producer.protobuf.Dimension)
+        // @@protoc_insertion_point(builder_implements:aws.kinesis.protobuf.Dimension)
         com.amazonaws.services.kinesis.producer.protobuf.Messages.DimensionOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Dimension_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Dimension_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Dimension_fieldAccessorTable
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Dimension_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension.Builder.class);
       }
@@ -9848,7 +9848,7 @@ public final class Messages {
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Dimension_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Dimension_descriptor;
       }
 
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension getDefaultInstanceForType() {
@@ -10088,7 +10088,7 @@ public final class Messages {
         return this;
       }
 
-      // @@protoc_insertion_point(builder_scope:com.amazonaws.services.kinesis.producer.protobuf.Dimension)
+      // @@protoc_insertion_point(builder_scope:aws.kinesis.protobuf.Dimension)
     }
 
     static {
@@ -10096,11 +10096,11 @@ public final class Messages {
       defaultInstance.initFields();
     }
 
-    // @@protoc_insertion_point(class_scope:com.amazonaws.services.kinesis.producer.protobuf.Dimension)
+    // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.Dimension)
   }
 
   public interface StatsOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:com.amazonaws.services.kinesis.producer.protobuf.Stats)
+      // @@protoc_insertion_point(interface_extends:aws.kinesis.protobuf.Stats)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -10149,11 +10149,11 @@ public final class Messages {
     double getMax();
   }
   /**
-   * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.Stats}
+   * Protobuf type {@code aws.kinesis.protobuf.Stats}
    */
   public static final class Stats extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:com.amazonaws.services.kinesis.producer.protobuf.Stats)
+      // @@protoc_insertion_point(message_implements:aws.kinesis.protobuf.Stats)
       StatsOrBuilder {
     // Use Stats.newBuilder() to construct.
     private Stats(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
@@ -10239,12 +10239,12 @@ public final class Messages {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Stats_descriptor;
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Stats_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Stats_fieldAccessorTable
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Stats_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               com.amazonaws.services.kinesis.producer.protobuf.Messages.Stats.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.Stats.Builder.class);
     }
@@ -10503,20 +10503,20 @@ public final class Messages {
       return builder;
     }
     /**
-     * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.Stats}
+     * Protobuf type {@code aws.kinesis.protobuf.Stats}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:com.amazonaws.services.kinesis.producer.protobuf.Stats)
+        // @@protoc_insertion_point(builder_implements:aws.kinesis.protobuf.Stats)
         com.amazonaws.services.kinesis.producer.protobuf.Messages.StatsOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Stats_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Stats_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Stats_fieldAccessorTable
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Stats_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 com.amazonaws.services.kinesis.producer.protobuf.Messages.Stats.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.Stats.Builder.class);
       }
@@ -10560,7 +10560,7 @@ public final class Messages {
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Stats_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Stats_descriptor;
       }
 
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Stats getDefaultInstanceForType() {
@@ -10837,7 +10837,7 @@ public final class Messages {
         return this;
       }
 
-      // @@protoc_insertion_point(builder_scope:com.amazonaws.services.kinesis.producer.protobuf.Stats)
+      // @@protoc_insertion_point(builder_scope:aws.kinesis.protobuf.Stats)
     }
 
     static {
@@ -10845,11 +10845,11 @@ public final class Messages {
       defaultInstance.initFields();
     }
 
-    // @@protoc_insertion_point(class_scope:com.amazonaws.services.kinesis.producer.protobuf.Stats)
+    // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.Stats)
   }
 
   public interface MetricOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:com.amazonaws.services.kinesis.producer.protobuf.Metric)
+      // @@protoc_insertion_point(interface_extends:aws.kinesis.protobuf.Metric)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -10867,39 +10867,39 @@ public final class Messages {
         getNameBytes();
 
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+     * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
      */
     java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension> 
         getDimensionsList();
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+     * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension getDimensions(int index);
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+     * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
      */
     int getDimensionsCount();
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+     * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
      */
     java.util.List<? extends com.amazonaws.services.kinesis.producer.protobuf.Messages.DimensionOrBuilder> 
         getDimensionsOrBuilderList();
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+     * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.DimensionOrBuilder getDimensionsOrBuilder(
         int index);
 
     /**
-     * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Stats stats = 3;</code>
+     * <code>required .aws.kinesis.protobuf.Stats stats = 3;</code>
      */
     boolean hasStats();
     /**
-     * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Stats stats = 3;</code>
+     * <code>required .aws.kinesis.protobuf.Stats stats = 3;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.Stats getStats();
     /**
-     * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Stats stats = 3;</code>
+     * <code>required .aws.kinesis.protobuf.Stats stats = 3;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.StatsOrBuilder getStatsOrBuilder();
 
@@ -10913,11 +10913,11 @@ public final class Messages {
     long getSeconds();
   }
   /**
-   * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.Metric}
+   * Protobuf type {@code aws.kinesis.protobuf.Metric}
    */
   public static final class Metric extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:com.amazonaws.services.kinesis.producer.protobuf.Metric)
+      // @@protoc_insertion_point(message_implements:aws.kinesis.protobuf.Metric)
       MetricOrBuilder {
     // Use Metric.newBuilder() to construct.
     private Metric(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
@@ -11013,12 +11013,12 @@ public final class Messages {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Metric_descriptor;
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Metric_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Metric_fieldAccessorTable
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Metric_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric.Builder.class);
     }
@@ -11084,32 +11084,32 @@ public final class Messages {
     public static final int DIMENSIONS_FIELD_NUMBER = 2;
     private java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension> dimensions_;
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+     * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
      */
     public java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension> getDimensionsList() {
       return dimensions_;
     }
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+     * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
      */
     public java.util.List<? extends com.amazonaws.services.kinesis.producer.protobuf.Messages.DimensionOrBuilder> 
         getDimensionsOrBuilderList() {
       return dimensions_;
     }
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+     * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
      */
     public int getDimensionsCount() {
       return dimensions_.size();
     }
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+     * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension getDimensions(int index) {
       return dimensions_.get(index);
     }
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+     * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.DimensionOrBuilder getDimensionsOrBuilder(
         int index) {
@@ -11119,19 +11119,19 @@ public final class Messages {
     public static final int STATS_FIELD_NUMBER = 3;
     private com.amazonaws.services.kinesis.producer.protobuf.Messages.Stats stats_;
     /**
-     * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Stats stats = 3;</code>
+     * <code>required .aws.kinesis.protobuf.Stats stats = 3;</code>
      */
     public boolean hasStats() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
-     * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Stats stats = 3;</code>
+     * <code>required .aws.kinesis.protobuf.Stats stats = 3;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.Stats getStats() {
       return stats_;
     }
     /**
-     * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Stats stats = 3;</code>
+     * <code>required .aws.kinesis.protobuf.Stats stats = 3;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.StatsOrBuilder getStatsOrBuilder() {
       return stats_;
@@ -11309,20 +11309,20 @@ public final class Messages {
       return builder;
     }
     /**
-     * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.Metric}
+     * Protobuf type {@code aws.kinesis.protobuf.Metric}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:com.amazonaws.services.kinesis.producer.protobuf.Metric)
+        // @@protoc_insertion_point(builder_implements:aws.kinesis.protobuf.Metric)
         com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Metric_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Metric_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Metric_fieldAccessorTable
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Metric_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric.Builder.class);
       }
@@ -11374,7 +11374,7 @@ public final class Messages {
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_Metric_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_Metric_descriptor;
       }
 
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric getDefaultInstanceForType() {
@@ -11609,7 +11609,7 @@ public final class Messages {
           com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension, com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension.Builder, com.amazonaws.services.kinesis.producer.protobuf.Messages.DimensionOrBuilder> dimensionsBuilder_;
 
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+       * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
        */
       public java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension> getDimensionsList() {
         if (dimensionsBuilder_ == null) {
@@ -11619,7 +11619,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+       * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
        */
       public int getDimensionsCount() {
         if (dimensionsBuilder_ == null) {
@@ -11629,7 +11629,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+       * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension getDimensions(int index) {
         if (dimensionsBuilder_ == null) {
@@ -11639,7 +11639,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+       * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
        */
       public Builder setDimensions(
           int index, com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension value) {
@@ -11656,7 +11656,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+       * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
        */
       public Builder setDimensions(
           int index, com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension.Builder builderForValue) {
@@ -11670,7 +11670,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+       * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
        */
       public Builder addDimensions(com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension value) {
         if (dimensionsBuilder_ == null) {
@@ -11686,7 +11686,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+       * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
        */
       public Builder addDimensions(
           int index, com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension value) {
@@ -11703,7 +11703,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+       * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
        */
       public Builder addDimensions(
           com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension.Builder builderForValue) {
@@ -11717,7 +11717,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+       * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
        */
       public Builder addDimensions(
           int index, com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension.Builder builderForValue) {
@@ -11731,7 +11731,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+       * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
        */
       public Builder addAllDimensions(
           java.lang.Iterable<? extends com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension> values) {
@@ -11746,7 +11746,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+       * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
        */
       public Builder clearDimensions() {
         if (dimensionsBuilder_ == null) {
@@ -11759,7 +11759,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+       * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
        */
       public Builder removeDimensions(int index) {
         if (dimensionsBuilder_ == null) {
@@ -11772,14 +11772,14 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+       * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension.Builder getDimensionsBuilder(
           int index) {
         return getDimensionsFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+       * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.DimensionOrBuilder getDimensionsOrBuilder(
           int index) {
@@ -11789,7 +11789,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+       * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
        */
       public java.util.List<? extends com.amazonaws.services.kinesis.producer.protobuf.Messages.DimensionOrBuilder> 
            getDimensionsOrBuilderList() {
@@ -11800,14 +11800,14 @@ public final class Messages {
         }
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+       * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension.Builder addDimensionsBuilder() {
         return getDimensionsFieldBuilder().addBuilder(
             com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension.getDefaultInstance());
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+       * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension.Builder addDimensionsBuilder(
           int index) {
@@ -11815,7 +11815,7 @@ public final class Messages {
             index, com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension.getDefaultInstance());
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Dimension dimensions = 2;</code>
+       * <code>repeated .aws.kinesis.protobuf.Dimension dimensions = 2;</code>
        */
       public java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Messages.Dimension.Builder> 
            getDimensionsBuilderList() {
@@ -11840,13 +11840,13 @@ public final class Messages {
       private com.google.protobuf.SingleFieldBuilder<
           com.amazonaws.services.kinesis.producer.protobuf.Messages.Stats, com.amazonaws.services.kinesis.producer.protobuf.Messages.Stats.Builder, com.amazonaws.services.kinesis.producer.protobuf.Messages.StatsOrBuilder> statsBuilder_;
       /**
-       * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Stats stats = 3;</code>
+       * <code>required .aws.kinesis.protobuf.Stats stats = 3;</code>
        */
       public boolean hasStats() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Stats stats = 3;</code>
+       * <code>required .aws.kinesis.protobuf.Stats stats = 3;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Stats getStats() {
         if (statsBuilder_ == null) {
@@ -11856,7 +11856,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Stats stats = 3;</code>
+       * <code>required .aws.kinesis.protobuf.Stats stats = 3;</code>
        */
       public Builder setStats(com.amazonaws.services.kinesis.producer.protobuf.Messages.Stats value) {
         if (statsBuilder_ == null) {
@@ -11872,7 +11872,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Stats stats = 3;</code>
+       * <code>required .aws.kinesis.protobuf.Stats stats = 3;</code>
        */
       public Builder setStats(
           com.amazonaws.services.kinesis.producer.protobuf.Messages.Stats.Builder builderForValue) {
@@ -11886,7 +11886,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Stats stats = 3;</code>
+       * <code>required .aws.kinesis.protobuf.Stats stats = 3;</code>
        */
       public Builder mergeStats(com.amazonaws.services.kinesis.producer.protobuf.Messages.Stats value) {
         if (statsBuilder_ == null) {
@@ -11905,7 +11905,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Stats stats = 3;</code>
+       * <code>required .aws.kinesis.protobuf.Stats stats = 3;</code>
        */
       public Builder clearStats() {
         if (statsBuilder_ == null) {
@@ -11918,7 +11918,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Stats stats = 3;</code>
+       * <code>required .aws.kinesis.protobuf.Stats stats = 3;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Stats.Builder getStatsBuilder() {
         bitField0_ |= 0x00000004;
@@ -11926,7 +11926,7 @@ public final class Messages {
         return getStatsFieldBuilder().getBuilder();
       }
       /**
-       * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Stats stats = 3;</code>
+       * <code>required .aws.kinesis.protobuf.Stats stats = 3;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.StatsOrBuilder getStatsOrBuilder() {
         if (statsBuilder_ != null) {
@@ -11936,7 +11936,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>required .com.amazonaws.services.kinesis.producer.protobuf.Stats stats = 3;</code>
+       * <code>required .aws.kinesis.protobuf.Stats stats = 3;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
           com.amazonaws.services.kinesis.producer.protobuf.Messages.Stats, com.amazonaws.services.kinesis.producer.protobuf.Messages.Stats.Builder, com.amazonaws.services.kinesis.producer.protobuf.Messages.StatsOrBuilder> 
@@ -11984,7 +11984,7 @@ public final class Messages {
         return this;
       }
 
-      // @@protoc_insertion_point(builder_scope:com.amazonaws.services.kinesis.producer.protobuf.Metric)
+      // @@protoc_insertion_point(builder_scope:aws.kinesis.protobuf.Metric)
     }
 
     static {
@@ -11992,11 +11992,11 @@ public final class Messages {
       defaultInstance.initFields();
     }
 
-    // @@protoc_insertion_point(class_scope:com.amazonaws.services.kinesis.producer.protobuf.Metric)
+    // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.Metric)
   }
 
   public interface MetricsRequestOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:com.amazonaws.services.kinesis.producer.protobuf.MetricsRequest)
+      // @@protoc_insertion_point(interface_extends:aws.kinesis.protobuf.MetricsRequest)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -12023,11 +12023,11 @@ public final class Messages {
     long getSeconds();
   }
   /**
-   * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.MetricsRequest}
+   * Protobuf type {@code aws.kinesis.protobuf.MetricsRequest}
    */
   public static final class MetricsRequest extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:com.amazonaws.services.kinesis.producer.protobuf.MetricsRequest)
+      // @@protoc_insertion_point(message_implements:aws.kinesis.protobuf.MetricsRequest)
       MetricsRequestOrBuilder {
     // Use MetricsRequest.newBuilder() to construct.
     private MetricsRequest(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
@@ -12099,12 +12099,12 @@ public final class Messages {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_MetricsRequest_descriptor;
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_MetricsRequest_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_MetricsRequest_fieldAccessorTable
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_MetricsRequest_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsRequest.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsRequest.Builder.class);
     }
@@ -12301,20 +12301,20 @@ public final class Messages {
       return builder;
     }
     /**
-     * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.MetricsRequest}
+     * Protobuf type {@code aws.kinesis.protobuf.MetricsRequest}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:com.amazonaws.services.kinesis.producer.protobuf.MetricsRequest)
+        // @@protoc_insertion_point(builder_implements:aws.kinesis.protobuf.MetricsRequest)
         com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsRequestOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_MetricsRequest_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_MetricsRequest_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_MetricsRequest_fieldAccessorTable
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_MetricsRequest_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsRequest.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsRequest.Builder.class);
       }
@@ -12352,7 +12352,7 @@ public final class Messages {
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_MetricsRequest_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_MetricsRequest_descriptor;
       }
 
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsRequest getDefaultInstanceForType() {
@@ -12538,7 +12538,7 @@ public final class Messages {
         return this;
       }
 
-      // @@protoc_insertion_point(builder_scope:com.amazonaws.services.kinesis.producer.protobuf.MetricsRequest)
+      // @@protoc_insertion_point(builder_scope:aws.kinesis.protobuf.MetricsRequest)
     }
 
     static {
@@ -12546,43 +12546,43 @@ public final class Messages {
       defaultInstance.initFields();
     }
 
-    // @@protoc_insertion_point(class_scope:com.amazonaws.services.kinesis.producer.protobuf.MetricsRequest)
+    // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.MetricsRequest)
   }
 
   public interface MetricsResponseOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:com.amazonaws.services.kinesis.producer.protobuf.MetricsResponse)
+      // @@protoc_insertion_point(interface_extends:aws.kinesis.protobuf.MetricsResponse)
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+     * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
      */
     java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric> 
         getMetricsList();
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+     * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric getMetrics(int index);
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+     * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
      */
     int getMetricsCount();
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+     * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
      */
     java.util.List<? extends com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricOrBuilder> 
         getMetricsOrBuilderList();
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+     * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
      */
     com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricOrBuilder getMetricsOrBuilder(
         int index);
   }
   /**
-   * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.MetricsResponse}
+   * Protobuf type {@code aws.kinesis.protobuf.MetricsResponse}
    */
   public static final class MetricsResponse extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:com.amazonaws.services.kinesis.producer.protobuf.MetricsResponse)
+      // @@protoc_insertion_point(message_implements:aws.kinesis.protobuf.MetricsResponse)
       MetricsResponseOrBuilder {
     // Use MetricsResponse.newBuilder() to construct.
     private MetricsResponse(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
@@ -12654,12 +12654,12 @@ public final class Messages {
     }
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_MetricsResponse_descriptor;
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_MetricsResponse_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_MetricsResponse_fieldAccessorTable
+      return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_MetricsResponse_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsResponse.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsResponse.Builder.class);
     }
@@ -12682,32 +12682,32 @@ public final class Messages {
     public static final int METRICS_FIELD_NUMBER = 1;
     private java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric> metrics_;
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+     * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
      */
     public java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric> getMetricsList() {
       return metrics_;
     }
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+     * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
      */
     public java.util.List<? extends com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricOrBuilder> 
         getMetricsOrBuilderList() {
       return metrics_;
     }
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+     * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
      */
     public int getMetricsCount() {
       return metrics_.size();
     }
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+     * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric getMetrics(int index) {
       return metrics_.get(index);
     }
     /**
-     * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+     * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricOrBuilder getMetricsOrBuilder(
         int index) {
@@ -12831,20 +12831,20 @@ public final class Messages {
       return builder;
     }
     /**
-     * Protobuf type {@code com.amazonaws.services.kinesis.producer.protobuf.MetricsResponse}
+     * Protobuf type {@code aws.kinesis.protobuf.MetricsResponse}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:com.amazonaws.services.kinesis.producer.protobuf.MetricsResponse)
+        // @@protoc_insertion_point(builder_implements:aws.kinesis.protobuf.MetricsResponse)
         com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsResponseOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_MetricsResponse_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_MetricsResponse_descriptor;
       }
 
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_MetricsResponse_fieldAccessorTable
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_MetricsResponse_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsResponse.class, com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsResponse.Builder.class);
       }
@@ -12885,7 +12885,7 @@ public final class Messages {
 
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_com_amazonaws_services_kinesis_producer_protobuf_MetricsResponse_descriptor;
+        return com.amazonaws.services.kinesis.producer.protobuf.Messages.internal_static_aws_kinesis_protobuf_MetricsResponse_descriptor;
       }
 
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsResponse getDefaultInstanceForType() {
@@ -12999,7 +12999,7 @@ public final class Messages {
           com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric, com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric.Builder, com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricOrBuilder> metricsBuilder_;
 
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
        */
       public java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric> getMetricsList() {
         if (metricsBuilder_ == null) {
@@ -13009,7 +13009,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
        */
       public int getMetricsCount() {
         if (metricsBuilder_ == null) {
@@ -13019,7 +13019,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric getMetrics(int index) {
         if (metricsBuilder_ == null) {
@@ -13029,7 +13029,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
        */
       public Builder setMetrics(
           int index, com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric value) {
@@ -13046,7 +13046,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
        */
       public Builder setMetrics(
           int index, com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric.Builder builderForValue) {
@@ -13060,7 +13060,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
        */
       public Builder addMetrics(com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric value) {
         if (metricsBuilder_ == null) {
@@ -13076,7 +13076,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
        */
       public Builder addMetrics(
           int index, com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric value) {
@@ -13093,7 +13093,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
        */
       public Builder addMetrics(
           com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric.Builder builderForValue) {
@@ -13107,7 +13107,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
        */
       public Builder addMetrics(
           int index, com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric.Builder builderForValue) {
@@ -13121,7 +13121,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
        */
       public Builder addAllMetrics(
           java.lang.Iterable<? extends com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric> values) {
@@ -13136,7 +13136,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
        */
       public Builder clearMetrics() {
         if (metricsBuilder_ == null) {
@@ -13149,7 +13149,7 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
        */
       public Builder removeMetrics(int index) {
         if (metricsBuilder_ == null) {
@@ -13162,14 +13162,14 @@ public final class Messages {
         return this;
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric.Builder getMetricsBuilder(
           int index) {
         return getMetricsFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricOrBuilder getMetricsOrBuilder(
           int index) {
@@ -13179,7 +13179,7 @@ public final class Messages {
         }
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
        */
       public java.util.List<? extends com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricOrBuilder> 
            getMetricsOrBuilderList() {
@@ -13190,14 +13190,14 @@ public final class Messages {
         }
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric.Builder addMetricsBuilder() {
         return getMetricsFieldBuilder().addBuilder(
             com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric.getDefaultInstance());
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric.Builder addMetricsBuilder(
           int index) {
@@ -13205,7 +13205,7 @@ public final class Messages {
             index, com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric.getDefaultInstance());
       }
       /**
-       * <code>repeated .com.amazonaws.services.kinesis.producer.protobuf.Metric metrics = 1;</code>
+       * <code>repeated .aws.kinesis.protobuf.Metric metrics = 1;</code>
        */
       public java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Messages.Metric.Builder> 
            getMetricsBuilderList() {
@@ -13226,7 +13226,7 @@ public final class Messages {
         return metricsBuilder_;
       }
 
-      // @@protoc_insertion_point(builder_scope:com.amazonaws.services.kinesis.producer.protobuf.MetricsResponse)
+      // @@protoc_insertion_point(builder_scope:aws.kinesis.protobuf.MetricsResponse)
     }
 
     static {
@@ -13234,84 +13234,84 @@ public final class Messages {
       defaultInstance.initFields();
     }
 
-    // @@protoc_insertion_point(class_scope:com.amazonaws.services.kinesis.producer.protobuf.MetricsResponse)
+    // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.MetricsResponse)
   }
 
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Tag_descriptor;
+    internal_static_aws_kinesis_protobuf_Tag_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_com_amazonaws_services_kinesis_producer_protobuf_Tag_fieldAccessorTable;
+      internal_static_aws_kinesis_protobuf_Tag_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Record_descriptor;
+    internal_static_aws_kinesis_protobuf_Record_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_com_amazonaws_services_kinesis_producer_protobuf_Record_fieldAccessorTable;
+      internal_static_aws_kinesis_protobuf_Record_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_AggregatedRecord_descriptor;
+    internal_static_aws_kinesis_protobuf_AggregatedRecord_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_com_amazonaws_services_kinesis_producer_protobuf_AggregatedRecord_fieldAccessorTable;
+      internal_static_aws_kinesis_protobuf_AggregatedRecord_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Message_descriptor;
+    internal_static_aws_kinesis_protobuf_Message_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_com_amazonaws_services_kinesis_producer_protobuf_Message_fieldAccessorTable;
+      internal_static_aws_kinesis_protobuf_Message_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_PutRecord_descriptor;
+    internal_static_aws_kinesis_protobuf_PutRecord_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_com_amazonaws_services_kinesis_producer_protobuf_PutRecord_fieldAccessorTable;
+      internal_static_aws_kinesis_protobuf_PutRecord_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Flush_descriptor;
+    internal_static_aws_kinesis_protobuf_Flush_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_com_amazonaws_services_kinesis_producer_protobuf_Flush_fieldAccessorTable;
+      internal_static_aws_kinesis_protobuf_Flush_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Attempt_descriptor;
+    internal_static_aws_kinesis_protobuf_Attempt_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_com_amazonaws_services_kinesis_producer_protobuf_Attempt_fieldAccessorTable;
+      internal_static_aws_kinesis_protobuf_Attempt_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_PutRecordResult_descriptor;
+    internal_static_aws_kinesis_protobuf_PutRecordResult_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_com_amazonaws_services_kinesis_producer_protobuf_PutRecordResult_fieldAccessorTable;
+      internal_static_aws_kinesis_protobuf_PutRecordResult_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Credentials_descriptor;
+    internal_static_aws_kinesis_protobuf_Credentials_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_com_amazonaws_services_kinesis_producer_protobuf_Credentials_fieldAccessorTable;
+      internal_static_aws_kinesis_protobuf_Credentials_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_SetCredentials_descriptor;
+    internal_static_aws_kinesis_protobuf_SetCredentials_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_com_amazonaws_services_kinesis_producer_protobuf_SetCredentials_fieldAccessorTable;
+      internal_static_aws_kinesis_protobuf_SetCredentials_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Dimension_descriptor;
+    internal_static_aws_kinesis_protobuf_Dimension_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_com_amazonaws_services_kinesis_producer_protobuf_Dimension_fieldAccessorTable;
+      internal_static_aws_kinesis_protobuf_Dimension_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Stats_descriptor;
+    internal_static_aws_kinesis_protobuf_Stats_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_com_amazonaws_services_kinesis_producer_protobuf_Stats_fieldAccessorTable;
+      internal_static_aws_kinesis_protobuf_Stats_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Metric_descriptor;
+    internal_static_aws_kinesis_protobuf_Metric_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_com_amazonaws_services_kinesis_producer_protobuf_Metric_fieldAccessorTable;
+      internal_static_aws_kinesis_protobuf_Metric_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_MetricsRequest_descriptor;
+    internal_static_aws_kinesis_protobuf_MetricsRequest_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_com_amazonaws_services_kinesis_producer_protobuf_MetricsRequest_fieldAccessorTable;
+      internal_static_aws_kinesis_protobuf_MetricsRequest_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_MetricsResponse_descriptor;
+    internal_static_aws_kinesis_protobuf_MetricsResponse_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_com_amazonaws_services_kinesis_producer_protobuf_MetricsResponse_fieldAccessorTable;
+      internal_static_aws_kinesis_protobuf_MetricsResponse_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -13321,60 +13321,51 @@ public final class Messages {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\016messages.proto\0220com.amazonaws.services" +
-      ".kinesis.producer.protobuf\032\014config.proto" +
-      "\"!\n\003Tag\022\013\n\003key\030\001 \002(\t\022\r\n\005value\030\002 \001(\t\"\231\001\n\006" +
-      "Record\022\033\n\023partition_key_index\030\001 \002(\004\022\037\n\027e" +
-      "xplicit_hash_key_index\030\002 \001(\004\022\014\n\004data\030\003 \002" +
-      "(\014\022C\n\004tags\030\004 \003(\01325.com.amazonaws.service" +
-      "s.kinesis.producer.protobuf.Tag\"\233\001\n\020Aggr" +
-      "egatedRecord\022\033\n\023partition_key_table\030\001 \003(" +
-      "\t\022\037\n\027explicit_hash_key_table\030\002 \003(\t\022I\n\007re" +
-      "cords\030\003 \003(\01328.com.amazonaws.services.kin",
-      "esis.producer.protobuf.Record\"\252\005\n\007Messag" +
-      "e\022\n\n\002id\030\001 \002(\004\022\021\n\tsource_id\030\002 \001(\004\022Q\n\nput_" +
-      "record\030\003 \001(\0132;.com.amazonaws.services.ki" +
-      "nesis.producer.protobuf.PutRecordH\000\022H\n\005f" +
-      "lush\030\004 \001(\01327.com.amazonaws.services.kine" +
-      "sis.producer.protobuf.FlushH\000\022^\n\021put_rec" +
-      "ord_result\030\005 \001(\0132A.com.amazonaws.service" +
-      "s.kinesis.producer.protobuf.PutRecordRes" +
-      "ultH\000\022X\n\rconfiguration\030\006 \001(\0132?.com.amazo" +
-      "naws.services.kinesis.producer.protobuf.",
-      "ConfigurationH\000\022[\n\017metrics_request\030\007 \001(\013" +
-      "2@.com.amazonaws.services.kinesis.produc" +
-      "er.protobuf.MetricsRequestH\000\022]\n\020metrics_" +
-      "response\030\010 \001(\0132A.com.amazonaws.services." +
-      "kinesis.producer.protobuf.MetricsRespons" +
-      "eH\000\022[\n\017set_credentials\030\t \001(\0132@.com.amazo" +
-      "naws.services.kinesis.producer.protobuf." +
-      "SetCredentialsH\000B\020\n\016actual_message\"`\n\tPu" +
-      "tRecord\022\023\n\013stream_name\030\001 \002(\t\022\025\n\rpartitio" +
-      "n_key\030\002 \002(\t\022\031\n\021explicit_hash_key\030\003 \001(\t\022\014",
-      "\n\004data\030\004 \002(\014\"\034\n\005Flush\022\023\n\013stream_name\030\001 \001" +
-      "(\t\"f\n\007Attempt\022\r\n\005delay\030\001 \002(\r\022\020\n\010duration" +
-      "\030\002 \002(\r\022\017\n\007success\030\003 \002(\010\022\022\n\nerror_code\030\004 " +
-      "\001(\t\022\025\n\rerror_message\030\005 \001(\t\"\232\001\n\017PutRecord" +
-      "Result\022K\n\010attempts\030\001 \003(\01329.com.amazonaws" +
-      ".services.kinesis.producer.protobuf.Atte" +
-      "mpt\022\017\n\007success\030\002 \002(\010\022\020\n\010shard_id\030\003 \001(\t\022\027" +
-      "\n\017sequence_number\030\004 \001(\t\">\n\013Credentials\022\014" +
-      "\n\004akid\030\001 \002(\t\022\022\n\nsecret_key\030\002 \002(\t\022\r\n\005toke" +
-      "n\030\003 \001(\t\"y\n\016SetCredentials\022\023\n\013for_metrics",
-      "\030\001 \001(\010\022R\n\013credentials\030\002 \002(\0132=.com.amazon" +
-      "aws.services.kinesis.producer.protobuf.C" +
-      "redentials\"\'\n\tDimension\022\013\n\003key\030\001 \002(\t\022\r\n\005" +
-      "value\030\002 \002(\t\"K\n\005Stats\022\r\n\005count\030\001 \002(\001\022\013\n\003s" +
-      "um\030\002 \002(\001\022\014\n\004mean\030\003 \002(\001\022\013\n\003min\030\004 \002(\001\022\013\n\003m" +
-      "ax\030\005 \002(\001\"\300\001\n\006Metric\022\014\n\004name\030\001 \002(\t\022O\n\ndim" +
-      "ensions\030\002 \003(\0132;.com.amazonaws.services.k" +
-      "inesis.producer.protobuf.Dimension\022F\n\005st" +
-      "ats\030\003 \002(\01327.com.amazonaws.services.kines" +
-      "is.producer.protobuf.Stats\022\017\n\007seconds\030\004 ",
-      "\002(\004\"/\n\016MetricsRequest\022\014\n\004name\030\001 \001(\t\022\017\n\007s" +
-      "econds\030\002 \001(\004\"\\\n\017MetricsResponse\022I\n\007metri" +
-      "cs\030\001 \003(\01328.com.amazonaws.services.kinesi" +
-      "s.producer.protobuf.Metric"
+      "\n\016messages.proto\022\024aws.kinesis.protobuf\032\014" +
+      "config.proto\"!\n\003Tag\022\013\n\003key\030\001 \002(\t\022\r\n\005valu" +
+      "e\030\002 \001(\t\"}\n\006Record\022\033\n\023partition_key_index" +
+      "\030\001 \002(\004\022\037\n\027explicit_hash_key_index\030\002 \001(\004\022" +
+      "\014\n\004data\030\003 \002(\014\022\'\n\004tags\030\004 \003(\0132\031.aws.kinesi" +
+      "s.protobuf.Tag\"\177\n\020AggregatedRecord\022\033\n\023pa" +
+      "rtition_key_table\030\001 \003(\t\022\037\n\027explicit_hash" +
+      "_key_table\030\002 \003(\t\022-\n\007records\030\003 \003(\0132\034.aws." +
+      "kinesis.protobuf.Record\"\346\003\n\007Message\022\n\n\002i" +
+      "d\030\001 \002(\004\022\021\n\tsource_id\030\002 \001(\004\0225\n\nput_record",
+      "\030\003 \001(\0132\037.aws.kinesis.protobuf.PutRecordH" +
+      "\000\022,\n\005flush\030\004 \001(\0132\033.aws.kinesis.protobuf." +
+      "FlushH\000\022B\n\021put_record_result\030\005 \001(\0132%.aws" +
+      ".kinesis.protobuf.PutRecordResultH\000\022<\n\rc" +
+      "onfiguration\030\006 \001(\0132#.aws.kinesis.protobu" +
+      "f.ConfigurationH\000\022?\n\017metrics_request\030\007 \001" +
+      "(\0132$.aws.kinesis.protobuf.MetricsRequest" +
+      "H\000\022A\n\020metrics_response\030\010 \001(\0132%.aws.kines" +
+      "is.protobuf.MetricsResponseH\000\022?\n\017set_cre" +
+      "dentials\030\t \001(\0132$.aws.kinesis.protobuf.Se",
+      "tCredentialsH\000B\020\n\016actual_message\"`\n\tPutR" +
+      "ecord\022\023\n\013stream_name\030\001 \002(\t\022\025\n\rpartition_" +
+      "key\030\002 \002(\t\022\031\n\021explicit_hash_key\030\003 \001(\t\022\014\n\004" +
+      "data\030\004 \002(\014\"\034\n\005Flush\022\023\n\013stream_name\030\001 \001(\t" +
+      "\"f\n\007Attempt\022\r\n\005delay\030\001 \002(\r\022\020\n\010duration\030\002" +
+      " \002(\r\022\017\n\007success\030\003 \002(\010\022\022\n\nerror_code\030\004 \001(" +
+      "\t\022\025\n\rerror_message\030\005 \001(\t\"~\n\017PutRecordRes" +
+      "ult\022/\n\010attempts\030\001 \003(\0132\035.aws.kinesis.prot" +
+      "obuf.Attempt\022\017\n\007success\030\002 \002(\010\022\020\n\010shard_i" +
+      "d\030\003 \001(\t\022\027\n\017sequence_number\030\004 \001(\t\">\n\013Cred",
+      "entials\022\014\n\004akid\030\001 \002(\t\022\022\n\nsecret_key\030\002 \002(" +
+      "\t\022\r\n\005token\030\003 \001(\t\"]\n\016SetCredentials\022\023\n\013fo" +
+      "r_metrics\030\001 \001(\010\0226\n\013credentials\030\002 \002(\0132!.a" +
+      "ws.kinesis.protobuf.Credentials\"\'\n\tDimen" +
+      "sion\022\013\n\003key\030\001 \002(\t\022\r\n\005value\030\002 \002(\t\"K\n\005Stat" +
+      "s\022\r\n\005count\030\001 \002(\001\022\013\n\003sum\030\002 \002(\001\022\014\n\004mean\030\003 " +
+      "\002(\001\022\013\n\003min\030\004 \002(\001\022\013\n\003max\030\005 \002(\001\"\210\001\n\006Metric" +
+      "\022\014\n\004name\030\001 \002(\t\0223\n\ndimensions\030\002 \003(\0132\037.aws" +
+      ".kinesis.protobuf.Dimension\022*\n\005stats\030\003 \002" +
+      "(\0132\033.aws.kinesis.protobuf.Stats\022\017\n\007secon",
+      "ds\030\004 \002(\004\"/\n\016MetricsRequest\022\014\n\004name\030\001 \001(\t" +
+      "\022\017\n\007seconds\030\002 \001(\004\"@\n\017MetricsResponse\022-\n\007" +
+      "metrics\030\001 \003(\0132\034.aws.kinesis.protobuf.Met" +
+      "ricB2\n0com.amazonaws.services.kinesis.pr" +
+      "oducer.protobuf"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -13389,95 +13380,95 @@ public final class Messages {
         new com.google.protobuf.Descriptors.FileDescriptor[] {
           com.amazonaws.services.kinesis.producer.protobuf.Config.getDescriptor(),
         }, assigner);
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Tag_descriptor =
+    internal_static_aws_kinesis_protobuf_Tag_descriptor =
       getDescriptor().getMessageTypes().get(0);
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Tag_fieldAccessorTable = new
+    internal_static_aws_kinesis_protobuf_Tag_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_com_amazonaws_services_kinesis_producer_protobuf_Tag_descriptor,
+        internal_static_aws_kinesis_protobuf_Tag_descriptor,
         new java.lang.String[] { "Key", "Value", });
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Record_descriptor =
+    internal_static_aws_kinesis_protobuf_Record_descriptor =
       getDescriptor().getMessageTypes().get(1);
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Record_fieldAccessorTable = new
+    internal_static_aws_kinesis_protobuf_Record_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_com_amazonaws_services_kinesis_producer_protobuf_Record_descriptor,
+        internal_static_aws_kinesis_protobuf_Record_descriptor,
         new java.lang.String[] { "PartitionKeyIndex", "ExplicitHashKeyIndex", "Data", "Tags", });
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_AggregatedRecord_descriptor =
+    internal_static_aws_kinesis_protobuf_AggregatedRecord_descriptor =
       getDescriptor().getMessageTypes().get(2);
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_AggregatedRecord_fieldAccessorTable = new
+    internal_static_aws_kinesis_protobuf_AggregatedRecord_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_com_amazonaws_services_kinesis_producer_protobuf_AggregatedRecord_descriptor,
+        internal_static_aws_kinesis_protobuf_AggregatedRecord_descriptor,
         new java.lang.String[] { "PartitionKeyTable", "ExplicitHashKeyTable", "Records", });
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Message_descriptor =
+    internal_static_aws_kinesis_protobuf_Message_descriptor =
       getDescriptor().getMessageTypes().get(3);
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Message_fieldAccessorTable = new
+    internal_static_aws_kinesis_protobuf_Message_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_com_amazonaws_services_kinesis_producer_protobuf_Message_descriptor,
+        internal_static_aws_kinesis_protobuf_Message_descriptor,
         new java.lang.String[] { "Id", "SourceId", "PutRecord", "Flush", "PutRecordResult", "Configuration", "MetricsRequest", "MetricsResponse", "SetCredentials", "ActualMessage", });
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_PutRecord_descriptor =
+    internal_static_aws_kinesis_protobuf_PutRecord_descriptor =
       getDescriptor().getMessageTypes().get(4);
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_PutRecord_fieldAccessorTable = new
+    internal_static_aws_kinesis_protobuf_PutRecord_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_com_amazonaws_services_kinesis_producer_protobuf_PutRecord_descriptor,
+        internal_static_aws_kinesis_protobuf_PutRecord_descriptor,
         new java.lang.String[] { "StreamName", "PartitionKey", "ExplicitHashKey", "Data", });
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Flush_descriptor =
+    internal_static_aws_kinesis_protobuf_Flush_descriptor =
       getDescriptor().getMessageTypes().get(5);
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Flush_fieldAccessorTable = new
+    internal_static_aws_kinesis_protobuf_Flush_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_com_amazonaws_services_kinesis_producer_protobuf_Flush_descriptor,
+        internal_static_aws_kinesis_protobuf_Flush_descriptor,
         new java.lang.String[] { "StreamName", });
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Attempt_descriptor =
+    internal_static_aws_kinesis_protobuf_Attempt_descriptor =
       getDescriptor().getMessageTypes().get(6);
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Attempt_fieldAccessorTable = new
+    internal_static_aws_kinesis_protobuf_Attempt_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_com_amazonaws_services_kinesis_producer_protobuf_Attempt_descriptor,
+        internal_static_aws_kinesis_protobuf_Attempt_descriptor,
         new java.lang.String[] { "Delay", "Duration", "Success", "ErrorCode", "ErrorMessage", });
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_PutRecordResult_descriptor =
+    internal_static_aws_kinesis_protobuf_PutRecordResult_descriptor =
       getDescriptor().getMessageTypes().get(7);
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_PutRecordResult_fieldAccessorTable = new
+    internal_static_aws_kinesis_protobuf_PutRecordResult_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_com_amazonaws_services_kinesis_producer_protobuf_PutRecordResult_descriptor,
+        internal_static_aws_kinesis_protobuf_PutRecordResult_descriptor,
         new java.lang.String[] { "Attempts", "Success", "ShardId", "SequenceNumber", });
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Credentials_descriptor =
+    internal_static_aws_kinesis_protobuf_Credentials_descriptor =
       getDescriptor().getMessageTypes().get(8);
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Credentials_fieldAccessorTable = new
+    internal_static_aws_kinesis_protobuf_Credentials_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_com_amazonaws_services_kinesis_producer_protobuf_Credentials_descriptor,
+        internal_static_aws_kinesis_protobuf_Credentials_descriptor,
         new java.lang.String[] { "Akid", "SecretKey", "Token", });
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_SetCredentials_descriptor =
+    internal_static_aws_kinesis_protobuf_SetCredentials_descriptor =
       getDescriptor().getMessageTypes().get(9);
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_SetCredentials_fieldAccessorTable = new
+    internal_static_aws_kinesis_protobuf_SetCredentials_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_com_amazonaws_services_kinesis_producer_protobuf_SetCredentials_descriptor,
+        internal_static_aws_kinesis_protobuf_SetCredentials_descriptor,
         new java.lang.String[] { "ForMetrics", "Credentials", });
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Dimension_descriptor =
+    internal_static_aws_kinesis_protobuf_Dimension_descriptor =
       getDescriptor().getMessageTypes().get(10);
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Dimension_fieldAccessorTable = new
+    internal_static_aws_kinesis_protobuf_Dimension_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_com_amazonaws_services_kinesis_producer_protobuf_Dimension_descriptor,
+        internal_static_aws_kinesis_protobuf_Dimension_descriptor,
         new java.lang.String[] { "Key", "Value", });
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Stats_descriptor =
+    internal_static_aws_kinesis_protobuf_Stats_descriptor =
       getDescriptor().getMessageTypes().get(11);
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Stats_fieldAccessorTable = new
+    internal_static_aws_kinesis_protobuf_Stats_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_com_amazonaws_services_kinesis_producer_protobuf_Stats_descriptor,
+        internal_static_aws_kinesis_protobuf_Stats_descriptor,
         new java.lang.String[] { "Count", "Sum", "Mean", "Min", "Max", });
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Metric_descriptor =
+    internal_static_aws_kinesis_protobuf_Metric_descriptor =
       getDescriptor().getMessageTypes().get(12);
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_Metric_fieldAccessorTable = new
+    internal_static_aws_kinesis_protobuf_Metric_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_com_amazonaws_services_kinesis_producer_protobuf_Metric_descriptor,
+        internal_static_aws_kinesis_protobuf_Metric_descriptor,
         new java.lang.String[] { "Name", "Dimensions", "Stats", "Seconds", });
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_MetricsRequest_descriptor =
+    internal_static_aws_kinesis_protobuf_MetricsRequest_descriptor =
       getDescriptor().getMessageTypes().get(13);
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_MetricsRequest_fieldAccessorTable = new
+    internal_static_aws_kinesis_protobuf_MetricsRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_com_amazonaws_services_kinesis_producer_protobuf_MetricsRequest_descriptor,
+        internal_static_aws_kinesis_protobuf_MetricsRequest_descriptor,
         new java.lang.String[] { "Name", "Seconds", });
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_MetricsResponse_descriptor =
+    internal_static_aws_kinesis_protobuf_MetricsResponse_descriptor =
       getDescriptor().getMessageTypes().get(14);
-    internal_static_com_amazonaws_services_kinesis_producer_protobuf_MetricsResponse_fieldAccessorTable = new
+    internal_static_aws_kinesis_protobuf_MetricsResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_com_amazonaws_services_kinesis_producer_protobuf_MetricsResponse_descriptor,
+        internal_static_aws_kinesis_protobuf_MetricsResponse_descriptor,
         new java.lang.String[] { "Metrics", });
     com.amazonaws.services.kinesis.producer.protobuf.Config.getDescriptor();
   }

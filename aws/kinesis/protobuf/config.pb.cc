@@ -57,7 +57,7 @@ void protobuf_AssignDesc_config_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(AdditionalDimension));
   Configuration_descriptor_ = file->message_type(1);
-  static const int Configuration_offsets_[28] = {
+  static const int Configuration_offsets_[32] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, additional_metric_dims_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, aggregation_enabled_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, aggregation_max_count_),
@@ -84,6 +84,10 @@ void protobuf_AssignDesc_config_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, region_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, request_timeout_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, verify_certificate_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, proxy_host_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, proxy_port_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, proxy_user_name_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, proxy_password_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, thread_config_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Configuration, thread_pool_size_),
   };
@@ -139,7 +143,7 @@ void protobuf_AddDesc_config_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\014config.proto\022\024aws.kinesis.protobuf\"F\n\023"
     "AdditionalDimension\022\013\n\003key\030\001 \002(\t\022\r\n\005valu"
-    "e\030\002 \002(\t\022\023\n\013granularity\030\003 \002(\t\"\254\010\n\rConfigu"
+    "e\030\002 \002(\t\022\023\n\013granularity\030\003 \002(\t\"\221\t\n\rConfigu"
     "ration\022J\n\026additional_metric_dims\030\200\001 \003(\0132"
     ").aws.kinesis.protobuf.AdditionalDimensi"
     "on\022!\n\023aggregation_enabled\030\001 \001(\010:\004true\022)\n"
@@ -162,12 +166,15 @@ void protobuf_AddDesc_config_2eproto() {
     "max_buffered_time\030\025 \001(\004:\003100\022\031\n\nrecord_t"
     "tl\030\026 \001(\004:\00530000\022\020\n\006region\030\027 \001(\t:\000\022\035\n\017req"
     "uest_timeout\030\030 \001(\004:\0046000\022 \n\022verify_certi"
-    "ficate\030\031 \001(\010:\004true\022T\n\rthread_config\030\032 \001("
-    "\01620.aws.kinesis.protobuf.Configuration.T"
-    "hreadConfig:\013PER_REQUEST\022\034\n\020thread_pool_"
-    "size\030\033 \001(\r:\00264\"+\n\014ThreadConfig\022\017\n\013PER_RE"
-    "QUEST\020\000\022\n\n\006POOLED\020\001B2\n0com.amazonaws.ser"
-    "vices.kinesis.producer.protobuf", 1231);
+    "ficate\030\031 \001(\010:\004true\022\024\n\nproxy_host\030\032 \001(\t:\000"
+    "\022\030\n\nproxy_port\030\033 \001(\004:\0048080\022\031\n\017proxy_user"
+    "_name\030\034 \001(\t:\000\022\030\n\016proxy_password\030\035 \001(\t:\000\022"
+    "T\n\rthread_config\030\036 \001(\01620.aws.kinesis.pro"
+    "tobuf.Configuration.ThreadConfig:\013PER_RE"
+    "QUEST\022\034\n\020thread_pool_size\030\037 \001(\r:\00264\"+\n\014T"
+    "hreadConfig\022\017\n\013PER_REQUEST\020\000\022\n\n\006POOLED\020\001"
+    "B2\n0com.amazonaws.services.kinesis.produ"
+    "cer.protobuf", 1332);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "config.proto", &protobuf_RegisterTypes);
   AdditionalDimension::default_instance_ = new AdditionalDimension();
@@ -610,6 +617,10 @@ const int Configuration::kRecordTtlFieldNumber;
 const int Configuration::kRegionFieldNumber;
 const int Configuration::kRequestTimeoutFieldNumber;
 const int Configuration::kVerifyCertificateFieldNumber;
+const int Configuration::kProxyHostFieldNumber;
+const int Configuration::kProxyPortFieldNumber;
+const int Configuration::kProxyUserNameFieldNumber;
+const int Configuration::kProxyPasswordFieldNumber;
 const int Configuration::kThreadConfigFieldNumber;
 const int Configuration::kThreadPoolSizeFieldNumber;
 #endif  // !_MSC_VER
@@ -658,6 +669,10 @@ void Configuration::SharedCtor() {
   region_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   request_timeout_ = GOOGLE_ULONGLONG(6000);
   verify_certificate_ = true;
+  proxy_host_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  proxy_port_ = GOOGLE_ULONGLONG(8080);
+  proxy_user_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  proxy_password_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   thread_config_ = 0;
   thread_pool_size_ = 64u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -689,6 +704,15 @@ void Configuration::SharedDtor() {
   }
   if (region_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete region_;
+  }
+  if (proxy_host_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete proxy_host_;
+  }
+  if (proxy_user_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete proxy_user_name_;
+  }
+  if (proxy_password_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete proxy_password_;
   }
   if (this != default_instance_) {
   }
@@ -782,9 +806,25 @@ void Configuration::Clear() {
       }
     }
   }
-  if (_has_bits_[24 / 32] & 251658240) {
+  if (_has_bits_[24 / 32] & 4278190080) {
     request_timeout_ = GOOGLE_ULONGLONG(6000);
     verify_certificate_ = true;
+    if (has_proxy_host()) {
+      if (proxy_host_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        proxy_host_->clear();
+      }
+    }
+    proxy_port_ = GOOGLE_ULONGLONG(8080);
+    if (has_proxy_user_name()) {
+      if (proxy_user_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        proxy_user_name_->clear();
+      }
+    }
+    if (has_proxy_password()) {
+      if (proxy_password_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        proxy_password_->clear();
+      }
+    }
     thread_config_ = 0;
     thread_pool_size_ = 64u;
   }
@@ -1191,13 +1231,79 @@ bool Configuration::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(208)) goto parse_thread_config;
+        if (input->ExpectTag(210)) goto parse_proxy_host;
         break;
       }
 
-      // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];
+      // optional string proxy_host = 26 [default = ""];
       case 26: {
-        if (tag == 208) {
+        if (tag == 210) {
+         parse_proxy_host:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_proxy_host()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->proxy_host().data(), this->proxy_host().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "proxy_host");
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(216)) goto parse_proxy_port;
+        break;
+      }
+
+      // optional uint64 proxy_port = 27 [default = 8080];
+      case 27: {
+        if (tag == 216) {
+         parse_proxy_port:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
+                 input, &proxy_port_)));
+          set_has_proxy_port();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(226)) goto parse_proxy_user_name;
+        break;
+      }
+
+      // optional string proxy_user_name = 28 [default = ""];
+      case 28: {
+        if (tag == 226) {
+         parse_proxy_user_name:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_proxy_user_name()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->proxy_user_name().data(), this->proxy_user_name().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "proxy_user_name");
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(234)) goto parse_proxy_password;
+        break;
+      }
+
+      // optional string proxy_password = 29 [default = ""];
+      case 29: {
+        if (tag == 234) {
+         parse_proxy_password:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_proxy_password()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->proxy_password().data(), this->proxy_password().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "proxy_password");
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(240)) goto parse_thread_config;
+        break;
+      }
+
+      // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 30 [default = PER_REQUEST];
+      case 30: {
+        if (tag == 240) {
          parse_thread_config:
           int value;
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
@@ -1206,18 +1312,18 @@ bool Configuration::MergePartialFromCodedStream(
           if (::aws::kinesis::protobuf::Configuration_ThreadConfig_IsValid(value)) {
             set_thread_config(static_cast< ::aws::kinesis::protobuf::Configuration_ThreadConfig >(value));
           } else {
-            mutable_unknown_fields()->AddVarint(26, value);
+            mutable_unknown_fields()->AddVarint(30, value);
           }
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(216)) goto parse_thread_pool_size;
+        if (input->ExpectTag(248)) goto parse_thread_pool_size;
         break;
       }
 
-      // optional uint32 thread_pool_size = 27 [default = 64];
-      case 27: {
-        if (tag == 216) {
+      // optional uint32 thread_pool_size = 31 [default = 64];
+      case 31: {
+        if (tag == 248) {
          parse_thread_pool_size:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
@@ -1429,15 +1535,50 @@ void Configuration::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteBool(25, this->verify_certificate(), output);
   }
 
-  // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];
-  if (has_thread_config()) {
-    ::google::protobuf::internal::WireFormatLite::WriteEnum(
-      26, this->thread_config(), output);
+  // optional string proxy_host = 26 [default = ""];
+  if (has_proxy_host()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->proxy_host().data(), this->proxy_host().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "proxy_host");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      26, this->proxy_host(), output);
   }
 
-  // optional uint32 thread_pool_size = 27 [default = 64];
+  // optional uint64 proxy_port = 27 [default = 8080];
+  if (has_proxy_port()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt64(27, this->proxy_port(), output);
+  }
+
+  // optional string proxy_user_name = 28 [default = ""];
+  if (has_proxy_user_name()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->proxy_user_name().data(), this->proxy_user_name().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "proxy_user_name");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      28, this->proxy_user_name(), output);
+  }
+
+  // optional string proxy_password = 29 [default = ""];
+  if (has_proxy_password()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->proxy_password().data(), this->proxy_password().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "proxy_password");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      29, this->proxy_password(), output);
+  }
+
+  // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 30 [default = PER_REQUEST];
+  if (has_thread_config()) {
+    ::google::protobuf::internal::WireFormatLite::WriteEnum(
+      30, this->thread_config(), output);
+  }
+
+  // optional uint32 thread_pool_size = 31 [default = 64];
   if (has_thread_pool_size()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(27, this->thread_pool_size(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(31, this->thread_pool_size(), output);
   }
 
   // repeated .aws.kinesis.protobuf.AdditionalDimension additional_metric_dims = 128;
@@ -1623,15 +1764,53 @@ void Configuration::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(25, this->verify_certificate(), target);
   }
 
-  // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];
-  if (has_thread_config()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
-      26, this->thread_config(), target);
+  // optional string proxy_host = 26 [default = ""];
+  if (has_proxy_host()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->proxy_host().data(), this->proxy_host().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "proxy_host");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        26, this->proxy_host(), target);
   }
 
-  // optional uint32 thread_pool_size = 27 [default = 64];
+  // optional uint64 proxy_port = 27 [default = 8080];
+  if (has_proxy_port()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(27, this->proxy_port(), target);
+  }
+
+  // optional string proxy_user_name = 28 [default = ""];
+  if (has_proxy_user_name()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->proxy_user_name().data(), this->proxy_user_name().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "proxy_user_name");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        28, this->proxy_user_name(), target);
+  }
+
+  // optional string proxy_password = 29 [default = ""];
+  if (has_proxy_password()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->proxy_password().data(), this->proxy_password().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "proxy_password");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        29, this->proxy_password(), target);
+  }
+
+  // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 30 [default = PER_REQUEST];
+  if (has_thread_config()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
+      30, this->thread_config(), target);
+  }
+
+  // optional uint32 thread_pool_size = 31 [default = 64];
   if (has_thread_pool_size()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(27, this->thread_pool_size(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(31, this->thread_pool_size(), target);
   }
 
   // repeated .aws.kinesis.protobuf.AdditionalDimension additional_metric_dims = 128;
@@ -1826,13 +2005,41 @@ int Configuration::ByteSize() const {
       total_size += 2 + 1;
     }
 
-    // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];
+    // optional string proxy_host = 26 [default = ""];
+    if (has_proxy_host()) {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->proxy_host());
+    }
+
+    // optional uint64 proxy_port = 27 [default = 8080];
+    if (has_proxy_port()) {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::UInt64Size(
+          this->proxy_port());
+    }
+
+    // optional string proxy_user_name = 28 [default = ""];
+    if (has_proxy_user_name()) {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->proxy_user_name());
+    }
+
+    // optional string proxy_password = 29 [default = ""];
+    if (has_proxy_password()) {
+      total_size += 2 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->proxy_password());
+    }
+
+    // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 30 [default = PER_REQUEST];
     if (has_thread_config()) {
       total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::EnumSize(this->thread_config());
     }
 
-    // optional uint32 thread_pool_size = 27 [default = 64];
+    // optional uint32 thread_pool_size = 31 [default = 64];
     if (has_thread_pool_size()) {
       total_size += 2 +
         ::google::protobuf::internal::WireFormatLite::UInt32Size(
@@ -1956,6 +2163,18 @@ void Configuration::MergeFrom(const Configuration& from) {
     if (from.has_verify_certificate()) {
       set_verify_certificate(from.verify_certificate());
     }
+    if (from.has_proxy_host()) {
+      set_proxy_host(from.proxy_host());
+    }
+    if (from.has_proxy_port()) {
+      set_proxy_port(from.proxy_port());
+    }
+    if (from.has_proxy_user_name()) {
+      set_proxy_user_name(from.proxy_user_name());
+    }
+    if (from.has_proxy_password()) {
+      set_proxy_password(from.proxy_password());
+    }
     if (from.has_thread_config()) {
       set_thread_config(from.thread_config());
     }
@@ -2012,6 +2231,10 @@ void Configuration::Swap(Configuration* other) {
     std::swap(region_, other->region_);
     std::swap(request_timeout_, other->request_timeout_);
     std::swap(verify_certificate_, other->verify_certificate_);
+    std::swap(proxy_host_, other->proxy_host_);
+    std::swap(proxy_port_, other->proxy_port_);
+    std::swap(proxy_user_name_, other->proxy_user_name_);
+    std::swap(proxy_password_, other->proxy_password_);
     std::swap(thread_config_, other->thread_config_);
     std::swap(thread_pool_size_, other->thread_pool_size_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
