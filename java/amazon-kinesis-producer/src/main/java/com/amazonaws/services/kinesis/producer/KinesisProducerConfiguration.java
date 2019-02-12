@@ -634,7 +634,7 @@ public class KinesisProducerConfiguration {
     }
 
     /**
-     * Maximum amount of itme (milliseconds) a record may spend being buffered before it gets
+     * Maximum amount of time (milliseconds) a record may spend being buffered before it gets
      * sent. Records may be sent sooner than this depending on the other buffering limits.
      * 
      * <p>
@@ -1203,7 +1203,7 @@ public class KinesisProducerConfiguration {
     }
 
     /**
-     * Maximum amount of itme (milliseconds) a record may spend being buffered before it gets
+     * Maximum amount of time (milliseconds) a record may spend being buffered before it gets
      * sent. Records may be sent sooner than this depending on the other buffering limits.
      * 
      * <p>
