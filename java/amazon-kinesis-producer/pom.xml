@@ -141,8 +141,8 @@
 
     <licenses>
         <license>
-            <name>Amazon Software License</name>
-            <url>https://aws.amazon.com/asl</url>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
