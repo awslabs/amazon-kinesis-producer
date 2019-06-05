@@ -38,7 +38,8 @@ struct EndpointConfiguration {
 
 const constexpr char* kVersion = "0.12.9N";
 const std::unordered_map< std::string, EndpointConfiguration > kRegionEndpointOverride = {
-  { "cn-north-1", { "kinesis.cn-north-1.amazonaws.com.cn", "monitoring.cn-north-1.amazonaws.com.cn" } }
+  { "cn-north-1", { "kinesis.cn-north-1.amazonaws.com.cn", "monitoring.cn-north-1.amazonaws.com.cn" } },
+  { "cn-northwest-1", { "kinesis.cn-northwest-1.amazonaws.com.cn", "monitoring.cn-northwest-1.amazonaws.com.cn" } }
 };
   const constexpr uint32_t kDefaultThreadPoolSize = 64;
 
