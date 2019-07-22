@@ -15,6 +15,10 @@ This is a restatement of the [notice published](https://docs.aws.amazon.com/stre
 
 ## Release Notes
 
+### 0.13.0
+
+* [PR #256] Update KPL to Apache 2.0
+
 ### 0.12.11
 
 #### Java
@@ -184,7 +188,7 @@ This is a restatement of the [notice published](https://docs.aws.amazon.com/stre
 * The native process will no longer attempt to use the default system CA bundle
   * The KPL should now run on versions of Linux that don't place the default CA bundle in /etc/pki
   * This fixes issue #66
-  
+
 * Added automatic BJS endpoint selection
   * The KPL will now select the BJS endpoint when configured for BJS.
   * This fixes issue #36
@@ -315,7 +319,7 @@ There are two options. You can either pack the binaries into the jar like we did
 
 You will need JDK 1.7+, Apache Maven and Python 2.7 installed.
 
-If you're on Windows, do the following in the git bash shell we used for building. You will need to add `java` and `python` to the `PATH`, as well as set `JAVA_HOME` for maven to work. 
+If you're on Windows, do the following in the git bash shell we used for building. You will need to add `java` and `python` to the `PATH`, as well as set `JAVA_HOME` for maven to work.
 
 Run `python pack.py`
 
@@ -333,4 +337,3 @@ The java wrapper contains logic that will extract and run the binaries during in
 #### Pointing the Java wrapper at a Custom Binary
 
 The `KinesisProducerConfiguration` class provides an option `setNativeExecutable(String val)`. You can use this to provide a path to the `kinesis_producer[.exe]` executable you have built. You have to use backslashes to delimit paths on Windows if giving a string literal.
-
