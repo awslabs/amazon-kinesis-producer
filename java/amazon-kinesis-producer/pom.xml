@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.amazonaws</groupId>
     <artifactId>amazon-kinesis-producer</artifactId>
-    <version>0.12.11</version>
+    <version>0.13.0</version>
     <name>Amazon Kinesis Producer Library</name>
 
     <scm>
@@ -141,8 +141,8 @@
 
     <licenses>
         <license>
-            <name>Amazon Software License</name>
-            <url>https://aws.amazon.com/asl</url>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
