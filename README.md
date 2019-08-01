@@ -15,6 +15,10 @@ This is a restatement of the [notice published](https://docs.aws.amazon.com/stre
 
 ## Release Notes
 
+### 0.13.1
+
+* Including windows binary for Apache 2.0 release.
+
 ### 0.13.0
 
 * [PR #256] Update KPL to Apache 2.0
