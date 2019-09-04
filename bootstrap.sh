@@ -32,7 +32,7 @@ if [ $1 == "clang" ] || [ $(uname) == 'Darwin' ]; then
 else
   export CC="gcc"
   export CXX="g++"
-  export CXXFLAGS="-I$INSTALL_DIR/include -O3"
+  export CXXFLAGS="-I$INSTALL_DIR/include -O3  -Wno-implicit-fallthrough -Wno-int-in-bool-context"
   export LDFLAGS="-L$INSTALL_DIR/lib "
   export LD_LIBRARY_PATH="$INSTALL_DIR/lib:$LD_LIBRARY_PATH"
 fi
