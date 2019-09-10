@@ -11,7 +11,36 @@ LIB_CURL="https://curl.haxx.se/download/curl-7.47.0.tar.gz"
 
 
 INSTALL_DIR=$(pwd)/third_party
+#Cleanup any earlier version of the third party directory and links to it.
+rm -f b2
+rm -rf $INSTALL_DIR
 mkdir -p $INSTALL_DIR
+
+#Figure out the release type from os. The release type will be used to determine the final storage location
+# of the native binary
+function find_release_type() {
+  if [[ $OSTYPE == "linux-gnu" ]]; then
+		echo "linux"
+		return
+	elif [[ $OSTYPE == darwin* ]]; then
+		echo "osx"
+		return
+	elif [[ $OSTYPE == "msys" ]]; then
+		echo "windows"
+		return
+	fi
+
+	echo "unknown"
+}
+
+
+RELEASE_TYPE=$(find_release_type)
+
+[[ $RELEASE_TYPE == "unknown" ]] && {
+	echo "Could not define release type for $OSTYPE"
+	exit 1
+}
+
 
 if [ $1 == "clang" ] || [ $(uname) == 'Darwin' ]; then
   export MACOSX_DEPLOYMENT_TARGET='10.9'
@@ -210,18 +239,25 @@ if [ ! -d "aws-sdk-cpp" ]; then
 
   cd ..
 
-  for f in $(find $INSTALL_DIR -name "libaws-cpp-sdk*.a"); do
-    mv $f "$INSTALL_DIR/lib/"
-  done
 fi
 
 cd ..
 
-ln -sf ./third_party/boost_?_*_*/b2* b2
+#Build the native kinesis producer
+cmake .
+make -j4
+
+#copy native producer to a location that the java producer can package it
+NATIVE_BINARY_DIR=java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/$RELEASE_TYPE/
+mkdir -p $NATIVE_BINARY_DIR
+cp kinesis_producer $NATIVE_BINARY_DIR
+
+#build the java producer and install it locally
+pushd java/amazon-kinesis-producer
+mvn clean package source:jar javadoc:jar install
+popd
+
 
 set +e
 set +x
 
-echo "***************************************"
-echo "Bootstrap complete. Run ./b2 to build."
-echo "***************************************"
