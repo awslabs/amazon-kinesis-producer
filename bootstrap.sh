@@ -22,7 +22,7 @@ function find_release_type() {
   if [[ $OSTYPE == "linux-gnu" ]]; then
 		echo "linux"
 		return
-	elif [[ $OSTYPE == "darwin" ]]; then
+	elif [[ $OSTYPE == darwin* ]]; then
 		echo "osx"
 		return
 	elif [[ $OSTYPE == "msys" ]]; then
