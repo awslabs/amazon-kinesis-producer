@@ -193,14 +193,20 @@ public class SampleConsumer implements IRecordProcessorFactory {
         return this.new RecordProcessor();
     }
     
+    /** The main method.
+     *  @param args  The command line args for the Sample Producer. 
+     *  The main method takes 2 optional position parameters:
+     *  1. The stream name to use (test is default)
+     *  2. The region name to use (us-west-1 in default)
+     */
     public static void main(String[] args) {
         KinesisClientLibConfiguration config =
                 new KinesisClientLibConfiguration(
                         "KinesisProducerLibSampleConsumer",
-                        SampleProducer.STREAM_NAME,
+                        SampleProducer.getArgIfPresent(args, 0, SampleProducer.STREAM_NAME),
                         new DefaultAWSCredentialsProviderChain(),
                         "KinesisProducerLibSampleConsumer")
-                                .withRegionName(SampleProducer.REGION)
+                                .withRegionName(SampleProducer.getArgIfPresent(args, 1, SampleProducer.REGION))
                                 .withInitialPositionInStream(InitialPositionInStream.TRIM_HORIZON);
         
         final SampleConsumer consumer = new SampleConsumer();

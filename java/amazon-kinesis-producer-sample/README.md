@@ -22,47 +22,30 @@ If running in EC2, the KPL will automatically retrieve credentials from any asso
 
 You can also pass credentials to the KPL programmatically during initialization.
 
-## Edit the Sample Application
+## Run the Sample Application
 
 The sample application is a Maven project. It takes dependencies on the KPL and KCL and contains both a producer and consumer.
 
 Refer to the documentation within the code files for more details about what it's actually doing.
 
-You will need to modify the stream name and region variables in the producer code to point the app at your own stream.
+The sample producer takes optional positional parameters for the stream name, region and duration of the test in seconds. The default stream name is ``test`` and default region is ``us-west-1``.
 
-In ```SampleProducer.java```, look for:
+The sample consumer takes optional positional parameters for the stream name and region.
 
-```
-/**
- * Change this to your stream name.
- */
-public static final String STREAM_NAME = "test";
-
-/**
- * Change this to the region you are using.
- * 
- * We do not use the SDK Regions enum because the KPL does not depend on the
- * SDK.
- */
-public static final String REGION = "us-west-1";
-```
-
-## Run the Sample
-
-After you've made the necessary changes, do a clean build:
+Build the sample application:
 
 ```
 mvn clean package
 ```
 
-Then run the producer to put some data into your stream:
+Then run the producer to put some data into a stream called ``kpltest`` in ``us-west-2`` and for ``100 seconds``:
 
 ```
-mvn exec:java -Dexec.mainClass="com.amazonaws.services.kinesis.producer.sample.SampleProducer"
+mvn exec:java -Dexec.mainClass="com.amazonaws.services.kinesis.producer.sample.SampleProducer" -Dexec.args="kpltest us-west-2 100"
 ```
 
-Finally run the consumer to retrieve that data:
+Finally run the consumer to retrieve the data from a stream called ``kpltest`` in ``us-west-2``:
 
 ```
-mvn exec:java -Dexec.mainClass="com.amazonaws.services.kinesis.producer.sample.SampleConsumer"
+mvn exec:java -Dexec.mainClass="com.amazonaws.services.kinesis.producer.sample.SampleConsumer" -Dexec.args="kpltest us-west-2"
 ```
