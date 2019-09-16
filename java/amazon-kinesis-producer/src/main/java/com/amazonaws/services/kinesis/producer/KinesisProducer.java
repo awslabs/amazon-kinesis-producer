@@ -486,7 +486,7 @@ public class KinesisProducer implements IKinesisProducer {
         
         if (partitionKey.length() < 1 || partitionKey.length() > 256) {
             throw new IllegalArgumentException(
-                    "Invalid parition key. Length must be at least 1 and at most 256, got " + partitionKey.length());
+                    "Invalid partition key. Length must be at least 1 and at most 256, got " + partitionKey.length());
         }
         
         try {
