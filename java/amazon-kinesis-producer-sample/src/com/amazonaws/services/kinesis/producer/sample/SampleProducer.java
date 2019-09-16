@@ -17,6 +17,7 @@ package com.amazonaws.services.kinesis.producer.sample;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -80,7 +81,7 @@ public class SampleProducer {
     /**
      * Put records for this number of seconds before exiting.
      */
-    private static final int SECONDS_TO_RUN = 5;
+    private static final int SECONDS_TO_RUN_DEFAULT = 5;
     
     /**
      * Put this number of records per second.
@@ -110,10 +111,12 @@ public class SampleProducer {
     /**
      * Here'll walk through some of the config options and create an instance of
      * KinesisProducer, which will be used to put records.
+     *
+     * @param region The region of the Kinesis stream being used.
      * 
      * @return KinesisProducer instance used to put records.
      */
-    public static KinesisProducer getKinesisProducer() {
+    public static KinesisProducer getKinesisProducer(final String region) {
         // There are many configurable parameters in the KPL. See the javadocs
         // on each each set method for details.
         KinesisProducerConfiguration config = new KinesisProducerConfiguration();
@@ -126,7 +129,7 @@ public class SampleProducer {
         // If you're running in EC2 and want to use the same Kinesis region as
         // the one your instance is in, you can simply leave out the region
         // configuration; the KPL will retrieve it from EC2 metadata.
-        config.setRegion(REGION);
+        config.setRegion(region);
         
         // You can pass credentials programmatically through the configuration,
         // similar to the AWS SDK. DefaultAWSCredentialsProviderChain is used
@@ -153,7 +156,7 @@ public class SampleProducer {
         // second limit on a shard. The default value is set very low to
         // minimize propagation delay, so we'll increase it here to get more
         // aggregation.
-        config.setRecordMaxBufferedTime(15000);
+        config.setRecordMaxBufferedTime(2000);
 
         // If you have built the native binary yourself, you can point the Java
         // wrapper to it with the NativeExecutable option. If you want to pass
@@ -174,8 +177,30 @@ public class SampleProducer {
         return producer;
     }
     
+    public static String getArgIfPresent(final String[] args, final int index, final String defaultValue) {
+        return args.length > index ? args[index] : defaultValue;
+    }
+
+    /** The main method.
+     *  @param args  The command line args for the Sample Producer. It takes 3 optional position parameters:
+     *  1. The stream name to use (test is default)
+     *  2. The region name to use (us-west-1 in default)
+     *  3. The duration of the test in seconds, 5 is the default.
+     */
     public static void main(String[] args) throws Exception {
-        final KinesisProducer producer = getKinesisProducer();
+        final String streamName = getArgIfPresent(args, 0, STREAM_NAME);
+        final String region = getArgIfPresent(args, 1, REGION);
+        final String secondsToRunString = getArgIfPresent(args, 2, String.valueOf(SECONDS_TO_RUN_DEFAULT));
+        final int secondsToRun = Integer.parseInt(secondsToRunString);
+        if (secondsToRun <= 0) {
+            log.error("Seconds to Run should be a positive integer");
+            System.exit(1);
+        }
+
+        log.info(String.format("Stream name: %s Region: %s secondsToRun %d",streamName, region, secondsToRun));
+
+
+        final KinesisProducer producer = getKinesisProducer(region);
         
         // The monotonically increasing sequence number we will put in the data of each record
         final AtomicLong sequenceNumber = new AtomicLong(0);
@@ -206,6 +231,8 @@ public class SampleProducer {
             }
         };
         
+        final ExecutorService callbackThreadPool = Executors.newCachedThreadPool();
+
         // The lines within run() are the essence of the KPL API.
         final Runnable putOneRecord = new Runnable() {
             @Override
@@ -213,8 +240,8 @@ public class SampleProducer {
                 ByteBuffer data = Utils.generateData(sequenceNumber.get(), DATA_SIZE);
                 // TIMESTAMP is our partition key
                 ListenableFuture<UserRecordResult> f =
-                        producer.addUserRecord(STREAM_NAME, TIMESTAMP, Utils.randomExplicitHashKey(), data);
-                Futures.addCallback(f, callback, Executors.newSingleThreadExecutor());
+                        producer.addUserRecord(streamName, TIMESTAMP, Utils.randomExplicitHashKey(), data);
+                Futures.addCallback(f, callback, callbackThreadPool);
             }
         };
         
@@ -223,7 +250,7 @@ public class SampleProducer {
             @Override
             public void run() {
                 long put = sequenceNumber.get();
-                long total = RECORDS_PER_SECOND * SECONDS_TO_RUN;
+                long total = RECORDS_PER_SECOND * secondsToRun;
                 double putPercent = 100.0 * put / total;
                 long done = completed.get();
                 double donePercent = 100.0 * done / total;
@@ -236,14 +263,14 @@ public class SampleProducer {
         // Kick off the puts
         log.info(String.format(
                 "Starting puts... will run for %d seconds at %d records per second",
-                SECONDS_TO_RUN, RECORDS_PER_SECOND));
-        executeAtTargetRate(EXECUTOR, putOneRecord, sequenceNumber, SECONDS_TO_RUN, RECORDS_PER_SECOND);
+                secondsToRun, RECORDS_PER_SECOND));
+        executeAtTargetRate(EXECUTOR, putOneRecord, sequenceNumber, secondsToRun, RECORDS_PER_SECOND);
         
         // Wait for puts to finish. After this statement returns, we have
         // finished all calls to putRecord, but the records may still be
         // in-flight. We will additionally wait for all records to actually
         // finish later.
-        EXECUTOR.awaitTermination(SECONDS_TO_RUN + 1, TimeUnit.SECONDS);
+        EXECUTOR.awaitTermination(secondsToRun + 1, TimeUnit.SECONDS);
         
         // If you need to shutdown your application, call flushSync() first to
         // send any buffered records. This method will block until all records
