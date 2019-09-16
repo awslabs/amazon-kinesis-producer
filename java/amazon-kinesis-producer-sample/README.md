@@ -38,7 +38,7 @@ Build the sample application:
 mvn clean package
 ```
 
-Then run the producer to put some data into a stream called ``kpltest`` in ``us-west-2`` and for ``100 seconds``:
+Then run the producer to put some data into a stream called ``kpltest`` in ``us-west-2`` for ``100 seconds``:
 
 ```
 mvn exec:java -Dexec.mainClass="com.amazonaws.services.kinesis.producer.sample.SampleProducer" -Dexec.args="kpltest us-west-2 100"
