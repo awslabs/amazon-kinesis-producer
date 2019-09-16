@@ -214,7 +214,7 @@ fi
 if [ ! -d "aws-sdk-cpp" ]; then
   git clone https://github.com/awslabs/aws-sdk-cpp.git aws-sdk-cpp
   pushd aws-sdk-cpp
-  git checkout 1.0.5
+  git checkout 1.7.180
   popd
 
   rm -rf aws-sdk-cpp-build
@@ -244,8 +244,8 @@ fi
 cd ..
 
 #Build the native kinesis producer
-cmake .
-make -j4
+cmake -DCMAKE_PREFIX_PATH="$INSTALL_DIR" .
+make -j8
 
 #copy native producer to a location that the java producer can package it
 NATIVE_BINARY_DIR=java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/$RELEASE_TYPE/

@@ -148,6 +148,10 @@ public:
     LogToBoost(logLevel, tag, messageStream.str());
   }
 
+  virtual void Flush() override {
+    boost::log::core::get()->flush();
+  }
+    
   void LogToBoost(LogLevel logLevel, const char* tag, const std::string& message) {
     BoostLog level = BoostLog::error;
     int logLevelInt = static_cast<int>(logLevel);
