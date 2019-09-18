@@ -206,6 +206,7 @@ set(STATIC_LIBS
         boost_chrono)
 
 find_package(Threads)
+find_package(AWSSDK REQUIRED COMPONENTS kinesis monitoring)
 
 add_library(LibCrypto STATIC IMPORTED)
 set_property(TARGET LibCrypto PROPERTY IMPORTED_LOCATION ${THIRD_PARTY_LIB_DIR}/libcrypto.a)
@@ -226,27 +227,14 @@ add_library(LibProto STATIC IMPORTED)
 set_property(TARGET LibProto PROPERTY IMPORTED_LOCATION ${THIRD_PARTY_LIB_DIR}/libprotobuf.a)
 set_property(TARGET LibProto PROPERTY IMPORTED_LINK_INTERFACE_LIBRARIES LibZ)
 
-add_library(LibAwsCore STATIC IMPORTED)
-set_property(TARGET LibAwsCore PROPERTY IMPORTED_LOCATION ${THIRD_PARTY_LIB_DIR}/libaws-cpp-sdk-core.a)
-set_property(TARGET LibAwsCore PROPERTY IMPORTED_LINK_INTERFACE_LIBRARIES ${LIBRT_LIBRARIES} ${LIBIDN_LIBRARIES} LibSsl LibCurl)
-
-add_library(LibAwsKinesis STATIC IMPORTED)
-set_property(TARGET LibAwsKinesis PROPERTY IMPORTED_LOCATION ${THIRD_PARTY_LIB_DIR}/libaws-cpp-sdk-kinesis.a)
-set_property(TARGET LibAwsKinesis PROPERTY IMPORTED_LINK_INTERFACE_LIBRARIES LibAwsCore)
-
-add_library(LibAwsMonitoring STATIC IMPORTED)
-set_property(TARGET LibAwsMonitoring PROPERTY IMPORTED_LOCATION ${THIRD_PARTY_LIB_DIR}/libaws-cpp-sdk-monitoring.a)
-set_property(TARGET LibAwsMonitoring PROPERTY IMPORTED_LINK_INTERFACE_LIBRARIES LibAwsCore)
-
-
 add_executable(kinesis_producer ${SOURCE_FILES} ${LOGGING_TRIGGERS} aws/kinesis/main.cc)
 target_include_directories(kinesis_producer SYSTEM PUBLIC ${THIRD_PARTY_INCLUDE})
-target_link_libraries(kinesis_producer ${CMAKE_THREAD_LIBS_INIT} LibProto LibAwsCore LibAwsKinesis LibAwsMonitoring ${LIBBACKTRACE_LIBRARIES} ${STATIC_LIBS} ${UUID_LIBRARIES})
+target_link_libraries(kinesis_producer ${CMAKE_THREAD_LIBS_INIT} LibProto ${AWSSDK_LINK_LIBRARIES} ${LIBBACKTRACE_LIBRARIES} ${STATIC_LIBS} ${UUID_LIBRARIES} LibSsl LibCurl)
 
 add_executable(test_driver ${SOURCE_FILES} ${LOGGING_TRIGGERS} aws/kinesis/test_driver.cc)
 target_include_directories(test_driver SYSTEM PUBLIC ${THIRD_PARTY_INCLUDE})
-target_link_libraries(test_driver ${CMAKE_THREAD_LIBS_INIT} LibProto LibAwsCore LibAwsKinesis LibAwsMonitoring ${LIBBACKTRACE_LIBRARIES} ${STATIC_LIBS} ${UUID_LIBRARIES})
+target_link_libraries(test_driver ${CMAKE_THREAD_LIBS_INIT} LibProto ${AWSSDK_LINK_LIBRARIES} ${LIBBACKTRACE_LIBRARIES} ${STATIC_LIBS} ${UUID_LIBRARIES} LibSsl LibCurl)
 
 add_executable(tests ${SOURCE_FILES} ${TESTS_SOURCE} ${LOGGING_TRIGGERS} aws/kinesis/test/test.cc)
 target_include_directories(tests SYSTEM PUBLIC ${THIRD_PARTY_INCLUDE})
-target_link_libraries(tests ${CMAKE_THREAD_LIBS_INIT} LibProto LibAwsCore LibAwsKinesis LibAwsMonitoring ${LIBBACKTRACE_LIBRARIES} ${STATIC_LIBS} boost_unit_test_framework ${UUID_LIBRARIES})
+target_link_libraries(tests ${CMAKE_THREAD_LIBS_INIT} LibProto ${AWSSDK_LINK_LIBRARIES} ${LIBBACKTRACE_LIBRARIES} ${STATIC_LIBS} boost_unit_test_framework ${UUID_LIBRARIES} LibSsl LibCurl)

@@ -39,7 +39,7 @@
 
 #include <aws/core/Aws.h>
 #include <aws/core/utils/logging/LogLevel.h>
-#include <aws/core/internal/EC2MetadataClient.h>
+#include <aws/core/internal/AWSHttpResourceClient.h>
 
 namespace {
 
