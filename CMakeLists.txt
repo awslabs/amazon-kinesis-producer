@@ -229,12 +229,12 @@ set_property(TARGET LibProto PROPERTY IMPORTED_LINK_INTERFACE_LIBRARIES LibZ)
 
 add_executable(kinesis_producer ${SOURCE_FILES} ${LOGGING_TRIGGERS} aws/kinesis/main.cc)
 target_include_directories(kinesis_producer SYSTEM PUBLIC ${THIRD_PARTY_INCLUDE})
-target_link_libraries(kinesis_producer ${CMAKE_THREAD_LIBS_INIT} LibProto ${AWSSDK_LINK_LIBRARIES} ${LIBBACKTRACE_LIBRARIES} ${STATIC_LIBS} ${UUID_LIBRARIES})
+target_link_libraries(kinesis_producer ${CMAKE_THREAD_LIBS_INIT} LibProto ${AWSSDK_LINK_LIBRARIES} ${LIBBACKTRACE_LIBRARIES} ${STATIC_LIBS} ${UUID_LIBRARIES} LibSsl LibCurl)
 
 add_executable(test_driver ${SOURCE_FILES} ${LOGGING_TRIGGERS} aws/kinesis/test_driver.cc)
 target_include_directories(test_driver SYSTEM PUBLIC ${THIRD_PARTY_INCLUDE})
-target_link_libraries(test_driver ${CMAKE_THREAD_LIBS_INIT} LibProto ${AWSSDK_LINK_LIBRARIES} ${LIBBACKTRACE_LIBRARIES} ${STATIC_LIBS} ${UUID_LIBRARIES})
+target_link_libraries(test_driver ${CMAKE_THREAD_LIBS_INIT} LibProto ${AWSSDK_LINK_LIBRARIES} ${LIBBACKTRACE_LIBRARIES} ${STATIC_LIBS} ${UUID_LIBRARIES} LibSsl LibCurl)
 
 add_executable(tests ${SOURCE_FILES} ${TESTS_SOURCE} ${LOGGING_TRIGGERS} aws/kinesis/test/test.cc)
 target_include_directories(tests SYSTEM PUBLIC ${THIRD_PARTY_INCLUDE})
-target_link_libraries(tests ${CMAKE_THREAD_LIBS_INIT} LibProto ${AWSSDK_LINK_LIBRARIES} ${LIBBACKTRACE_LIBRARIES} ${STATIC_LIBS} boost_unit_test_framework ${UUID_LIBRARIES})
+target_link_libraries(tests ${CMAKE_THREAD_LIBS_INIT} LibProto ${AWSSDK_LINK_LIBRARIES} ${LIBBACKTRACE_LIBRARIES} ${STATIC_LIBS} boost_unit_test_framework ${UUID_LIBRARIES} LibSsl LibCurl)
