@@ -17,7 +17,7 @@
 
 #include <aws/core/utils/json/JsonSerializer.h>
 #include <aws/kinesis/core/shard_map.h>
-#include <aws/kinesis/model/DescribeStreamRequest.h>
+#include <aws/kinesis/model/ListShardsRequest.h>
 #include <aws/utils/io_service_executor.h>
 #include <aws/utils/utils.h>
 #include <aws/core/auth/AWSCredentialsProvider.h>
@@ -44,45 +44,48 @@ void pop(const std::list<T>* q) {
 class MockKinesisClient : public Aws::Kinesis::KinesisClient {
  public:
   MockKinesisClient(
-      std::list<Aws::Kinesis::Model::DescribeStreamOutcome> outcomes,
-      std::function<void ()> callback = []{})
+      std::list<Aws::Kinesis::Model::ListShardsOutcome> outcomes_list_shards,
+      std::function<void ()> callback_list_shards = []{})
       : Aws::Kinesis::KinesisClient(kEmptyCreds, fake_client_cfg()),
-        outcomes_(std::move(outcomes)),
-        callback_(callback),
+        outcomes_list_shards_(std::move(outcomes_list_shards)),
+        callback_list_shards_(callback_list_shards),
         executor_(std::make_shared<aws::utils::IoServiceExecutor>(1)) {}
-
-  virtual void DescribeStreamAsync(
-      const Aws::Kinesis::Model::DescribeStreamRequest& request,
-      const Aws::Kinesis::DescribeStreamResponseReceivedHandler& handler,
+  
+  virtual void ListShardsAsync(
+      const Aws::Kinesis::Model::ListShardsRequest& request,
+      const Aws::Kinesis::ListShardsResponseReceivedHandler& handler,
       const std::shared_ptr<const Aws::Client::AsyncCallerContext>& context
           = nullptr) const override {
     executor_->schedule([=] {
-      if (outcomes_.size() == 0) {
-        throw std::runtime_error("No outcomes enqueued in the mock");
+    
+      if (outcomes_list_shards_.size() == 0) {
+        throw std::runtime_error(std::string() + "No outcomes enqueued in the mock"+" list shards");
       }
-      auto outcome = outcomes_.front();
-      pop(&outcomes_);
+      auto outcome = outcomes_list_shards_.front();
+      pop(&outcomes_list_shards_);
       handler(this, request, outcome, context);
-      callback_();
+      callback_list_shards_();
     }, std::chrono::milliseconds(20));
   }
 
+
  private:
-  std::list<Aws::Kinesis::Model::DescribeStreamOutcome> outcomes_;
-  std::function<void ()> callback_;
+  std::list<Aws::Kinesis::Model::ListShardsOutcome> outcomes_list_shards_;
+  std::function<void ()> callback_list_shards_;
   std::shared_ptr<aws::utils::Executor> executor_;
 };
 
 class Wrapper {
  public:
-  Wrapper(std::list<Aws::Kinesis::Model::DescribeStreamOutcome> outcomes,
+  Wrapper(
+      std::list<Aws::Kinesis::Model::ListShardsOutcome> outcomes_list_shards,
           int delay = 1500)
       : num_req_received_(0) {
     shard_map_ =
         std::make_shared<aws::kinesis::core::ShardMap>(
             std::make_shared<aws::utils::IoServiceExecutor>(1),
             std::make_shared<MockKinesisClient>(
-                outcomes,
+                outcomes_list_shards,
                 [this] { num_req_received_++; }),
             kStreamName,
             std::make_shared<aws::metrics::NullMetricsManager>(),
@@ -101,8 +104,8 @@ class Wrapper {
     return num_req_received_;
   }
 
-  void invalidate(std::chrono::steady_clock::time_point tp) {
-    shard_map_->invalidate(tp);
+  void invalidate(std::chrono::steady_clock::time_point tp, boost::optional<uint64_t> shard_id) {
+    shard_map_->invalidate(tp, shard_id);
   }
 
  private:
@@ -121,23 +124,24 @@ void init_sdk_if_needed() {
   }
 }
 
-Aws::Kinesis::Model::DescribeStreamOutcome success_outcome(std::string json) {
+template <class R, class O> O success_outcome(std::string json) {
   init_sdk_if_needed();
   Aws::Utils::Json::JsonValue j(json);
   Aws::Http::HeaderValueCollection h;
   Aws::AmazonWebServiceResult<Aws::Utils::Json::JsonValue> awsr(j, h);
-  Aws::Kinesis::Model::DescribeStreamResult dsr(awsr);
-  Aws::Kinesis::Model::DescribeStreamOutcome o(dsr);
-  return o;
+  R result(awsr);
+  O outcome(result);
+  return outcome;
 }
 
-Aws::Kinesis::Model::DescribeStreamOutcome error_outcome() {
+
+template <class O> O error_outcome() {
   init_sdk_if_needed();
-  Aws::Kinesis::Model::DescribeStreamOutcome o(
+  O outcome(
       Aws::Client::AWSError<Aws::Kinesis::KinesisErrors>(
           Aws::Kinesis::KinesisErrors::UNKNOWN,
           "test"));
-  return o;
+  return outcome;
 }
 
 } //namespace
@@ -145,13 +149,10 @@ Aws::Kinesis::Model::DescribeStreamOutcome error_outcome() {
 BOOST_AUTO_TEST_SUITE(ShardMap)
 
 BOOST_AUTO_TEST_CASE(Basic) {
-  std::list<Aws::Kinesis::Model::DescribeStreamOutcome> outcomes;
-  outcomes.push_back(success_outcome(R"XXXX(
-  {
-    "StreamDescription": {
-      "StreamStatus": "ACTIVE",
-      "StreamName": "test",
-      "StreamARN": "arn:aws:kinesis:us-west-2:263868185958:stream\/test",
+  std::list<Aws::Kinesis::Model::ListShardsOutcome> outcomes_list_shards;
+
+  outcomes_list_shards.push_back(
+        success_outcome<Aws::Kinesis::Model::ListShardsResult,Aws::Kinesis::Model::ListShardsOutcome>(R"XXXX({
       "Shards": [
         {
           "HashKeyRange": {
@@ -186,11 +187,9 @@ BOOST_AUTO_TEST_CASE(Basic) {
           }
         }
       ]
-    }
-  }
-  )XXXX"));
+  })XXXX"));
 
-  Wrapper wrapper(outcomes);
+  Wrapper wrapper(outcomes_list_shards);
 
   BOOST_CHECK_EQUAL(
       *wrapper.shard_id("170141183460469231731687303715884105728"),
@@ -210,16 +209,17 @@ BOOST_AUTO_TEST_CASE(Basic) {
   BOOST_CHECK_EQUAL(
       *wrapper.shard_id("170141183460469231731687303715884105727"),
       3);
+  BOOST_CHECK_EQUAL(
+      wrapper.num_req_received(),
+      1);
+
 }
+
 
 BOOST_AUTO_TEST_CASE(ClosedShards) {
-  std::list<Aws::Kinesis::Model::DescribeStreamOutcome> outcomes;
-  outcomes.push_back(success_outcome(R"XXXX(
-  {
-    "StreamDescription": {
-      "StreamStatus": "ACTIVE",
-      "StreamName": "test",
-      "StreamARN": "arn:aws:kinesis:us-west-2:263868185958:stream\/test",
+  std::list<Aws::Kinesis::Model::ListShardsOutcome> outcomes_list_shards;
+  outcomes_list_shards.push_back(
+        success_outcome<Aws::Kinesis::Model::ListShardsResult,Aws::Kinesis::Model::ListShardsOutcome>(R"XXXX({
       "Shards": [
         {
           "HashKeyRange": {
@@ -277,11 +277,9 @@ BOOST_AUTO_TEST_CASE(ClosedShards) {
           }
         }
       ]
-    }
-  }
-  )XXXX"));
+  })XXXX"));
 
-  Wrapper wrapper(outcomes);
+  Wrapper wrapper(outcomes_list_shards);
 
   BOOST_CHECK_EQUAL(
       *wrapper.shard_id("0"),
@@ -304,17 +302,18 @@ BOOST_AUTO_TEST_CASE(ClosedShards) {
   BOOST_CHECK_EQUAL(
       *wrapper.shard_id("340282366920938463463374607431768211455"),
       5);
+  BOOST_CHECK_EQUAL(
+      wrapper.num_req_received(),
+      1);
 }
+
+
 
 BOOST_AUTO_TEST_CASE(PaginatedResults) {
-  std::list<Aws::Kinesis::Model::DescribeStreamOutcome> outcomes;
-  outcomes.push_back(success_outcome(R"XXXX(
-  {
-    "StreamDescription": {
-      "HasMoreShards": true,
-      "StreamStatus": "ACTIVE",
-      "StreamName": "test",
-      "StreamARN": "arn:aws:kinesis:us-west-2:263868185958:stream\/test",
+  std::list<Aws::Kinesis::Model::ListShardsOutcome> outcomes_list_shards;
+
+  outcomes_list_shards.push_back(
+        success_outcome<Aws::Kinesis::Model::ListShardsResult,Aws::Kinesis::Model::ListShardsOutcome>(R"XXXX({
       "Shards": [
         {
           "HashKeyRange": {
@@ -338,18 +337,12 @@ BOOST_AUTO_TEST_CASE(PaginatedResults) {
             "StartingSequenceNumber": "49549169978943246555030591128013184047489460388642160674"
           }
         }
-      ]
-    }
-  }
-  )XXXX"));
+      ],
+      "NextToken": "AAAAAAAAAAG0QcUm4uaCES69GuO6gBMdI+3lpu8FX/xFCUQU1rXHjqjDusPzyT3TIGQLTyzvBzR71j49xYeKJCtlQB9ZX8n8iCtdPHd7abVO4vc4Oc/KboHWEUsPzGgi5A9DN1qZO5+Rl6wEhlRapOIVHXwF/l6Fmah9Ie1iSUy5t1G2sL+WAZ0VU6y54EWAcAPQIISk1X7XZIWl9/ODi9zCHz6azeZI"
+    })XXXX"));
 
-  outcomes.push_back(success_outcome(R"XXXX(
-  {
-    "StreamDescription": {
-      "HasMoreShards": false,
-      "StreamStatus": "ACTIVE",
-      "StreamName": "test",
-      "StreamARN": "arn:aws:kinesis:us-west-2:263868185958:stream\/test",
+  outcomes_list_shards.push_back(
+        success_outcome<Aws::Kinesis::Model::ListShardsResult,Aws::Kinesis::Model::ListShardsOutcome>(R"XXXX({
       "Shards": [
         {
           "HashKeyRange": {
@@ -385,11 +378,10 @@ BOOST_AUTO_TEST_CASE(PaginatedResults) {
           }
         }
       ]
-    }
-  }
-  )XXXX"));
+    })XXXX"));
 
-  Wrapper wrapper(outcomes);
+  Wrapper wrapper(outcomes_list_shards);
+
 
   BOOST_CHECK_EQUAL(
       *wrapper.shard_id("0"),
@@ -412,19 +404,19 @@ BOOST_AUTO_TEST_CASE(PaginatedResults) {
   BOOST_CHECK_EQUAL(
       *wrapper.shard_id("340282366920938463463374607431768211455"),
       5);
+
+  BOOST_CHECK_EQUAL(
+      wrapper.num_req_received(),
+      2);
 }
 
-BOOST_AUTO_TEST_CASE(Retry) {
-  std::list<Aws::Kinesis::Model::DescribeStreamOutcome> outcomes;
 
-  outcomes.push_back(error_outcome());
-
-  outcomes.push_back(success_outcome(R"XXXX(
-  {
-    "StreamDescription": {
-      "StreamStatus": "ACTIVE",
-      "StreamName": "test",
-      "StreamARN": "arn:aws:kinesis:us-west-2:263868185958:stream\/test",
+BOOST_AUTO_TEST_CASE(RetryAfterInitialFailure) {
+  std::list<Aws::Kinesis::Model::ListShardsOutcome> outcomes_list_shards;
+  
+  outcomes_list_shards.push_back(error_outcome<Aws::Kinesis::Model::ListShardsOutcome>());
+  outcomes_list_shards.push_back(
+        success_outcome<Aws::Kinesis::Model::ListShardsResult,Aws::Kinesis::Model::ListShardsOutcome>(R"XXXX({
       "Shards": [
         {
           "HashKeyRange": {
@@ -459,11 +451,9 @@ BOOST_AUTO_TEST_CASE(Retry) {
           }
         }
       ]
-    }
-  }
-  )XXXX"));
+    })XXXX"));
 
-  Wrapper wrapper(outcomes);
+  Wrapper wrapper(outcomes_list_shards);
 
   BOOST_CHECK_EQUAL(
       *wrapper.shard_id("170141183460469231731687303715884105728"),
@@ -483,15 +473,127 @@ BOOST_AUTO_TEST_CASE(Retry) {
   BOOST_CHECK_EQUAL(
       *wrapper.shard_id("170141183460469231731687303715884105727"),
       3);
+
+  BOOST_CHECK_EQUAL(
+      wrapper.num_req_received(),
+      2);
 }
 
+
+BOOST_AUTO_TEST_CASE(RetryWithFailureInTheMiddle) {
+  std::list<Aws::Kinesis::Model::ListShardsOutcome> outcomes_list_shards;
+  outcomes_list_shards.push_back(
+        success_outcome<Aws::Kinesis::Model::ListShardsResult,Aws::Kinesis::Model::ListShardsOutcome>(R"XXXX({
+      "Shards": [
+        {
+          "HashKeyRange": {
+            "EndingHashKey": "340282366920938463463374607431768211455",
+            "StartingHashKey": "170141183460469231731687303715884105728"
+          },
+          "ShardId": "shardId-000000000001",
+          "SequenceNumberRange": {
+            "EndingSequenceNumber": "49549167410956685081233009822320176730553508082787287058",
+            "StartingSequenceNumber": "49549167410945534708633744510750617797212193316405248018"
+          }
+        },
+        {
+          "HashKeyRange": {
+            "EndingHashKey": "85070591730234615865843651857942052862",
+            "StartingHashKey": "0"
+          },
+          "ShardId": "shardId-000000000002",
+          "ParentShardId": "shardId-000000000000",
+          "SequenceNumberRange": {
+            "StartingSequenceNumber": "49549169978943246555030591128013184047489460388642160674"
+          }
+        }
+      ],
+      "NextToken": "AAAAAAAAAAG0QcUm4uaCES69GuO6gBMdI+3lpu8FX/xFCUQU1rXHjqjDusPzyT3TIGQLTyzvBzR71j49xYeKJCtlQB9ZX8n8iCtdPHd7abVO4vc4Oc/KboHWEUsPzGgi5A9DN1qZO5+Rl6wEhlRapOIVHXwF/l6Fmah9Ie1iSUy5t1G2sL+WAZ0VU6y54EWAcAPQIISk1X7XZIWl9/ODi9zCHz6azeZI"
+    })XXXX"));
+  
+  outcomes_list_shards.push_back(error_outcome<Aws::Kinesis::Model::ListShardsOutcome>());
+  outcomes_list_shards.push_back(error_outcome<Aws::Kinesis::Model::ListShardsOutcome>());
+
+  outcomes_list_shards.push_back(outcomes_list_shards.front());
+
+  outcomes_list_shards.push_back(
+        success_outcome<Aws::Kinesis::Model::ListShardsResult,Aws::Kinesis::Model::ListShardsOutcome>(R"XXXX({
+      "Shards": [
+        {
+          "HashKeyRange": {
+            "EndingHashKey": "170141183460469231731687303715884105727",
+            "StartingHashKey": "85070591730234615865843651857942052863"
+          },
+          "ShardId": "shardId-000000000003",
+          "ParentShardId": "shardId-000000000000",
+          "SequenceNumberRange": {
+            "StartingSequenceNumber": "49549169978965547300229121751154719765762108750148141106"
+          }
+        },
+        {
+          "HashKeyRange": {
+            "EndingHashKey": "270141183460469231731687303715884105727",
+            "StartingHashKey": "170141183460469231731687303715884105728"
+          },
+          "ShardId": "shardId-000000000004",
+          "ParentShardId": "shardId-000000000001",
+          "SequenceNumberRange": {
+            "StartingSequenceNumber": "49549295168948777979169149491056351269437634281436348482"
+          }
+        },
+        {
+          "HashKeyRange": {
+            "EndingHashKey": "340282366920938463463374607431768211455",
+            "StartingHashKey": "270141183460469231731687303715884105728"
+          },
+          "ShardId": "shardId-000000000005",
+          "ParentShardId": "shardId-000000000001",
+          "SequenceNumberRange": {
+            "StartingSequenceNumber": "49549295168971078724367680114197886987710282642942328914"
+          }
+        }
+      ]
+    })XXXX"));
+
+  Wrapper wrapper(outcomes_list_shards);
+
+
+  BOOST_CHECK_EQUAL(
+      *wrapper.shard_id("0"),
+      2);
+  BOOST_CHECK_EQUAL(
+      *wrapper.shard_id("85070591730234615865843651857942052862"),
+      2);
+  BOOST_CHECK_EQUAL(
+      *wrapper.shard_id("85070591730234615865843651857942052863"),
+      3);
+  BOOST_CHECK_EQUAL(
+      *wrapper.shard_id("170141183460469231731687303715884105727"),
+      3);
+  BOOST_CHECK_EQUAL(
+      *wrapper.shard_id("170141183460469231731687303715884105728"),
+      4);
+  BOOST_CHECK_EQUAL(
+      *wrapper.shard_id("270141183460469231731687303715884105728"),
+      5);
+  BOOST_CHECK_EQUAL(
+      *wrapper.shard_id("340282366920938463463374607431768211455"),
+      5);
+
+  BOOST_CHECK_EQUAL(
+      wrapper.num_req_received(),
+      5);
+}
+
+
+
 BOOST_AUTO_TEST_CASE(Backoff) {
-  std::list<Aws::Kinesis::Model::DescribeStreamOutcome> outcomes;
+  std::list<Aws::Kinesis::Model::ListShardsOutcome> outcomes_list_shards;
   for (int i = 0; i < 25; i++) {
-    outcomes.push_back(error_outcome());
+    outcomes_list_shards.push_back(error_outcome<Aws::Kinesis::Model::ListShardsOutcome>());
   }
 
-  Wrapper wrapper(outcomes, 0);
+  Wrapper wrapper(outcomes_list_shards, 0);
 
   auto start = std::chrono::high_resolution_clock::now();
 
@@ -512,15 +614,11 @@ BOOST_AUTO_TEST_CASE(Backoff) {
   aws::utils::sleep_for(std::chrono::milliseconds(500));
 }
 
-BOOST_AUTO_TEST_CASE(Invalidate) {
-  std::list<Aws::Kinesis::Model::DescribeStreamOutcome> outcomes;
 
-  outcomes.push_back(success_outcome(R"XXXX(
-  {
-    "StreamDescription": {
-      "StreamStatus": "ACTIVE",
-      "StreamName": "test",
-      "StreamARN": "arn:aws:kinesis:us-west-2:263868185958:stream\/test",
+BOOST_AUTO_TEST_CASE(Invalidate) {
+  std::list<Aws::Kinesis::Model::ListShardsOutcome> outcomes_list_shards;
+  outcomes_list_shards.push_back(
+        success_outcome<Aws::Kinesis::Model::ListShardsResult,Aws::Kinesis::Model::ListShardsOutcome>(R"XXXX({
       "Shards": [
         {
           "HashKeyRange": {
@@ -555,16 +653,11 @@ BOOST_AUTO_TEST_CASE(Invalidate) {
           }
         }
       ]
-    }
-  }
-  )XXXX"));
+  })XXXX"));
 
-  outcomes.push_back(success_outcome(R"XXXX(
-  {
-    "StreamDescription": {
-      "StreamStatus": "ACTIVE",
-      "StreamName": "test",
-      "StreamARN": "arn:aws:kinesis:us-west-2:263868185958:stream\/test",
+  
+  outcomes_list_shards.push_back(
+        success_outcome<Aws::Kinesis::Model::ListShardsResult,Aws::Kinesis::Model::ListShardsOutcome>(R"XXXX({
       "Shards": [
         {
           "HashKeyRange": {
@@ -599,16 +692,14 @@ BOOST_AUTO_TEST_CASE(Invalidate) {
           }
         }
       ]
-    }
-  }
-  )XXXX"));
+  })XXXX"));
 
-  Wrapper wrapper(outcomes);
+  Wrapper wrapper(outcomes_list_shards);
 
   // Calling invalidate with a timestamp that's before the last update should
   // not actually invalidate the shard map.
   wrapper.invalidate(
-      std::chrono::steady_clock::now() - std::chrono::seconds(15));
+      std::chrono::steady_clock::now() - std::chrono::seconds(15), {});
 
   // Shard map should continue working
   BOOST_CHECK_EQUAL(
@@ -633,13 +724,13 @@ BOOST_AUTO_TEST_CASE(Invalidate) {
 
   // On the other hand, calling invalidate with a timestamp after the last
   // update should actually invalidate it and trigger an update.
-  wrapper.invalidate(std::chrono::steady_clock::now());
+  wrapper.invalidate(std::chrono::steady_clock::now(), {});
 
   BOOST_CHECK(!wrapper.shard_id("0"));
 
   // Calling invalidate again during update should not trigger more requests.
   for (int i = 0; i < 5; i++) {
-    wrapper.invalidate(std::chrono::steady_clock::now());
+    wrapper.invalidate(std::chrono::steady_clock::now(), {});
     aws::utils::sleep_for(std::chrono::milliseconds(2));
   }
 
@@ -666,6 +757,161 @@ BOOST_AUTO_TEST_CASE(Invalidate) {
   BOOST_CHECK_EQUAL(
       *wrapper.shard_id("170141183460469231731687303715884105727"),
       7);
+
+  BOOST_CHECK_EQUAL(
+      wrapper.num_req_received(),
+      2);
 }
+
+
+BOOST_AUTO_TEST_CASE(InvalidateWithShard) {
+  std::list<Aws::Kinesis::Model::ListShardsOutcome> outcomes_list_shards;
+  outcomes_list_shards.push_back(
+        success_outcome<Aws::Kinesis::Model::ListShardsResult,Aws::Kinesis::Model::ListShardsOutcome>(R"XXXX({
+      "Shards": [
+        {
+          "HashKeyRange": {
+            "EndingHashKey": "340282366920938463463374607431768211455",
+            "StartingHashKey": "170141183460469231731687303715884105728"
+          },
+          "ShardId": "shardId-000000000001",
+          "SequenceNumberRange": {
+            "StartingSequenceNumber": "49549167410945534708633744510750617797212193316405248018"
+          }
+        },
+        {
+          "HashKeyRange": {
+            "EndingHashKey": "85070591730234615865843651857942052862",
+            "StartingHashKey": "0"
+          },
+          "ShardId": "shardId-000000000002",
+          "ParentShardId": "shardId-000000000000",
+          "SequenceNumberRange": {
+            "StartingSequenceNumber": "49549169978943246555030591128013184047489460388642160674"
+          }
+        },
+        {
+          "HashKeyRange": {
+            "EndingHashKey": "170141183460469231731687303715884105727",
+            "StartingHashKey": "85070591730234615865843651857942052863"
+          },
+          "ShardId": "shardId-000000000003",
+          "ParentShardId": "shardId-000000000000",
+          "SequenceNumberRange": {
+            "StartingSequenceNumber": "49549169978965547300229121751154719765762108750148141106"
+          }
+        }
+      ]
+  })XXXX"));
+
+  
+  outcomes_list_shards.push_back(
+        success_outcome<Aws::Kinesis::Model::ListShardsResult,Aws::Kinesis::Model::ListShardsOutcome>(R"XXXX({
+      "Shards": [
+        {
+          "HashKeyRange": {
+            "EndingHashKey": "340282366920938463463374607431768211455",
+            "StartingHashKey": "170141183460469231731687303715884105728"
+          },
+          "ShardId": "shardId-000000000005",
+          "SequenceNumberRange": {
+            "StartingSequenceNumber": "49549167410945534708633744510750617797212193316405248018"
+          }
+        },
+        {
+          "HashKeyRange": {
+            "EndingHashKey": "85070591730234615865843651857942052862",
+            "StartingHashKey": "0"
+          },
+          "ShardId": "shardId-000000000006",
+          "ParentShardId": "shardId-000000000000",
+          "SequenceNumberRange": {
+            "StartingSequenceNumber": "49549169978943246555030591128013184047489460388642160674"
+          }
+        },
+        {
+          "HashKeyRange": {
+            "EndingHashKey": "170141183460469231731687303715884105727",
+            "StartingHashKey": "85070591730234615865843651857942052863"
+          },
+          "ShardId": "shardId-000000000007",
+          "ParentShardId": "shardId-000000000000",
+          "SequenceNumberRange": {
+            "StartingSequenceNumber": "49549169978965547300229121751154719765762108750148141106"
+          }
+        }
+      ]
+  })XXXX"));
+
+  Wrapper wrapper(outcomes_list_shards);
+
+  //Invalidating even after the shard map has updated but the shard is closed
+  //should not result in an update
+  wrapper.invalidate(
+      std::chrono::steady_clock::now(), boost::optional<uint64_t>(0));
+
+  // Shard map should continue working
+  BOOST_CHECK_EQUAL(
+      *wrapper.shard_id("170141183460469231731687303715884105728"),
+      1);
+  BOOST_CHECK_EQUAL(
+      *wrapper.shard_id("340282366920938463463374607431768211455"),
+      1);
+  BOOST_CHECK_EQUAL(
+      *wrapper.shard_id("0"),
+      2);
+  BOOST_CHECK_EQUAL(
+      *wrapper.shard_id("85070591730234615865843651857942052862"),
+      2);
+  BOOST_CHECK_EQUAL(
+      *wrapper.shard_id("85070591730234615865843651857942052863"),
+      3);
+  BOOST_CHECK_EQUAL(
+      *wrapper.shard_id("170141183460469231731687303715884105727"),
+      3);
+
+  //Invalidating even after the shard map has updated but if the shard is open
+  //it should result in an update
+  wrapper.invalidate(std::chrono::steady_clock::now(), boost::optional<uint64_t>(1));
+
+  BOOST_CHECK(!wrapper.shard_id("0"));
+
+  // Calling invalidate again during update should not trigger more requests.
+  for (int i = 0; i < 5; i++) {
+    wrapper.invalidate(std::chrono::steady_clock::now(), {});
+    aws::utils::sleep_for(std::chrono::milliseconds(2));
+  }
+
+  BOOST_CHECK(!wrapper.shard_id("0"));
+
+  aws::utils::sleep_for(std::chrono::milliseconds(500));
+
+  // A new shard map should've been fetched
+  BOOST_CHECK_EQUAL(
+      *wrapper.shard_id("170141183460469231731687303715884105728"),
+      5);
+  BOOST_CHECK_EQUAL(
+      *wrapper.shard_id("340282366920938463463374607431768211455"),
+      5);
+  BOOST_CHECK_EQUAL(
+      *wrapper.shard_id("0"),
+      6);
+  BOOST_CHECK_EQUAL(
+      *wrapper.shard_id("85070591730234615865843651857942052862"),
+      6);
+  BOOST_CHECK_EQUAL(
+      *wrapper.shard_id("85070591730234615865843651857942052863"),
+      7);
+  BOOST_CHECK_EQUAL(
+      *wrapper.shard_id("170141183460469231731687303715884105727"),
+      7);
+
+  BOOST_CHECK_EQUAL(
+      wrapper.num_req_received(),
+      2);
+}
+
+
+
 
 BOOST_AUTO_TEST_SUITE_END()

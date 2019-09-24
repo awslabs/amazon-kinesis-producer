@@ -57,7 +57,7 @@ class Retrier {
  // using Result = std::shared_ptr<aws::http::HttpResult>;
   using UserRecordCallback =
       std::function<void (const std::shared_ptr<UserRecord>&)>;
-  using ShardMapInvalidateCallback = std::function<void (TimePoint)>;
+  using ShardMapInvalidateCallback = std::function<void (const TimePoint&, const boost::optional<uint64_t>)>;
   using ErrorCallback =
       std::function<void (const std::string&, const std::string&)>;
 
@@ -113,11 +113,12 @@ class Retrier {
             const std::string& err_code,
             const std::string& err_msg);
 
-  void succeed_if_correct_shard(const std::shared_ptr<UserRecord>& ur,
+  bool succeed_if_correct_shard(const std::shared_ptr<UserRecord>& ur,
                                 TimePoint start,
                                 TimePoint end,
                                 const std::string& shard_id,
-                                const std::string& sequence_number);
+                                const std::string& sequence_number,
+                                const bool should_invalidate_on_incorrect_shard);
 
   void finish_user_record(const std::shared_ptr<UserRecord>& ur,
                           const Attempt& final_attempt);

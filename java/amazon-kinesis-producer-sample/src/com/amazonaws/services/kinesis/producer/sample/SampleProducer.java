@@ -212,8 +212,7 @@ public class SampleProducer {
         final FutureCallback<UserRecordResult> callback = new FutureCallback<UserRecordResult>() {
             @Override
             public void onFailure(Throwable t) {
-                // We don't expect any failures during this sample. If it
-                // happens, we will log the first one and exit.
+                // If we see any failures, we will log them.
                 if (t instanceof UserRecordFailedException) {
                     Attempt last = Iterables.getLast(
                             ((UserRecordFailedException) t).getResult().getAttempts());
@@ -222,7 +221,6 @@ public class SampleProducer {
                             last.getErrorCode(), last.getErrorMessage()));
                 }
                 log.error("Exception during put", t);
-                System.exit(1);
             }
 
             @Override
