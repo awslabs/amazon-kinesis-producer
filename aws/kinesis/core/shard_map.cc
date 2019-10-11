@@ -170,6 +170,25 @@ void ShardMap::update_fail(const std::string& code, const std::string& msg) {
   backoff_ = std::min(backoff_ * 3 / 2, max_backoff_);
 }
 
+
+void ShardMap::clear_all_stored_shards() {
+  end_hash_key_to_shard_id_.clear();
+  open_shard_ids_.clear();
+}
+
+void ShardMap::store_open_shard(const uint64_t shard_id, const uint128_t end_hash_key) {
+  end_hash_key_to_shard_id_.push_back(
+      std::make_pair(end_hash_key, shard_id));
+  open_shard_ids_.push_back(shard_id);
+}
+
+void ShardMap::sort_all_open_shards() {
+  std::sort(end_hash_key_to_shard_id_.begin(),
+          end_hash_key_to_shard_id_.end());
+  std::sort(open_shard_ids_.begin(), open_shard_ids_.end());
+}
+
+
 } //namespace core
 } //namespace kinesis
 } //namespace aws
