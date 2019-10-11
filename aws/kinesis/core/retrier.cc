@@ -102,12 +102,17 @@ Retrier::handle_put_records_result(std::shared_ptr<PutRecordsContext> prc) {
       }
 
       if (success) {
+        //All the user records in a kinesis record have the same predicted shard.
+        //So either all user records in a kinesis record landed on the correct shard
+        //or none did. So we can invalidate just once per kinesis record.
+        bool should_invalidate_on_incorrect_shard = true;
         for (auto& ur : kr->items()) {
-          succeed_if_correct_shard(ur,
+          should_invalidate_on_incorrect_shard &= succeed_if_correct_shard(ur,
                                    start,
                                    end,
                                    put_result.GetShardId(),
-                                   put_result.GetSequenceNumber());
+                                   put_result.GetSequenceNumber(),
+                                   should_invalidate_on_incorrect_shard);
         }
       } else {
         auto& err_code = put_result.GetErrorCode();
@@ -183,23 +188,32 @@ void Retrier::fail(const std::shared_ptr<UserRecord>& ur,
           .set_error(err_code, err_msg));
 }
 
-void Retrier::succeed_if_correct_shard(const std::shared_ptr<UserRecord>& ur,
+bool Retrier::succeed_if_correct_shard(const std::shared_ptr<UserRecord>& ur,
                                        TimePoint start,
                                        TimePoint end,
                                        const std::string& shard_id,
-                                       const std::string& sequence_number) {
+                                       const std::string& sequence_number,
+                                       const bool should_invalidate_on_incorrect_shard) {
+  const uint64_t actual_shard = ShardMap::shard_id_from_str(shard_id);
   if (ur->predicted_shard() &&
-      *ur->predicted_shard() != ShardMap::shard_id_from_str(shard_id)) {
-    LOG(warning) << "Record went to shard " << shard_id << " instead of the "
-                 << "prediceted shard " << *ur->predicted_shard() << "; this "
-                 << "usually means the sharp map has changed.";
-    shard_map_invalidate_cb_(start);
+      *ur->predicted_shard() != actual_shard) {
+    //We should call invalidate only if:
+    // 1. If we are told to invalidate on incorrect shard.
+    // 2. The actual destination shard is newer than the predicted shard.
+    if (should_invalidate_on_incorrect_shard && actual_shard > *ur->predicted_shard()) {
+      LOG(warning) << "Record went to shard " << shard_id << " instead of the "
+                   << "predicted shard " << *ur->predicted_shard() << "; this "
+                   << "usually means the sharp map has changed.";    
+
+      shard_map_invalidate_cb_(start, ur->predicted_shard());
+    }
 
     retry_not_expired(ur,
                       start,
                       end,
                       "Wrong Shard",
                       "Record did not end up in expected shard.");
+    return false;
   } else {
     finish_user_record(
         ur,
@@ -207,6 +221,7 @@ void Retrier::succeed_if_correct_shard(const std::shared_ptr<UserRecord>& ur,
             .set_start(start)
             .set_end(end)
             .set_result(shard_id, sequence_number));
+    return true;
   }
 }
 

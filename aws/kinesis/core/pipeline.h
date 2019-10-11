@@ -87,7 +87,7 @@ class Pipeline : boost::noncopyable {
                 config_,
                 [this](auto& ur) { this->finish_user_record(ur); },
                 [this](auto& ur) { this->aggregator_put(ur); },
-                [this](TimePoint tp) { shard_map_->invalidate(tp); },
+                [this](auto& tp, auto predicted_shard) { shard_map_->invalidate(tp, predicted_shard); },
                 [this](auto& code, auto& msg) {
                   limiter_->add_error(code, msg);
                 },

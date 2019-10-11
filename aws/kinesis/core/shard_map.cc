@@ -15,7 +15,7 @@
 
 #include <aws/kinesis/core/shard_map.h>
 
-#include <aws/kinesis/model/DescribeStreamRequest.h>
+#include <aws/kinesis/model/ListShardsRequest.h>
 
 namespace aws {
 namespace kinesis {
@@ -63,81 +63,83 @@ boost::optional<uint64_t> ShardMap::shard_id(const uint128_t& hash_key) {
   return boost::none;
 }
 
-void ShardMap::invalidate(TimePoint seen_at) {
-  WriteLock lock(mutex_);
 
+
+void ShardMap::invalidate(const TimePoint& seen_at, const boost::optional<uint64_t> predicted_shard) {
+  WriteLock lock(mutex_);
+  
   if (seen_at > updated_at_ && state_ == READY) {
-    update();
+    if (!predicted_shard || std::binary_search(open_shard_ids_.begin(), open_shard_ids_.end(), *predicted_shard)) {
+      std::chrono::duration<double, std::milli> fp_ms = seen_at - updated_at_;
+      LOG(info) << "Deciding to update shard map for \"" << stream_ 
+                <<"\" with a gap between seen_at and updated_at_ of " << fp_ms.count() << " ms " << "predicted shard: " << predicted_shard;
+      update();
+    }
   }
 }
 
-void ShardMap::update(const std::string& start_shard_id) {
-  if (start_shard_id.empty() && state_ == UPDATING) {
+void ShardMap::update() {
+  if (state_ == UPDATING) {
     return;
   }
 
-  if (state_ != UPDATING) {
-    state_ = UPDATING;
-    LOG(info) << "Updating shard map for stream \"" << stream_ << "\"";
-    end_hash_key_to_shard_id_.clear();
-    if (scheduled_callback_) {
-      scheduled_callback_->cancel();
-    }
+  state_ = UPDATING;
+  LOG(info) << "Updating shard map for stream \"" << stream_ << "\"";
+  clear_all_stored_shards();
+  if (scheduled_callback_) {
+    scheduled_callback_->cancel();
+  }
+  
+  //We can call list shards directly without checking for stream state
+  //since list shard fails if the stream is not in the appropriate state. 
+  list_shards();
+}
+
+void ShardMap::list_shards(const Aws::String& next_token) {
+  Aws::Kinesis::Model::ListShardsRequest req;
+  req.SetMaxResults(1000);
+
+  if (!next_token.empty()) {
+    req.SetNextToken(next_token);
+  } else {
+    req.SetStreamName(stream_);
   }
 
-  Aws::Kinesis::Model::DescribeStreamRequest req;
-  req.SetStreamName(stream_);
-  req.SetLimit(10000);
-  if (start_shard_id.size() > 0) {
-    req.SetExclusiveStartShardId(start_shard_id);
-  }
-
-  kinesis_client_->DescribeStreamAsync(
+  kinesis_client_->ListShardsAsync(
       req,
       [this](auto /*client*/, auto& /*req*/, auto& outcome, auto& /*ctx*/) {
-        this->update_callback(outcome);
+        this->list_shards_callback(outcome);
       },
       std::shared_ptr<const Aws::Client::AsyncCallerContext>());
 }
 
-void ShardMap::update_callback(
-      const Aws::Kinesis::Model::DescribeStreamOutcome& outcome) {
+void ShardMap::list_shards_callback(
+      const Aws::Kinesis::Model::ListShardsOutcome& outcome) {
   if (!outcome.IsSuccess()) {
     auto e = outcome.GetError();
     update_fail(e.GetExceptionName(), e.GetMessage());
     return;
   }
 
-  auto& description = outcome.GetResult().GetStreamDescription();
-  auto& status = description.GetStreamStatus();
-
-  if (status != Aws::Kinesis::Model::StreamStatus::ACTIVE &&
-      status != Aws::Kinesis::Model::StreamStatus::UPDATING) {
-    update_fail("StreamNotReady");
-    return;
-  }
-
-  auto& shards = description.GetShards();
+  auto& shards = outcome.GetResult().GetShards();  
   for (auto& shard : shards) {
     // Check if the shard is closed, if so, do not use it.
     if (shard.GetSequenceNumberRange().GetEndingSequenceNumber().size() > 0) {
       continue;
     }
-    end_hash_key_to_shard_id_.push_back(
-        std::make_pair<uint128_t, uint64_t>(
-            uint128_t(shard.GetHashKeyRange().GetEndingHashKey()),
-            shard_id_from_str(shard.GetShardId())));
+    store_open_shard(shard_id_from_str(shard.GetShardId()), 
+      uint128_t(shard.GetHashKeyRange().GetEndingHashKey()));
   }
 
   backoff_ = min_backoff_;
-
-  if (description.GetHasMoreShards()) {
-    update(shards[shards.size() - 1].GetShardId());
+  
+  auto& next_token = outcome.GetResult().GetNextToken();
+  if (!next_token.empty()) {
+    list_shards(next_token);
     return;
   }
 
-  std::sort(end_hash_key_to_shard_id_.begin(),
-            end_hash_key_to_shard_id_.end());
+  sort_all_open_shards();
 
   WriteLock lock(mutex_);
   state_ = READY;
@@ -167,6 +169,25 @@ void ShardMap::update_fail(const std::string& code, const std::string& msg) {
 
   backoff_ = std::min(backoff_ * 3 / 2, max_backoff_);
 }
+
+
+void ShardMap::clear_all_stored_shards() {
+  end_hash_key_to_shard_id_.clear();
+  open_shard_ids_.clear();
+}
+
+void ShardMap::store_open_shard(const uint64_t shard_id, const uint128_t end_hash_key) {
+  end_hash_key_to_shard_id_.push_back(
+      std::make_pair(end_hash_key, shard_id));
+  open_shard_ids_.push_back(shard_id);
+}
+
+void ShardMap::sort_all_open_shards() {
+  std::sort(end_hash_key_to_shard_id_.begin(),
+          end_hash_key_to_shard_id_.end());
+  std::sort(open_shard_ids_.begin(), open_shard_ids_.end());
+}
+
 
 } //namespace core
 } //namespace kinesis
