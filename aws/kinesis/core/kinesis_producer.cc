@@ -38,7 +38,7 @@ struct EndpointConfiguration {
     kinesis_endpoint_(kinesis_endpoint), cloudwatch_endpoint_(cloudwatch_endpoint) {}
 };
 
-const constexpr char* kVersion = "0.12.9N";
+const constexpr char* kVersion = "0.14.0N";
 const std::unordered_map< std::string, EndpointConfiguration > kRegionEndpointOverride = {
   { "cn-north-1", { "kinesis.cn-north-1.amazonaws.com.cn", "monitoring.cn-north-1.amazonaws.com.cn" } },
   { "cn-northwest-1", { "kinesis.cn-northwest-1.amazonaws.com.cn", "monitoring.cn-northwest-1.amazonaws.com.cn" } }
