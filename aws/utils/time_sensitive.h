@@ -63,6 +63,14 @@ class TimeSensitive : private boost::noncopyable {
     set_deadline(Clock::now() + ms);
   }
 
+  void extend_deadline_from_now(std::chrono::milliseconds ms) {
+    if (deadline().time_since_epoch().count() == 0) {
+      set_deadline_from_now(ms);
+    } else {
+      set_deadline(std::max(deadline_, Clock::now() + ms));
+    }
+  }
+
   void set_expiration_from_now(std::chrono::milliseconds ms) {
     expiration_ = Clock::now() + ms;
   }

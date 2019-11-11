@@ -130,7 +130,15 @@ class Pipeline : boost::noncopyable {
     limiter_->put(kr);
   }
 
+  uint64_t putrecords_buffer_duration() const noexcept {
+    return std::min(max_putrecords_buffer_time,
+        (uint64_t)(config_->record_max_buffered_time() * putrecords_buffer_ratio));
+  }
+
   void collector_put(const std::shared_ptr<KinesisRecord>& kr) {
+    if (config_->aggregation_enabled()) {
+      kr->extend_deadline_from_now(std::chrono::milliseconds(putrecords_buffer_duration()));
+    }
     auto prr = collector_->put(kr);
     if (prr) {
       send_put_records_request(prr);
@@ -199,6 +207,8 @@ class Pipeline : boost::noncopyable {
 
   std::shared_ptr<aws::metrics::Metric> user_records_rcvd_metric_;
   std::atomic<uint64_t> outstanding_user_records_;
+  const float putrecords_buffer_ratio = 0.2;
+  const uint64_t max_putrecords_buffer_time = 50;
 
 
 };
