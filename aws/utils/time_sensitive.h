@@ -50,7 +50,7 @@ class TimeSensitive : private boost::noncopyable {
 
   void set_deadline(TimePoint tp) noexcept  {
     deadline_ = tp;
-    if (expiration_.time_since_epoch().count() > 0 && expiration_ < deadline_) {
+    if (!is_undefined(expiration_) && expiration_ < deadline_) {
       deadline_ = expiration_;
     }
   }
@@ -63,6 +63,14 @@ class TimeSensitive : private boost::noncopyable {
     set_deadline(Clock::now() + ms);
   }
 
+  void extend_deadline_from_now(std::chrono::milliseconds ms) {
+    if (is_undefined(deadline())) {
+      set_deadline_from_now(ms);
+    } else {
+      set_deadline(std::max(deadline_, Clock::now() + ms));
+    }
+  }
+
   void set_expiration_from_now(std::chrono::milliseconds ms) {
     expiration_ = Clock::now() + ms;
   }
@@ -72,12 +80,12 @@ class TimeSensitive : private boost::noncopyable {
   }
 
   void inherit_deadline_and_expiration(const TimeSensitive& other) {
-    if (this->deadline().time_since_epoch().count() == 0 ||
+    if (is_undefined(this->deadline())  ||
         other.deadline() < this->deadline()) {
       this->set_deadline(other.deadline());
     }
 
-    if (this->expiration().time_since_epoch().count() == 0 ||
+    if (is_undefined(this->expiration()) ||
         other.expiration() < this->expiration()) {
       this->set_expiration(other.expiration());
     }
@@ -87,6 +95,11 @@ class TimeSensitive : private boost::noncopyable {
   TimePoint arrival_;
   TimePoint deadline_;
   TimePoint expiration_;
+
+  static bool is_undefined(const TimePoint& tp) {
+    return tp.time_since_epoch().count() == 0;  
+  }
+
 };
 
 } //namespace utils
