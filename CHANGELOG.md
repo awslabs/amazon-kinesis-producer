@@ -2,6 +2,7 @@
 ### 0.14.0
 
 * Note: Windows will be unsupported going forward for this library.
+* [PR #280] When aggregation is enabled and all the buffer time is consumed for aggregating User records into Kinesis records, allow some additional buffer time for aggregating Kinesis Records into PutRecords calls.
 * [PR #260] Added endpoint for China Ningxia region (cn-northwest-1).
 * [PR #277] Changed mechanism to update the shard map
   * Switched to using ListShards instead of DescribeStream, as this is a more scalable API
