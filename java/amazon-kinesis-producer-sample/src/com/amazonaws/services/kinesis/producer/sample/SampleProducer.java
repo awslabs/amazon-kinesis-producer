@@ -16,10 +16,12 @@
 package com.amazonaws.services.kinesis.producer.sample;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
@@ -76,7 +78,7 @@ public class SampleProducer {
     /**
      * Change these to try larger or smaller records.
      */
-    private static final int DATA_SIZE = 128;
+    private static final int DATA_SIZE_DEFAULT = 128;
     
     /**
      * Put records for this number of seconds before exiting.
@@ -96,27 +98,34 @@ public class SampleProducer {
      * 
      * @see {@link KinesisProducerConfiguration#setRecordTtl(long)}
      */
-    private static final int RECORDS_PER_SECOND = 2000;
+    private static final int RECORDS_PER_SECOND_DEFAULT = 2000;
     
     /**
      * Change this to your stream name.
      */
-    public static final String STREAM_NAME = "test";
+    public static final String STREAM_NAME_DEFAULT = "test";
     
     /**
      * Change this to the region you are using.
      */
-    public static final String REGION = "us-west-1";
+    public static final String REGION_DEFAULT = "us-west-1";
 
     /**
      * Here'll walk through some of the config options and create an instance of
      * KinesisProducer, which will be used to put records.
      *
      * @param region The region of the Kinesis stream being used.
-     * 
+     *
+     * @param connections The max number of connections to use within the KPL to service AWS Requests
+     * @param requestTimeout The configured request timeout for requests to Kinesis
+     * @param bufferTime The configured buffer time for the KPL
+     * @param threadingModel The configured ThreadingModel to use for the KPL. Either "POOLED" or "PER_REQUEST"
+     * @param numberOfThreads When POOLED threading model is used, the number of native threads to run in the
+     *                       Daemon to serve Kinesis requests.
      * @return KinesisProducer instance used to put records.
      */
-    public static KinesisProducer getKinesisProducer(final String region) {
+    public static KinesisProducer getKinesisProducer(final String region, int connections, int requestTimeout,
+            int bufferTime, String threadingModel, int numberOfThreads) {
         // There are many configurable parameters in the KPL. See the javadocs
         // on each each set method for details.
         KinesisProducerConfiguration config = new KinesisProducerConfiguration();
@@ -144,10 +153,10 @@ public class SampleProducer {
         // idle connections being closed by the server. Setting this value too
         // large may also cause request timeouts if you do not have enough
         // bandwidth.
-        config.setMaxConnections(1);
+        config.setMaxConnections(connections);
         
         // Set a more generous timeout in case we're on a slow connection.
-        config.setRequestTimeout(60000);
+        config.setRequestTimeout(requestTimeout);
         
         // RecordMaxBufferedTime controls how long records are allowed to wait
         // in the KPL's buffers before being sent. Larger values increase
@@ -156,7 +165,14 @@ public class SampleProducer {
         // second limit on a shard. The default value is set very low to
         // minimize propagation delay, so we'll increase it here to get more
         // aggregation.
-        config.setRecordMaxBufferedTime(2000);
+        config.setRecordMaxBufferedTime(bufferTime);
+
+        // Configures the threading model for the KPL. By default the KPL
+        // launches with a PER_REQUEST threading model with a threadpool size
+        // of 0. At larger stream sizes it becomes more beneficial to change
+        // to a pooled threading model.
+        config.setThreadingModel(threadingModel);
+        config.setThreadPoolSize(numberOfThreads);
 
         // If you have built the native binary yourself, you can point the Java
         // wrapper to it with the NativeExecutable option. If you want to pass
@@ -176,7 +192,7 @@ public class SampleProducer {
         
         return producer;
     }
-    
+
     public static String getArgIfPresent(final String[] args, final int index, final String defaultValue) {
         return args.length > index ? args[index] : defaultValue;
     }
@@ -186,21 +202,82 @@ public class SampleProducer {
      *  1. The stream name to use (test is default)
      *  2. The region name to use (us-west-1 in default)
      *  3. The duration of the test in seconds, 5 is the default.
+     *  4. The number of records per second to send, 2000 is the default.
+     *  5. The payload size of each record being sent in bytes, 128 is the default.
+     *  6. The max number of connections to configure the KPL with, 1 is the default.
+     *  7. The requestTimeout in milliseconds to configure the KPL with, 60000 is the default.
+     *  8. The bufferTime in milliseconds to configure the KPL with, 2000 is the default.
+     *  9. The threading model to configure the KPL with, PER_REQUEST is the default.
+     *  10. The threadPoolSize to configure the KPL with, 0 is the default.
      */
     public static void main(String[] args) throws Exception {
-        final String streamName = getArgIfPresent(args, 0, STREAM_NAME);
-        final String region = getArgIfPresent(args, 1, REGION);
-        final String secondsToRunString = getArgIfPresent(args, 2, String.valueOf(SECONDS_TO_RUN_DEFAULT));
-        final int secondsToRun = Integer.parseInt(secondsToRunString);
+        int argIndex = 0;
+        final String streamName = getArgIfPresent(args, argIndex++, STREAM_NAME_DEFAULT);
+        final String region = getArgIfPresent(args, argIndex++, REGION_DEFAULT);
+        final int secondsToRun = Integer.parseInt(getArgIfPresent(args, argIndex++, String.valueOf(SECONDS_TO_RUN_DEFAULT)));
+        final int records_per_second = Integer.parseInt(getArgIfPresent(args, argIndex++, String.valueOf(RECORDS_PER_SECOND_DEFAULT)));
+        final int data_size = Integer.parseInt(getArgIfPresent(args, argIndex++, String.valueOf(DATA_SIZE_DEFAULT)));
+        final int connections = Integer.parseInt(getArgIfPresent(args, argIndex++, String.valueOf(1)));
+        final int requestTimeout = Integer.parseInt(getArgIfPresent(args, argIndex++, String.valueOf(60000)));
+        final int bufferTime = Integer.parseInt(getArgIfPresent(args, argIndex++, String.valueOf(2000)));
+        final String threadingModel = getArgIfPresent(args, argIndex++, KinesisProducerConfiguration.ThreadingModel.PER_REQUEST.name());
+        final int threadPoolSize = Integer.parseInt(getArgIfPresent(args, argIndex++, String.valueOf(0)));
+        boolean errorsFound=false;
         if (secondsToRun <= 0) {
-            log.error("Seconds to Run should be a positive integer");
+            errorsFound=true;
+            log.error("SecondsToRun should be a positive integer");
+        }
+
+        if (records_per_second <= 0) {
+            errorsFound=true;
+            log.error("RecordsPerSecond should be a positive integer");
+        }
+
+        if (data_size <= 0) {
+            errorsFound=true;
+            log.error("DataSize should be a positive integer");
+        }
+
+        if (connections <= 0) {
+            errorsFound=true;
+            log.error("Connections should be a positive integer");
+        }
+
+        if (requestTimeout <= 0) {
+            errorsFound=true;
+            log.error("RequestTimeout should be a positive integer");
+        }
+
+        if (bufferTime <= 0) {
+            errorsFound=true;
+            log.error("BufferTime should be a positive integer");
+        }
+
+        if (threadPoolSize < 0) {
+            errorsFound=true;
+            log.error("ThreadPoolSize should be a positive integer, or 0");
+        }
+
+        if(!threadingModel.equals(KinesisProducerConfiguration.ThreadingModel.PER_REQUEST.name()) &&
+                !threadingModel.equals(KinesisProducerConfiguration.ThreadingModel.POOLED.name())){
+            errorsFound=true;
+            log.error("Threading model needs to be one of [PER_REQUEST | POOLED]");
+        }
+
+        if (threadPoolSize < 0) {
+            errorsFound=true;
+            log.error("ThreadPoolSize should be a positive integer, or 0");
+        }
+
+        if(errorsFound){
             System.exit(1);
         }
 
         log.info(String.format("Stream name: %s Region: %s secondsToRun %d",streamName, region, secondsToRun));
+        log.info(String.format("Will attempt to run the KPL at %f MB/s...",(data_size*records_per_second)/(1000000.0)));
 
-
-        final KinesisProducer producer = getKinesisProducer(region);
+        final KinesisProducer producer = getKinesisProducer(region, connections, requestTimeout, bufferTime,
+                threadingModel,threadPoolSize);
         
         // The monotonically increasing sequence number we will put in the data of each record
         final AtomicLong sequenceNumber = new AtomicLong(0);
@@ -213,12 +290,13 @@ public class SampleProducer {
             @Override
             public void onFailure(Throwable t) {
                 // If we see any failures, we will log them.
+                int attempts = ((UserRecordFailedException) t).getResult().getAttempts().size()-1;
                 if (t instanceof UserRecordFailedException) {
-                    Attempt last = Iterables.getLast(
-                            ((UserRecordFailedException) t).getResult().getAttempts());
+                    Attempt previous = ((UserRecordFailedException) t).getResult().getAttempts().get(attempts-1);
+                    Attempt last = ((UserRecordFailedException) t).getResult().getAttempts().get(attempts);
                     log.error(String.format(
-                            "Record failed to put - %s : %s",
-                            last.getErrorCode(), last.getErrorMessage()));
+                            "Record failed to put - %s : %s. Previous failure - %s : %s",
+                            last.getErrorCode(), last.getErrorMessage(), previous.getErrorCode(), previous.getErrorMessage()));
                 }
                 log.error("Exception during put", t);
             }
@@ -235,7 +313,7 @@ public class SampleProducer {
         final Runnable putOneRecord = new Runnable() {
             @Override
             public void run() {
-                ByteBuffer data = Utils.generateData(sequenceNumber.get(), DATA_SIZE);
+                ByteBuffer data = Utils.generateData(sequenceNumber.get(), data_size);
                 // TIMESTAMP is our partition key
                 ListenableFuture<UserRecordResult> f =
                         producer.addUserRecord(streamName, TIMESTAMP, Utils.randomExplicitHashKey(), data);
@@ -248,7 +326,7 @@ public class SampleProducer {
             @Override
             public void run() {
                 long put = sequenceNumber.get();
-                long total = RECORDS_PER_SECOND * secondsToRun;
+                long total = records_per_second * secondsToRun;
                 double putPercent = 100.0 * put / total;
                 long done = completed.get();
                 double donePercent = 100.0 * done / total;
@@ -261,8 +339,8 @@ public class SampleProducer {
         // Kick off the puts
         log.info(String.format(
                 "Starting puts... will run for %d seconds at %d records per second",
-                secondsToRun, RECORDS_PER_SECOND));
-        executeAtTargetRate(EXECUTOR, putOneRecord, sequenceNumber, secondsToRun, RECORDS_PER_SECOND);
+                secondsToRun, records_per_second));
+        executeAtTargetRate(EXECUTOR, putOneRecord, sequenceNumber, secondsToRun, records_per_second);
         
         // Wait for puts to finish. After this statement returns, we have
         // finished all calls to putRecord, but the records may still be
