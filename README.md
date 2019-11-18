@@ -6,8 +6,18 @@ The Amazon Kinesis Producer Library (KPL) performs many tasks common to creating
 
 For detailed information and installation instructions, see the article [Developing Producer Applications for Amazon Kinesis Using the Amazon Kinesis Producer Library][amazon-kpl-docs] in the [Amazon Kinesis Developer Guide][kinesis-developer-guide].
 
-## Recommended Upgrade
-Starting with release 0.14.0, KPL will switch to using ListShards API instead of the DescribeStream API. This API is more scaleable and will result in less throttling problems when your KPL fleet needs to update it's shard map.
+## Recommended Settings for Streams larger than 800 shards
+The KPL is an application for ingesting data to your Kinesis Data Streams. As your streams grow you may find the need to tune the KPL unable to accommodate the growing needs of your applications. Without optimized configurations your KPL processes will see inefficient CPU usage and delays in writing records into KDS. For streams larger than 800 shards, we recommend the following settings:
+
+* ThreadingModel= “POOLED”
+* MetricsGranularity= “stream”
+* ThreadPoolSize=128
+
+_We recommend performing sufficient testing before applying these changes to production, as every customer has different usage patterns_
+
+## Required KPL Update – v0.14.0
+KPL 0.14.0 now uses ListShards API, making it easier for your Kinesis Producer applications to scale. Kinesis Data Streams (KDS) enables you to scale your stream capacity without any changes to producers and consumers. After a scaling event, producer applications need to discover the new shard map. Version 0.14.0 replaces the DescribeStream with the ListShards API for shard discovery. ListShards API supports 100TPS per stream compared to DescribeStream that supports 10TPS per account. For an account with 10 streams using KPL v0.14.0 will provide you a 100X higher call rate for shard discovery, eliminating the need for a DescribeStream API limit increase for scaling. You can find more information on the [ListShards API ](https://docs.aws.amazon.com/kinesis/latest/APIReference/API_ListShards.html) in the Kinesis Data Streams documentation.
+ 
 
 ## Required Upgrade
 Starting on February 9, 2018 Amazon Kinesis Data Streams will begin transitioning to certificates issued by [Amazon Trust Services (ATS)](https://www.amazontrust.com/).  To continue using the Kinesis Producer Library (KPL) you must upgrade the KPL to version [0.12.6](http://search.maven.org/#artifactdetails|com.amazonaws|amazon-kinesis-producer|0.12.6|jar) or [later](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.amazonaws%22%20AND%20a%3A%22amazon-kinesis-producer%22).
