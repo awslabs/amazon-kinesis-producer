@@ -5,6 +5,16 @@ import com.amazonaws.services.kinesis.producer.KinesisProducerConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
+import java.util.Set;
+
 public class SampleProducerConfig {
     
     private static final Logger log = LoggerFactory.getLogger(SampleProducerConfig.class);
@@ -43,18 +53,29 @@ public class SampleProducerConfig {
      */
     public static final String REGION_DEFAULT = "us-west-1";
 
+    @NotNull(message = "KPL Sample region should not be null" )
     private final String region;
+    @Positive(message = "KPL Sample connections should not be less than 1")
     private final int connections;
+    @Positive(message = "KPL Sample requestTimeout should not be less than 1")
     private final int requestTimeout;
+    @Positive(message = "KPL Sample bufferTime should not be less than 1")
     private final int bufferTime;
     private final String threadingModel;
+    @NotNull(message = "KPL Sample streamName should not be null" )
     private final String streamName;
+    @Positive(message = "KPL Sample secondsToRun should not be less than 1")
     private final int secondsToRun;
+    @Positive(message = "KPL Sample recordsPerSecond should not be less than 1")
     private final int recordsPerSecond;
+    @Positive(message = "KPL Sample dataSize should not be less than 1")
     private final int dataSize;
+    @PositiveOrZero(message = "KPL Sample threadPoolSize should not be less than 0")
     private final int threadPoolSize;
     private boolean aggregationEnabled;
+    @Min(value = 1, message = "KPL Sample aggregationMaxCount should not be less than 1")
     private long aggregationMaxCount;
+    @Min(value = 2, message = "KPL Sample aggregationMaxSize should not be less than 2")
     private long aggregationMaxSize;
 
     public static String getArgIfPresent(final String[] args, final int index, final String defaultValue) {
@@ -79,7 +100,6 @@ public class SampleProducerConfig {
      * 13. The aggregationMaxSize to configure the KPL with, 51200 is the default.
      */
     public SampleProducerConfig(String[] args) {
-
         int argIndex = 0;
         streamName = getArgIfPresent(args, argIndex++, STREAM_NAME_DEFAULT);
         region = getArgIfPresent(args, argIndex++, REGION_DEFAULT);
@@ -95,64 +115,22 @@ public class SampleProducerConfig {
         aggregationMaxCount = Long.parseLong(getArgIfPresent(args, argIndex++, "4294967295"));
         aggregationMaxSize = Long.parseLong(getArgIfPresent(args, argIndex++, "51200"));
 
-        boolean errorsFound=false;
-        if (secondsToRun <= 0) {
-            errorsFound=true;
-            log.error("SecondsToRun should be a positive integer");
-        }
-
-        if (recordsPerSecond <= 0) {
-            errorsFound=true;
-            log.error("RecordsPerSecond should be a positive integer");
-        }
-
-        if (dataSize <= 0) {
-            errorsFound=true;
-            log.error("DataSize should be a positive integer");
-        }
-
-        if (connections <= 0) {
-            errorsFound=true;
-            log.error("Connections should be a positive integer");
-        }
-
-        if (requestTimeout <= 0) {
-            errorsFound=true;
-            log.error("RequestTimeout should be a positive integer");
-        }
-
-        if (bufferTime <= 0) {
-            errorsFound=true;
-            log.error("BufferTime should be a positive integer");
-        }
-
-        if (threadPoolSize < 0) {
-            errorsFound=true;
-            log.error("ThreadPoolSize should be a positive integer, or 0");
-        }
 
         if(!threadingModel.equals(KinesisProducerConfiguration.ThreadingModel.PER_REQUEST.name()) &&
                 !threadingModel.equals(KinesisProducerConfiguration.ThreadingModel.POOLED.name())){
-            errorsFound=true;
             log.error("Threading model needs to be one of [PER_REQUEST | POOLED]");
         }
 
-        if (threadPoolSize < 0) {
-            errorsFound=true;
-            log.error("ThreadPoolSize should be a positive integer, or 0");
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+
+        Set<ConstraintViolation<SampleProducerConfig>> violations = validator.validate(this);
+
+        for (ConstraintViolation<SampleProducerConfig> violation : violations) {
+            log.error(violation.getMessage());
         }
 
-        if (aggregationMaxCount <= 0) {
-            errorsFound=true;
-            log.error("AggregationMaxCount should be a positive long");
-        }
-
-        if (aggregationMaxSize <= 0) {
-            errorsFound=true;
-            log.error("ThreadPoolSize should be a positive long");
-        }
-
-        if(errorsFound){
+        if(!violations.isEmpty()){
             System.exit(1);
         }
     }
