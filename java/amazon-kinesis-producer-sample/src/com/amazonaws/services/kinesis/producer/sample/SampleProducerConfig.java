@@ -10,7 +10,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.Set;
@@ -53,7 +53,7 @@ public class SampleProducerConfig {
      */
     public static final String REGION_DEFAULT = "us-west-1";
 
-    @NotNull(message = "KPL Sample region should not be null" )
+    @NotBlank(message = "KPL Sample region should not be null or blank" )
     private final String region;
     @Positive(message = "KPL Sample connections should not be less than 1")
     private final int connections;
@@ -61,8 +61,9 @@ public class SampleProducerConfig {
     private final int requestTimeout;
     @Positive(message = "KPL Sample bufferTime should not be less than 1")
     private final int bufferTime;
+    @NotBlank(message = "KPL Sample threadingModel should be one of PER_REQUEST or POOLED")
     private final String threadingModel;
-    @NotNull(message = "KPL Sample streamName should not be null" )
+    @NotBlank(message = "KPL Sample streamName should not be null or blank" )
     private final String streamName;
     @Positive(message = "KPL Sample secondsToRun should not be less than 1")
     private final int secondsToRun;
@@ -80,6 +81,18 @@ public class SampleProducerConfig {
 
     public static String getArgIfPresent(final String[] args, final int index, final String defaultValue) {
         return args.length > index ? args[index] : defaultValue;
+    }
+
+    public static int getIntArgIfPresent(final String[] args, final int index, final String defaultValue) {
+        return Integer.parseInt(getArgIfPresent(args, index, defaultValue));
+    }
+
+    public static long getLongArgIfPresent(final String[] args, final int index, final String defaultValue) {
+        return Long.parseLong(getArgIfPresent(args, index, defaultValue));
+    }
+
+    public static boolean getBooleanArgIfPresent(final String[] args, final int index, final String defaultValue) {
+        return Boolean.parseBoolean(getArgIfPresent(args, index, defaultValue));
     }
 
     /**
@@ -103,23 +116,17 @@ public class SampleProducerConfig {
         int argIndex = 0;
         streamName = getArgIfPresent(args, argIndex++, STREAM_NAME_DEFAULT);
         region = getArgIfPresent(args, argIndex++, REGION_DEFAULT);
-        secondsToRun = Integer.parseInt(getArgIfPresent(args, argIndex++, String.valueOf(SECONDS_TO_RUN_DEFAULT)));
-        recordsPerSecond = Integer.parseInt(getArgIfPresent(args, argIndex++, String.valueOf(RECORDS_PER_SECOND_DEFAULT)));
-        dataSize = Integer.parseInt(getArgIfPresent(args, argIndex++, String.valueOf(DATA_SIZE_DEFAULT)));
-        connections = Integer.parseInt(getArgIfPresent(args, argIndex++, String.valueOf(1)));
-        requestTimeout = Integer.parseInt(getArgIfPresent(args, argIndex++, String.valueOf(60000)));
-        bufferTime = Integer.parseInt(getArgIfPresent(args, argIndex++, String.valueOf(2000)));
+        secondsToRun = getIntArgIfPresent(args, argIndex++, String.valueOf(SECONDS_TO_RUN_DEFAULT));
+        recordsPerSecond = getIntArgIfPresent(args, argIndex++, String.valueOf(RECORDS_PER_SECOND_DEFAULT));
+        dataSize = getIntArgIfPresent(args, argIndex++, String.valueOf(DATA_SIZE_DEFAULT));
+        connections = getIntArgIfPresent(args, argIndex++, String.valueOf(1));
+        requestTimeout = getIntArgIfPresent(args, argIndex++, String.valueOf(60000));
+        bufferTime = getIntArgIfPresent(args, argIndex++, String.valueOf(2000));
         threadingModel = getArgIfPresent(args, argIndex++, KinesisProducerConfiguration.ThreadingModel.PER_REQUEST.name());
-        threadPoolSize = Integer.parseInt(getArgIfPresent(args, argIndex++, String.valueOf(0)));
-        aggregationEnabled = Boolean.parseBoolean(getArgIfPresent(args, argIndex++, "true"));
-        aggregationMaxCount = Long.parseLong(getArgIfPresent(args, argIndex++, "4294967295"));
-        aggregationMaxSize = Long.parseLong(getArgIfPresent(args, argIndex++, "51200"));
-
-
-        if(!threadingModel.equals(KinesisProducerConfiguration.ThreadingModel.PER_REQUEST.name()) &&
-                !threadingModel.equals(KinesisProducerConfiguration.ThreadingModel.POOLED.name())){
-            log.error("Threading model needs to be one of [PER_REQUEST | POOLED]");
-        }
+        threadPoolSize = getIntArgIfPresent(args, argIndex++, String.valueOf(0));
+        aggregationEnabled = getBooleanArgIfPresent(args, argIndex++, "true");
+        aggregationMaxCount = getLongArgIfPresent(args, argIndex++, "4294967295");
+        aggregationMaxSize = getLongArgIfPresent(args, argIndex++, "51200");
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
@@ -128,6 +135,12 @@ public class SampleProducerConfig {
 
         for (ConstraintViolation<SampleProducerConfig> violation : violations) {
             log.error(violation.getMessage());
+        }
+
+        if(!threadingModel.equals(KinesisProducerConfiguration.ThreadingModel.PER_REQUEST.name()) &&
+                !threadingModel.equals(KinesisProducerConfiguration.ThreadingModel.POOLED.name())){
+            log.error("KPL Sample threadingModel needs to be one of [PER_REQUEST | POOLED]");
+            System.exit(1);
         }
 
         if(!violations.isEmpty()){
