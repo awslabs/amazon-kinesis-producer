@@ -73,17 +73,8 @@ public class SampleProducer {
     private static final String TIMESTAMP = Long.toString(System.currentTimeMillis());
     
     /** The main method.
-     *  @param args  The command line args for the Sample Producer. It takes 3 optional position parameters:
-     *  1. The stream name to use (test is default)
-     *  2. The region name to use (us-west-1 in default)
-     *  3. The duration of the test in seconds, 5 is the default.
-     *  4. The number of records per second to send, 2000 is the default.
-     *  5. The payload size of each record being sent in bytes, 128 is the default.
-     *  6. The max number of connections to configure the KPL with, 1 is the default.
-     *  7. The requestTimeout in milliseconds to configure the KPL with, 60000 is the default.
-     *  8. The bufferTime in milliseconds to configure the KPL with, 2000 is the default.
-     *  9. The threading model to configure the KPL with, PER_REQUEST is the default.
-     *  10. The threadPoolSize to configure the KPL with, 0 is the default.
+     *  @param args  The command line args for the Sample Producer.
+     *  @see com.amazonaws.services.kinesis.producer.sample.SampleProducerConfig for positional arg ordering.
      */
     public static void main(String[] args) throws Exception {
         final SampleProducerConfig config = new SampleProducerConfig(args);
@@ -108,11 +99,18 @@ public class SampleProducer {
                 // If we see any failures, we will log them.
                 int attempts = ((UserRecordFailedException) t).getResult().getAttempts().size()-1;
                 if (t instanceof UserRecordFailedException) {
-                    Attempt previous = ((UserRecordFailedException) t).getResult().getAttempts().get(attempts-1);
                     Attempt last = ((UserRecordFailedException) t).getResult().getAttempts().get(attempts);
-                    log.error(String.format(
-                            "Record failed to put - %s : %s. Previous failure - %s : %s",
-                            last.getErrorCode(), last.getErrorMessage(), previous.getErrorCode(), previous.getErrorMessage()));
+                    if(attempts > 1) {
+                        Attempt previous = ((UserRecordFailedException) t).getResult().getAttempts().get(attempts - 1);
+                        log.error(String.format(
+                                "Record failed to put - %s : %s. Previous failure - %s : %s",
+                                last.getErrorCode(), last.getErrorMessage(), previous.getErrorCode(), previous.getErrorMessage()));
+                    }else{
+                        log.error(String.format(
+                                "Record failed to put - %s : %s.",
+                                last.getErrorCode(), last.getErrorMessage()));
+                    }
+
                 }
                 log.error("Exception during put", t);
             }

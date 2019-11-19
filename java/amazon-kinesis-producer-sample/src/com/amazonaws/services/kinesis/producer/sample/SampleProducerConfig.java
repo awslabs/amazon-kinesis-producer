@@ -53,6 +53,9 @@ public class SampleProducerConfig {
     private final int recordsPerSecond;
     private final int dataSize;
     private final int threadPoolSize;
+    private boolean aggregationEnabled;
+    private long aggregationMaxCount;
+    private long aggregationMaxSize;
 
     public static String getArgIfPresent(final String[] args, final int index, final String defaultValue) {
         return args.length > index ? args[index] : defaultValue;
@@ -60,17 +63,20 @@ public class SampleProducerConfig {
 
     /**
      * Parses the commandline input to produce a Config object
-     **  @param args  The command line args for the Sample Producer. It takes 3 optional position parameters:
-     *      *  1. The stream name to use (test is default)
-     *      *  2. The region name to use (us-west-1 in default)
-     *      *  3. The duration of the test in seconds, 5 is the default.
-     *      *  4. The number of records per second to send, 2000 is the default.
-     *      *  5. The payload size of each record being sent in bytes, 128 is the default.
-     *      *  6. The max number of connections to configure the KPL with, 1 is the default.
-     *      *  7. The requestTimeout in milliseconds to configure the KPL with, 60000 is the default.
-     *      *  8. The bufferTime in milliseconds to configure the KPL with, 2000 is the default.
-     *      *  9. The threading model to configure the KPL with, PER_REQUEST is the default.
-     *      *  10. The threadPoolSize to configure the KPL with, 0 is the default.
+     **  @param args  The command line args for the Sample Producer. It takes 13 optional position parameters:
+     * 1. The stream name to use, test is default.
+     * 2. The region name to use, us-west-1 in default.
+     * 3. The duration of the test in seconds, 5 is the default.
+     * 4. The number of records per second to send, 2000 is the default.
+     * 5. The payload size of each record being sent in bytes, 128 is the default.
+     * 6. The max number of connections to configure the KPL with, 1 is the default.
+     * 7. The requestTimeout in milliseconds to configure the KPL with, 60000 is the default.
+     * 8. The bufferTime in milliseconds to configure the KPL with, 2000 is the default.
+     * 9. The threading model to configure the KPL with, PER_REQUEST is the default.
+     * 10. The threadPoolSize to configure the KPL with, 0 is the default.
+     * 11. The aggregationEnabled to configure the KPL with, true is the default.
+     * 12. The aggregationMaxCount to configure the KPL with, 4294967295 is the default.
+     * 13. The aggregationMaxSize to configure the KPL with, 51200 is the default.
      */
     public SampleProducerConfig(String[] args) {
 
@@ -85,6 +91,9 @@ public class SampleProducerConfig {
         bufferTime = Integer.parseInt(getArgIfPresent(args, argIndex++, String.valueOf(2000)));
         threadingModel = getArgIfPresent(args, argIndex++, KinesisProducerConfiguration.ThreadingModel.PER_REQUEST.name());
         threadPoolSize = Integer.parseInt(getArgIfPresent(args, argIndex++, String.valueOf(0)));
+        aggregationEnabled = Boolean.parseBoolean(getArgIfPresent(args, argIndex++, "true"));
+        aggregationMaxCount = Long.parseLong(getArgIfPresent(args, argIndex++, "4294967295"));
+        aggregationMaxSize = Long.parseLong(getArgIfPresent(args, argIndex++, "51200"));
 
         boolean errorsFound=false;
         if (secondsToRun <= 0) {
@@ -133,6 +142,16 @@ public class SampleProducerConfig {
             log.error("ThreadPoolSize should be a positive integer, or 0");
         }
 
+        if (aggregationMaxCount <= 0) {
+            errorsFound=true;
+            log.error("AggregationMaxCount should be a positive long");
+        }
+
+        if (aggregationMaxSize <= 0) {
+            errorsFound=true;
+            log.error("ThreadPoolSize should be a positive long");
+        }
+
         if(errorsFound){
             System.exit(1);
         }
@@ -176,6 +195,18 @@ public class SampleProducerConfig {
 
     public int getThreadPoolSize() {
         return threadPoolSize;
+    }
+
+    public boolean isAggregationEnabled() {
+        return aggregationEnabled;
+    }
+
+    public long getAggregationMaxCount() {
+        return aggregationMaxCount;
+    }
+
+    public long getAggregationMaxSize() {
+        return aggregationMaxSize;
     }
 
     public KinesisProducerConfiguration transformToKinesisProducerConfiguration(){
@@ -226,6 +257,14 @@ public class SampleProducerConfig {
         // to a pooled threading model.
         config.setThreadingModel(this.getThreadingModel());
         config.setThreadPoolSize(this.getThreadPoolSize());
+
+        // Configures aggregation configurations for the KPL. By Default
+        // Aggregation is enabled. Aggregation is further configured by
+        // setting maximum limits on aggregated record size and the number
+        // of user records to aggregate together.
+        config.setAggregationEnabled(this.isAggregationEnabled());
+        config.setAggregationMaxCount(this.getAggregationMaxCount());
+        config.setAggregationMaxSize(this.getAggregationMaxSize());
 
         // If you have built the native binary yourself, you can point the Java
         // wrapper to it with the NativeExecutable option. If you want to pass
