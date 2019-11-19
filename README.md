@@ -7,7 +7,7 @@ The Amazon Kinesis Producer Library (KPL) performs many tasks common to creating
 For detailed information and installation instructions, see the article [Developing Producer Applications for Amazon Kinesis Using the Amazon Kinesis Producer Library][amazon-kpl-docs] in the [Amazon Kinesis Developer Guide][kinesis-developer-guide].
 
 ## Recommended Settings for Streams larger than 800 shards
-The KPL is an application for ingesting data to your Kinesis Data Streams. As your streams grow you may find the need to tune the KPL unable to accommodate the growing needs of your applications. Without optimized configurations your KPL processes will see inefficient CPU usage and delays in writing records into KDS. For streams larger than 800 shards, we recommend the following settings:
+The KPL is an application for ingesting data to your Kinesis Data Streams. As your streams grow you may find the need to tune the KPL to enable it to accommodate the growing needs of your applications. Without optimized configurations your KPL processes will see inefficient CPU usage and delays in writing records into KDS. For streams larger than 800 shards, we recommend the following settings:
 
 * ThreadingModel= “POOLED”
 * MetricsGranularity= “stream”
