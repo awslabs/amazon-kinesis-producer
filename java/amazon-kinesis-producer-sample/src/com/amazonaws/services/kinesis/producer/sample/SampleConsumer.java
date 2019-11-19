@@ -205,10 +205,10 @@ public class SampleConsumer implements IRecordProcessorFactory {
         KinesisClientLibConfiguration config =
                 new KinesisClientLibConfiguration(
                         "KinesisProducerLibSampleConsumer",
-                        SampleProducer.getArgIfPresent(args, argIndex++, SampleProducer.STREAM_NAME_DEFAULT),
+                        SampleProducerConfig.getArgIfPresent(args, argIndex++, SampleProducerConfig.STREAM_NAME_DEFAULT),
                         new DefaultAWSCredentialsProviderChain(),
                         "KinesisProducerLibSampleConsumer")
-                                .withRegionName(SampleProducer.getArgIfPresent(args, argIndex++, SampleProducer.REGION_DEFAULT))
+                                .withRegionName(SampleProducerConfig.getArgIfPresent(args, argIndex++, SampleProducerConfig.REGION_DEFAULT))
                                 .withInitialPositionInStream(InitialPositionInStream.TRIM_HORIZON);
         
         final SampleConsumer consumer = new SampleConsumer();

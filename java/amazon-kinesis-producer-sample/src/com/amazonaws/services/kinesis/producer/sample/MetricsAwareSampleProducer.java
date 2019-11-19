@@ -72,7 +72,7 @@ public class MetricsAwareSampleProducer {
                 .setRecordMaxBufferedTime(3000)
                 .setMaxConnections(1)
                 .setRequestTimeout(60000)
-                .setRegion(SampleProducer.REGION_DEFAULT);
+                .setRegion(SampleProducerConfig.REGION_DEFAULT);
         
         final KinesisProducer kinesisProducer = new KinesisProducer(config);
         
@@ -159,7 +159,7 @@ public class MetricsAwareSampleProducer {
             if (sequenceNumber.get() < totalRecordsToPut) {
                 if (kinesisProducer.getOutstandingRecordsCount() < outstandingLimit) {
                     ByteBuffer data = Utils.generateData(sequenceNumber.incrementAndGet(), dataSize);
-                    ListenableFuture<UserRecordResult> f = kinesisProducer.addUserRecord(SampleProducer.STREAM_NAME_DEFAULT,
+                    ListenableFuture<UserRecordResult> f = kinesisProducer.addUserRecord(SampleProducerConfig.STREAM_NAME_DEFAULT,
                             timetstamp, data);
                     Futures.addCallback(f, callback, Executors.newSingleThreadExecutor());
                 } else {
