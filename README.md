@@ -6,6 +6,34 @@ The Amazon Kinesis Producer Library (KPL) performs many tasks common to creating
 
 For detailed information and installation instructions, see the article [Developing Producer Applications for Amazon Kinesis Using the Amazon Kinesis Producer Library][amazon-kpl-docs] in the [Amazon Kinesis Developer Guide][kinesis-developer-guide].
 
+## Back-pressure
+Please see [this blog post](https://aws.amazon.com/blogs/big-data/implementing-efficient-and-reliable-producers-with-the-amazon-kinesis-producer-library/) for details about writing efficient and reliable producers using the KPL. This blogpost contains details about overhead in various situations in which you might be using the KPL including back-pressure considerations.
+
+The KPL can consume enough memory to crash itself if it gets pushed too many records without time to process them. As a protection against this, we ask that every customer implement back-pressure to protect the KPL process. Once the KPL starts getting too many records in it's buffer it will spend most of it's CPU cycles on record management, rather than record processing making the problem worse. This is highly dependent on the customer record sizes, rates, configurations, host CPU and memory limits.
+
+_When deciding the limits of your KPL instance, please consider your MAX record size, MAX request rate spikes, host memory availability, and TTL. If you are buffering requests before going into the KPL, consider that as well since that still puts memory pressure on the host system. If the KPL buffer grows too large it may be forcibly crashed due to memory exhaustion._
+
+Sample Back-pressure implementation:
+
+````
+ClickEvent event = inputQueue.take();
+        String partitionKey = event.getSessionId();
+        String payload =  event.getPayload();
+        ByteBuffer data = ByteBuffer.wrap(payload.getBytes("UTF-8"));
+        while (kpl.getOutstandingRecordsCount() > MAX_RECORDS_IN_FLIGHT) {
+            Thread.sleep(SLEEP_BACKOFF_IN_MS);
+        }
+        recordsPut.getAndIncrement();
+
+        ListenableFuture<UserRecordResult> f =
+                kpl.addUserRecord(STREAM_NAME, partitionKey, data);
+        Futures.addCallback(f, new FutureCallback<UserRecordResult>() {
+          ...
+          ...
+````
+
+_Sample above is provided as an example implementation. Please take your application and use cases into consideration before applying logic_
+
 ## Recommended Settings for Streams larger than 800 shards
 The KPL is an application for ingesting data to your Kinesis Data Streams. As your streams grow you may find the need to tune the KPL to enable it to accommodate the growing needs of your applications. Without optimized configurations your KPL processes will see inefficient CPU usage and delays in writing records into KDS. For streams larger than 800 shards, we recommend the following settings:
 
@@ -17,7 +45,7 @@ _We recommend performing sufficient testing before applying these changes to pro
 
 ## Required KPL Update – v0.14.0
 KPL 0.14.0 now uses ListShards API, making it easier for your Kinesis Producer applications to scale. Kinesis Data Streams (KDS) enables you to scale your stream capacity without any changes to producers and consumers. After a scaling event, producer applications need to discover the new shard map. Version 0.14.0 replaces the DescribeStream with the ListShards API for shard discovery. ListShards API supports 100TPS per stream compared to DescribeStream that supports 10TPS per account. For an account with 10 streams using KPL v0.14.0 will provide you a 100X higher call rate for shard discovery, eliminating the need for a DescribeStream API limit increase for scaling. You can find more information on the [ListShards API ](https://docs.aws.amazon.com/kinesis/latest/APIReference/API_ListShards.html) in the Kinesis Data Streams documentation.
- 
+
 
 ## Required Upgrade
 Starting on February 9, 2018 Amazon Kinesis Data Streams will begin transitioning to certificates issued by [Amazon Trust Services (ATS)](https://www.amazontrust.com/).  To continue using the Kinesis Producer Library (KPL) you must upgrade the KPL to version [0.12.6](http://search.maven.org/#artifactdetails|com.amazonaws|amazon-kinesis-producer|0.12.6|jar) or [later](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.amazonaws%22%20AND%20a%3A%22amazon-kinesis-producer%22).
