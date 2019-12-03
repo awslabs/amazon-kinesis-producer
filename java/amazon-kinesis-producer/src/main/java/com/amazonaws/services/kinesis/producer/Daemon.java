@@ -435,6 +435,12 @@ public class Daemon {
                 inPipe.getAbsolutePath(), "-c", protobufToHex(config.toProtobufMessage()), "-k",
                 protobufToHex(makeSetCredentialsMessage(config.getCredentialsProvider(), false)), "-t"));
 
+        if ("warning".equals(config.getLogLevel())) {
+            args.addAll(Arrays.asList("-l", "warn"));
+        } else {
+            args.addAll(Arrays.asList("-l", config.getLogLevel()));
+        }
+
         AWSCredentialsProvider metricsCreds = config.getMetricsCredentialsProvider();
         if (metricsCreds == null) {
             metricsCreds = config.getCredentialsProvider();

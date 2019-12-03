@@ -175,6 +175,9 @@ public class KinesisProducerTest {
     
     @Test
     public void multipleInstances() throws Exception {
+        final AWSCredentialsProvider credsProvider = new StaticCredentialsProvider(
+                new BasicAWSCredentials("AKIAAAAAAAAAAAAAAAAA", StringUtils.repeat("a", 40)));
+
         int N = 8;
         final KinesisProducer[] kps = new KinesisProducer[N];
         ExecutorService exec = Executors.newFixedThreadPool(N);
@@ -184,7 +187,7 @@ public class KinesisProducerTest {
                 @Override
                 public void run() {
                     try {
-                        kps[n] = getProducer(null, null);
+                        kps[n] = getProducer(credsProvider, credsProvider);
                     } catch (Exception e) {
                         log.error("Error starting KPL", e);
                     }
