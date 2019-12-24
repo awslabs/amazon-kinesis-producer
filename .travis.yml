@@ -1,0 +1,38 @@
+os: osx
+osx_image: xcode9.3
+language: java
+compiler: clang
+addons:
+  homebrew:
+    packages:
+    - maven
+    - ant
+    update: true
+jobs:
+  include:
+    - stage: pre-build
+      name: "Pre-Build"
+      before_install:
+        - cd java
+      script:
+        - echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> ~/.bash_profile
+        - export CC=clang
+        - export CXX=clang++
+        - LDFLAGS="-L$(brew --prefix)/opt/llvm/lib -Wl,-rpath,$(brew --prefix)/opt/llvm/lib"
+        - cd ..
+    - stage: build
+      name: "Build C++"
+      before_script:
+       - cd java/amazon-kinesis-producer
+       - KPL_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+       - echo "Found KPL version $KPL_VERSION in current directory $PWD ... "
+       - echo "Starting Packaging of KPL.$KPL_VERSION"
+       - cd ../..
+      script: ./bootstrap.sh
+    - stage: upload
+      name: "Upload to S3"
+      script:
+       - cd java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/osx
+       - zip kinesis-producer.zip kinesis_producer
+       - aws s3 cp kinesis-producer.zip s3://kpl-build-kinesis-internal/$KPL_VERSION/osx/kinesis-producer.zip
+       - cd ../../../../../../..

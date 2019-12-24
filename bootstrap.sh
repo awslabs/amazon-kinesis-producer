@@ -119,8 +119,8 @@ if [ ! -d "openssl-1.0.1m" ]; then
     ./config $OPTS --prefix=$INSTALL_DIR
   fi
 
-  make # don't use -j, doesn't work half the time
-  make install
+  make > /dev/null # don't use -j, doesn't work half the time
+  make install > /dev/null
 
   cd ..
 fi
@@ -164,8 +164,8 @@ if [ ! -d "zlib-1.2.8" ]; then
 
   cd zlib-1.2.8
   ./configure --static --prefix="$INSTALL_DIR"
-  make -j
-  make install
+  make -j > /dev/null
+  make install > /dev/null
 
   cd ..
 fi
@@ -178,8 +178,8 @@ if [ ! -d "protobuf-2.6.1" ]; then
 
   cd protobuf-2.6.1
   conf --enable-shared=no
-  make -j
-  make install
+  make -j > /dev/null
+  make install > /dev/null
 
   cd ..
 fi
@@ -204,8 +204,8 @@ if [ ! -d "curl-7.47.0" ]; then
     #
     sed -Ei .bak 's/#define HAVE_CLOCK_GETTIME_MONOTONIC 1//' lib/curl_config.h
   fi
-  make -j
-  make install
+  make -j > /dev/null
+  make install > /dev/null
 
   cd ..
 fi
@@ -233,9 +233,9 @@ if [ ! -d "aws-sdk-cpp" ]; then
     -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR" \
     -DCMAKE_FIND_FRAMEWORK=LAST \
     -DENABLE_TESTING="OFF" \
-    ../aws-sdk-cpp
-  make -j 4
-  make install
+    ../aws-sdk-cpp > /dev/null
+  make -j 4 > /dev/null
+  make install > /dev/null
 
   cd ..
 
@@ -260,4 +260,3 @@ popd
 
 set +e
 set +x
-
