@@ -7,6 +7,7 @@ addons:
     packages:
     - maven
     - ant
+    - awscli
     update: true
 jobs:
   include:
@@ -21,7 +22,7 @@ jobs:
         - LDFLAGS="-L$(brew --prefix)/opt/llvm/lib -Wl,-rpath,$(brew --prefix)/opt/llvm/lib"
         - cd ..
     - stage: build
-      name: "Build C++"
+      name: "Build C++/Java and Upload to S3"
       before_script:
        - cd java/amazon-kinesis-producer
        - KPL_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
@@ -29,9 +30,7 @@ jobs:
        - echo "Starting Packaging of KPL.$KPL_VERSION"
        - cd ../..
       script: ./bootstrap.sh
-    - stage: upload
-      name: "Upload to S3"
-      script:
+      after_success:
        - cd java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/osx
        - zip kinesis-producer.zip kinesis_producer
        - aws s3 cp kinesis-producer.zip s3://kpl-build-kinesis-internal/$KPL_VERSION/osx/kinesis-producer.zip
