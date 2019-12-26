@@ -2,6 +2,15 @@
 
 set -e
 set -x
+SILENT="y"
+
+silence() {
+    if [ -n "$SILENT" ]; then
+        "$@" > /dev/null
+    else
+        "$@"
+    fi
+}
 
 LIB_OPENSSL="https://ftp.openssl.org/source/old/1.0.1/openssl-1.0.1m.tar.gz"
 LIB_BOOST="https://astuteinternet.dl.sourceforge.net/project/boost/boost/1.58.0/boost_1_58_0.tar.gz"
@@ -82,14 +91,14 @@ cd $INSTALL_DIR
 
 function conf {
   if [[ "$OSTYPE" == "darwin"* ]]; then
-     ./configure \
+    silence ./configure \
     --prefix="$INSTALL_DIR" \
     DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH" \
     LDFLAGS="$LDFLAGS" \
     CXXFLAGS="$CXXFLAGS" \
     $@
   else
-    ./configure \
+    silence ./configure \
     --prefix="$INSTALL_DIR" \
     LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
     LDFLAGS="$LDFLAGS" \
@@ -111,16 +120,16 @@ if [ ! -d "openssl-1.0.1m" ]; then
   OPTS="threads no-shared no-idea no-camellia no-seed no-bf no-cast no-rc2 no-rc4 no-rc5 no-md2 no-ripemd no-mdc2 no-ssl2 no-ssl3 no-krb5 no-jpake no-capieng no-dso"
 
   if [[ $(uname) == 'Darwin' ]]; then
-    ./Configure darwin64-x86_64-cc $OPTS --prefix=$INSTALL_DIR
+    silence ./Configure darwin64-x86_64-cc $OPTS --prefix=$INSTALL_DIR
   elif [[ $(uname) == MINGW* ]]; then
-    ./Configure mingw64 $OPTS --prefix=$INSTALL_DIR
+    silence ./Configure mingw64 $OPTS --prefix=$INSTALL_DIR
     find ./ -name Makefile | while read f; do echo >> $f; echo "%.o: %.c" >> $f; echo -e '\t$(COMPILE.c) $(OUTPUT_OPTION) $<;' >> $f; done
   else
-    ./config $OPTS --prefix=$INSTALL_DIR
+    silence ./config $OPTS --prefix=$INSTALL_DIR
   fi
 
-  make > /dev/null # don't use -j, doesn't work half the time
-  make install > /dev/null
+  silence make # don't use -j, doesn't work half the time
+  silence make install
 
   cd ..
 fi
@@ -137,19 +146,19 @@ if [ ! -d "boost_1_58_0" ]; then
   OPTS="-j 8 --build-type=minimal --layout=system --prefix=$INSTALL_DIR link=static threading=multi release install"
 
   if [[ $(uname) == 'Darwin' ]]; then
-    ./bootstrap.sh --with-libraries=$LIBS
-    ./b2 toolset=clang-darwin $OPTS cxxflags="$MACOSX_MIN_COMPILER_OPT"
+    silence ./bootstrap.sh --with-libraries=$LIBS
+    silence ./b2 toolset=clang-darwin $OPTS cxxflags="$MACOSX_MIN_COMPILER_OPT"
   elif [[ $(uname) == MINGW* ]]; then
-    ./bootstrap.sh --with-libraries=$LIBS --with-toolset=mingw
+    silence ./bootstrap.sh --with-libraries=$LIBS --with-toolset=mingw
     sed -i 's/\bmingw\b/gcc/' project-config.jam
-    ./b2 $OPTS
+    silence ./b2 $OPTS
   else
     if [ "$1" == "clang" ]; then
-      ./bootstrap.sh --with-libraries="$LIBS" --with-toolset=clang
-      ./b2 toolset=clang $OPTS cxxflags="$CXXFLAGS" linkflags="$LDFLAGS"
+      silence ./bootstrap.sh --with-libraries="$LIBS" --with-toolset=clang
+      silence ./b2 toolset=clang $OPTS cxxflags="$CXXFLAGS" linkflags="$LDFLAGS"
     else
-      ./bootstrap.sh --with-libraries="$LIBS" --with-toolset=gcc
-      ./b2 toolset=gcc $OPTS
+      silence ./bootstrap.sh --with-libraries="$LIBS" --with-toolset=gcc
+      silence ./b2 toolset=gcc $OPTS
     fi
   fi
 
@@ -163,9 +172,9 @@ if [ ! -d "zlib-1.2.8" ]; then
   rm zlib.tgz
 
   cd zlib-1.2.8
-  ./configure --static --prefix="$INSTALL_DIR"
-  make -j > /dev/null
-  make install > /dev/null
+  silence ./configure --static --prefix="$INSTALL_DIR"
+  silence make -j
+  silence make install
 
   cd ..
 fi
@@ -177,9 +186,9 @@ if [ ! -d "protobuf-2.6.1" ]; then
   rm protobuf.tgz
 
   cd protobuf-2.6.1
-  conf --enable-shared=no
-  make -j > /dev/null
-  make install > /dev/null
+  silence conf --enable-shared=no
+  silence make -j
+  silence make install
 
   cd ..
 fi
@@ -194,7 +203,7 @@ if [ ! -d "curl-7.47.0" ]; then
 
   cd curl-7.47.0
 
-  conf --disable-shared --disable-ldap --disable-ldaps \
+  silence conf --disable-shared --disable-ldap --disable-ldaps \
        --enable-threaded-resolver --disable-debug --without-libssh2 --without-ca-bundle --with-ssl="${INSTALL_DIR}" --without-libidn
   if [[ $(uname) == 'Darwin' ]]; then
     #
@@ -204,8 +213,8 @@ if [ ! -d "curl-7.47.0" ]; then
     #
     sed -Ei .bak 's/#define HAVE_CLOCK_GETTIME_MONOTONIC 1//' lib/curl_config.h
   fi
-  make -j > /dev/null
-  make install > /dev/null
+  silence make -j
+  silence make install
 
   cd ..
 fi
@@ -222,7 +231,7 @@ if [ ! -d "aws-sdk-cpp" ]; then
 
   cd aws-sdk-cpp-build
 
-  cmake \
+  silence cmake \
     -DBUILD_ONLY="kinesis;monitoring" \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -DSTATIC_LINKING=1 \
@@ -233,9 +242,9 @@ if [ ! -d "aws-sdk-cpp" ]; then
     -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR" \
     -DCMAKE_FIND_FRAMEWORK=LAST \
     -DENABLE_TESTING="OFF" \
-    ../aws-sdk-cpp > /dev/null
-  make -j 4 > /dev/null
-  make install > /dev/null
+    ../aws-sdk-cpp
+  silence make -j 4
+  silence make install
 
   cd ..
 
@@ -251,6 +260,7 @@ make -j8
 NATIVE_BINARY_DIR=java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/$RELEASE_TYPE/
 mkdir -p $NATIVE_BINARY_DIR
 cp kinesis_producer $NATIVE_BINARY_DIR
+
 
 #build the java producer and install it locally
 pushd java/amazon-kinesis-producer
