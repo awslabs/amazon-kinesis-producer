@@ -11,16 +11,6 @@ addons:
     update: true
 jobs:
   include:
-    - stage: pre-build
-      name: "Pre-Build"
-      before_install:
-        - cd java
-      script:
-        - echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> ~/.bash_profile
-        - export CC=clang
-        - export CXX=clang++
-        - LDFLAGS="-L$(brew --prefix)/opt/llvm/lib -Wl,-rpath,$(brew --prefix)/opt/llvm/lib"
-        - cd ..
     - stage: build
       name: "Build C++/Java and Upload to S3"
       before_script:
@@ -29,9 +19,12 @@ jobs:
        - echo "Found KPL version $KPL_VERSION in current directory $PWD ... "
        - echo "Starting Packaging of KPL.$KPL_VERSION"
        - cd ../..
-      script: ./bootstrap.sh
+      script:
+       - ./bootstrap.sh
+       - if [[ "$TRAVIS_BRANCH" == master && "$TRAVIS_EVENT_TYPE" != pull_request ]]; then cd java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/$TRAVIS_OS_NAME; fi
+       - if [[ "$TRAVIS_BRANCH" == master && "$TRAVIS_EVENT_TYPE" != pull_request ]]; then zip kinesis-producer.zip kinesis_producer; fi
+       - if [[ "$TRAVIS_BRANCH" == master && "$TRAVIS_EVENT_TYPE" != pull_request ]]; then aws s3 cp kinesis-producer.zip s3://kpl-build-kinesis-internal/$KPL_VERSION/$TRAVIS_OS_NAME/kinesis-producer.zip; fi
       after_success:
-       - cd java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/osx
-       - zip kinesis-producer.zip kinesis_producer
-       - aws s3 cp kinesis-producer.zip s3://kpl-build-kinesis-internal/$KPL_VERSION/osx/kinesis-producer.zip
-       - cd ../../../../../../..
+        - sleep 10
+      after_failure:
+        - sleep 10
