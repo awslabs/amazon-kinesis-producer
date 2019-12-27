@@ -1,30 +1,54 @@
-os: osx
-osx_image: xcode9.3
-language: java
-compiler: clang
-addons:
-  homebrew:
-    packages:
-    - maven
-    - ant
-    - awscli
-    update: true
-jobs:
+matrix:
   include:
-    - stage: build
-      name: "Build C++/Java and Upload to S3"
-      before_script:
-       - cd java/amazon-kinesis-producer
-       - KPL_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-       - echo "Found KPL version $KPL_VERSION in current directory $PWD ... "
-       - echo "Starting Packaging of KPL.$KPL_VERSION"
-       - cd ../..
+    - name: "Build C++/Java and Upload to S3 on AL2012"
+      os: linux
+      services: docker
+      dist: trusty
+      before_install:
+        - sudo apt-get update
+        - sudo apt-get install python3
+        - sudo apt-get -y install python3-pip
+        - pip3 --version
+        - pip3 install --user awscli
+        - mkdir -p ~/.aws
+        - |
+          cat > ~/.aws/credentials << EOF
+          [default]
+          aws_access_key_id = $AWS_ACCESS_KEY_ID
+          aws_secret_access_key = $AWS_SECRET_ACCESS_KEY
+        - cat <<'EOF' >> ~/.aws/credentials
+      script:
+        - $(aws ecr get-login --no-include-email --region us-west-2)
+        - docker pull 056543101242.dkr.ecr.us-west-2.amazonaws.com/kinesis-producer-library-builder:latest
+        - ls
+        - docker run --memory 9g -v $(pwd):/kpl -it 056543101242.dkr.ecr.us-west-2.amazonaws.com/kinesis-producer-library-builder:latest /bin/bash -c "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY && export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID && cd /kpl && ls && ./bootstrap.sh"
+        - cd java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/$TRAVIS_OS_NAME
+        - ls
+        - sudo zip kinesis-producer.zip kinesis_producer
+        - aws s3 cp kinesis-producer.zip s3://kpl-build-kinesis-internal/$KPL_VERSION/$TRAVIS_OS_NAME/kinesis-producer.zip
+    - name: "Build C++/Java and Upload to S3 on OSX"
+      os: osx
+      compiler: clang
+      osx_image: xcode9.3
+      addons:
+        homebrew:
+          packages:
+          - maven
+          - ant
+          - awscli
+          update: true
       script:
        - ./bootstrap.sh
-       - if [[ "$TRAVIS_BRANCH" == master && "$TRAVIS_EVENT_TYPE" != pull_request ]]; then cd java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/$TRAVIS_OS_NAME; fi
-       - if [[ "$TRAVIS_BRANCH" == master && "$TRAVIS_EVENT_TYPE" != pull_request ]]; then zip kinesis-producer.zip kinesis_producer; fi
-       - if [[ "$TRAVIS_BRANCH" == master && "$TRAVIS_EVENT_TYPE" != pull_request ]]; then aws s3 cp kinesis-producer.zip s3://kpl-build-kinesis-internal/$KPL_VERSION/$TRAVIS_OS_NAME/kinesis-producer.zip; fi
-      after_success:
-        - sleep 10
-      after_failure:
-        - sleep 10
+       - cd java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/$TRAVIS_OS_NAME
+       - zip kinesis-producer.zip kinesis_producer
+       - aws s3 cp kinesis-producer.zip s3://kpl-build-kinesis-internal/$KPL_VERSION/$TRAVIS_OS_NAME/kinesis-producer.zip
+before_script:
+ - cd java/amazon-kinesis-producer
+ - KPL_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+ - echo "Found KPL version $KPL_VERSION in current directory $PWD ... "
+ - echo "Starting Packaging of KPL.$KPL_VERSION"
+ - cd ../..
+after_success:
+  - sleep 10
+after_failure:
+  - sleep 10
