@@ -37,7 +37,7 @@ matrix:
         - ls
         - sudo zip kinesis-producer.zip kinesis_producer
         - echo "Uploading build artifacts for KPL built on Linux..."
-        - aws s3 cp kinesis-producer.zip s3://kpl-build-kinesis-internal/$KPL_VERSION/$TRAVIS_OS_NAME/kinesis-producer.zip
+        - aws s3 cp kinesis-producer.zip s3://kpl-build-kinesis-internal/$KPL_VERSION-$HASH/$TRAVIS_OS_NAME/kinesis-producer.zip
         - echo "################################################################################"
         - echo "SUCCESS Build phase for Linux, complete. Check for any errors reported"
         - echo "################################################################################"
@@ -57,12 +57,12 @@ matrix:
        - ./bootstrap.sh
        - cd java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/$TRAVIS_OS_NAME
        - zip kinesis-producer.zip kinesis_producer
-       - aws s3 cp kinesis-producer.zip s3://kpl-build-kinesis-internal/$KPL_VERSION/$TRAVIS_OS_NAME/kinesis-producer.zip
+       - aws s3 cp kinesis-producer.zip s3://kpl-build-kinesis-internal/$KPL_VERSION-$HASH/$TRAVIS_OS_NAME/kinesis-producer.zip
        - echo "################################################################################"
        - echo "Finished building KPL on OSX...Starting Bundling of Linux with OSX binaries"
        - echo "################################################################################"
        - test -e $DIR/java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/osx/kinesis_producer
-       - aws s3 cp s3://kpl-build-kinesis-internal/$KPL_VERSION/linux/kinesis-producer.zip linux-binaries.zip
+       - aws s3 cp s3://kpl-build-kinesis-internal/$KPL_VERSION-$HASH/linux/kinesis-producer.zip linux-binaries.zip
        - mkdir -p java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/linux/
        - unzip linux-binaries.zip -d $DIR/java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/linux/
        - cd $DIR/java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/linux/
@@ -91,14 +91,14 @@ matrix:
        - pwd
        - ls
        - zip -R amazon-kinesis-producer-jars.zip '*.jar'
-       - aws s3 cp $DIR/java/amazon-kinesis-producer/target/amazon-kinesis-producer-jars.zip  s3://kpl-build-kinesis-internal/$KPL_VERSION/release/amazon-kinesis-producer-jars.zip
+       - aws s3 cp $DIR/java/amazon-kinesis-producer/target/amazon-kinesis-producer-jars.zip  s3://kpl-build-kinesis-internal/$KPL_VERSION-$HASH/release/amazon-kinesis-producer-jars.zip
        - cd $DIR
        - pwd
        - ls
        - cd $DIR/java/amazon-kinesis-producer-sample/target
        - pwd
        - ls
-       - aws s3 cp $DIR/java/amazon-kinesis-producer-sample/target/amazon-kinesis-producer-sample-1.0.0.jar  s3://kpl-build-kinesis-internal/$KPL_VERSION/release/amazon-kinesis-producer-sample-1.0.0.jar
+       - aws s3 cp $DIR/java/amazon-kinesis-producer-sample/target/amazon-kinesis-producer-sample-1.0.0.jar  s3://kpl-build-kinesis-internal/$KPL_VERSION-$HASH/release/amazon-kinesis-producer-sample-1.0.0.jar
        - cd $DIR
        - pwd
        - ls
@@ -107,6 +107,7 @@ matrix:
        - echo "################################################################################"
 before_script:
  - cd java/amazon-kinesis-producer
+ - HASH=$(git rev-parse HEAD)
  - KPL_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
  - echo "Found KPL version $KPL_VERSION in current directory $PWD ... "
  - echo "Starting Packaging of KPL.$KPL_VERSION"
