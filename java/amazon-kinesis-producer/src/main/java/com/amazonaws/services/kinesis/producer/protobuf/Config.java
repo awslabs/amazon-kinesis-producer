@@ -6,7 +6,13 @@ package com.amazonaws.services.kinesis.producer.protobuf;
 public final class Config {
   private Config() {}
   public static void registerAllExtensions(
+      com.google.protobuf.ExtensionRegistryLite registry) {
+  }
+
+  public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
+    registerAllExtensions(
+        (com.google.protobuf.ExtensionRegistryLite) registry);
   }
   public interface AdditionalDimensionOrBuilder extends
       // @@protoc_insertion_point(interface_extends:aws.kinesis.protobuf.AdditionalDimension)
@@ -14,42 +20,51 @@ public final class Config {
 
     /**
      * <code>required string key = 1;</code>
+     * @return Whether the key field is set.
      */
     boolean hasKey();
     /**
      * <code>required string key = 1;</code>
+     * @return The key.
      */
     java.lang.String getKey();
     /**
      * <code>required string key = 1;</code>
+     * @return The bytes for key.
      */
     com.google.protobuf.ByteString
         getKeyBytes();
 
     /**
      * <code>required string value = 2;</code>
+     * @return Whether the value field is set.
      */
     boolean hasValue();
     /**
      * <code>required string value = 2;</code>
+     * @return The value.
      */
     java.lang.String getValue();
     /**
      * <code>required string value = 2;</code>
+     * @return The bytes for value.
      */
     com.google.protobuf.ByteString
         getValueBytes();
 
     /**
      * <code>required string granularity = 3;</code>
+     * @return Whether the granularity field is set.
      */
     boolean hasGranularity();
     /**
      * <code>required string granularity = 3;</code>
+     * @return The granularity.
      */
     java.lang.String getGranularity();
     /**
      * <code>required string granularity = 3;</code>
+     * @return The bytes for granularity.
      */
     com.google.protobuf.ByteString
         getGranularityBytes();
@@ -57,37 +72,41 @@ public final class Config {
   /**
    * Protobuf type {@code aws.kinesis.protobuf.AdditionalDimension}
    */
-  public static final class AdditionalDimension extends
-      com.google.protobuf.GeneratedMessage implements
+  public  static final class AdditionalDimension extends
+      com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:aws.kinesis.protobuf.AdditionalDimension)
       AdditionalDimensionOrBuilder {
+  private static final long serialVersionUID = 0L;
     // Use AdditionalDimension.newBuilder() to construct.
-    private AdditionalDimension(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private AdditionalDimension(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private AdditionalDimension(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final AdditionalDimension defaultInstance;
-    public static AdditionalDimension getDefaultInstance() {
-      return defaultInstance;
+    private AdditionalDimension() {
+      key_ = "";
+      value_ = "";
+      granularity_ = "";
     }
 
-    public AdditionalDimension getDefaultInstanceForType() {
-      return defaultInstance;
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new AdditionalDimension();
     }
 
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private AdditionalDimension(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -99,13 +118,6 @@ public final class Config {
             case 0:
               done = true;
               break;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
             case 10: {
               com.google.protobuf.ByteString bs = input.readBytes();
               bitField0_ |= 0x00000001;
@@ -124,13 +136,20 @@ public final class Config {
               granularity_ = bs;
               break;
             }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
         throw e.setUnfinishedMessage(this);
       } catch (java.io.IOException e) {
         throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+            e).setUnfinishedMessage(this);
       } finally {
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -141,39 +160,27 @@ public final class Config {
       return com.amazonaws.services.kinesis.producer.protobuf.Config.internal_static_aws_kinesis_protobuf_AdditionalDimension_descriptor;
     }
 
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
       return com.amazonaws.services.kinesis.producer.protobuf.Config.internal_static_aws_kinesis_protobuf_AdditionalDimension_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension.class, com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension.Builder.class);
     }
 
-    public static com.google.protobuf.Parser<AdditionalDimension> PARSER =
-        new com.google.protobuf.AbstractParser<AdditionalDimension>() {
-      public AdditionalDimension parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new AdditionalDimension(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<AdditionalDimension> getParserForType() {
-      return PARSER;
-    }
-
     private int bitField0_;
     public static final int KEY_FIELD_NUMBER = 1;
-    private java.lang.Object key_;
+    private volatile java.lang.Object key_;
     /**
      * <code>required string key = 1;</code>
+     * @return Whether the key field is set.
      */
     public boolean hasKey() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
+      return ((bitField0_ & 0x00000001) != 0);
     }
     /**
      * <code>required string key = 1;</code>
+     * @return The key.
      */
     public java.lang.String getKey() {
       java.lang.Object ref = key_;
@@ -191,6 +198,7 @@ public final class Config {
     }
     /**
      * <code>required string key = 1;</code>
+     * @return The bytes for key.
      */
     public com.google.protobuf.ByteString
         getKeyBytes() {
@@ -207,15 +215,17 @@ public final class Config {
     }
 
     public static final int VALUE_FIELD_NUMBER = 2;
-    private java.lang.Object value_;
+    private volatile java.lang.Object value_;
     /**
      * <code>required string value = 2;</code>
+     * @return Whether the value field is set.
      */
     public boolean hasValue() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+      return ((bitField0_ & 0x00000002) != 0);
     }
     /**
      * <code>required string value = 2;</code>
+     * @return The value.
      */
     public java.lang.String getValue() {
       java.lang.Object ref = value_;
@@ -233,6 +243,7 @@ public final class Config {
     }
     /**
      * <code>required string value = 2;</code>
+     * @return The bytes for value.
      */
     public com.google.protobuf.ByteString
         getValueBytes() {
@@ -249,15 +260,17 @@ public final class Config {
     }
 
     public static final int GRANULARITY_FIELD_NUMBER = 3;
-    private java.lang.Object granularity_;
+    private volatile java.lang.Object granularity_;
     /**
      * <code>required string granularity = 3;</code>
+     * @return Whether the granularity field is set.
      */
     public boolean hasGranularity() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
+      return ((bitField0_ & 0x00000004) != 0);
     }
     /**
      * <code>required string granularity = 3;</code>
+     * @return The granularity.
      */
     public java.lang.String getGranularity() {
       java.lang.Object ref = granularity_;
@@ -275,6 +288,7 @@ public final class Config {
     }
     /**
      * <code>required string granularity = 3;</code>
+     * @return The bytes for granularity.
      */
     public com.google.protobuf.ByteString
         getGranularityBytes() {
@@ -290,12 +304,8 @@ public final class Config {
       }
     }
 
-    private void initFields() {
-      key_ = "";
-      value_ = "";
-      granularity_ = "";
-    }
     private byte memoizedIsInitialized = -1;
+    @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized == 1) return true;
@@ -317,51 +327,105 @@ public final class Config {
       return true;
     }
 
+    @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, getKeyBytes());
+      if (((bitField0_ & 0x00000001) != 0)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 1, key_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeBytes(2, getValueBytes());
+      if (((bitField0_ & 0x00000002) != 0)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, value_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        output.writeBytes(3, getGranularityBytes());
+      if (((bitField0_ & 0x00000004) != 0)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, granularity_);
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
+    @java.lang.Override
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, getKeyBytes());
+      if (((bitField0_ & 0x00000001) != 0)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, key_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(2, getValueBytes());
+      if (((bitField0_ & 0x00000002) != 0)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, value_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(3, getGranularityBytes());
+      if (((bitField0_ & 0x00000004) != 0)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, granularity_);
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
-    private static final long serialVersionUID = 0L;
     @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension)) {
+        return super.equals(obj);
+      }
+      com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension other = (com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension) obj;
+
+      if (hasKey() != other.hasKey()) return false;
+      if (hasKey()) {
+        if (!getKey()
+            .equals(other.getKey())) return false;
+      }
+      if (hasValue() != other.hasValue()) return false;
+      if (hasValue()) {
+        if (!getValue()
+            .equals(other.getValue())) return false;
+      }
+      if (hasGranularity() != other.hasGranularity()) return false;
+      if (hasGranularity()) {
+        if (!getGranularity()
+            .equals(other.getGranularity())) return false;
+      }
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
     }
 
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      if (hasKey()) {
+        hash = (37 * hash) + KEY_FIELD_NUMBER;
+        hash = (53 * hash) + getKey().hashCode();
+      }
+      if (hasValue()) {
+        hash = (37 * hash) + VALUE_FIELD_NUMBER;
+        hash = (53 * hash) + getValue().hashCode();
+      }
+      if (hasGranularity()) {
+        hash = (37 * hash) + GRANULARITY_FIELD_NUMBER;
+        hash = (53 * hash) + getGranularity().hashCode();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
     public static com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -385,46 +449,59 @@ public final class Config {
     }
     public static com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension parseFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
     public static com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
     }
     public static com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
     public static com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
+    @java.lang.Override
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
@@ -432,7 +509,7 @@ public final class Config {
      * Protobuf type {@code aws.kinesis.protobuf.AdditionalDimension}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:aws.kinesis.protobuf.AdditionalDimension)
         com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimensionOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
@@ -440,7 +517,8 @@ public final class Config {
         return com.amazonaws.services.kinesis.producer.protobuf.Config.internal_static_aws_kinesis_protobuf_AdditionalDimension_descriptor;
       }
 
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return com.amazonaws.services.kinesis.producer.protobuf.Config.internal_static_aws_kinesis_protobuf_AdditionalDimension_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
@@ -453,18 +531,16 @@ public final class Config {
       }
 
       private Builder(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
       private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
+      @java.lang.Override
       public Builder clear() {
         super.clear();
         key_ = "";
@@ -476,19 +552,18 @@ public final class Config {
         return this;
       }
 
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
-      }
-
+      @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
         return com.amazonaws.services.kinesis.producer.protobuf.Config.internal_static_aws_kinesis_protobuf_AdditionalDimension_descriptor;
       }
 
+      @java.lang.Override
       public com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension getDefaultInstanceForType() {
         return com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension.getDefaultInstance();
       }
 
+      @java.lang.Override
       public com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension build() {
         com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension result = buildPartial();
         if (!result.isInitialized()) {
@@ -497,19 +572,20 @@ public final class Config {
         return result;
       }
 
+      @java.lang.Override
       public com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension buildPartial() {
         com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension result = new com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((from_bitField0_ & 0x00000001) != 0)) {
           to_bitField0_ |= 0x00000001;
         }
         result.key_ = key_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+        if (((from_bitField0_ & 0x00000002) != 0)) {
           to_bitField0_ |= 0x00000002;
         }
         result.value_ = value_;
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+        if (((from_bitField0_ & 0x00000004) != 0)) {
           to_bitField0_ |= 0x00000004;
         }
         result.granularity_ = granularity_;
@@ -518,6 +594,39 @@ public final class Config {
         return result;
       }
 
+      @java.lang.Override
+      public Builder clone() {
+        return super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension) {
           return mergeFrom((com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension)other);
@@ -544,26 +653,26 @@ public final class Config {
           granularity_ = other.granularity_;
           onChanged();
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
+      @java.lang.Override
       public final boolean isInitialized() {
         if (!hasKey()) {
-          
           return false;
         }
         if (!hasValue()) {
-          
           return false;
         }
         if (!hasGranularity()) {
-          
           return false;
         }
         return true;
       }
 
+      @java.lang.Override
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -573,7 +682,7 @@ public final class Config {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
           parsedMessage = (com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension) e.getUnfinishedMessage();
-          throw e;
+          throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
             mergeFrom(parsedMessage);
@@ -586,12 +695,14 @@ public final class Config {
       private java.lang.Object key_ = "";
       /**
        * <code>required string key = 1;</code>
+       * @return Whether the key field is set.
        */
       public boolean hasKey() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+        return ((bitField0_ & 0x00000001) != 0);
       }
       /**
        * <code>required string key = 1;</code>
+       * @return The key.
        */
       public java.lang.String getKey() {
         java.lang.Object ref = key_;
@@ -609,6 +720,7 @@ public final class Config {
       }
       /**
        * <code>required string key = 1;</code>
+       * @return The bytes for key.
        */
       public com.google.protobuf.ByteString
           getKeyBytes() {
@@ -625,6 +737,8 @@ public final class Config {
       }
       /**
        * <code>required string key = 1;</code>
+       * @param value The key to set.
+       * @return This builder for chaining.
        */
       public Builder setKey(
           java.lang.String value) {
@@ -638,6 +752,7 @@ public final class Config {
       }
       /**
        * <code>required string key = 1;</code>
+       * @return This builder for chaining.
        */
       public Builder clearKey() {
         bitField0_ = (bitField0_ & ~0x00000001);
@@ -647,6 +762,8 @@ public final class Config {
       }
       /**
        * <code>required string key = 1;</code>
+       * @param value The bytes for key to set.
+       * @return This builder for chaining.
        */
       public Builder setKeyBytes(
           com.google.protobuf.ByteString value) {
@@ -662,12 +779,14 @@ public final class Config {
       private java.lang.Object value_ = "";
       /**
        * <code>required string value = 2;</code>
+       * @return Whether the value field is set.
        */
       public boolean hasValue() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+        return ((bitField0_ & 0x00000002) != 0);
       }
       /**
        * <code>required string value = 2;</code>
+       * @return The value.
        */
       public java.lang.String getValue() {
         java.lang.Object ref = value_;
@@ -685,6 +804,7 @@ public final class Config {
       }
       /**
        * <code>required string value = 2;</code>
+       * @return The bytes for value.
        */
       public com.google.protobuf.ByteString
           getValueBytes() {
@@ -701,6 +821,8 @@ public final class Config {
       }
       /**
        * <code>required string value = 2;</code>
+       * @param value The value to set.
+       * @return This builder for chaining.
        */
       public Builder setValue(
           java.lang.String value) {
@@ -714,6 +836,7 @@ public final class Config {
       }
       /**
        * <code>required string value = 2;</code>
+       * @return This builder for chaining.
        */
       public Builder clearValue() {
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -723,6 +846,8 @@ public final class Config {
       }
       /**
        * <code>required string value = 2;</code>
+       * @param value The bytes for value to set.
+       * @return This builder for chaining.
        */
       public Builder setValueBytes(
           com.google.protobuf.ByteString value) {
@@ -738,12 +863,14 @@ public final class Config {
       private java.lang.Object granularity_ = "";
       /**
        * <code>required string granularity = 3;</code>
+       * @return Whether the granularity field is set.
        */
       public boolean hasGranularity() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
+        return ((bitField0_ & 0x00000004) != 0);
       }
       /**
        * <code>required string granularity = 3;</code>
+       * @return The granularity.
        */
       public java.lang.String getGranularity() {
         java.lang.Object ref = granularity_;
@@ -761,6 +888,7 @@ public final class Config {
       }
       /**
        * <code>required string granularity = 3;</code>
+       * @return The bytes for granularity.
        */
       public com.google.protobuf.ByteString
           getGranularityBytes() {
@@ -777,6 +905,8 @@ public final class Config {
       }
       /**
        * <code>required string granularity = 3;</code>
+       * @param value The granularity to set.
+       * @return This builder for chaining.
        */
       public Builder setGranularity(
           java.lang.String value) {
@@ -790,6 +920,7 @@ public final class Config {
       }
       /**
        * <code>required string granularity = 3;</code>
+       * @return This builder for chaining.
        */
       public Builder clearGranularity() {
         bitField0_ = (bitField0_ & ~0x00000004);
@@ -799,6 +930,8 @@ public final class Config {
       }
       /**
        * <code>required string granularity = 3;</code>
+       * @param value The bytes for granularity to set.
+       * @return This builder for chaining.
        */
       public Builder setGranularityBytes(
           com.google.protobuf.ByteString value) {
@@ -810,16 +943,57 @@ public final class Config {
         onChanged();
         return this;
       }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
 
       // @@protoc_insertion_point(builder_scope:aws.kinesis.protobuf.AdditionalDimension)
     }
 
+    // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.AdditionalDimension)
+    private static final com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension DEFAULT_INSTANCE;
     static {
-      defaultInstance = new AdditionalDimension(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension();
     }
 
-    // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.AdditionalDimension)
+    public static com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<AdditionalDimension>
+        PARSER = new com.google.protobuf.AbstractParser<AdditionalDimension>() {
+      @java.lang.Override
+      public AdditionalDimension parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new AdditionalDimension(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<AdditionalDimension> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<AdditionalDimension> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   public interface ConfigurationOrBuilder extends
@@ -852,316 +1026,404 @@ public final class Config {
 
     /**
      * <code>optional bool aggregation_enabled = 1 [default = true];</code>
+     * @return Whether the aggregationEnabled field is set.
      */
     boolean hasAggregationEnabled();
     /**
      * <code>optional bool aggregation_enabled = 1 [default = true];</code>
+     * @return The aggregationEnabled.
      */
     boolean getAggregationEnabled();
 
     /**
      * <code>optional uint64 aggregation_max_count = 2 [default = 4294967295];</code>
+     * @return Whether the aggregationMaxCount field is set.
      */
     boolean hasAggregationMaxCount();
     /**
      * <code>optional uint64 aggregation_max_count = 2 [default = 4294967295];</code>
+     * @return The aggregationMaxCount.
      */
     long getAggregationMaxCount();
 
     /**
      * <code>optional uint64 aggregation_max_size = 3 [default = 51200];</code>
+     * @return Whether the aggregationMaxSize field is set.
      */
     boolean hasAggregationMaxSize();
     /**
      * <code>optional uint64 aggregation_max_size = 3 [default = 51200];</code>
+     * @return The aggregationMaxSize.
      */
     long getAggregationMaxSize();
 
     /**
      * <code>optional string cloudwatch_endpoint = 4 [default = ""];</code>
+     * @return Whether the cloudwatchEndpoint field is set.
      */
     boolean hasCloudwatchEndpoint();
     /**
      * <code>optional string cloudwatch_endpoint = 4 [default = ""];</code>
+     * @return The cloudwatchEndpoint.
      */
     java.lang.String getCloudwatchEndpoint();
     /**
      * <code>optional string cloudwatch_endpoint = 4 [default = ""];</code>
+     * @return The bytes for cloudwatchEndpoint.
      */
     com.google.protobuf.ByteString
         getCloudwatchEndpointBytes();
 
     /**
      * <code>optional uint64 cloudwatch_port = 5 [default = 443];</code>
+     * @return Whether the cloudwatchPort field is set.
      */
     boolean hasCloudwatchPort();
     /**
      * <code>optional uint64 cloudwatch_port = 5 [default = 443];</code>
+     * @return The cloudwatchPort.
      */
     long getCloudwatchPort();
 
     /**
      * <code>optional uint64 collection_max_count = 6 [default = 500];</code>
+     * @return Whether the collectionMaxCount field is set.
      */
     boolean hasCollectionMaxCount();
     /**
      * <code>optional uint64 collection_max_count = 6 [default = 500];</code>
+     * @return The collectionMaxCount.
      */
     long getCollectionMaxCount();
 
     /**
      * <code>optional uint64 collection_max_size = 7 [default = 5242880];</code>
+     * @return Whether the collectionMaxSize field is set.
      */
     boolean hasCollectionMaxSize();
     /**
      * <code>optional uint64 collection_max_size = 7 [default = 5242880];</code>
+     * @return The collectionMaxSize.
      */
     long getCollectionMaxSize();
 
     /**
      * <code>optional uint64 connect_timeout = 8 [default = 6000];</code>
+     * @return Whether the connectTimeout field is set.
      */
     boolean hasConnectTimeout();
     /**
      * <code>optional uint64 connect_timeout = 8 [default = 6000];</code>
+     * @return The connectTimeout.
      */
     long getConnectTimeout();
 
     /**
      * <code>optional bool enable_core_dumps = 9 [default = false];</code>
+     * @return Whether the enableCoreDumps field is set.
      */
     boolean hasEnableCoreDumps();
     /**
      * <code>optional bool enable_core_dumps = 9 [default = false];</code>
+     * @return The enableCoreDumps.
      */
     boolean getEnableCoreDumps();
 
     /**
      * <code>optional bool fail_if_throttled = 10 [default = false];</code>
+     * @return Whether the failIfThrottled field is set.
      */
     boolean hasFailIfThrottled();
     /**
      * <code>optional bool fail_if_throttled = 10 [default = false];</code>
+     * @return The failIfThrottled.
      */
     boolean getFailIfThrottled();
 
     /**
      * <code>optional string kinesis_endpoint = 11 [default = ""];</code>
+     * @return Whether the kinesisEndpoint field is set.
      */
     boolean hasKinesisEndpoint();
     /**
      * <code>optional string kinesis_endpoint = 11 [default = ""];</code>
+     * @return The kinesisEndpoint.
      */
     java.lang.String getKinesisEndpoint();
     /**
      * <code>optional string kinesis_endpoint = 11 [default = ""];</code>
+     * @return The bytes for kinesisEndpoint.
      */
     com.google.protobuf.ByteString
         getKinesisEndpointBytes();
 
     /**
      * <code>optional uint64 kinesis_port = 12 [default = 443];</code>
+     * @return Whether the kinesisPort field is set.
      */
     boolean hasKinesisPort();
     /**
      * <code>optional uint64 kinesis_port = 12 [default = 443];</code>
+     * @return The kinesisPort.
      */
     long getKinesisPort();
 
     /**
      * <code>optional string log_level = 13 [default = "info"];</code>
+     * @return Whether the logLevel field is set.
      */
     boolean hasLogLevel();
     /**
      * <code>optional string log_level = 13 [default = "info"];</code>
+     * @return The logLevel.
      */
     java.lang.String getLogLevel();
     /**
      * <code>optional string log_level = 13 [default = "info"];</code>
+     * @return The bytes for logLevel.
      */
     com.google.protobuf.ByteString
         getLogLevelBytes();
 
     /**
      * <code>optional uint64 max_connections = 14 [default = 24];</code>
+     * @return Whether the maxConnections field is set.
      */
     boolean hasMaxConnections();
     /**
      * <code>optional uint64 max_connections = 14 [default = 24];</code>
+     * @return The maxConnections.
      */
     long getMaxConnections();
 
     /**
      * <code>optional string metrics_granularity = 15 [default = "shard"];</code>
+     * @return Whether the metricsGranularity field is set.
      */
     boolean hasMetricsGranularity();
     /**
      * <code>optional string metrics_granularity = 15 [default = "shard"];</code>
+     * @return The metricsGranularity.
      */
     java.lang.String getMetricsGranularity();
     /**
      * <code>optional string metrics_granularity = 15 [default = "shard"];</code>
+     * @return The bytes for metricsGranularity.
      */
     com.google.protobuf.ByteString
         getMetricsGranularityBytes();
 
     /**
      * <code>optional string metrics_level = 16 [default = "detailed"];</code>
+     * @return Whether the metricsLevel field is set.
      */
     boolean hasMetricsLevel();
     /**
      * <code>optional string metrics_level = 16 [default = "detailed"];</code>
+     * @return The metricsLevel.
      */
     java.lang.String getMetricsLevel();
     /**
      * <code>optional string metrics_level = 16 [default = "detailed"];</code>
+     * @return The bytes for metricsLevel.
      */
     com.google.protobuf.ByteString
         getMetricsLevelBytes();
 
     /**
      * <code>optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];</code>
+     * @return Whether the metricsNamespace field is set.
      */
     boolean hasMetricsNamespace();
     /**
      * <code>optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];</code>
+     * @return The metricsNamespace.
      */
     java.lang.String getMetricsNamespace();
     /**
      * <code>optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];</code>
+     * @return The bytes for metricsNamespace.
      */
     com.google.protobuf.ByteString
         getMetricsNamespaceBytes();
 
     /**
      * <code>optional uint64 metrics_upload_delay = 18 [default = 60000];</code>
+     * @return Whether the metricsUploadDelay field is set.
      */
     boolean hasMetricsUploadDelay();
     /**
      * <code>optional uint64 metrics_upload_delay = 18 [default = 60000];</code>
+     * @return The metricsUploadDelay.
      */
     long getMetricsUploadDelay();
 
     /**
      * <code>optional uint64 min_connections = 19 [default = 1];</code>
+     * @return Whether the minConnections field is set.
      */
     boolean hasMinConnections();
     /**
      * <code>optional uint64 min_connections = 19 [default = 1];</code>
+     * @return The minConnections.
      */
     long getMinConnections();
 
     /**
      * <code>optional uint64 rate_limit = 20 [default = 150];</code>
+     * @return Whether the rateLimit field is set.
      */
     boolean hasRateLimit();
     /**
      * <code>optional uint64 rate_limit = 20 [default = 150];</code>
+     * @return The rateLimit.
      */
     long getRateLimit();
 
     /**
      * <code>optional uint64 record_max_buffered_time = 21 [default = 100];</code>
+     * @return Whether the recordMaxBufferedTime field is set.
      */
     boolean hasRecordMaxBufferedTime();
     /**
      * <code>optional uint64 record_max_buffered_time = 21 [default = 100];</code>
+     * @return The recordMaxBufferedTime.
      */
     long getRecordMaxBufferedTime();
 
     /**
      * <code>optional uint64 record_ttl = 22 [default = 30000];</code>
+     * @return Whether the recordTtl field is set.
      */
     boolean hasRecordTtl();
     /**
      * <code>optional uint64 record_ttl = 22 [default = 30000];</code>
+     * @return The recordTtl.
      */
     long getRecordTtl();
 
     /**
      * <code>optional string region = 23 [default = ""];</code>
+     * @return Whether the region field is set.
      */
     boolean hasRegion();
     /**
      * <code>optional string region = 23 [default = ""];</code>
+     * @return The region.
      */
     java.lang.String getRegion();
     /**
      * <code>optional string region = 23 [default = ""];</code>
+     * @return The bytes for region.
      */
     com.google.protobuf.ByteString
         getRegionBytes();
 
     /**
      * <code>optional uint64 request_timeout = 24 [default = 6000];</code>
+     * @return Whether the requestTimeout field is set.
      */
     boolean hasRequestTimeout();
     /**
      * <code>optional uint64 request_timeout = 24 [default = 6000];</code>
+     * @return The requestTimeout.
      */
     long getRequestTimeout();
 
     /**
      * <code>optional bool verify_certificate = 25 [default = true];</code>
+     * @return Whether the verifyCertificate field is set.
      */
     boolean hasVerifyCertificate();
     /**
      * <code>optional bool verify_certificate = 25 [default = true];</code>
+     * @return The verifyCertificate.
      */
     boolean getVerifyCertificate();
 
     /**
      * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];</code>
+     * @return Whether the threadConfig field is set.
      */
     boolean hasThreadConfig();
     /**
      * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];</code>
+     * @return The threadConfig.
      */
     com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig getThreadConfig();
 
     /**
      * <code>optional uint32 thread_pool_size = 27 [default = 64];</code>
+     * @return Whether the threadPoolSize field is set.
      */
     boolean hasThreadPoolSize();
     /**
      * <code>optional uint32 thread_pool_size = 27 [default = 64];</code>
+     * @return The threadPoolSize.
      */
     int getThreadPoolSize();
   }
   /**
    * Protobuf type {@code aws.kinesis.protobuf.Configuration}
    */
-  public static final class Configuration extends
-      com.google.protobuf.GeneratedMessage implements
+  public  static final class Configuration extends
+      com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:aws.kinesis.protobuf.Configuration)
       ConfigurationOrBuilder {
+  private static final long serialVersionUID = 0L;
     // Use Configuration.newBuilder() to construct.
-    private Configuration(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    private Configuration(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
-      this.unknownFields = builder.getUnknownFields();
     }
-    private Configuration(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
-
-    private static final Configuration defaultInstance;
-    public static Configuration getDefaultInstance() {
-      return defaultInstance;
+    private Configuration() {
+      additionalMetricDims_ = java.util.Collections.emptyList();
+      aggregationEnabled_ = true;
+      aggregationMaxCount_ = 4294967295L;
+      aggregationMaxSize_ = 51200L;
+      cloudwatchEndpoint_ = "";
+      cloudwatchPort_ = 443L;
+      collectionMaxCount_ = 500L;
+      collectionMaxSize_ = 5242880L;
+      connectTimeout_ = 6000L;
+      kinesisEndpoint_ = "";
+      kinesisPort_ = 443L;
+      logLevel_ = "info";
+      maxConnections_ = 24L;
+      metricsGranularity_ = "shard";
+      metricsLevel_ = "detailed";
+      metricsNamespace_ = "KinesisProducerLibrary";
+      metricsUploadDelay_ = 60000L;
+      minConnections_ = 1L;
+      rateLimit_ = 150L;
+      recordMaxBufferedTime_ = 100L;
+      recordTtl_ = 30000L;
+      region_ = "";
+      requestTimeout_ = 6000L;
+      verifyCertificate_ = true;
+      threadConfig_ = 0;
+      threadPoolSize_ = 64;
     }
 
-    public Configuration getDefaultInstanceForType() {
-      return defaultInstance;
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(
+        UnusedPrivateParameter unused) {
+      return new Configuration();
     }
 
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
+    getUnknownFields() {
       return this.unknownFields;
     }
     private Configuration(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
-      initFields();
+      this();
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -1173,13 +1435,6 @@ public final class Config {
             case 0:
               done = true;
               break;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
             case 8: {
               bitField0_ |= 0x00000001;
               aggregationEnabled_ = input.readBool();
@@ -1314,12 +1569,13 @@ public final class Config {
             }
             case 208: {
               int rawValue = input.readEnum();
+                @SuppressWarnings("deprecation")
               com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig value = com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.valueOf(rawValue);
               if (value == null) {
                 unknownFields.mergeVarintField(26, rawValue);
               } else {
                 bitField0_ |= 0x02000000;
-                threadConfig_ = value;
+                threadConfig_ = rawValue;
               }
               break;
             }
@@ -1329,11 +1585,19 @@ public final class Config {
               break;
             }
             case 1026: {
-              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+              if (!((mutable_bitField0_ & 0x00000001) != 0)) {
                 additionalMetricDims_ = new java.util.ArrayList<com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension>();
                 mutable_bitField0_ |= 0x00000001;
               }
-              additionalMetricDims_.add(input.readMessage(com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension.PARSER, extensionRegistry));
+              additionalMetricDims_.add(
+                  input.readMessage(com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension.PARSER, extensionRegistry));
+              break;
+            }
+            default: {
+              if (!parseUnknownField(
+                  input, unknownFields, extensionRegistry, tag)) {
+                done = true;
+              }
               break;
             }
           }
@@ -1342,9 +1606,9 @@ public final class Config {
         throw e.setUnfinishedMessage(this);
       } catch (java.io.IOException e) {
         throw new com.google.protobuf.InvalidProtocolBufferException(
-            e.getMessage()).setUnfinishedMessage(this);
+            e).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((mutable_bitField0_ & 0x00000001) != 0)) {
           additionalMetricDims_ = java.util.Collections.unmodifiableList(additionalMetricDims_);
         }
         this.unknownFields = unknownFields.build();
@@ -1356,26 +1620,12 @@ public final class Config {
       return com.amazonaws.services.kinesis.producer.protobuf.Config.internal_static_aws_kinesis_protobuf_Configuration_descriptor;
     }
 
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
       return com.amazonaws.services.kinesis.producer.protobuf.Config.internal_static_aws_kinesis_protobuf_Configuration_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.class, com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.Builder.class);
-    }
-
-    public static com.google.protobuf.Parser<Configuration> PARSER =
-        new com.google.protobuf.AbstractParser<Configuration>() {
-      public Configuration parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return new Configuration(input, extensionRegistry);
-      }
-    };
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<Configuration> getParserForType() {
-      return PARSER;
     }
 
     /**
@@ -1386,11 +1636,11 @@ public final class Config {
       /**
        * <code>PER_REQUEST = 0;</code>
        */
-      PER_REQUEST(0, 0),
+      PER_REQUEST(0),
       /**
        * <code>POOLED = 1;</code>
        */
-      POOLED(1, 1),
+      POOLED(1),
       ;
 
       /**
@@ -1403,9 +1653,25 @@ public final class Config {
       public static final int POOLED_VALUE = 1;
 
 
-      public final int getNumber() { return value; }
+      public final int getNumber() {
+        return value;
+      }
 
+      /**
+       * @param value The numeric wire value of the corresponding enum entry.
+       * @return The enum associated with the given numeric wire value.
+       * @deprecated Use {@link #forNumber(int)} instead.
+       */
+      @java.lang.Deprecated
       public static ThreadConfig valueOf(int value) {
+        return forNumber(value);
+      }
+
+      /**
+       * @param value The numeric wire value of the corresponding enum entry.
+       * @return The enum associated with the given numeric wire value.
+       */
+      public static ThreadConfig forNumber(int value) {
         switch (value) {
           case 0: return PER_REQUEST;
           case 1: return POOLED;
@@ -1417,17 +1683,17 @@ public final class Config {
           internalGetValueMap() {
         return internalValueMap;
       }
-      private static com.google.protobuf.Internal.EnumLiteMap<ThreadConfig>
-          internalValueMap =
+      private static final com.google.protobuf.Internal.EnumLiteMap<
+          ThreadConfig> internalValueMap =
             new com.google.protobuf.Internal.EnumLiteMap<ThreadConfig>() {
               public ThreadConfig findValueByNumber(int number) {
-                return ThreadConfig.valueOf(number);
+                return ThreadConfig.forNumber(number);
               }
             };
 
       public final com.google.protobuf.Descriptors.EnumValueDescriptor
           getValueDescriptor() {
-        return getDescriptor().getValues().get(index);
+        return getDescriptor().getValues().get(ordinal());
       }
       public final com.google.protobuf.Descriptors.EnumDescriptor
           getDescriptorForType() {
@@ -1449,11 +1715,9 @@ public final class Config {
         return VALUES[desc.getIndex()];
       }
 
-      private final int index;
       private final int value;
 
-      private ThreadConfig(int index, int value) {
-        this.index = index;
+      private ThreadConfig(int value) {
         this.value = value;
       }
 
@@ -1500,12 +1764,14 @@ public final class Config {
     private boolean aggregationEnabled_;
     /**
      * <code>optional bool aggregation_enabled = 1 [default = true];</code>
+     * @return Whether the aggregationEnabled field is set.
      */
     public boolean hasAggregationEnabled() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
+      return ((bitField0_ & 0x00000001) != 0);
     }
     /**
      * <code>optional bool aggregation_enabled = 1 [default = true];</code>
+     * @return The aggregationEnabled.
      */
     public boolean getAggregationEnabled() {
       return aggregationEnabled_;
@@ -1515,12 +1781,14 @@ public final class Config {
     private long aggregationMaxCount_;
     /**
      * <code>optional uint64 aggregation_max_count = 2 [default = 4294967295];</code>
+     * @return Whether the aggregationMaxCount field is set.
      */
     public boolean hasAggregationMaxCount() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+      return ((bitField0_ & 0x00000002) != 0);
     }
     /**
      * <code>optional uint64 aggregation_max_count = 2 [default = 4294967295];</code>
+     * @return The aggregationMaxCount.
      */
     public long getAggregationMaxCount() {
       return aggregationMaxCount_;
@@ -1530,27 +1798,31 @@ public final class Config {
     private long aggregationMaxSize_;
     /**
      * <code>optional uint64 aggregation_max_size = 3 [default = 51200];</code>
+     * @return Whether the aggregationMaxSize field is set.
      */
     public boolean hasAggregationMaxSize() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
+      return ((bitField0_ & 0x00000004) != 0);
     }
     /**
      * <code>optional uint64 aggregation_max_size = 3 [default = 51200];</code>
+     * @return The aggregationMaxSize.
      */
     public long getAggregationMaxSize() {
       return aggregationMaxSize_;
     }
 
     public static final int CLOUDWATCH_ENDPOINT_FIELD_NUMBER = 4;
-    private java.lang.Object cloudwatchEndpoint_;
+    private volatile java.lang.Object cloudwatchEndpoint_;
     /**
      * <code>optional string cloudwatch_endpoint = 4 [default = ""];</code>
+     * @return Whether the cloudwatchEndpoint field is set.
      */
     public boolean hasCloudwatchEndpoint() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
+      return ((bitField0_ & 0x00000008) != 0);
     }
     /**
      * <code>optional string cloudwatch_endpoint = 4 [default = ""];</code>
+     * @return The cloudwatchEndpoint.
      */
     public java.lang.String getCloudwatchEndpoint() {
       java.lang.Object ref = cloudwatchEndpoint_;
@@ -1568,6 +1840,7 @@ public final class Config {
     }
     /**
      * <code>optional string cloudwatch_endpoint = 4 [default = ""];</code>
+     * @return The bytes for cloudwatchEndpoint.
      */
     public com.google.protobuf.ByteString
         getCloudwatchEndpointBytes() {
@@ -1587,12 +1860,14 @@ public final class Config {
     private long cloudwatchPort_;
     /**
      * <code>optional uint64 cloudwatch_port = 5 [default = 443];</code>
+     * @return Whether the cloudwatchPort field is set.
      */
     public boolean hasCloudwatchPort() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
+      return ((bitField0_ & 0x00000010) != 0);
     }
     /**
      * <code>optional uint64 cloudwatch_port = 5 [default = 443];</code>
+     * @return The cloudwatchPort.
      */
     public long getCloudwatchPort() {
       return cloudwatchPort_;
@@ -1602,12 +1877,14 @@ public final class Config {
     private long collectionMaxCount_;
     /**
      * <code>optional uint64 collection_max_count = 6 [default = 500];</code>
+     * @return Whether the collectionMaxCount field is set.
      */
     public boolean hasCollectionMaxCount() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
+      return ((bitField0_ & 0x00000020) != 0);
     }
     /**
      * <code>optional uint64 collection_max_count = 6 [default = 500];</code>
+     * @return The collectionMaxCount.
      */
     public long getCollectionMaxCount() {
       return collectionMaxCount_;
@@ -1617,12 +1894,14 @@ public final class Config {
     private long collectionMaxSize_;
     /**
      * <code>optional uint64 collection_max_size = 7 [default = 5242880];</code>
+     * @return Whether the collectionMaxSize field is set.
      */
     public boolean hasCollectionMaxSize() {
-      return ((bitField0_ & 0x00000040) == 0x00000040);
+      return ((bitField0_ & 0x00000040) != 0);
     }
     /**
      * <code>optional uint64 collection_max_size = 7 [default = 5242880];</code>
+     * @return The collectionMaxSize.
      */
     public long getCollectionMaxSize() {
       return collectionMaxSize_;
@@ -1632,12 +1911,14 @@ public final class Config {
     private long connectTimeout_;
     /**
      * <code>optional uint64 connect_timeout = 8 [default = 6000];</code>
+     * @return Whether the connectTimeout field is set.
      */
     public boolean hasConnectTimeout() {
-      return ((bitField0_ & 0x00000080) == 0x00000080);
+      return ((bitField0_ & 0x00000080) != 0);
     }
     /**
      * <code>optional uint64 connect_timeout = 8 [default = 6000];</code>
+     * @return The connectTimeout.
      */
     public long getConnectTimeout() {
       return connectTimeout_;
@@ -1647,12 +1928,14 @@ public final class Config {
     private boolean enableCoreDumps_;
     /**
      * <code>optional bool enable_core_dumps = 9 [default = false];</code>
+     * @return Whether the enableCoreDumps field is set.
      */
     public boolean hasEnableCoreDumps() {
-      return ((bitField0_ & 0x00000100) == 0x00000100);
+      return ((bitField0_ & 0x00000100) != 0);
     }
     /**
      * <code>optional bool enable_core_dumps = 9 [default = false];</code>
+     * @return The enableCoreDumps.
      */
     public boolean getEnableCoreDumps() {
       return enableCoreDumps_;
@@ -1662,27 +1945,31 @@ public final class Config {
     private boolean failIfThrottled_;
     /**
      * <code>optional bool fail_if_throttled = 10 [default = false];</code>
+     * @return Whether the failIfThrottled field is set.
      */
     public boolean hasFailIfThrottled() {
-      return ((bitField0_ & 0x00000200) == 0x00000200);
+      return ((bitField0_ & 0x00000200) != 0);
     }
     /**
      * <code>optional bool fail_if_throttled = 10 [default = false];</code>
+     * @return The failIfThrottled.
      */
     public boolean getFailIfThrottled() {
       return failIfThrottled_;
     }
 
     public static final int KINESIS_ENDPOINT_FIELD_NUMBER = 11;
-    private java.lang.Object kinesisEndpoint_;
+    private volatile java.lang.Object kinesisEndpoint_;
     /**
      * <code>optional string kinesis_endpoint = 11 [default = ""];</code>
+     * @return Whether the kinesisEndpoint field is set.
      */
     public boolean hasKinesisEndpoint() {
-      return ((bitField0_ & 0x00000400) == 0x00000400);
+      return ((bitField0_ & 0x00000400) != 0);
     }
     /**
      * <code>optional string kinesis_endpoint = 11 [default = ""];</code>
+     * @return The kinesisEndpoint.
      */
     public java.lang.String getKinesisEndpoint() {
       java.lang.Object ref = kinesisEndpoint_;
@@ -1700,6 +1987,7 @@ public final class Config {
     }
     /**
      * <code>optional string kinesis_endpoint = 11 [default = ""];</code>
+     * @return The bytes for kinesisEndpoint.
      */
     public com.google.protobuf.ByteString
         getKinesisEndpointBytes() {
@@ -1719,27 +2007,31 @@ public final class Config {
     private long kinesisPort_;
     /**
      * <code>optional uint64 kinesis_port = 12 [default = 443];</code>
+     * @return Whether the kinesisPort field is set.
      */
     public boolean hasKinesisPort() {
-      return ((bitField0_ & 0x00000800) == 0x00000800);
+      return ((bitField0_ & 0x00000800) != 0);
     }
     /**
      * <code>optional uint64 kinesis_port = 12 [default = 443];</code>
+     * @return The kinesisPort.
      */
     public long getKinesisPort() {
       return kinesisPort_;
     }
 
     public static final int LOG_LEVEL_FIELD_NUMBER = 13;
-    private java.lang.Object logLevel_;
+    private volatile java.lang.Object logLevel_;
     /**
      * <code>optional string log_level = 13 [default = "info"];</code>
+     * @return Whether the logLevel field is set.
      */
     public boolean hasLogLevel() {
-      return ((bitField0_ & 0x00001000) == 0x00001000);
+      return ((bitField0_ & 0x00001000) != 0);
     }
     /**
      * <code>optional string log_level = 13 [default = "info"];</code>
+     * @return The logLevel.
      */
     public java.lang.String getLogLevel() {
       java.lang.Object ref = logLevel_;
@@ -1757,6 +2049,7 @@ public final class Config {
     }
     /**
      * <code>optional string log_level = 13 [default = "info"];</code>
+     * @return The bytes for logLevel.
      */
     public com.google.protobuf.ByteString
         getLogLevelBytes() {
@@ -1776,27 +2069,31 @@ public final class Config {
     private long maxConnections_;
     /**
      * <code>optional uint64 max_connections = 14 [default = 24];</code>
+     * @return Whether the maxConnections field is set.
      */
     public boolean hasMaxConnections() {
-      return ((bitField0_ & 0x00002000) == 0x00002000);
+      return ((bitField0_ & 0x00002000) != 0);
     }
     /**
      * <code>optional uint64 max_connections = 14 [default = 24];</code>
+     * @return The maxConnections.
      */
     public long getMaxConnections() {
       return maxConnections_;
     }
 
     public static final int METRICS_GRANULARITY_FIELD_NUMBER = 15;
-    private java.lang.Object metricsGranularity_;
+    private volatile java.lang.Object metricsGranularity_;
     /**
      * <code>optional string metrics_granularity = 15 [default = "shard"];</code>
+     * @return Whether the metricsGranularity field is set.
      */
     public boolean hasMetricsGranularity() {
-      return ((bitField0_ & 0x00004000) == 0x00004000);
+      return ((bitField0_ & 0x00004000) != 0);
     }
     /**
      * <code>optional string metrics_granularity = 15 [default = "shard"];</code>
+     * @return The metricsGranularity.
      */
     public java.lang.String getMetricsGranularity() {
       java.lang.Object ref = metricsGranularity_;
@@ -1814,6 +2111,7 @@ public final class Config {
     }
     /**
      * <code>optional string metrics_granularity = 15 [default = "shard"];</code>
+     * @return The bytes for metricsGranularity.
      */
     public com.google.protobuf.ByteString
         getMetricsGranularityBytes() {
@@ -1830,15 +2128,17 @@ public final class Config {
     }
 
     public static final int METRICS_LEVEL_FIELD_NUMBER = 16;
-    private java.lang.Object metricsLevel_;
+    private volatile java.lang.Object metricsLevel_;
     /**
      * <code>optional string metrics_level = 16 [default = "detailed"];</code>
+     * @return Whether the metricsLevel field is set.
      */
     public boolean hasMetricsLevel() {
-      return ((bitField0_ & 0x00008000) == 0x00008000);
+      return ((bitField0_ & 0x00008000) != 0);
     }
     /**
      * <code>optional string metrics_level = 16 [default = "detailed"];</code>
+     * @return The metricsLevel.
      */
     public java.lang.String getMetricsLevel() {
       java.lang.Object ref = metricsLevel_;
@@ -1856,6 +2156,7 @@ public final class Config {
     }
     /**
      * <code>optional string metrics_level = 16 [default = "detailed"];</code>
+     * @return The bytes for metricsLevel.
      */
     public com.google.protobuf.ByteString
         getMetricsLevelBytes() {
@@ -1872,15 +2173,17 @@ public final class Config {
     }
 
     public static final int METRICS_NAMESPACE_FIELD_NUMBER = 17;
-    private java.lang.Object metricsNamespace_;
+    private volatile java.lang.Object metricsNamespace_;
     /**
      * <code>optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];</code>
+     * @return Whether the metricsNamespace field is set.
      */
     public boolean hasMetricsNamespace() {
-      return ((bitField0_ & 0x00010000) == 0x00010000);
+      return ((bitField0_ & 0x00010000) != 0);
     }
     /**
      * <code>optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];</code>
+     * @return The metricsNamespace.
      */
     public java.lang.String getMetricsNamespace() {
       java.lang.Object ref = metricsNamespace_;
@@ -1898,6 +2201,7 @@ public final class Config {
     }
     /**
      * <code>optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];</code>
+     * @return The bytes for metricsNamespace.
      */
     public com.google.protobuf.ByteString
         getMetricsNamespaceBytes() {
@@ -1917,12 +2221,14 @@ public final class Config {
     private long metricsUploadDelay_;
     /**
      * <code>optional uint64 metrics_upload_delay = 18 [default = 60000];</code>
+     * @return Whether the metricsUploadDelay field is set.
      */
     public boolean hasMetricsUploadDelay() {
-      return ((bitField0_ & 0x00020000) == 0x00020000);
+      return ((bitField0_ & 0x00020000) != 0);
     }
     /**
      * <code>optional uint64 metrics_upload_delay = 18 [default = 60000];</code>
+     * @return The metricsUploadDelay.
      */
     public long getMetricsUploadDelay() {
       return metricsUploadDelay_;
@@ -1932,12 +2238,14 @@ public final class Config {
     private long minConnections_;
     /**
      * <code>optional uint64 min_connections = 19 [default = 1];</code>
+     * @return Whether the minConnections field is set.
      */
     public boolean hasMinConnections() {
-      return ((bitField0_ & 0x00040000) == 0x00040000);
+      return ((bitField0_ & 0x00040000) != 0);
     }
     /**
      * <code>optional uint64 min_connections = 19 [default = 1];</code>
+     * @return The minConnections.
      */
     public long getMinConnections() {
       return minConnections_;
@@ -1947,12 +2255,14 @@ public final class Config {
     private long rateLimit_;
     /**
      * <code>optional uint64 rate_limit = 20 [default = 150];</code>
+     * @return Whether the rateLimit field is set.
      */
     public boolean hasRateLimit() {
-      return ((bitField0_ & 0x00080000) == 0x00080000);
+      return ((bitField0_ & 0x00080000) != 0);
     }
     /**
      * <code>optional uint64 rate_limit = 20 [default = 150];</code>
+     * @return The rateLimit.
      */
     public long getRateLimit() {
       return rateLimit_;
@@ -1962,12 +2272,14 @@ public final class Config {
     private long recordMaxBufferedTime_;
     /**
      * <code>optional uint64 record_max_buffered_time = 21 [default = 100];</code>
+     * @return Whether the recordMaxBufferedTime field is set.
      */
     public boolean hasRecordMaxBufferedTime() {
-      return ((bitField0_ & 0x00100000) == 0x00100000);
+      return ((bitField0_ & 0x00100000) != 0);
     }
     /**
      * <code>optional uint64 record_max_buffered_time = 21 [default = 100];</code>
+     * @return The recordMaxBufferedTime.
      */
     public long getRecordMaxBufferedTime() {
       return recordMaxBufferedTime_;
@@ -1977,27 +2289,31 @@ public final class Config {
     private long recordTtl_;
     /**
      * <code>optional uint64 record_ttl = 22 [default = 30000];</code>
+     * @return Whether the recordTtl field is set.
      */
     public boolean hasRecordTtl() {
-      return ((bitField0_ & 0x00200000) == 0x00200000);
+      return ((bitField0_ & 0x00200000) != 0);
     }
     /**
      * <code>optional uint64 record_ttl = 22 [default = 30000];</code>
+     * @return The recordTtl.
      */
     public long getRecordTtl() {
       return recordTtl_;
     }
 
     public static final int REGION_FIELD_NUMBER = 23;
-    private java.lang.Object region_;
+    private volatile java.lang.Object region_;
     /**
      * <code>optional string region = 23 [default = ""];</code>
+     * @return Whether the region field is set.
      */
     public boolean hasRegion() {
-      return ((bitField0_ & 0x00400000) == 0x00400000);
+      return ((bitField0_ & 0x00400000) != 0);
     }
     /**
      * <code>optional string region = 23 [default = ""];</code>
+     * @return The region.
      */
     public java.lang.String getRegion() {
       java.lang.Object ref = region_;
@@ -2015,6 +2331,7 @@ public final class Config {
     }
     /**
      * <code>optional string region = 23 [default = ""];</code>
+     * @return The bytes for region.
      */
     public com.google.protobuf.ByteString
         getRegionBytes() {
@@ -2034,12 +2351,14 @@ public final class Config {
     private long requestTimeout_;
     /**
      * <code>optional uint64 request_timeout = 24 [default = 6000];</code>
+     * @return Whether the requestTimeout field is set.
      */
     public boolean hasRequestTimeout() {
-      return ((bitField0_ & 0x00800000) == 0x00800000);
+      return ((bitField0_ & 0x00800000) != 0);
     }
     /**
      * <code>optional uint64 request_timeout = 24 [default = 6000];</code>
+     * @return The requestTimeout.
      */
     public long getRequestTimeout() {
       return requestTimeout_;
@@ -2049,78 +2368,57 @@ public final class Config {
     private boolean verifyCertificate_;
     /**
      * <code>optional bool verify_certificate = 25 [default = true];</code>
+     * @return Whether the verifyCertificate field is set.
      */
     public boolean hasVerifyCertificate() {
-      return ((bitField0_ & 0x01000000) == 0x01000000);
+      return ((bitField0_ & 0x01000000) != 0);
     }
     /**
      * <code>optional bool verify_certificate = 25 [default = true];</code>
+     * @return The verifyCertificate.
      */
     public boolean getVerifyCertificate() {
       return verifyCertificate_;
     }
 
     public static final int THREAD_CONFIG_FIELD_NUMBER = 26;
-    private com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig threadConfig_;
+    private int threadConfig_;
     /**
      * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];</code>
+     * @return Whether the threadConfig field is set.
      */
     public boolean hasThreadConfig() {
-      return ((bitField0_ & 0x02000000) == 0x02000000);
+      return ((bitField0_ & 0x02000000) != 0);
     }
     /**
      * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];</code>
+     * @return The threadConfig.
      */
     public com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig getThreadConfig() {
-      return threadConfig_;
+      @SuppressWarnings("deprecation")
+      com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig result = com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.valueOf(threadConfig_);
+      return result == null ? com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.PER_REQUEST : result;
     }
 
     public static final int THREAD_POOL_SIZE_FIELD_NUMBER = 27;
     private int threadPoolSize_;
     /**
      * <code>optional uint32 thread_pool_size = 27 [default = 64];</code>
+     * @return Whether the threadPoolSize field is set.
      */
     public boolean hasThreadPoolSize() {
-      return ((bitField0_ & 0x04000000) == 0x04000000);
+      return ((bitField0_ & 0x04000000) != 0);
     }
     /**
      * <code>optional uint32 thread_pool_size = 27 [default = 64];</code>
+     * @return The threadPoolSize.
      */
     public int getThreadPoolSize() {
       return threadPoolSize_;
     }
 
-    private void initFields() {
-      additionalMetricDims_ = java.util.Collections.emptyList();
-      aggregationEnabled_ = true;
-      aggregationMaxCount_ = 4294967295L;
-      aggregationMaxSize_ = 51200L;
-      cloudwatchEndpoint_ = "";
-      cloudwatchPort_ = 443L;
-      collectionMaxCount_ = 500L;
-      collectionMaxSize_ = 5242880L;
-      connectTimeout_ = 6000L;
-      enableCoreDumps_ = false;
-      failIfThrottled_ = false;
-      kinesisEndpoint_ = "";
-      kinesisPort_ = 443L;
-      logLevel_ = "info";
-      maxConnections_ = 24L;
-      metricsGranularity_ = "shard";
-      metricsLevel_ = "detailed";
-      metricsNamespace_ = "KinesisProducerLibrary";
-      metricsUploadDelay_ = 60000L;
-      minConnections_ = 1L;
-      rateLimit_ = 150L;
-      recordMaxBufferedTime_ = 100L;
-      recordTtl_ = 30000L;
-      region_ = "";
-      requestTimeout_ = 6000L;
-      verifyCertificate_ = true;
-      threadConfig_ = com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.PER_REQUEST;
-      threadPoolSize_ = 64;
-    }
     private byte memoizedIsInitialized = -1;
+    @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized == 1) return true;
@@ -2136,207 +2434,200 @@ public final class Config {
       return true;
     }
 
+    @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (((bitField0_ & 0x00000001) != 0)) {
         output.writeBool(1, aggregationEnabled_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (((bitField0_ & 0x00000002) != 0)) {
         output.writeUInt64(2, aggregationMaxCount_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (((bitField0_ & 0x00000004) != 0)) {
         output.writeUInt64(3, aggregationMaxSize_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeBytes(4, getCloudwatchEndpointBytes());
+      if (((bitField0_ & 0x00000008) != 0)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 4, cloudwatchEndpoint_);
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      if (((bitField0_ & 0x00000010) != 0)) {
         output.writeUInt64(5, cloudwatchPort_);
       }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+      if (((bitField0_ & 0x00000020) != 0)) {
         output.writeUInt64(6, collectionMaxCount_);
       }
-      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      if (((bitField0_ & 0x00000040) != 0)) {
         output.writeUInt64(7, collectionMaxSize_);
       }
-      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+      if (((bitField0_ & 0x00000080) != 0)) {
         output.writeUInt64(8, connectTimeout_);
       }
-      if (((bitField0_ & 0x00000100) == 0x00000100)) {
+      if (((bitField0_ & 0x00000100) != 0)) {
         output.writeBool(9, enableCoreDumps_);
       }
-      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+      if (((bitField0_ & 0x00000200) != 0)) {
         output.writeBool(10, failIfThrottled_);
       }
-      if (((bitField0_ & 0x00000400) == 0x00000400)) {
-        output.writeBytes(11, getKinesisEndpointBytes());
+      if (((bitField0_ & 0x00000400) != 0)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 11, kinesisEndpoint_);
       }
-      if (((bitField0_ & 0x00000800) == 0x00000800)) {
+      if (((bitField0_ & 0x00000800) != 0)) {
         output.writeUInt64(12, kinesisPort_);
       }
-      if (((bitField0_ & 0x00001000) == 0x00001000)) {
-        output.writeBytes(13, getLogLevelBytes());
+      if (((bitField0_ & 0x00001000) != 0)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 13, logLevel_);
       }
-      if (((bitField0_ & 0x00002000) == 0x00002000)) {
+      if (((bitField0_ & 0x00002000) != 0)) {
         output.writeUInt64(14, maxConnections_);
       }
-      if (((bitField0_ & 0x00004000) == 0x00004000)) {
-        output.writeBytes(15, getMetricsGranularityBytes());
+      if (((bitField0_ & 0x00004000) != 0)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 15, metricsGranularity_);
       }
-      if (((bitField0_ & 0x00008000) == 0x00008000)) {
-        output.writeBytes(16, getMetricsLevelBytes());
+      if (((bitField0_ & 0x00008000) != 0)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 16, metricsLevel_);
       }
-      if (((bitField0_ & 0x00010000) == 0x00010000)) {
-        output.writeBytes(17, getMetricsNamespaceBytes());
+      if (((bitField0_ & 0x00010000) != 0)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 17, metricsNamespace_);
       }
-      if (((bitField0_ & 0x00020000) == 0x00020000)) {
+      if (((bitField0_ & 0x00020000) != 0)) {
         output.writeUInt64(18, metricsUploadDelay_);
       }
-      if (((bitField0_ & 0x00040000) == 0x00040000)) {
+      if (((bitField0_ & 0x00040000) != 0)) {
         output.writeUInt64(19, minConnections_);
       }
-      if (((bitField0_ & 0x00080000) == 0x00080000)) {
+      if (((bitField0_ & 0x00080000) != 0)) {
         output.writeUInt64(20, rateLimit_);
       }
-      if (((bitField0_ & 0x00100000) == 0x00100000)) {
+      if (((bitField0_ & 0x00100000) != 0)) {
         output.writeUInt64(21, recordMaxBufferedTime_);
       }
-      if (((bitField0_ & 0x00200000) == 0x00200000)) {
+      if (((bitField0_ & 0x00200000) != 0)) {
         output.writeUInt64(22, recordTtl_);
       }
-      if (((bitField0_ & 0x00400000) == 0x00400000)) {
-        output.writeBytes(23, getRegionBytes());
+      if (((bitField0_ & 0x00400000) != 0)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 23, region_);
       }
-      if (((bitField0_ & 0x00800000) == 0x00800000)) {
+      if (((bitField0_ & 0x00800000) != 0)) {
         output.writeUInt64(24, requestTimeout_);
       }
-      if (((bitField0_ & 0x01000000) == 0x01000000)) {
+      if (((bitField0_ & 0x01000000) != 0)) {
         output.writeBool(25, verifyCertificate_);
       }
-      if (((bitField0_ & 0x02000000) == 0x02000000)) {
-        output.writeEnum(26, threadConfig_.getNumber());
+      if (((bitField0_ & 0x02000000) != 0)) {
+        output.writeEnum(26, threadConfig_);
       }
-      if (((bitField0_ & 0x04000000) == 0x04000000)) {
+      if (((bitField0_ & 0x04000000) != 0)) {
         output.writeUInt32(27, threadPoolSize_);
       }
       for (int i = 0; i < additionalMetricDims_.size(); i++) {
         output.writeMessage(128, additionalMetricDims_.get(i));
       }
-      getUnknownFields().writeTo(output);
+      unknownFields.writeTo(output);
     }
 
-    private int memoizedSerializedSize = -1;
+    @java.lang.Override
     public int getSerializedSize() {
-      int size = memoizedSerializedSize;
+      int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (((bitField0_ & 0x00000001) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(1, aggregationEnabled_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (((bitField0_ & 0x00000002) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeUInt64Size(2, aggregationMaxCount_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (((bitField0_ & 0x00000004) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeUInt64Size(3, aggregationMaxSize_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(4, getCloudwatchEndpointBytes());
+      if (((bitField0_ & 0x00000008) != 0)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, cloudwatchEndpoint_);
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      if (((bitField0_ & 0x00000010) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeUInt64Size(5, cloudwatchPort_);
       }
-      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+      if (((bitField0_ & 0x00000020) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeUInt64Size(6, collectionMaxCount_);
       }
-      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      if (((bitField0_ & 0x00000040) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeUInt64Size(7, collectionMaxSize_);
       }
-      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+      if (((bitField0_ & 0x00000080) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeUInt64Size(8, connectTimeout_);
       }
-      if (((bitField0_ & 0x00000100) == 0x00000100)) {
+      if (((bitField0_ & 0x00000100) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(9, enableCoreDumps_);
       }
-      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+      if (((bitField0_ & 0x00000200) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(10, failIfThrottled_);
       }
-      if (((bitField0_ & 0x00000400) == 0x00000400)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(11, getKinesisEndpointBytes());
+      if (((bitField0_ & 0x00000400) != 0)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(11, kinesisEndpoint_);
       }
-      if (((bitField0_ & 0x00000800) == 0x00000800)) {
+      if (((bitField0_ & 0x00000800) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeUInt64Size(12, kinesisPort_);
       }
-      if (((bitField0_ & 0x00001000) == 0x00001000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(13, getLogLevelBytes());
+      if (((bitField0_ & 0x00001000) != 0)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(13, logLevel_);
       }
-      if (((bitField0_ & 0x00002000) == 0x00002000)) {
+      if (((bitField0_ & 0x00002000) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeUInt64Size(14, maxConnections_);
       }
-      if (((bitField0_ & 0x00004000) == 0x00004000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(15, getMetricsGranularityBytes());
+      if (((bitField0_ & 0x00004000) != 0)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(15, metricsGranularity_);
       }
-      if (((bitField0_ & 0x00008000) == 0x00008000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(16, getMetricsLevelBytes());
+      if (((bitField0_ & 0x00008000) != 0)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(16, metricsLevel_);
       }
-      if (((bitField0_ & 0x00010000) == 0x00010000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(17, getMetricsNamespaceBytes());
+      if (((bitField0_ & 0x00010000) != 0)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(17, metricsNamespace_);
       }
-      if (((bitField0_ & 0x00020000) == 0x00020000)) {
+      if (((bitField0_ & 0x00020000) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeUInt64Size(18, metricsUploadDelay_);
       }
-      if (((bitField0_ & 0x00040000) == 0x00040000)) {
+      if (((bitField0_ & 0x00040000) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeUInt64Size(19, minConnections_);
       }
-      if (((bitField0_ & 0x00080000) == 0x00080000)) {
+      if (((bitField0_ & 0x00080000) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeUInt64Size(20, rateLimit_);
       }
-      if (((bitField0_ & 0x00100000) == 0x00100000)) {
+      if (((bitField0_ & 0x00100000) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeUInt64Size(21, recordMaxBufferedTime_);
       }
-      if (((bitField0_ & 0x00200000) == 0x00200000)) {
+      if (((bitField0_ & 0x00200000) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeUInt64Size(22, recordTtl_);
       }
-      if (((bitField0_ & 0x00400000) == 0x00400000)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(23, getRegionBytes());
+      if (((bitField0_ & 0x00400000) != 0)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(23, region_);
       }
-      if (((bitField0_ & 0x00800000) == 0x00800000)) {
+      if (((bitField0_ & 0x00800000) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeUInt64Size(24, requestTimeout_);
       }
-      if (((bitField0_ & 0x01000000) == 0x01000000)) {
+      if (((bitField0_ & 0x01000000) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(25, verifyCertificate_);
       }
-      if (((bitField0_ & 0x02000000) == 0x02000000)) {
+      if (((bitField0_ & 0x02000000) != 0)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeEnumSize(26, threadConfig_.getNumber());
+          .computeEnumSize(26, threadConfig_);
       }
-      if (((bitField0_ & 0x04000000) == 0x04000000)) {
+      if (((bitField0_ & 0x04000000) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeUInt32Size(27, threadPoolSize_);
       }
@@ -2344,18 +2635,314 @@ public final class Config {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(128, additionalMetricDims_.get(i));
       }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
+      size += unknownFields.getSerializedSize();
+      memoizedSize = size;
       return size;
     }
 
-    private static final long serialVersionUID = 0L;
     @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration)) {
+        return super.equals(obj);
+      }
+      com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration other = (com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration) obj;
+
+      if (!getAdditionalMetricDimsList()
+          .equals(other.getAdditionalMetricDimsList())) return false;
+      if (hasAggregationEnabled() != other.hasAggregationEnabled()) return false;
+      if (hasAggregationEnabled()) {
+        if (getAggregationEnabled()
+            != other.getAggregationEnabled()) return false;
+      }
+      if (hasAggregationMaxCount() != other.hasAggregationMaxCount()) return false;
+      if (hasAggregationMaxCount()) {
+        if (getAggregationMaxCount()
+            != other.getAggregationMaxCount()) return false;
+      }
+      if (hasAggregationMaxSize() != other.hasAggregationMaxSize()) return false;
+      if (hasAggregationMaxSize()) {
+        if (getAggregationMaxSize()
+            != other.getAggregationMaxSize()) return false;
+      }
+      if (hasCloudwatchEndpoint() != other.hasCloudwatchEndpoint()) return false;
+      if (hasCloudwatchEndpoint()) {
+        if (!getCloudwatchEndpoint()
+            .equals(other.getCloudwatchEndpoint())) return false;
+      }
+      if (hasCloudwatchPort() != other.hasCloudwatchPort()) return false;
+      if (hasCloudwatchPort()) {
+        if (getCloudwatchPort()
+            != other.getCloudwatchPort()) return false;
+      }
+      if (hasCollectionMaxCount() != other.hasCollectionMaxCount()) return false;
+      if (hasCollectionMaxCount()) {
+        if (getCollectionMaxCount()
+            != other.getCollectionMaxCount()) return false;
+      }
+      if (hasCollectionMaxSize() != other.hasCollectionMaxSize()) return false;
+      if (hasCollectionMaxSize()) {
+        if (getCollectionMaxSize()
+            != other.getCollectionMaxSize()) return false;
+      }
+      if (hasConnectTimeout() != other.hasConnectTimeout()) return false;
+      if (hasConnectTimeout()) {
+        if (getConnectTimeout()
+            != other.getConnectTimeout()) return false;
+      }
+      if (hasEnableCoreDumps() != other.hasEnableCoreDumps()) return false;
+      if (hasEnableCoreDumps()) {
+        if (getEnableCoreDumps()
+            != other.getEnableCoreDumps()) return false;
+      }
+      if (hasFailIfThrottled() != other.hasFailIfThrottled()) return false;
+      if (hasFailIfThrottled()) {
+        if (getFailIfThrottled()
+            != other.getFailIfThrottled()) return false;
+      }
+      if (hasKinesisEndpoint() != other.hasKinesisEndpoint()) return false;
+      if (hasKinesisEndpoint()) {
+        if (!getKinesisEndpoint()
+            .equals(other.getKinesisEndpoint())) return false;
+      }
+      if (hasKinesisPort() != other.hasKinesisPort()) return false;
+      if (hasKinesisPort()) {
+        if (getKinesisPort()
+            != other.getKinesisPort()) return false;
+      }
+      if (hasLogLevel() != other.hasLogLevel()) return false;
+      if (hasLogLevel()) {
+        if (!getLogLevel()
+            .equals(other.getLogLevel())) return false;
+      }
+      if (hasMaxConnections() != other.hasMaxConnections()) return false;
+      if (hasMaxConnections()) {
+        if (getMaxConnections()
+            != other.getMaxConnections()) return false;
+      }
+      if (hasMetricsGranularity() != other.hasMetricsGranularity()) return false;
+      if (hasMetricsGranularity()) {
+        if (!getMetricsGranularity()
+            .equals(other.getMetricsGranularity())) return false;
+      }
+      if (hasMetricsLevel() != other.hasMetricsLevel()) return false;
+      if (hasMetricsLevel()) {
+        if (!getMetricsLevel()
+            .equals(other.getMetricsLevel())) return false;
+      }
+      if (hasMetricsNamespace() != other.hasMetricsNamespace()) return false;
+      if (hasMetricsNamespace()) {
+        if (!getMetricsNamespace()
+            .equals(other.getMetricsNamespace())) return false;
+      }
+      if (hasMetricsUploadDelay() != other.hasMetricsUploadDelay()) return false;
+      if (hasMetricsUploadDelay()) {
+        if (getMetricsUploadDelay()
+            != other.getMetricsUploadDelay()) return false;
+      }
+      if (hasMinConnections() != other.hasMinConnections()) return false;
+      if (hasMinConnections()) {
+        if (getMinConnections()
+            != other.getMinConnections()) return false;
+      }
+      if (hasRateLimit() != other.hasRateLimit()) return false;
+      if (hasRateLimit()) {
+        if (getRateLimit()
+            != other.getRateLimit()) return false;
+      }
+      if (hasRecordMaxBufferedTime() != other.hasRecordMaxBufferedTime()) return false;
+      if (hasRecordMaxBufferedTime()) {
+        if (getRecordMaxBufferedTime()
+            != other.getRecordMaxBufferedTime()) return false;
+      }
+      if (hasRecordTtl() != other.hasRecordTtl()) return false;
+      if (hasRecordTtl()) {
+        if (getRecordTtl()
+            != other.getRecordTtl()) return false;
+      }
+      if (hasRegion() != other.hasRegion()) return false;
+      if (hasRegion()) {
+        if (!getRegion()
+            .equals(other.getRegion())) return false;
+      }
+      if (hasRequestTimeout() != other.hasRequestTimeout()) return false;
+      if (hasRequestTimeout()) {
+        if (getRequestTimeout()
+            != other.getRequestTimeout()) return false;
+      }
+      if (hasVerifyCertificate() != other.hasVerifyCertificate()) return false;
+      if (hasVerifyCertificate()) {
+        if (getVerifyCertificate()
+            != other.getVerifyCertificate()) return false;
+      }
+      if (hasThreadConfig() != other.hasThreadConfig()) return false;
+      if (hasThreadConfig()) {
+        if (threadConfig_ != other.threadConfig_) return false;
+      }
+      if (hasThreadPoolSize() != other.hasThreadPoolSize()) return false;
+      if (hasThreadPoolSize()) {
+        if (getThreadPoolSize()
+            != other.getThreadPoolSize()) return false;
+      }
+      if (!unknownFields.equals(other.unknownFields)) return false;
+      return true;
     }
 
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      if (getAdditionalMetricDimsCount() > 0) {
+        hash = (37 * hash) + ADDITIONAL_METRIC_DIMS_FIELD_NUMBER;
+        hash = (53 * hash) + getAdditionalMetricDimsList().hashCode();
+      }
+      if (hasAggregationEnabled()) {
+        hash = (37 * hash) + AGGREGATION_ENABLED_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+            getAggregationEnabled());
+      }
+      if (hasAggregationMaxCount()) {
+        hash = (37 * hash) + AGGREGATION_MAX_COUNT_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            getAggregationMaxCount());
+      }
+      if (hasAggregationMaxSize()) {
+        hash = (37 * hash) + AGGREGATION_MAX_SIZE_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            getAggregationMaxSize());
+      }
+      if (hasCloudwatchEndpoint()) {
+        hash = (37 * hash) + CLOUDWATCH_ENDPOINT_FIELD_NUMBER;
+        hash = (53 * hash) + getCloudwatchEndpoint().hashCode();
+      }
+      if (hasCloudwatchPort()) {
+        hash = (37 * hash) + CLOUDWATCH_PORT_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            getCloudwatchPort());
+      }
+      if (hasCollectionMaxCount()) {
+        hash = (37 * hash) + COLLECTION_MAX_COUNT_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            getCollectionMaxCount());
+      }
+      if (hasCollectionMaxSize()) {
+        hash = (37 * hash) + COLLECTION_MAX_SIZE_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            getCollectionMaxSize());
+      }
+      if (hasConnectTimeout()) {
+        hash = (37 * hash) + CONNECT_TIMEOUT_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            getConnectTimeout());
+      }
+      if (hasEnableCoreDumps()) {
+        hash = (37 * hash) + ENABLE_CORE_DUMPS_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+            getEnableCoreDumps());
+      }
+      if (hasFailIfThrottled()) {
+        hash = (37 * hash) + FAIL_IF_THROTTLED_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+            getFailIfThrottled());
+      }
+      if (hasKinesisEndpoint()) {
+        hash = (37 * hash) + KINESIS_ENDPOINT_FIELD_NUMBER;
+        hash = (53 * hash) + getKinesisEndpoint().hashCode();
+      }
+      if (hasKinesisPort()) {
+        hash = (37 * hash) + KINESIS_PORT_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            getKinesisPort());
+      }
+      if (hasLogLevel()) {
+        hash = (37 * hash) + LOG_LEVEL_FIELD_NUMBER;
+        hash = (53 * hash) + getLogLevel().hashCode();
+      }
+      if (hasMaxConnections()) {
+        hash = (37 * hash) + MAX_CONNECTIONS_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            getMaxConnections());
+      }
+      if (hasMetricsGranularity()) {
+        hash = (37 * hash) + METRICS_GRANULARITY_FIELD_NUMBER;
+        hash = (53 * hash) + getMetricsGranularity().hashCode();
+      }
+      if (hasMetricsLevel()) {
+        hash = (37 * hash) + METRICS_LEVEL_FIELD_NUMBER;
+        hash = (53 * hash) + getMetricsLevel().hashCode();
+      }
+      if (hasMetricsNamespace()) {
+        hash = (37 * hash) + METRICS_NAMESPACE_FIELD_NUMBER;
+        hash = (53 * hash) + getMetricsNamespace().hashCode();
+      }
+      if (hasMetricsUploadDelay()) {
+        hash = (37 * hash) + METRICS_UPLOAD_DELAY_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            getMetricsUploadDelay());
+      }
+      if (hasMinConnections()) {
+        hash = (37 * hash) + MIN_CONNECTIONS_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            getMinConnections());
+      }
+      if (hasRateLimit()) {
+        hash = (37 * hash) + RATE_LIMIT_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            getRateLimit());
+      }
+      if (hasRecordMaxBufferedTime()) {
+        hash = (37 * hash) + RECORD_MAX_BUFFERED_TIME_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            getRecordMaxBufferedTime());
+      }
+      if (hasRecordTtl()) {
+        hash = (37 * hash) + RECORD_TTL_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            getRecordTtl());
+      }
+      if (hasRegion()) {
+        hash = (37 * hash) + REGION_FIELD_NUMBER;
+        hash = (53 * hash) + getRegion().hashCode();
+      }
+      if (hasRequestTimeout()) {
+        hash = (37 * hash) + REQUEST_TIMEOUT_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            getRequestTimeout());
+      }
+      if (hasVerifyCertificate()) {
+        hash = (37 * hash) + VERIFY_CERTIFICATE_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(
+            getVerifyCertificate());
+      }
+      if (hasThreadConfig()) {
+        hash = (37 * hash) + THREAD_CONFIG_FIELD_NUMBER;
+        hash = (53 * hash) + threadConfig_;
+      }
+      if (hasThreadPoolSize()) {
+        hash = (37 * hash) + THREAD_POOL_SIZE_FIELD_NUMBER;
+        hash = (53 * hash) + getThreadPoolSize();
+      }
+      hash = (29 * hash) + unknownFields.hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
     public static com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -2379,46 +2966,59 @@ public final class Config {
     }
     public static com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration parseFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
     public static com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input);
     }
     public static com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
     public static com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
-      return PARSER.parseFrom(input);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input);
     }
     public static com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return PARSER.parseFrom(input, extensionRegistry);
+      return com.google.protobuf.GeneratedMessageV3
+          .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
-    public static Builder newBuilder() { return Builder.create(); }
+    @java.lang.Override
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration prototype) {
-      return newBuilder().mergeFrom(prototype);
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
     }
-    public Builder toBuilder() { return newBuilder(this); }
+    public static Builder newBuilder(com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
 
     @java.lang.Override
     protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
@@ -2426,7 +3026,7 @@ public final class Config {
      * Protobuf type {@code aws.kinesis.protobuf.Configuration}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:aws.kinesis.protobuf.Configuration)
         com.amazonaws.services.kinesis.producer.protobuf.Config.ConfigurationOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
@@ -2434,7 +3034,8 @@ public final class Config {
         return com.amazonaws.services.kinesis.producer.protobuf.Config.internal_static_aws_kinesis_protobuf_Configuration_descriptor;
       }
 
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return com.amazonaws.services.kinesis.producer.protobuf.Config.internal_static_aws_kinesis_protobuf_Configuration_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
@@ -2447,19 +3048,17 @@ public final class Config {
       }
 
       private Builder(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
       private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        if (com.google.protobuf.GeneratedMessageV3
+                .alwaysUseFieldBuilders) {
           getAdditionalMetricDimsFieldBuilder();
         }
       }
-      private static Builder create() {
-        return new Builder();
-      }
-
+      @java.lang.Override
       public Builder clear() {
         super.clear();
         if (additionalMetricDimsBuilder_ == null) {
@@ -2518,26 +3117,25 @@ public final class Config {
         bitField0_ = (bitField0_ & ~0x01000000);
         verifyCertificate_ = true;
         bitField0_ = (bitField0_ & ~0x02000000);
-        threadConfig_ = com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.PER_REQUEST;
+        threadConfig_ = 0;
         bitField0_ = (bitField0_ & ~0x04000000);
         threadPoolSize_ = 64;
         bitField0_ = (bitField0_ & ~0x08000000);
         return this;
       }
 
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
-      }
-
+      @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
         return com.amazonaws.services.kinesis.producer.protobuf.Config.internal_static_aws_kinesis_protobuf_Configuration_descriptor;
       }
 
+      @java.lang.Override
       public com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration getDefaultInstanceForType() {
         return com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.getDefaultInstance();
       }
 
+      @java.lang.Override
       public com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration build() {
         com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration result = buildPartial();
         if (!result.isInitialized()) {
@@ -2546,12 +3144,13 @@ public final class Config {
         return result;
       }
 
+      @java.lang.Override
       public com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration buildPartial() {
         com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration result = new com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
         if (additionalMetricDimsBuilder_ == null) {
-          if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          if (((bitField0_ & 0x00000001) != 0)) {
             additionalMetricDims_ = java.util.Collections.unmodifiableList(additionalMetricDims_);
             bitField0_ = (bitField0_ & ~0x00000001);
           }
@@ -2559,111 +3158,111 @@ public final class Config {
         } else {
           result.additionalMetricDims_ = additionalMetricDimsBuilder_.build();
         }
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+        if (((from_bitField0_ & 0x00000002) != 0)) {
           to_bitField0_ |= 0x00000001;
         }
         result.aggregationEnabled_ = aggregationEnabled_;
-        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+        if (((from_bitField0_ & 0x00000004) != 0)) {
           to_bitField0_ |= 0x00000002;
         }
         result.aggregationMaxCount_ = aggregationMaxCount_;
-        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+        if (((from_bitField0_ & 0x00000008) != 0)) {
           to_bitField0_ |= 0x00000004;
         }
         result.aggregationMaxSize_ = aggregationMaxSize_;
-        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+        if (((from_bitField0_ & 0x00000010) != 0)) {
           to_bitField0_ |= 0x00000008;
         }
         result.cloudwatchEndpoint_ = cloudwatchEndpoint_;
-        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+        if (((from_bitField0_ & 0x00000020) != 0)) {
           to_bitField0_ |= 0x00000010;
         }
         result.cloudwatchPort_ = cloudwatchPort_;
-        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+        if (((from_bitField0_ & 0x00000040) != 0)) {
           to_bitField0_ |= 0x00000020;
         }
         result.collectionMaxCount_ = collectionMaxCount_;
-        if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
+        if (((from_bitField0_ & 0x00000080) != 0)) {
           to_bitField0_ |= 0x00000040;
         }
         result.collectionMaxSize_ = collectionMaxSize_;
-        if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
+        if (((from_bitField0_ & 0x00000100) != 0)) {
           to_bitField0_ |= 0x00000080;
         }
         result.connectTimeout_ = connectTimeout_;
-        if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
+        if (((from_bitField0_ & 0x00000200) != 0)) {
+          result.enableCoreDumps_ = enableCoreDumps_;
           to_bitField0_ |= 0x00000100;
         }
-        result.enableCoreDumps_ = enableCoreDumps_;
-        if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
+        if (((from_bitField0_ & 0x00000400) != 0)) {
+          result.failIfThrottled_ = failIfThrottled_;
           to_bitField0_ |= 0x00000200;
         }
-        result.failIfThrottled_ = failIfThrottled_;
-        if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
+        if (((from_bitField0_ & 0x00000800) != 0)) {
           to_bitField0_ |= 0x00000400;
         }
         result.kinesisEndpoint_ = kinesisEndpoint_;
-        if (((from_bitField0_ & 0x00001000) == 0x00001000)) {
+        if (((from_bitField0_ & 0x00001000) != 0)) {
           to_bitField0_ |= 0x00000800;
         }
         result.kinesisPort_ = kinesisPort_;
-        if (((from_bitField0_ & 0x00002000) == 0x00002000)) {
+        if (((from_bitField0_ & 0x00002000) != 0)) {
           to_bitField0_ |= 0x00001000;
         }
         result.logLevel_ = logLevel_;
-        if (((from_bitField0_ & 0x00004000) == 0x00004000)) {
+        if (((from_bitField0_ & 0x00004000) != 0)) {
           to_bitField0_ |= 0x00002000;
         }
         result.maxConnections_ = maxConnections_;
-        if (((from_bitField0_ & 0x00008000) == 0x00008000)) {
+        if (((from_bitField0_ & 0x00008000) != 0)) {
           to_bitField0_ |= 0x00004000;
         }
         result.metricsGranularity_ = metricsGranularity_;
-        if (((from_bitField0_ & 0x00010000) == 0x00010000)) {
+        if (((from_bitField0_ & 0x00010000) != 0)) {
           to_bitField0_ |= 0x00008000;
         }
         result.metricsLevel_ = metricsLevel_;
-        if (((from_bitField0_ & 0x00020000) == 0x00020000)) {
+        if (((from_bitField0_ & 0x00020000) != 0)) {
           to_bitField0_ |= 0x00010000;
         }
         result.metricsNamespace_ = metricsNamespace_;
-        if (((from_bitField0_ & 0x00040000) == 0x00040000)) {
+        if (((from_bitField0_ & 0x00040000) != 0)) {
           to_bitField0_ |= 0x00020000;
         }
         result.metricsUploadDelay_ = metricsUploadDelay_;
-        if (((from_bitField0_ & 0x00080000) == 0x00080000)) {
+        if (((from_bitField0_ & 0x00080000) != 0)) {
           to_bitField0_ |= 0x00040000;
         }
         result.minConnections_ = minConnections_;
-        if (((from_bitField0_ & 0x00100000) == 0x00100000)) {
+        if (((from_bitField0_ & 0x00100000) != 0)) {
           to_bitField0_ |= 0x00080000;
         }
         result.rateLimit_ = rateLimit_;
-        if (((from_bitField0_ & 0x00200000) == 0x00200000)) {
+        if (((from_bitField0_ & 0x00200000) != 0)) {
           to_bitField0_ |= 0x00100000;
         }
         result.recordMaxBufferedTime_ = recordMaxBufferedTime_;
-        if (((from_bitField0_ & 0x00400000) == 0x00400000)) {
+        if (((from_bitField0_ & 0x00400000) != 0)) {
           to_bitField0_ |= 0x00200000;
         }
         result.recordTtl_ = recordTtl_;
-        if (((from_bitField0_ & 0x00800000) == 0x00800000)) {
+        if (((from_bitField0_ & 0x00800000) != 0)) {
           to_bitField0_ |= 0x00400000;
         }
         result.region_ = region_;
-        if (((from_bitField0_ & 0x01000000) == 0x01000000)) {
+        if (((from_bitField0_ & 0x01000000) != 0)) {
           to_bitField0_ |= 0x00800000;
         }
         result.requestTimeout_ = requestTimeout_;
-        if (((from_bitField0_ & 0x02000000) == 0x02000000)) {
+        if (((from_bitField0_ & 0x02000000) != 0)) {
           to_bitField0_ |= 0x01000000;
         }
         result.verifyCertificate_ = verifyCertificate_;
-        if (((from_bitField0_ & 0x04000000) == 0x04000000)) {
+        if (((from_bitField0_ & 0x04000000) != 0)) {
           to_bitField0_ |= 0x02000000;
         }
         result.threadConfig_ = threadConfig_;
-        if (((from_bitField0_ & 0x08000000) == 0x08000000)) {
+        if (((from_bitField0_ & 0x08000000) != 0)) {
           to_bitField0_ |= 0x04000000;
         }
         result.threadPoolSize_ = threadPoolSize_;
@@ -2672,6 +3271,39 @@ public final class Config {
         return result;
       }
 
+      @java.lang.Override
+      public Builder clone() {
+        return super.clone();
+      }
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.setField(field, value);
+      }
+      @java.lang.Override
+      public Builder clearField(
+          com.google.protobuf.Descriptors.FieldDescriptor field) {
+        return super.clearField(field);
+      }
+      @java.lang.Override
+      public Builder clearOneof(
+          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+        return super.clearOneof(oneof);
+      }
+      @java.lang.Override
+      public Builder setRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index, java.lang.Object value) {
+        return super.setRepeatedField(field, index, value);
+      }
+      @java.lang.Override
+      public Builder addRepeatedField(
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          java.lang.Object value) {
+        return super.addRepeatedField(field, value);
+      }
+      @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration) {
           return mergeFrom((com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration)other);
@@ -2702,7 +3334,7 @@ public final class Config {
               additionalMetricDims_ = other.additionalMetricDims_;
               bitField0_ = (bitField0_ & ~0x00000001);
               additionalMetricDimsBuilder_ = 
-                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
                    getAdditionalMetricDimsFieldBuilder() : null;
             } else {
               additionalMetricDimsBuilder_.addAllMessages(other.additionalMetricDims_);
@@ -2804,20 +3436,22 @@ public final class Config {
         if (other.hasThreadPoolSize()) {
           setThreadPoolSize(other.getThreadPoolSize());
         }
-        this.mergeUnknownFields(other.getUnknownFields());
+        this.mergeUnknownFields(other.unknownFields);
+        onChanged();
         return this;
       }
 
+      @java.lang.Override
       public final boolean isInitialized() {
         for (int i = 0; i < getAdditionalMetricDimsCount(); i++) {
           if (!getAdditionalMetricDims(i).isInitialized()) {
-            
             return false;
           }
         }
         return true;
       }
 
+      @java.lang.Override
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -2827,7 +3461,7 @@ public final class Config {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
           parsedMessage = (com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration) e.getUnfinishedMessage();
-          throw e;
+          throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
             mergeFrom(parsedMessage);
@@ -2840,13 +3474,13 @@ public final class Config {
       private java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension> additionalMetricDims_ =
         java.util.Collections.emptyList();
       private void ensureAdditionalMetricDimsIsMutable() {
-        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+        if (!((bitField0_ & 0x00000001) != 0)) {
           additionalMetricDims_ = new java.util.ArrayList<com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension>(additionalMetricDims_);
           bitField0_ |= 0x00000001;
          }
       }
 
-      private com.google.protobuf.RepeatedFieldBuilder<
+      private com.google.protobuf.RepeatedFieldBuilderV3<
           com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension, com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension.Builder, com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimensionOrBuilder> additionalMetricDimsBuilder_;
 
       /**
@@ -3062,14 +3696,14 @@ public final class Config {
            getAdditionalMetricDimsBuilderList() {
         return getAdditionalMetricDimsFieldBuilder().getBuilderList();
       }
-      private com.google.protobuf.RepeatedFieldBuilder<
+      private com.google.protobuf.RepeatedFieldBuilderV3<
           com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension, com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension.Builder, com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimensionOrBuilder> 
           getAdditionalMetricDimsFieldBuilder() {
         if (additionalMetricDimsBuilder_ == null) {
-          additionalMetricDimsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+          additionalMetricDimsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
               com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension, com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension.Builder, com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimensionOrBuilder>(
                   additionalMetricDims_,
-                  ((bitField0_ & 0x00000001) == 0x00000001),
+                  ((bitField0_ & 0x00000001) != 0),
                   getParentForChildren(),
                   isClean());
           additionalMetricDims_ = null;
@@ -3080,18 +3714,22 @@ public final class Config {
       private boolean aggregationEnabled_ = true;
       /**
        * <code>optional bool aggregation_enabled = 1 [default = true];</code>
+       * @return Whether the aggregationEnabled field is set.
        */
       public boolean hasAggregationEnabled() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+        return ((bitField0_ & 0x00000002) != 0);
       }
       /**
        * <code>optional bool aggregation_enabled = 1 [default = true];</code>
+       * @return The aggregationEnabled.
        */
       public boolean getAggregationEnabled() {
         return aggregationEnabled_;
       }
       /**
        * <code>optional bool aggregation_enabled = 1 [default = true];</code>
+       * @param value The aggregationEnabled to set.
+       * @return This builder for chaining.
        */
       public Builder setAggregationEnabled(boolean value) {
         bitField0_ |= 0x00000002;
@@ -3101,6 +3739,7 @@ public final class Config {
       }
       /**
        * <code>optional bool aggregation_enabled = 1 [default = true];</code>
+       * @return This builder for chaining.
        */
       public Builder clearAggregationEnabled() {
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -3112,18 +3751,22 @@ public final class Config {
       private long aggregationMaxCount_ = 4294967295L;
       /**
        * <code>optional uint64 aggregation_max_count = 2 [default = 4294967295];</code>
+       * @return Whether the aggregationMaxCount field is set.
        */
       public boolean hasAggregationMaxCount() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
+        return ((bitField0_ & 0x00000004) != 0);
       }
       /**
        * <code>optional uint64 aggregation_max_count = 2 [default = 4294967295];</code>
+       * @return The aggregationMaxCount.
        */
       public long getAggregationMaxCount() {
         return aggregationMaxCount_;
       }
       /**
        * <code>optional uint64 aggregation_max_count = 2 [default = 4294967295];</code>
+       * @param value The aggregationMaxCount to set.
+       * @return This builder for chaining.
        */
       public Builder setAggregationMaxCount(long value) {
         bitField0_ |= 0x00000004;
@@ -3133,6 +3776,7 @@ public final class Config {
       }
       /**
        * <code>optional uint64 aggregation_max_count = 2 [default = 4294967295];</code>
+       * @return This builder for chaining.
        */
       public Builder clearAggregationMaxCount() {
         bitField0_ = (bitField0_ & ~0x00000004);
@@ -3144,18 +3788,22 @@ public final class Config {
       private long aggregationMaxSize_ = 51200L;
       /**
        * <code>optional uint64 aggregation_max_size = 3 [default = 51200];</code>
+       * @return Whether the aggregationMaxSize field is set.
        */
       public boolean hasAggregationMaxSize() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
+        return ((bitField0_ & 0x00000008) != 0);
       }
       /**
        * <code>optional uint64 aggregation_max_size = 3 [default = 51200];</code>
+       * @return The aggregationMaxSize.
        */
       public long getAggregationMaxSize() {
         return aggregationMaxSize_;
       }
       /**
        * <code>optional uint64 aggregation_max_size = 3 [default = 51200];</code>
+       * @param value The aggregationMaxSize to set.
+       * @return This builder for chaining.
        */
       public Builder setAggregationMaxSize(long value) {
         bitField0_ |= 0x00000008;
@@ -3165,6 +3813,7 @@ public final class Config {
       }
       /**
        * <code>optional uint64 aggregation_max_size = 3 [default = 51200];</code>
+       * @return This builder for chaining.
        */
       public Builder clearAggregationMaxSize() {
         bitField0_ = (bitField0_ & ~0x00000008);
@@ -3176,12 +3825,14 @@ public final class Config {
       private java.lang.Object cloudwatchEndpoint_ = "";
       /**
        * <code>optional string cloudwatch_endpoint = 4 [default = ""];</code>
+       * @return Whether the cloudwatchEndpoint field is set.
        */
       public boolean hasCloudwatchEndpoint() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
+        return ((bitField0_ & 0x00000010) != 0);
       }
       /**
        * <code>optional string cloudwatch_endpoint = 4 [default = ""];</code>
+       * @return The cloudwatchEndpoint.
        */
       public java.lang.String getCloudwatchEndpoint() {
         java.lang.Object ref = cloudwatchEndpoint_;
@@ -3199,6 +3850,7 @@ public final class Config {
       }
       /**
        * <code>optional string cloudwatch_endpoint = 4 [default = ""];</code>
+       * @return The bytes for cloudwatchEndpoint.
        */
       public com.google.protobuf.ByteString
           getCloudwatchEndpointBytes() {
@@ -3215,6 +3867,8 @@ public final class Config {
       }
       /**
        * <code>optional string cloudwatch_endpoint = 4 [default = ""];</code>
+       * @param value The cloudwatchEndpoint to set.
+       * @return This builder for chaining.
        */
       public Builder setCloudwatchEndpoint(
           java.lang.String value) {
@@ -3228,6 +3882,7 @@ public final class Config {
       }
       /**
        * <code>optional string cloudwatch_endpoint = 4 [default = ""];</code>
+       * @return This builder for chaining.
        */
       public Builder clearCloudwatchEndpoint() {
         bitField0_ = (bitField0_ & ~0x00000010);
@@ -3237,6 +3892,8 @@ public final class Config {
       }
       /**
        * <code>optional string cloudwatch_endpoint = 4 [default = ""];</code>
+       * @param value The bytes for cloudwatchEndpoint to set.
+       * @return This builder for chaining.
        */
       public Builder setCloudwatchEndpointBytes(
           com.google.protobuf.ByteString value) {
@@ -3252,18 +3909,22 @@ public final class Config {
       private long cloudwatchPort_ = 443L;
       /**
        * <code>optional uint64 cloudwatch_port = 5 [default = 443];</code>
+       * @return Whether the cloudwatchPort field is set.
        */
       public boolean hasCloudwatchPort() {
-        return ((bitField0_ & 0x00000020) == 0x00000020);
+        return ((bitField0_ & 0x00000020) != 0);
       }
       /**
        * <code>optional uint64 cloudwatch_port = 5 [default = 443];</code>
+       * @return The cloudwatchPort.
        */
       public long getCloudwatchPort() {
         return cloudwatchPort_;
       }
       /**
        * <code>optional uint64 cloudwatch_port = 5 [default = 443];</code>
+       * @param value The cloudwatchPort to set.
+       * @return This builder for chaining.
        */
       public Builder setCloudwatchPort(long value) {
         bitField0_ |= 0x00000020;
@@ -3273,6 +3934,7 @@ public final class Config {
       }
       /**
        * <code>optional uint64 cloudwatch_port = 5 [default = 443];</code>
+       * @return This builder for chaining.
        */
       public Builder clearCloudwatchPort() {
         bitField0_ = (bitField0_ & ~0x00000020);
@@ -3284,18 +3946,22 @@ public final class Config {
       private long collectionMaxCount_ = 500L;
       /**
        * <code>optional uint64 collection_max_count = 6 [default = 500];</code>
+       * @return Whether the collectionMaxCount field is set.
        */
       public boolean hasCollectionMaxCount() {
-        return ((bitField0_ & 0x00000040) == 0x00000040);
+        return ((bitField0_ & 0x00000040) != 0);
       }
       /**
        * <code>optional uint64 collection_max_count = 6 [default = 500];</code>
+       * @return The collectionMaxCount.
        */
       public long getCollectionMaxCount() {
         return collectionMaxCount_;
       }
       /**
        * <code>optional uint64 collection_max_count = 6 [default = 500];</code>
+       * @param value The collectionMaxCount to set.
+       * @return This builder for chaining.
        */
       public Builder setCollectionMaxCount(long value) {
         bitField0_ |= 0x00000040;
@@ -3305,6 +3971,7 @@ public final class Config {
       }
       /**
        * <code>optional uint64 collection_max_count = 6 [default = 500];</code>
+       * @return This builder for chaining.
        */
       public Builder clearCollectionMaxCount() {
         bitField0_ = (bitField0_ & ~0x00000040);
@@ -3316,18 +3983,22 @@ public final class Config {
       private long collectionMaxSize_ = 5242880L;
       /**
        * <code>optional uint64 collection_max_size = 7 [default = 5242880];</code>
+       * @return Whether the collectionMaxSize field is set.
        */
       public boolean hasCollectionMaxSize() {
-        return ((bitField0_ & 0x00000080) == 0x00000080);
+        return ((bitField0_ & 0x00000080) != 0);
       }
       /**
        * <code>optional uint64 collection_max_size = 7 [default = 5242880];</code>
+       * @return The collectionMaxSize.
        */
       public long getCollectionMaxSize() {
         return collectionMaxSize_;
       }
       /**
        * <code>optional uint64 collection_max_size = 7 [default = 5242880];</code>
+       * @param value The collectionMaxSize to set.
+       * @return This builder for chaining.
        */
       public Builder setCollectionMaxSize(long value) {
         bitField0_ |= 0x00000080;
@@ -3337,6 +4008,7 @@ public final class Config {
       }
       /**
        * <code>optional uint64 collection_max_size = 7 [default = 5242880];</code>
+       * @return This builder for chaining.
        */
       public Builder clearCollectionMaxSize() {
         bitField0_ = (bitField0_ & ~0x00000080);
@@ -3348,18 +4020,22 @@ public final class Config {
       private long connectTimeout_ = 6000L;
       /**
        * <code>optional uint64 connect_timeout = 8 [default = 6000];</code>
+       * @return Whether the connectTimeout field is set.
        */
       public boolean hasConnectTimeout() {
-        return ((bitField0_ & 0x00000100) == 0x00000100);
+        return ((bitField0_ & 0x00000100) != 0);
       }
       /**
        * <code>optional uint64 connect_timeout = 8 [default = 6000];</code>
+       * @return The connectTimeout.
        */
       public long getConnectTimeout() {
         return connectTimeout_;
       }
       /**
        * <code>optional uint64 connect_timeout = 8 [default = 6000];</code>
+       * @param value The connectTimeout to set.
+       * @return This builder for chaining.
        */
       public Builder setConnectTimeout(long value) {
         bitField0_ |= 0x00000100;
@@ -3369,6 +4045,7 @@ public final class Config {
       }
       /**
        * <code>optional uint64 connect_timeout = 8 [default = 6000];</code>
+       * @return This builder for chaining.
        */
       public Builder clearConnectTimeout() {
         bitField0_ = (bitField0_ & ~0x00000100);
@@ -3380,18 +4057,22 @@ public final class Config {
       private boolean enableCoreDumps_ ;
       /**
        * <code>optional bool enable_core_dumps = 9 [default = false];</code>
+       * @return Whether the enableCoreDumps field is set.
        */
       public boolean hasEnableCoreDumps() {
-        return ((bitField0_ & 0x00000200) == 0x00000200);
+        return ((bitField0_ & 0x00000200) != 0);
       }
       /**
        * <code>optional bool enable_core_dumps = 9 [default = false];</code>
+       * @return The enableCoreDumps.
        */
       public boolean getEnableCoreDumps() {
         return enableCoreDumps_;
       }
       /**
        * <code>optional bool enable_core_dumps = 9 [default = false];</code>
+       * @param value The enableCoreDumps to set.
+       * @return This builder for chaining.
        */
       public Builder setEnableCoreDumps(boolean value) {
         bitField0_ |= 0x00000200;
@@ -3401,6 +4082,7 @@ public final class Config {
       }
       /**
        * <code>optional bool enable_core_dumps = 9 [default = false];</code>
+       * @return This builder for chaining.
        */
       public Builder clearEnableCoreDumps() {
         bitField0_ = (bitField0_ & ~0x00000200);
@@ -3412,18 +4094,22 @@ public final class Config {
       private boolean failIfThrottled_ ;
       /**
        * <code>optional bool fail_if_throttled = 10 [default = false];</code>
+       * @return Whether the failIfThrottled field is set.
        */
       public boolean hasFailIfThrottled() {
-        return ((bitField0_ & 0x00000400) == 0x00000400);
+        return ((bitField0_ & 0x00000400) != 0);
       }
       /**
        * <code>optional bool fail_if_throttled = 10 [default = false];</code>
+       * @return The failIfThrottled.
        */
       public boolean getFailIfThrottled() {
         return failIfThrottled_;
       }
       /**
        * <code>optional bool fail_if_throttled = 10 [default = false];</code>
+       * @param value The failIfThrottled to set.
+       * @return This builder for chaining.
        */
       public Builder setFailIfThrottled(boolean value) {
         bitField0_ |= 0x00000400;
@@ -3433,6 +4119,7 @@ public final class Config {
       }
       /**
        * <code>optional bool fail_if_throttled = 10 [default = false];</code>
+       * @return This builder for chaining.
        */
       public Builder clearFailIfThrottled() {
         bitField0_ = (bitField0_ & ~0x00000400);
@@ -3444,12 +4131,14 @@ public final class Config {
       private java.lang.Object kinesisEndpoint_ = "";
       /**
        * <code>optional string kinesis_endpoint = 11 [default = ""];</code>
+       * @return Whether the kinesisEndpoint field is set.
        */
       public boolean hasKinesisEndpoint() {
-        return ((bitField0_ & 0x00000800) == 0x00000800);
+        return ((bitField0_ & 0x00000800) != 0);
       }
       /**
        * <code>optional string kinesis_endpoint = 11 [default = ""];</code>
+       * @return The kinesisEndpoint.
        */
       public java.lang.String getKinesisEndpoint() {
         java.lang.Object ref = kinesisEndpoint_;
@@ -3467,6 +4156,7 @@ public final class Config {
       }
       /**
        * <code>optional string kinesis_endpoint = 11 [default = ""];</code>
+       * @return The bytes for kinesisEndpoint.
        */
       public com.google.protobuf.ByteString
           getKinesisEndpointBytes() {
@@ -3483,6 +4173,8 @@ public final class Config {
       }
       /**
        * <code>optional string kinesis_endpoint = 11 [default = ""];</code>
+       * @param value The kinesisEndpoint to set.
+       * @return This builder for chaining.
        */
       public Builder setKinesisEndpoint(
           java.lang.String value) {
@@ -3496,6 +4188,7 @@ public final class Config {
       }
       /**
        * <code>optional string kinesis_endpoint = 11 [default = ""];</code>
+       * @return This builder for chaining.
        */
       public Builder clearKinesisEndpoint() {
         bitField0_ = (bitField0_ & ~0x00000800);
@@ -3505,6 +4198,8 @@ public final class Config {
       }
       /**
        * <code>optional string kinesis_endpoint = 11 [default = ""];</code>
+       * @param value The bytes for kinesisEndpoint to set.
+       * @return This builder for chaining.
        */
       public Builder setKinesisEndpointBytes(
           com.google.protobuf.ByteString value) {
@@ -3520,18 +4215,22 @@ public final class Config {
       private long kinesisPort_ = 443L;
       /**
        * <code>optional uint64 kinesis_port = 12 [default = 443];</code>
+       * @return Whether the kinesisPort field is set.
        */
       public boolean hasKinesisPort() {
-        return ((bitField0_ & 0x00001000) == 0x00001000);
+        return ((bitField0_ & 0x00001000) != 0);
       }
       /**
        * <code>optional uint64 kinesis_port = 12 [default = 443];</code>
+       * @return The kinesisPort.
        */
       public long getKinesisPort() {
         return kinesisPort_;
       }
       /**
        * <code>optional uint64 kinesis_port = 12 [default = 443];</code>
+       * @param value The kinesisPort to set.
+       * @return This builder for chaining.
        */
       public Builder setKinesisPort(long value) {
         bitField0_ |= 0x00001000;
@@ -3541,6 +4240,7 @@ public final class Config {
       }
       /**
        * <code>optional uint64 kinesis_port = 12 [default = 443];</code>
+       * @return This builder for chaining.
        */
       public Builder clearKinesisPort() {
         bitField0_ = (bitField0_ & ~0x00001000);
@@ -3552,12 +4252,14 @@ public final class Config {
       private java.lang.Object logLevel_ = "info";
       /**
        * <code>optional string log_level = 13 [default = "info"];</code>
+       * @return Whether the logLevel field is set.
        */
       public boolean hasLogLevel() {
-        return ((bitField0_ & 0x00002000) == 0x00002000);
+        return ((bitField0_ & 0x00002000) != 0);
       }
       /**
        * <code>optional string log_level = 13 [default = "info"];</code>
+       * @return The logLevel.
        */
       public java.lang.String getLogLevel() {
         java.lang.Object ref = logLevel_;
@@ -3575,6 +4277,7 @@ public final class Config {
       }
       /**
        * <code>optional string log_level = 13 [default = "info"];</code>
+       * @return The bytes for logLevel.
        */
       public com.google.protobuf.ByteString
           getLogLevelBytes() {
@@ -3591,6 +4294,8 @@ public final class Config {
       }
       /**
        * <code>optional string log_level = 13 [default = "info"];</code>
+       * @param value The logLevel to set.
+       * @return This builder for chaining.
        */
       public Builder setLogLevel(
           java.lang.String value) {
@@ -3604,6 +4309,7 @@ public final class Config {
       }
       /**
        * <code>optional string log_level = 13 [default = "info"];</code>
+       * @return This builder for chaining.
        */
       public Builder clearLogLevel() {
         bitField0_ = (bitField0_ & ~0x00002000);
@@ -3613,6 +4319,8 @@ public final class Config {
       }
       /**
        * <code>optional string log_level = 13 [default = "info"];</code>
+       * @param value The bytes for logLevel to set.
+       * @return This builder for chaining.
        */
       public Builder setLogLevelBytes(
           com.google.protobuf.ByteString value) {
@@ -3628,18 +4336,22 @@ public final class Config {
       private long maxConnections_ = 24L;
       /**
        * <code>optional uint64 max_connections = 14 [default = 24];</code>
+       * @return Whether the maxConnections field is set.
        */
       public boolean hasMaxConnections() {
-        return ((bitField0_ & 0x00004000) == 0x00004000);
+        return ((bitField0_ & 0x00004000) != 0);
       }
       /**
        * <code>optional uint64 max_connections = 14 [default = 24];</code>
+       * @return The maxConnections.
        */
       public long getMaxConnections() {
         return maxConnections_;
       }
       /**
        * <code>optional uint64 max_connections = 14 [default = 24];</code>
+       * @param value The maxConnections to set.
+       * @return This builder for chaining.
        */
       public Builder setMaxConnections(long value) {
         bitField0_ |= 0x00004000;
@@ -3649,6 +4361,7 @@ public final class Config {
       }
       /**
        * <code>optional uint64 max_connections = 14 [default = 24];</code>
+       * @return This builder for chaining.
        */
       public Builder clearMaxConnections() {
         bitField0_ = (bitField0_ & ~0x00004000);
@@ -3660,12 +4373,14 @@ public final class Config {
       private java.lang.Object metricsGranularity_ = "shard";
       /**
        * <code>optional string metrics_granularity = 15 [default = "shard"];</code>
+       * @return Whether the metricsGranularity field is set.
        */
       public boolean hasMetricsGranularity() {
-        return ((bitField0_ & 0x00008000) == 0x00008000);
+        return ((bitField0_ & 0x00008000) != 0);
       }
       /**
        * <code>optional string metrics_granularity = 15 [default = "shard"];</code>
+       * @return The metricsGranularity.
        */
       public java.lang.String getMetricsGranularity() {
         java.lang.Object ref = metricsGranularity_;
@@ -3683,6 +4398,7 @@ public final class Config {
       }
       /**
        * <code>optional string metrics_granularity = 15 [default = "shard"];</code>
+       * @return The bytes for metricsGranularity.
        */
       public com.google.protobuf.ByteString
           getMetricsGranularityBytes() {
@@ -3699,6 +4415,8 @@ public final class Config {
       }
       /**
        * <code>optional string metrics_granularity = 15 [default = "shard"];</code>
+       * @param value The metricsGranularity to set.
+       * @return This builder for chaining.
        */
       public Builder setMetricsGranularity(
           java.lang.String value) {
@@ -3712,6 +4430,7 @@ public final class Config {
       }
       /**
        * <code>optional string metrics_granularity = 15 [default = "shard"];</code>
+       * @return This builder for chaining.
        */
       public Builder clearMetricsGranularity() {
         bitField0_ = (bitField0_ & ~0x00008000);
@@ -3721,6 +4440,8 @@ public final class Config {
       }
       /**
        * <code>optional string metrics_granularity = 15 [default = "shard"];</code>
+       * @param value The bytes for metricsGranularity to set.
+       * @return This builder for chaining.
        */
       public Builder setMetricsGranularityBytes(
           com.google.protobuf.ByteString value) {
@@ -3736,12 +4457,14 @@ public final class Config {
       private java.lang.Object metricsLevel_ = "detailed";
       /**
        * <code>optional string metrics_level = 16 [default = "detailed"];</code>
+       * @return Whether the metricsLevel field is set.
        */
       public boolean hasMetricsLevel() {
-        return ((bitField0_ & 0x00010000) == 0x00010000);
+        return ((bitField0_ & 0x00010000) != 0);
       }
       /**
        * <code>optional string metrics_level = 16 [default = "detailed"];</code>
+       * @return The metricsLevel.
        */
       public java.lang.String getMetricsLevel() {
         java.lang.Object ref = metricsLevel_;
@@ -3759,6 +4482,7 @@ public final class Config {
       }
       /**
        * <code>optional string metrics_level = 16 [default = "detailed"];</code>
+       * @return The bytes for metricsLevel.
        */
       public com.google.protobuf.ByteString
           getMetricsLevelBytes() {
@@ -3775,6 +4499,8 @@ public final class Config {
       }
       /**
        * <code>optional string metrics_level = 16 [default = "detailed"];</code>
+       * @param value The metricsLevel to set.
+       * @return This builder for chaining.
        */
       public Builder setMetricsLevel(
           java.lang.String value) {
@@ -3788,6 +4514,7 @@ public final class Config {
       }
       /**
        * <code>optional string metrics_level = 16 [default = "detailed"];</code>
+       * @return This builder for chaining.
        */
       public Builder clearMetricsLevel() {
         bitField0_ = (bitField0_ & ~0x00010000);
@@ -3797,6 +4524,8 @@ public final class Config {
       }
       /**
        * <code>optional string metrics_level = 16 [default = "detailed"];</code>
+       * @param value The bytes for metricsLevel to set.
+       * @return This builder for chaining.
        */
       public Builder setMetricsLevelBytes(
           com.google.protobuf.ByteString value) {
@@ -3812,12 +4541,14 @@ public final class Config {
       private java.lang.Object metricsNamespace_ = "KinesisProducerLibrary";
       /**
        * <code>optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];</code>
+       * @return Whether the metricsNamespace field is set.
        */
       public boolean hasMetricsNamespace() {
-        return ((bitField0_ & 0x00020000) == 0x00020000);
+        return ((bitField0_ & 0x00020000) != 0);
       }
       /**
        * <code>optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];</code>
+       * @return The metricsNamespace.
        */
       public java.lang.String getMetricsNamespace() {
         java.lang.Object ref = metricsNamespace_;
@@ -3835,6 +4566,7 @@ public final class Config {
       }
       /**
        * <code>optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];</code>
+       * @return The bytes for metricsNamespace.
        */
       public com.google.protobuf.ByteString
           getMetricsNamespaceBytes() {
@@ -3851,6 +4583,8 @@ public final class Config {
       }
       /**
        * <code>optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];</code>
+       * @param value The metricsNamespace to set.
+       * @return This builder for chaining.
        */
       public Builder setMetricsNamespace(
           java.lang.String value) {
@@ -3864,6 +4598,7 @@ public final class Config {
       }
       /**
        * <code>optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];</code>
+       * @return This builder for chaining.
        */
       public Builder clearMetricsNamespace() {
         bitField0_ = (bitField0_ & ~0x00020000);
@@ -3873,6 +4608,8 @@ public final class Config {
       }
       /**
        * <code>optional string metrics_namespace = 17 [default = "KinesisProducerLibrary"];</code>
+       * @param value The bytes for metricsNamespace to set.
+       * @return This builder for chaining.
        */
       public Builder setMetricsNamespaceBytes(
           com.google.protobuf.ByteString value) {
@@ -3888,18 +4625,22 @@ public final class Config {
       private long metricsUploadDelay_ = 60000L;
       /**
        * <code>optional uint64 metrics_upload_delay = 18 [default = 60000];</code>
+       * @return Whether the metricsUploadDelay field is set.
        */
       public boolean hasMetricsUploadDelay() {
-        return ((bitField0_ & 0x00040000) == 0x00040000);
+        return ((bitField0_ & 0x00040000) != 0);
       }
       /**
        * <code>optional uint64 metrics_upload_delay = 18 [default = 60000];</code>
+       * @return The metricsUploadDelay.
        */
       public long getMetricsUploadDelay() {
         return metricsUploadDelay_;
       }
       /**
        * <code>optional uint64 metrics_upload_delay = 18 [default = 60000];</code>
+       * @param value The metricsUploadDelay to set.
+       * @return This builder for chaining.
        */
       public Builder setMetricsUploadDelay(long value) {
         bitField0_ |= 0x00040000;
@@ -3909,6 +4650,7 @@ public final class Config {
       }
       /**
        * <code>optional uint64 metrics_upload_delay = 18 [default = 60000];</code>
+       * @return This builder for chaining.
        */
       public Builder clearMetricsUploadDelay() {
         bitField0_ = (bitField0_ & ~0x00040000);
@@ -3920,18 +4662,22 @@ public final class Config {
       private long minConnections_ = 1L;
       /**
        * <code>optional uint64 min_connections = 19 [default = 1];</code>
+       * @return Whether the minConnections field is set.
        */
       public boolean hasMinConnections() {
-        return ((bitField0_ & 0x00080000) == 0x00080000);
+        return ((bitField0_ & 0x00080000) != 0);
       }
       /**
        * <code>optional uint64 min_connections = 19 [default = 1];</code>
+       * @return The minConnections.
        */
       public long getMinConnections() {
         return minConnections_;
       }
       /**
        * <code>optional uint64 min_connections = 19 [default = 1];</code>
+       * @param value The minConnections to set.
+       * @return This builder for chaining.
        */
       public Builder setMinConnections(long value) {
         bitField0_ |= 0x00080000;
@@ -3941,6 +4687,7 @@ public final class Config {
       }
       /**
        * <code>optional uint64 min_connections = 19 [default = 1];</code>
+       * @return This builder for chaining.
        */
       public Builder clearMinConnections() {
         bitField0_ = (bitField0_ & ~0x00080000);
@@ -3952,18 +4699,22 @@ public final class Config {
       private long rateLimit_ = 150L;
       /**
        * <code>optional uint64 rate_limit = 20 [default = 150];</code>
+       * @return Whether the rateLimit field is set.
        */
       public boolean hasRateLimit() {
-        return ((bitField0_ & 0x00100000) == 0x00100000);
+        return ((bitField0_ & 0x00100000) != 0);
       }
       /**
        * <code>optional uint64 rate_limit = 20 [default = 150];</code>
+       * @return The rateLimit.
        */
       public long getRateLimit() {
         return rateLimit_;
       }
       /**
        * <code>optional uint64 rate_limit = 20 [default = 150];</code>
+       * @param value The rateLimit to set.
+       * @return This builder for chaining.
        */
       public Builder setRateLimit(long value) {
         bitField0_ |= 0x00100000;
@@ -3973,6 +4724,7 @@ public final class Config {
       }
       /**
        * <code>optional uint64 rate_limit = 20 [default = 150];</code>
+       * @return This builder for chaining.
        */
       public Builder clearRateLimit() {
         bitField0_ = (bitField0_ & ~0x00100000);
@@ -3984,18 +4736,22 @@ public final class Config {
       private long recordMaxBufferedTime_ = 100L;
       /**
        * <code>optional uint64 record_max_buffered_time = 21 [default = 100];</code>
+       * @return Whether the recordMaxBufferedTime field is set.
        */
       public boolean hasRecordMaxBufferedTime() {
-        return ((bitField0_ & 0x00200000) == 0x00200000);
+        return ((bitField0_ & 0x00200000) != 0);
       }
       /**
        * <code>optional uint64 record_max_buffered_time = 21 [default = 100];</code>
+       * @return The recordMaxBufferedTime.
        */
       public long getRecordMaxBufferedTime() {
         return recordMaxBufferedTime_;
       }
       /**
        * <code>optional uint64 record_max_buffered_time = 21 [default = 100];</code>
+       * @param value The recordMaxBufferedTime to set.
+       * @return This builder for chaining.
        */
       public Builder setRecordMaxBufferedTime(long value) {
         bitField0_ |= 0x00200000;
@@ -4005,6 +4761,7 @@ public final class Config {
       }
       /**
        * <code>optional uint64 record_max_buffered_time = 21 [default = 100];</code>
+       * @return This builder for chaining.
        */
       public Builder clearRecordMaxBufferedTime() {
         bitField0_ = (bitField0_ & ~0x00200000);
@@ -4016,18 +4773,22 @@ public final class Config {
       private long recordTtl_ = 30000L;
       /**
        * <code>optional uint64 record_ttl = 22 [default = 30000];</code>
+       * @return Whether the recordTtl field is set.
        */
       public boolean hasRecordTtl() {
-        return ((bitField0_ & 0x00400000) == 0x00400000);
+        return ((bitField0_ & 0x00400000) != 0);
       }
       /**
        * <code>optional uint64 record_ttl = 22 [default = 30000];</code>
+       * @return The recordTtl.
        */
       public long getRecordTtl() {
         return recordTtl_;
       }
       /**
        * <code>optional uint64 record_ttl = 22 [default = 30000];</code>
+       * @param value The recordTtl to set.
+       * @return This builder for chaining.
        */
       public Builder setRecordTtl(long value) {
         bitField0_ |= 0x00400000;
@@ -4037,6 +4798,7 @@ public final class Config {
       }
       /**
        * <code>optional uint64 record_ttl = 22 [default = 30000];</code>
+       * @return This builder for chaining.
        */
       public Builder clearRecordTtl() {
         bitField0_ = (bitField0_ & ~0x00400000);
@@ -4048,12 +4810,14 @@ public final class Config {
       private java.lang.Object region_ = "";
       /**
        * <code>optional string region = 23 [default = ""];</code>
+       * @return Whether the region field is set.
        */
       public boolean hasRegion() {
-        return ((bitField0_ & 0x00800000) == 0x00800000);
+        return ((bitField0_ & 0x00800000) != 0);
       }
       /**
        * <code>optional string region = 23 [default = ""];</code>
+       * @return The region.
        */
       public java.lang.String getRegion() {
         java.lang.Object ref = region_;
@@ -4071,6 +4835,7 @@ public final class Config {
       }
       /**
        * <code>optional string region = 23 [default = ""];</code>
+       * @return The bytes for region.
        */
       public com.google.protobuf.ByteString
           getRegionBytes() {
@@ -4087,6 +4852,8 @@ public final class Config {
       }
       /**
        * <code>optional string region = 23 [default = ""];</code>
+       * @param value The region to set.
+       * @return This builder for chaining.
        */
       public Builder setRegion(
           java.lang.String value) {
@@ -4100,6 +4867,7 @@ public final class Config {
       }
       /**
        * <code>optional string region = 23 [default = ""];</code>
+       * @return This builder for chaining.
        */
       public Builder clearRegion() {
         bitField0_ = (bitField0_ & ~0x00800000);
@@ -4109,6 +4877,8 @@ public final class Config {
       }
       /**
        * <code>optional string region = 23 [default = ""];</code>
+       * @param value The bytes for region to set.
+       * @return This builder for chaining.
        */
       public Builder setRegionBytes(
           com.google.protobuf.ByteString value) {
@@ -4124,18 +4894,22 @@ public final class Config {
       private long requestTimeout_ = 6000L;
       /**
        * <code>optional uint64 request_timeout = 24 [default = 6000];</code>
+       * @return Whether the requestTimeout field is set.
        */
       public boolean hasRequestTimeout() {
-        return ((bitField0_ & 0x01000000) == 0x01000000);
+        return ((bitField0_ & 0x01000000) != 0);
       }
       /**
        * <code>optional uint64 request_timeout = 24 [default = 6000];</code>
+       * @return The requestTimeout.
        */
       public long getRequestTimeout() {
         return requestTimeout_;
       }
       /**
        * <code>optional uint64 request_timeout = 24 [default = 6000];</code>
+       * @param value The requestTimeout to set.
+       * @return This builder for chaining.
        */
       public Builder setRequestTimeout(long value) {
         bitField0_ |= 0x01000000;
@@ -4145,6 +4919,7 @@ public final class Config {
       }
       /**
        * <code>optional uint64 request_timeout = 24 [default = 6000];</code>
+       * @return This builder for chaining.
        */
       public Builder clearRequestTimeout() {
         bitField0_ = (bitField0_ & ~0x01000000);
@@ -4156,18 +4931,22 @@ public final class Config {
       private boolean verifyCertificate_ = true;
       /**
        * <code>optional bool verify_certificate = 25 [default = true];</code>
+       * @return Whether the verifyCertificate field is set.
        */
       public boolean hasVerifyCertificate() {
-        return ((bitField0_ & 0x02000000) == 0x02000000);
+        return ((bitField0_ & 0x02000000) != 0);
       }
       /**
        * <code>optional bool verify_certificate = 25 [default = true];</code>
+       * @return The verifyCertificate.
        */
       public boolean getVerifyCertificate() {
         return verifyCertificate_;
       }
       /**
        * <code>optional bool verify_certificate = 25 [default = true];</code>
+       * @param value The verifyCertificate to set.
+       * @return This builder for chaining.
        */
       public Builder setVerifyCertificate(boolean value) {
         bitField0_ |= 0x02000000;
@@ -4177,6 +4956,7 @@ public final class Config {
       }
       /**
        * <code>optional bool verify_certificate = 25 [default = true];</code>
+       * @return This builder for chaining.
        */
       public Builder clearVerifyCertificate() {
         bitField0_ = (bitField0_ & ~0x02000000);
@@ -4185,37 +4965,44 @@ public final class Config {
         return this;
       }
 
-      private com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig threadConfig_ = com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.PER_REQUEST;
+      private int threadConfig_ = 0;
       /**
        * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];</code>
+       * @return Whether the threadConfig field is set.
        */
       public boolean hasThreadConfig() {
-        return ((bitField0_ & 0x04000000) == 0x04000000);
+        return ((bitField0_ & 0x04000000) != 0);
       }
       /**
        * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];</code>
+       * @return The threadConfig.
        */
       public com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig getThreadConfig() {
-        return threadConfig_;
+        @SuppressWarnings("deprecation")
+        com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig result = com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.valueOf(threadConfig_);
+        return result == null ? com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.PER_REQUEST : result;
       }
       /**
        * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];</code>
+       * @param value The threadConfig to set.
+       * @return This builder for chaining.
        */
       public Builder setThreadConfig(com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig value) {
         if (value == null) {
           throw new NullPointerException();
         }
         bitField0_ |= 0x04000000;
-        threadConfig_ = value;
+        threadConfig_ = value.getNumber();
         onChanged();
         return this;
       }
       /**
        * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];</code>
+       * @return This builder for chaining.
        */
       public Builder clearThreadConfig() {
         bitField0_ = (bitField0_ & ~0x04000000);
-        threadConfig_ = com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration.ThreadConfig.PER_REQUEST;
+        threadConfig_ = 0;
         onChanged();
         return this;
       }
@@ -4223,18 +5010,22 @@ public final class Config {
       private int threadPoolSize_ = 64;
       /**
        * <code>optional uint32 thread_pool_size = 27 [default = 64];</code>
+       * @return Whether the threadPoolSize field is set.
        */
       public boolean hasThreadPoolSize() {
-        return ((bitField0_ & 0x08000000) == 0x08000000);
+        return ((bitField0_ & 0x08000000) != 0);
       }
       /**
        * <code>optional uint32 thread_pool_size = 27 [default = 64];</code>
+       * @return The threadPoolSize.
        */
       public int getThreadPoolSize() {
         return threadPoolSize_;
       }
       /**
        * <code>optional uint32 thread_pool_size = 27 [default = 64];</code>
+       * @param value The threadPoolSize to set.
+       * @return This builder for chaining.
        */
       public Builder setThreadPoolSize(int value) {
         bitField0_ |= 0x08000000;
@@ -4244,6 +5035,7 @@ public final class Config {
       }
       /**
        * <code>optional uint32 thread_pool_size = 27 [default = 64];</code>
+       * @return This builder for chaining.
        */
       public Builder clearThreadPoolSize() {
         bitField0_ = (bitField0_ & ~0x08000000);
@@ -4251,34 +5043,75 @@ public final class Config {
         onChanged();
         return this;
       }
+      @java.lang.Override
+      public final Builder setUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.setUnknownFields(unknownFields);
+      }
+
+      @java.lang.Override
+      public final Builder mergeUnknownFields(
+          final com.google.protobuf.UnknownFieldSet unknownFields) {
+        return super.mergeUnknownFields(unknownFields);
+      }
+
 
       // @@protoc_insertion_point(builder_scope:aws.kinesis.protobuf.Configuration)
     }
 
+    // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.Configuration)
+    private static final com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration DEFAULT_INSTANCE;
     static {
-      defaultInstance = new Configuration(true);
-      defaultInstance.initFields();
+      DEFAULT_INSTANCE = new com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration();
     }
 
-    // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.Configuration)
+    public static com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    @java.lang.Deprecated public static final com.google.protobuf.Parser<Configuration>
+        PARSER = new com.google.protobuf.AbstractParser<Configuration>() {
+      @java.lang.Override
+      public Configuration parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new Configuration(input, extensionRegistry);
+      }
+    };
+
+    public static com.google.protobuf.Parser<Configuration> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<Configuration> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
   }
 
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_aws_kinesis_protobuf_AdditionalDimension_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_aws_kinesis_protobuf_AdditionalDimension_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_aws_kinesis_protobuf_Configuration_descriptor;
-  private static
-    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+  private static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_aws_kinesis_protobuf_Configuration_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
     return descriptor;
   }
-  private static com.google.protobuf.Descriptors.FileDescriptor
+  private static  com.google.protobuf.Descriptors.FileDescriptor
       descriptor;
   static {
     java.lang.String[] descriptorData = {
@@ -4291,7 +5124,7 @@ public final class Config {
       "\025aggregation_max_count\030\002 \001(\004:\n4294967295" +
       "\022#\n\024aggregation_max_size\030\003 \001(\004:\00551200\022\035\n" +
       "\023cloudwatch_endpoint\030\004 \001(\t:\000\022\034\n\017cloudwat" +
-      "ch_port\030\005 \001(\004:\003443\022!\n\024collection_max_cou",
+      "ch_port\030\005 \001(\004:\003443\022!\n\024collection_max_cou" +
       "nt\030\006 \001(\004:\003500\022$\n\023collection_max_size\030\007 \001" +
       "(\004:\0075242880\022\035\n\017connect_timeout\030\010 \001(\004:\00460" +
       "00\022 \n\021enable_core_dumps\030\t \001(\010:\005false\022 \n\021" +
@@ -4301,7 +5134,7 @@ public final class Config {
       "nnections\030\016 \001(\004:\00224\022\"\n\023metrics_granulari" +
       "ty\030\017 \001(\t:\005shard\022\037\n\rmetrics_level\030\020 \001(\t:\010" +
       "detailed\0221\n\021metrics_namespace\030\021 \001(\t:\026Kin" +
-      "esisProducerLibrary\022#\n\024metrics_upload_de",
+      "esisProducerLibrary\022#\n\024metrics_upload_de" +
       "lay\030\022 \001(\004:\00560000\022\032\n\017min_connections\030\023 \001(" +
       "\004:\0011\022\027\n\nrate_limit\030\024 \001(\004:\003150\022%\n\030record_" +
       "max_buffered_time\030\025 \001(\004:\003100\022\031\n\nrecord_t" +
@@ -4311,31 +5144,23 @@ public final class Config {
       "\01620.aws.kinesis.protobuf.Configuration.T" +
       "hreadConfig:\013PER_REQUEST\022\034\n\020thread_pool_" +
       "size\030\033 \001(\r:\00264\"+\n\014ThreadConfig\022\017\n\013PER_RE" +
-      "QUEST\020\000\022\n\n\006POOLED\020\001B2\n0com.amazonaws.ser",
+      "QUEST\020\000\022\n\n\006POOLED\020\001B2\n0com.amazonaws.ser" +
       "vices.kinesis.producer.protobuf"
     };
-    com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
-          public com.google.protobuf.ExtensionRegistry assignDescriptors(
-              com.google.protobuf.Descriptors.FileDescriptor root) {
-            descriptor = root;
-            return null;
-          }
-        };
-    com.google.protobuf.Descriptors.FileDescriptor
+    descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
-        }, assigner);
+        });
     internal_static_aws_kinesis_protobuf_AdditionalDimension_descriptor =
       getDescriptor().getMessageTypes().get(0);
     internal_static_aws_kinesis_protobuf_AdditionalDimension_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_aws_kinesis_protobuf_AdditionalDimension_descriptor,
         new java.lang.String[] { "Key", "Value", "Granularity", });
     internal_static_aws_kinesis_protobuf_Configuration_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_aws_kinesis_protobuf_Configuration_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_aws_kinesis_protobuf_Configuration_descriptor,
         new java.lang.String[] { "AdditionalMetricDims", "AggregationEnabled", "AggregationMaxCount", "AggregationMaxSize", "CloudwatchEndpoint", "CloudwatchPort", "CollectionMaxCount", "CollectionMaxSize", "ConnectTimeout", "EnableCoreDumps", "FailIfThrottled", "KinesisEndpoint", "KinesisPort", "LogLevel", "MaxConnections", "MetricsGranularity", "MetricsLevel", "MetricsNamespace", "MetricsUploadDelay", "MinConnections", "RateLimit", "RecordMaxBufferedTime", "RecordTtl", "Region", "RequestTimeout", "VerifyCertificate", "ThreadConfig", "ThreadPoolSize", });
   }
