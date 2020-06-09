@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.amazonaws</groupId>
     <artifactId>amazon-kinesis-producer</artifactId>
-    <version>0.14.0</version>
+    <version>0.14.1</version>
     <name>Amazon Kinesis Producer Library</name>
 
     <scm>
@@ -74,7 +74,7 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <version>2.6.1</version>
+            <version>3.11.4</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>

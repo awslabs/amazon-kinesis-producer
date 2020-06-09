@@ -14,8 +14,8 @@ silence() {
 
 LIB_OPENSSL="https://ftp.openssl.org/source/old/1.0.1/openssl-1.0.1m.tar.gz"
 LIB_BOOST="https://astuteinternet.dl.sourceforge.net/project/boost/boost/1.58.0/boost_1_58_0.tar.gz"
-LIB_ZLIB="https://zlib.net/fossils/zlib-1.2.8.tar.gz"
-LIB_PROTOBUF="https://github.com/protocolbuffers/protobuf/releases/download/v2.6.1/protobuf-2.6.1.tar.gz"
+LIB_ZLIB="https://zlib.net/fossils/zlib-1.2.8.tar.gz" 
+LIB_PROTOBUF="https://github.com/protocolbuffers/protobuf/releases/download/v3.11.4/protobuf-all-3.11.4.tar.gz"
 LIB_CURL="https://curl.haxx.se/download/curl-7.47.0.tar.gz"
 
 
@@ -180,12 +180,12 @@ if [ ! -d "zlib-1.2.8" ]; then
 fi
 
 # Google Protocol Buffers
-if [ ! -d "protobuf-2.6.1" ]; then
+if [ ! -d "protobuf-3.11.4" ]; then
   _curl "$LIB_PROTOBUF" > protobuf.tgz
   tar xf protobuf.tgz
   rm protobuf.tgz
 
-  cd protobuf-2.6.1
+  cd protobuf-3.11.4
   silence conf --enable-shared=no
   silence make -j
   silence make install
