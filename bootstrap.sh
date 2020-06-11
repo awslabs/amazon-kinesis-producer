@@ -187,7 +187,7 @@ if [ ! -d "protobuf-3.11.4" ]; then
 
   cd protobuf-3.11.4
   silence conf --enable-shared=no
-  silence make -j 1
+  silence make -j 4
   silence make install
 
   cd ..
