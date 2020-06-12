@@ -49,6 +49,7 @@ matrix:
       addons:
         homebrew:
           packages:
+          - ant
           - awscli
           update: true
       script:
