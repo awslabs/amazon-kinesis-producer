@@ -52,7 +52,7 @@ matrix:
           - maven
           - ant
           - awscli
-          update: true
+          update: false
       script:
        - DIR=$(pwd)
        - ./bootstrap.sh
