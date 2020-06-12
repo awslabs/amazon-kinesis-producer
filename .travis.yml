@@ -49,10 +49,8 @@ matrix:
       addons:
         homebrew:
           packages:
-          - maven
-          - ant
           - awscli
-          update: false
+          update: true
       script:
        - DIR=$(pwd)
        - ./bootstrap.sh
