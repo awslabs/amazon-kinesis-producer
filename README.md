@@ -1,4 +1,6 @@
 # Kinesis Producer Library
+[![Build Status](https://travis-ci.com/awslabs/amazon-kinesis-producer.svg?branch=master)](https://travis-ci.com/awslabs/amazon-kinesis-producer)
+
 
 ## Introduction
 
