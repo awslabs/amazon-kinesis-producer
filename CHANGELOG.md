@@ -1,4 +1,11 @@
 ## Changelog
+### 0.14.1
+* [PR #302] Dependency Upgrade
+  * upgrade org.hibernate.validator:hibernate-validator 6.0.2.Final -> 6.0.18.Final
+  * upgrade com.google.guava:guava 18.0 -> 24.1.1-jre
+* [PR #300] Fix Travis CI build issues
+* [PR #298] Upgrade google-protobuf to 3.11.4
+
 ### 0.14.0
 
 * Note: Windows will be unsupported going forward for this library.

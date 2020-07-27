@@ -57,6 +57,13 @@ If you have further questions [please open a GitHub Issue](https://github.com/aw
 This is a restatement of the [notice published](https://docs.aws.amazon.com/streams/latest/dev/kinesis-kpl-upgrades.html) in the [Amazon Kinesis Data Streams Developer Guide][kinesis-developer-guide]
 
 ## Release Notes
+### 0.14.1
+* [PR #302] Dependency Upgrade
+  * upgrade org.hibernate.validator:hibernate-validator 6.0.2.Final -> 6.0.18.Final
+  * upgrade com.google.guava:guava 18.0 -> 24.1.1-jre
+* [PR #300] Fix Travis CI build issues
+* [PR #298] Upgrade google-protobuf to 3.11.4
+
 ### 0.14.0
 * **Note:** Windows platform will be unsupported going forward for this library.
 * [PR #280] When aggregation is enabled and all the buffer time is consumed for aggregating User records into Kinesis records, allow some additional buffer time for aggregating Kinesis Records into PutRecords calls.
