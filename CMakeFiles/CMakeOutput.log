@@ -1,0 +1,543 @@
+The system is: Darwin - 18.7.0 - x86_64
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler: /Library/Developer/CommandLineTools/usr/bin/clang 
+Build flags: -mmacosx-version-min=10.9;
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.out"
+
+The C compiler identification is AppleClang, found in "/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/3.5.1/CompilerIdC/a.out"
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /Library/Developer/CommandLineTools/usr/bin/clang++ 
+Build flags: -I/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/include;-O3;-stdlib=libc++;-mmacosx-version-min=10.9;
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is AppleClang, found in "/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/3.5.1/CompilerIdCXX/a.out"
+
+Determining if the C compiler works passed with the following output:
+Change Dir: /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/local/bin/gmake" "cmTC_a9a60/fast"
+/usr/local/bin/gmake -f CMakeFiles/cmTC_a9a60.dir/build.make CMakeFiles/cmTC_a9a60.dir/build
+gmake[1]: Entering directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_a9a60.dir/testCCompiler.c.o
+/Library/Developer/CommandLineTools/usr/bin/clang    -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9   -o CMakeFiles/cmTC_a9a60.dir/testCCompiler.c.o   -c /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp/testCCompiler.c
+Linking C executable cmTC_a9a60
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a9a60.dir/link.txt --verbose=1
+/Library/Developer/CommandLineTools/usr/bin/clang  -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9 -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -L/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib  CMakeFiles/cmTC_a9a60.dir/testCCompiler.c.o  -o cmTC_a9a60 
+gmake[1]: Leaving directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+
+
+Detecting C compiler ABI info compiled with the following output:
+Change Dir: /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/local/bin/gmake" "cmTC_664e8/fast"
+/usr/local/bin/gmake -f CMakeFiles/cmTC_664e8.dir/build.make CMakeFiles/cmTC_664e8.dir/build
+gmake[1]: Entering directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_664e8.dir/CMakeCCompilerABI.c.o
+/Library/Developer/CommandLineTools/usr/bin/clang    -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9   -o CMakeFiles/cmTC_664e8.dir/CMakeCCompilerABI.c.o   -c /usr/local/share/cmake-3.5/Modules/CMakeCCompilerABI.c
+Linking C executable cmTC_664e8
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_664e8.dir/link.txt --verbose=1
+/Library/Developer/CommandLineTools/usr/bin/clang  -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9 -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -L/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib -v -Wl,-v CMakeFiles/cmTC_664e8.dir/CMakeCCompilerABI.c.o  -o cmTC_664e8  
+Apple LLVM version 10.0.1 (clang-1001.0.46.4)
+Target: x86_64-apple-darwin18.7.0
+Thread model: posix
+InstalledDir: /Library/Developer/CommandLineTools/usr/bin
+ "/Library/Developer/CommandLineTools/usr/bin/ld" -demangle -lto_library /Library/Developer/CommandLineTools/usr/lib/libLTO.dylib -dynamic -arch x86_64 -macosx_version_min 10.9.0 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -o cmTC_664e8 -L/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_664e8.dir/CMakeCCompilerABI.c.o -lSystem /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/lib/darwin/libclang_rt.osx.a
+@(#)PROGRAM:ld  PROJECT:ld64-450.3
+BUILD 18:16:53 Apr  5 2019
+configured to support archs: armv6 armv7 armv7s arm64 arm64e arm64_32 i386 x86_64 x86_64h armv6m armv7k armv7m armv7em
+Library search paths:
+	/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib
+	/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/lib
+Framework search paths:
+	/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/System/Library/Frameworks/
+gmake[1]: Leaving directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+
+
+Parsed C implicit link information from above output:
+  link line regex: [^( *|.*[/\])(ld|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command:"/usr/local/bin/gmake" "cmTC_664e8/fast"]
+  ignore line: [/usr/local/bin/gmake -f CMakeFiles/cmTC_664e8.dir/build.make CMakeFiles/cmTC_664e8.dir/build]
+  ignore line: [gmake[1]: Entering directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp']
+  ignore line: [Building C object CMakeFiles/cmTC_664e8.dir/CMakeCCompilerABI.c.o]
+  ignore line: [/Library/Developer/CommandLineTools/usr/bin/clang    -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9   -o CMakeFiles/cmTC_664e8.dir/CMakeCCompilerABI.c.o   -c /usr/local/share/cmake-3.5/Modules/CMakeCCompilerABI.c]
+  ignore line: [Linking C executable cmTC_664e8]
+  ignore line: [/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_664e8.dir/link.txt --verbose=1]
+  ignore line: [/Library/Developer/CommandLineTools/usr/bin/clang  -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9 -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -L/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib -v -Wl,-v CMakeFiles/cmTC_664e8.dir/CMakeCCompilerABI.c.o  -o cmTC_664e8  ]
+  ignore line: [Apple LLVM version 10.0.1 (clang-1001.0.46.4)]
+  ignore line: [Target: x86_64-apple-darwin18.7.0]
+  ignore line: [Thread model: posix]
+  ignore line: [InstalledDir: /Library/Developer/CommandLineTools/usr/bin]
+  link line: [ "/Library/Developer/CommandLineTools/usr/bin/ld" -demangle -lto_library /Library/Developer/CommandLineTools/usr/lib/libLTO.dylib -dynamic -arch x86_64 -macosx_version_min 10.9.0 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -o cmTC_664e8 -L/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_664e8.dir/CMakeCCompilerABI.c.o -lSystem /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/lib/darwin/libclang_rt.osx.a]
+    arg [/Library/Developer/CommandLineTools/usr/bin/ld] ==> ignore
+    arg [-demangle] ==> ignore
+    arg [-lto_library] ==> lib [to_library]
+    arg [/Library/Developer/CommandLineTools/usr/lib/libLTO.dylib] ==> ignore
+    arg [-dynamic] ==> ignore
+    arg [-arch] ==> ignore
+    arg [x86_64] ==> ignore
+    arg [-macosx_version_min] ==> ignore
+    arg [10.9.0] ==> ignore
+    arg [-syslibroot] ==> ignore
+    arg [/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTC_664e8] ==> ignore
+    arg [-L/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib] ==> dir [/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib]
+    arg [-search_paths_first] ==> ignore
+    arg [-headerpad_max_install_names] ==> ignore
+    arg [-v] ==> ignore
+    arg [CMakeFiles/cmTC_664e8.dir/CMakeCCompilerABI.c.o] ==> ignore
+    arg [-lSystem] ==> lib [System]
+    arg [/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/lib/darwin/libclang_rt.osx.a] ==> lib [/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/lib/darwin/libclang_rt.osx.a]
+  Library search paths: [;/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib;/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/lib]
+  Framework search paths: [;/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/System/Library/Frameworks/]
+  remove lib [System]
+  collapse library dir [/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib] ==> [/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib]
+  collapse library dir [/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib] ==> [/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib]
+  collapse library dir [/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/lib] ==> [/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/lib]
+  collapse framework dir [/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/System/Library/Frameworks/] ==> [/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/System/Library/Frameworks]
+  implicit libs: [to_library;/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/lib/darwin/libclang_rt.osx.a]
+  implicit dirs: [/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib;/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/lib]
+  implicit fwks: [/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/System/Library/Frameworks]
+
+
+
+
+Detecting C [-std=c11] compiler features compiled with the following output:
+Change Dir: /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/local/bin/gmake" "cmTC_1d36a/fast"
+/usr/local/bin/gmake -f CMakeFiles/cmTC_1d36a.dir/build.make CMakeFiles/cmTC_1d36a.dir/build
+gmake[1]: Entering directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_1d36a.dir/feature_tests.c.o
+/Library/Developer/CommandLineTools/usr/bin/clang    -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9   -std=c11 -o CMakeFiles/cmTC_1d36a.dir/feature_tests.c.o   -c /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/feature_tests.c
+Linking C executable cmTC_1d36a
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_1d36a.dir/link.txt --verbose=1
+/Library/Developer/CommandLineTools/usr/bin/clang  -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9 -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -L/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib  CMakeFiles/cmTC_1d36a.dir/feature_tests.c.o  -o cmTC_1d36a 
+gmake[1]: Leaving directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+
+
+    Feature record: C_FEATURE:1c_function_prototypes
+    Feature record: C_FEATURE:1c_restrict
+    Feature record: C_FEATURE:1c_static_assert
+    Feature record: C_FEATURE:1c_variadic_macros
+
+
+Detecting C [-std=c99] compiler features compiled with the following output:
+Change Dir: /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/local/bin/gmake" "cmTC_5462b/fast"
+/usr/local/bin/gmake -f CMakeFiles/cmTC_5462b.dir/build.make CMakeFiles/cmTC_5462b.dir/build
+gmake[1]: Entering directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_5462b.dir/feature_tests.c.o
+/Library/Developer/CommandLineTools/usr/bin/clang    -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9   -std=c99 -o CMakeFiles/cmTC_5462b.dir/feature_tests.c.o   -c /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/feature_tests.c
+Linking C executable cmTC_5462b
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5462b.dir/link.txt --verbose=1
+/Library/Developer/CommandLineTools/usr/bin/clang  -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9 -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -L/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib  CMakeFiles/cmTC_5462b.dir/feature_tests.c.o  -o cmTC_5462b 
+gmake[1]: Leaving directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+
+
+    Feature record: C_FEATURE:1c_function_prototypes
+    Feature record: C_FEATURE:1c_restrict
+    Feature record: C_FEATURE:0c_static_assert
+    Feature record: C_FEATURE:1c_variadic_macros
+
+
+Detecting C [-std=c90] compiler features compiled with the following output:
+Change Dir: /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/local/bin/gmake" "cmTC_21482/fast"
+/usr/local/bin/gmake -f CMakeFiles/cmTC_21482.dir/build.make CMakeFiles/cmTC_21482.dir/build
+gmake[1]: Entering directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_21482.dir/feature_tests.c.o
+/Library/Developer/CommandLineTools/usr/bin/clang    -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9   -std=c90 -o CMakeFiles/cmTC_21482.dir/feature_tests.c.o   -c /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/feature_tests.c
+Linking C executable cmTC_21482
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_21482.dir/link.txt --verbose=1
+/Library/Developer/CommandLineTools/usr/bin/clang  -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9 -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -L/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib  CMakeFiles/cmTC_21482.dir/feature_tests.c.o  -o cmTC_21482 
+gmake[1]: Leaving directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+
+
+    Feature record: C_FEATURE:1c_function_prototypes
+    Feature record: C_FEATURE:0c_restrict
+    Feature record: C_FEATURE:0c_static_assert
+    Feature record: C_FEATURE:0c_variadic_macros
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/local/bin/gmake" "cmTC_86d7e/fast"
+/usr/local/bin/gmake -f CMakeFiles/cmTC_86d7e.dir/build.make CMakeFiles/cmTC_86d7e.dir/build
+gmake[1]: Entering directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_86d7e.dir/testCXXCompiler.cxx.o
+/Library/Developer/CommandLineTools/usr/bin/clang++     -I/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/include -O3 -stdlib=libc++ -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9   -o CMakeFiles/cmTC_86d7e.dir/testCXXCompiler.cxx.o -c /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTC_86d7e
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_86d7e.dir/link.txt --verbose=1
+/Library/Developer/CommandLineTools/usr/bin/clang++   -I/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/include -O3 -stdlib=libc++ -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9 -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -L/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib  CMakeFiles/cmTC_86d7e.dir/testCXXCompiler.cxx.o  -o cmTC_86d7e 
+gmake[1]: Leaving directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/local/bin/gmake" "cmTC_46f14/fast"
+/usr/local/bin/gmake -f CMakeFiles/cmTC_46f14.dir/build.make CMakeFiles/cmTC_46f14.dir/build
+gmake[1]: Entering directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_46f14.dir/CMakeCXXCompilerABI.cpp.o
+/Library/Developer/CommandLineTools/usr/bin/clang++     -I/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/include -O3 -stdlib=libc++ -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9   -o CMakeFiles/cmTC_46f14.dir/CMakeCXXCompilerABI.cpp.o -c /usr/local/share/cmake-3.5/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTC_46f14
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_46f14.dir/link.txt --verbose=1
+/Library/Developer/CommandLineTools/usr/bin/clang++   -I/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/include -O3 -stdlib=libc++ -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9 -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -L/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib -v -Wl,-v CMakeFiles/cmTC_46f14.dir/CMakeCXXCompilerABI.cpp.o  -o cmTC_46f14  
+Apple LLVM version 10.0.1 (clang-1001.0.46.4)
+Target: x86_64-apple-darwin18.7.0
+Thread model: posix
+InstalledDir: /Library/Developer/CommandLineTools/usr/bin
+ "/Library/Developer/CommandLineTools/usr/bin/ld" -demangle -lto_library /Library/Developer/CommandLineTools/usr/lib/libLTO.dylib -dynamic -arch x86_64 -macosx_version_min 10.9.0 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -o cmTC_46f14 -L/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_46f14.dir/CMakeCXXCompilerABI.cpp.o -lc++ -lSystem /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/lib/darwin/libclang_rt.osx.a
+@(#)PROGRAM:ld  PROJECT:ld64-450.3
+BUILD 18:16:53 Apr  5 2019
+configured to support archs: armv6 armv7 armv7s arm64 arm64e arm64_32 i386 x86_64 x86_64h armv6m armv7k armv7m armv7em
+Library search paths:
+	/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib
+	/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/lib
+Framework search paths:
+	/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/System/Library/Frameworks/
+gmake[1]: Leaving directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+
+
+Parsed CXX implicit link information from above output:
+  link line regex: [^( *|.*[/\])(ld|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command:"/usr/local/bin/gmake" "cmTC_46f14/fast"]
+  ignore line: [/usr/local/bin/gmake -f CMakeFiles/cmTC_46f14.dir/build.make CMakeFiles/cmTC_46f14.dir/build]
+  ignore line: [gmake[1]: Entering directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp']
+  ignore line: [Building CXX object CMakeFiles/cmTC_46f14.dir/CMakeCXXCompilerABI.cpp.o]
+  ignore line: [/Library/Developer/CommandLineTools/usr/bin/clang++     -I/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/include -O3 -stdlib=libc++ -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9   -o CMakeFiles/cmTC_46f14.dir/CMakeCXXCompilerABI.cpp.o -c /usr/local/share/cmake-3.5/Modules/CMakeCXXCompilerABI.cpp]
+  ignore line: [Linking CXX executable cmTC_46f14]
+  ignore line: [/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_46f14.dir/link.txt --verbose=1]
+  ignore line: [/Library/Developer/CommandLineTools/usr/bin/clang++   -I/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/include -O3 -stdlib=libc++ -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9 -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -L/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib -v -Wl,-v CMakeFiles/cmTC_46f14.dir/CMakeCXXCompilerABI.cpp.o  -o cmTC_46f14  ]
+  ignore line: [Apple LLVM version 10.0.1 (clang-1001.0.46.4)]
+  ignore line: [Target: x86_64-apple-darwin18.7.0]
+  ignore line: [Thread model: posix]
+  ignore line: [InstalledDir: /Library/Developer/CommandLineTools/usr/bin]
+  link line: [ "/Library/Developer/CommandLineTools/usr/bin/ld" -demangle -lto_library /Library/Developer/CommandLineTools/usr/lib/libLTO.dylib -dynamic -arch x86_64 -macosx_version_min 10.9.0 -syslibroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -o cmTC_46f14 -L/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_46f14.dir/CMakeCXXCompilerABI.cpp.o -lc++ -lSystem /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/lib/darwin/libclang_rt.osx.a]
+    arg [/Library/Developer/CommandLineTools/usr/bin/ld] ==> ignore
+    arg [-demangle] ==> ignore
+    arg [-lto_library] ==> lib [to_library]
+    arg [/Library/Developer/CommandLineTools/usr/lib/libLTO.dylib] ==> ignore
+    arg [-dynamic] ==> ignore
+    arg [-arch] ==> ignore
+    arg [x86_64] ==> ignore
+    arg [-macosx_version_min] ==> ignore
+    arg [10.9.0] ==> ignore
+    arg [-syslibroot] ==> ignore
+    arg [/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTC_46f14] ==> ignore
+    arg [-L/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib] ==> dir [/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib]
+    arg [-search_paths_first] ==> ignore
+    arg [-headerpad_max_install_names] ==> ignore
+    arg [-v] ==> ignore
+    arg [CMakeFiles/cmTC_46f14.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+    arg [-lc++] ==> lib [c++]
+    arg [-lSystem] ==> lib [System]
+    arg [/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/lib/darwin/libclang_rt.osx.a] ==> lib [/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/lib/darwin/libclang_rt.osx.a]
+  Library search paths: [;/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib;/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/lib]
+  Framework search paths: [;/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/System/Library/Frameworks/]
+  remove lib [System]
+  collapse library dir [/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib] ==> [/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib]
+  collapse library dir [/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib] ==> [/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib]
+  collapse library dir [/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/lib] ==> [/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/lib]
+  collapse framework dir [/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/System/Library/Frameworks/] ==> [/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/System/Library/Frameworks]
+  implicit libs: [to_library;c++;/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/lib/darwin/libclang_rt.osx.a]
+  implicit dirs: [/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib;/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/lib]
+  implicit fwks: [/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/System/Library/Frameworks]
+
+
+
+
+Detecting CXX [-std=c++14] compiler features compiled with the following output:
+Change Dir: /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/local/bin/gmake" "cmTC_111dd/fast"
+/usr/local/bin/gmake -f CMakeFiles/cmTC_111dd.dir/build.make CMakeFiles/cmTC_111dd.dir/build
+gmake[1]: Entering directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_111dd.dir/feature_tests.cxx.o
+/Library/Developer/CommandLineTools/usr/bin/clang++     -I/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/include -O3 -stdlib=libc++ -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9   -std=c++14 -o CMakeFiles/cmTC_111dd.dir/feature_tests.cxx.o -c /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/feature_tests.cxx
+Linking CXX executable cmTC_111dd
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_111dd.dir/link.txt --verbose=1
+/Library/Developer/CommandLineTools/usr/bin/clang++   -I/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/include -O3 -stdlib=libc++ -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9 -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -L/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib  CMakeFiles/cmTC_111dd.dir/feature_tests.cxx.o  -o cmTC_111dd 
+gmake[1]: Leaving directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+
+
+    Feature record: CXX_FEATURE:1cxx_aggregate_default_initializers
+    Feature record: CXX_FEATURE:1cxx_alias_templates
+    Feature record: CXX_FEATURE:1cxx_alignas
+    Feature record: CXX_FEATURE:1cxx_alignof
+    Feature record: CXX_FEATURE:1cxx_attributes
+    Feature record: CXX_FEATURE:1cxx_attribute_deprecated
+    Feature record: CXX_FEATURE:1cxx_auto_type
+    Feature record: CXX_FEATURE:1cxx_binary_literals
+    Feature record: CXX_FEATURE:1cxx_constexpr
+    Feature record: CXX_FEATURE:1cxx_contextual_conversions
+    Feature record: CXX_FEATURE:1cxx_decltype
+    Feature record: CXX_FEATURE:1cxx_decltype_auto
+    Feature record: CXX_FEATURE:1cxx_decltype_incomplete_return_types
+    Feature record: CXX_FEATURE:1cxx_default_function_template_args
+    Feature record: CXX_FEATURE:1cxx_defaulted_functions
+    Feature record: CXX_FEATURE:1cxx_defaulted_move_initializers
+    Feature record: CXX_FEATURE:1cxx_delegating_constructors
+    Feature record: CXX_FEATURE:1cxx_deleted_functions
+    Feature record: CXX_FEATURE:1cxx_digit_separators
+    Feature record: CXX_FEATURE:1cxx_enum_forward_declarations
+    Feature record: CXX_FEATURE:1cxx_explicit_conversions
+    Feature record: CXX_FEATURE:1cxx_extended_friend_declarations
+    Feature record: CXX_FEATURE:1cxx_extern_templates
+    Feature record: CXX_FEATURE:1cxx_final
+    Feature record: CXX_FEATURE:1cxx_func_identifier
+    Feature record: CXX_FEATURE:1cxx_generalized_initializers
+    Feature record: CXX_FEATURE:1cxx_generic_lambdas
+    Feature record: CXX_FEATURE:1cxx_inheriting_constructors
+    Feature record: CXX_FEATURE:1cxx_inline_namespaces
+    Feature record: CXX_FEATURE:1cxx_lambdas
+    Feature record: CXX_FEATURE:1cxx_lambda_init_captures
+    Feature record: CXX_FEATURE:1cxx_local_type_template_args
+    Feature record: CXX_FEATURE:1cxx_long_long_type
+    Feature record: CXX_FEATURE:1cxx_noexcept
+    Feature record: CXX_FEATURE:1cxx_nonstatic_member_init
+    Feature record: CXX_FEATURE:1cxx_nullptr
+    Feature record: CXX_FEATURE:1cxx_override
+    Feature record: CXX_FEATURE:1cxx_range_for
+    Feature record: CXX_FEATURE:1cxx_raw_string_literals
+    Feature record: CXX_FEATURE:1cxx_reference_qualified_functions
+    Feature record: CXX_FEATURE:1cxx_relaxed_constexpr
+    Feature record: CXX_FEATURE:1cxx_return_type_deduction
+    Feature record: CXX_FEATURE:1cxx_right_angle_brackets
+    Feature record: CXX_FEATURE:1cxx_rvalue_references
+    Feature record: CXX_FEATURE:1cxx_sizeof_member
+    Feature record: CXX_FEATURE:1cxx_static_assert
+    Feature record: CXX_FEATURE:1cxx_strong_enums
+    Feature record: CXX_FEATURE:1cxx_template_template_parameters
+    Feature record: CXX_FEATURE:1cxx_thread_local
+    Feature record: CXX_FEATURE:1cxx_trailing_return_types
+    Feature record: CXX_FEATURE:1cxx_unicode_literals
+    Feature record: CXX_FEATURE:1cxx_uniform_initialization
+    Feature record: CXX_FEATURE:1cxx_unrestricted_unions
+    Feature record: CXX_FEATURE:1cxx_user_literals
+    Feature record: CXX_FEATURE:1cxx_variable_templates
+    Feature record: CXX_FEATURE:1cxx_variadic_macros
+    Feature record: CXX_FEATURE:1cxx_variadic_templates
+
+
+Detecting CXX [-std=c++11] compiler features compiled with the following output:
+Change Dir: /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/local/bin/gmake" "cmTC_60185/fast"
+/usr/local/bin/gmake -f CMakeFiles/cmTC_60185.dir/build.make CMakeFiles/cmTC_60185.dir/build
+gmake[1]: Entering directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_60185.dir/feature_tests.cxx.o
+/Library/Developer/CommandLineTools/usr/bin/clang++     -I/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/include -O3 -stdlib=libc++ -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9   -std=c++11 -o CMakeFiles/cmTC_60185.dir/feature_tests.cxx.o -c /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/feature_tests.cxx
+Linking CXX executable cmTC_60185
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_60185.dir/link.txt --verbose=1
+/Library/Developer/CommandLineTools/usr/bin/clang++   -I/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/include -O3 -stdlib=libc++ -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9 -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -L/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib  CMakeFiles/cmTC_60185.dir/feature_tests.cxx.o  -o cmTC_60185 
+gmake[1]: Leaving directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+
+
+    Feature record: CXX_FEATURE:0cxx_aggregate_default_initializers
+    Feature record: CXX_FEATURE:1cxx_alias_templates
+    Feature record: CXX_FEATURE:1cxx_alignas
+    Feature record: CXX_FEATURE:1cxx_alignof
+    Feature record: CXX_FEATURE:1cxx_attributes
+    Feature record: CXX_FEATURE:0cxx_attribute_deprecated
+    Feature record: CXX_FEATURE:1cxx_auto_type
+    Feature record: CXX_FEATURE:0cxx_binary_literals
+    Feature record: CXX_FEATURE:1cxx_constexpr
+    Feature record: CXX_FEATURE:0cxx_contextual_conversions
+    Feature record: CXX_FEATURE:1cxx_decltype
+    Feature record: CXX_FEATURE:0cxx_decltype_auto
+    Feature record: CXX_FEATURE:1cxx_decltype_incomplete_return_types
+    Feature record: CXX_FEATURE:1cxx_default_function_template_args
+    Feature record: CXX_FEATURE:1cxx_defaulted_functions
+    Feature record: CXX_FEATURE:1cxx_defaulted_move_initializers
+    Feature record: CXX_FEATURE:1cxx_delegating_constructors
+    Feature record: CXX_FEATURE:1cxx_deleted_functions
+    Feature record: CXX_FEATURE:0cxx_digit_separators
+    Feature record: CXX_FEATURE:1cxx_enum_forward_declarations
+    Feature record: CXX_FEATURE:1cxx_explicit_conversions
+    Feature record: CXX_FEATURE:1cxx_extended_friend_declarations
+    Feature record: CXX_FEATURE:1cxx_extern_templates
+    Feature record: CXX_FEATURE:1cxx_final
+    Feature record: CXX_FEATURE:1cxx_func_identifier
+    Feature record: CXX_FEATURE:1cxx_generalized_initializers
+    Feature record: CXX_FEATURE:0cxx_generic_lambdas
+    Feature record: CXX_FEATURE:1cxx_inheriting_constructors
+    Feature record: CXX_FEATURE:1cxx_inline_namespaces
+    Feature record: CXX_FEATURE:1cxx_lambdas
+    Feature record: CXX_FEATURE:0cxx_lambda_init_captures
+    Feature record: CXX_FEATURE:1cxx_local_type_template_args
+    Feature record: CXX_FEATURE:1cxx_long_long_type
+    Feature record: CXX_FEATURE:1cxx_noexcept
+    Feature record: CXX_FEATURE:1cxx_nonstatic_member_init
+    Feature record: CXX_FEATURE:1cxx_nullptr
+    Feature record: CXX_FEATURE:1cxx_override
+    Feature record: CXX_FEATURE:1cxx_range_for
+    Feature record: CXX_FEATURE:1cxx_raw_string_literals
+    Feature record: CXX_FEATURE:1cxx_reference_qualified_functions
+    Feature record: CXX_FEATURE:0cxx_relaxed_constexpr
+    Feature record: CXX_FEATURE:0cxx_return_type_deduction
+    Feature record: CXX_FEATURE:1cxx_right_angle_brackets
+    Feature record: CXX_FEATURE:1cxx_rvalue_references
+    Feature record: CXX_FEATURE:1cxx_sizeof_member
+    Feature record: CXX_FEATURE:1cxx_static_assert
+    Feature record: CXX_FEATURE:1cxx_strong_enums
+    Feature record: CXX_FEATURE:1cxx_template_template_parameters
+    Feature record: CXX_FEATURE:1cxx_thread_local
+    Feature record: CXX_FEATURE:1cxx_trailing_return_types
+    Feature record: CXX_FEATURE:1cxx_unicode_literals
+    Feature record: CXX_FEATURE:1cxx_uniform_initialization
+    Feature record: CXX_FEATURE:1cxx_unrestricted_unions
+    Feature record: CXX_FEATURE:1cxx_user_literals
+    Feature record: CXX_FEATURE:0cxx_variable_templates
+    Feature record: CXX_FEATURE:1cxx_variadic_macros
+    Feature record: CXX_FEATURE:1cxx_variadic_templates
+
+
+Detecting CXX [-std=c++98] compiler features compiled with the following output:
+Change Dir: /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/local/bin/gmake" "cmTC_7ccfb/fast"
+/usr/local/bin/gmake -f CMakeFiles/cmTC_7ccfb.dir/build.make CMakeFiles/cmTC_7ccfb.dir/build
+gmake[1]: Entering directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_7ccfb.dir/feature_tests.cxx.o
+/Library/Developer/CommandLineTools/usr/bin/clang++     -I/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/include -O3 -stdlib=libc++ -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9   -std=c++98 -o CMakeFiles/cmTC_7ccfb.dir/feature_tests.cxx.o -c /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/feature_tests.cxx
+Linking CXX executable cmTC_7ccfb
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_7ccfb.dir/link.txt --verbose=1
+/Library/Developer/CommandLineTools/usr/bin/clang++   -I/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/include -O3 -stdlib=libc++ -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9 -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -L/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib  CMakeFiles/cmTC_7ccfb.dir/feature_tests.cxx.o  -o cmTC_7ccfb 
+gmake[1]: Leaving directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+
+
+    Feature record: CXX_FEATURE:0cxx_aggregate_default_initializers
+    Feature record: CXX_FEATURE:0cxx_alias_templates
+    Feature record: CXX_FEATURE:0cxx_alignas
+    Feature record: CXX_FEATURE:0cxx_alignof
+    Feature record: CXX_FEATURE:0cxx_attributes
+    Feature record: CXX_FEATURE:0cxx_attribute_deprecated
+    Feature record: CXX_FEATURE:0cxx_auto_type
+    Feature record: CXX_FEATURE:0cxx_binary_literals
+    Feature record: CXX_FEATURE:0cxx_constexpr
+    Feature record: CXX_FEATURE:0cxx_contextual_conversions
+    Feature record: CXX_FEATURE:0cxx_decltype
+    Feature record: CXX_FEATURE:0cxx_decltype_auto
+    Feature record: CXX_FEATURE:0cxx_decltype_incomplete_return_types
+    Feature record: CXX_FEATURE:0cxx_default_function_template_args
+    Feature record: CXX_FEATURE:0cxx_defaulted_functions
+    Feature record: CXX_FEATURE:0cxx_defaulted_move_initializers
+    Feature record: CXX_FEATURE:0cxx_delegating_constructors
+    Feature record: CXX_FEATURE:0cxx_deleted_functions
+    Feature record: CXX_FEATURE:0cxx_digit_separators
+    Feature record: CXX_FEATURE:0cxx_enum_forward_declarations
+    Feature record: CXX_FEATURE:0cxx_explicit_conversions
+    Feature record: CXX_FEATURE:0cxx_extended_friend_declarations
+    Feature record: CXX_FEATURE:0cxx_extern_templates
+    Feature record: CXX_FEATURE:0cxx_final
+    Feature record: CXX_FEATURE:0cxx_func_identifier
+    Feature record: CXX_FEATURE:0cxx_generalized_initializers
+    Feature record: CXX_FEATURE:0cxx_generic_lambdas
+    Feature record: CXX_FEATURE:0cxx_inheriting_constructors
+    Feature record: CXX_FEATURE:0cxx_inline_namespaces
+    Feature record: CXX_FEATURE:0cxx_lambdas
+    Feature record: CXX_FEATURE:0cxx_lambda_init_captures
+    Feature record: CXX_FEATURE:0cxx_local_type_template_args
+    Feature record: CXX_FEATURE:0cxx_long_long_type
+    Feature record: CXX_FEATURE:0cxx_noexcept
+    Feature record: CXX_FEATURE:0cxx_nonstatic_member_init
+    Feature record: CXX_FEATURE:0cxx_nullptr
+    Feature record: CXX_FEATURE:0cxx_override
+    Feature record: CXX_FEATURE:0cxx_range_for
+    Feature record: CXX_FEATURE:0cxx_raw_string_literals
+    Feature record: CXX_FEATURE:0cxx_reference_qualified_functions
+    Feature record: CXX_FEATURE:0cxx_relaxed_constexpr
+    Feature record: CXX_FEATURE:0cxx_return_type_deduction
+    Feature record: CXX_FEATURE:0cxx_right_angle_brackets
+    Feature record: CXX_FEATURE:0cxx_rvalue_references
+    Feature record: CXX_FEATURE:0cxx_sizeof_member
+    Feature record: CXX_FEATURE:0cxx_static_assert
+    Feature record: CXX_FEATURE:0cxx_strong_enums
+    Feature record: CXX_FEATURE:1cxx_template_template_parameters
+    Feature record: CXX_FEATURE:0cxx_thread_local
+    Feature record: CXX_FEATURE:0cxx_trailing_return_types
+    Feature record: CXX_FEATURE:0cxx_unicode_literals
+    Feature record: CXX_FEATURE:0cxx_uniform_initialization
+    Feature record: CXX_FEATURE:0cxx_unrestricted_unions
+    Feature record: CXX_FEATURE:0cxx_user_literals
+    Feature record: CXX_FEATURE:0cxx_variable_templates
+    Feature record: CXX_FEATURE:0cxx_variadic_macros
+    Feature record: CXX_FEATURE:0cxx_variadic_templates
+Determining if the function backtrace exists passed with the following output:
+Change Dir: /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/local/bin/gmake" "cmTC_49763/fast"
+/usr/local/bin/gmake -f CMakeFiles/cmTC_49763.dir/build.make CMakeFiles/cmTC_49763.dir/build
+gmake[1]: Entering directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_49763.dir/CheckFunctionExists.c.o
+/Library/Developer/CommandLineTools/usr/bin/clang    -mmacosx-version-min=10.9   -DCHECK_FUNCTION_EXISTS=backtrace -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9   -o CMakeFiles/cmTC_49763.dir/CheckFunctionExists.c.o   -c /usr/local/share/cmake-3.5/Modules/CheckFunctionExists.c
+Linking C executable cmTC_49763
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_49763.dir/link.txt --verbose=1
+/Library/Developer/CommandLineTools/usr/bin/clang  -mmacosx-version-min=10.9   -DCHECK_FUNCTION_EXISTS=backtrace -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9 -Wl,-search_paths_first -Wl,-headerpad_max_install_names -L/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib   CMakeFiles/cmTC_49763.dir/CheckFunctionExists.c.o  -o cmTC_49763 
+gmake[1]: Leaving directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+
+
+Determining if the include file pthread.h exists passed with the following output:
+Change Dir: /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/local/bin/gmake" "cmTC_32213/fast"
+/usr/local/bin/gmake -f CMakeFiles/cmTC_32213.dir/build.make CMakeFiles/cmTC_32213.dir/build
+gmake[1]: Entering directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_32213.dir/CheckIncludeFile.c.o
+/Library/Developer/CommandLineTools/usr/bin/clang    -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9   -o CMakeFiles/cmTC_32213.dir/CheckIncludeFile.c.o   -c /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp/CheckIncludeFile.c
+Linking C executable cmTC_32213
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_32213.dir/link.txt --verbose=1
+/Library/Developer/CommandLineTools/usr/bin/clang  -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9 -Wl,-search_paths_first -Wl,-headerpad_max_install_names -L/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib   CMakeFiles/cmTC_32213.dir/CheckIncludeFile.c.o  -o cmTC_32213 
+gmake[1]: Leaving directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+
+
+Determining if the pthread_create exist passed with the following output:
+Change Dir: /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/local/bin/gmake" "cmTC_9d5a7/fast"
+/usr/local/bin/gmake -f CMakeFiles/cmTC_9d5a7.dir/build.make CMakeFiles/cmTC_9d5a7.dir/build
+gmake[1]: Entering directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_9d5a7.dir/CheckSymbolExists.c.o
+/Library/Developer/CommandLineTools/usr/bin/clang    -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9   -o CMakeFiles/cmTC_9d5a7.dir/CheckSymbolExists.c.o   -c /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_9d5a7
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_9d5a7.dir/link.txt --verbose=1
+/Library/Developer/CommandLineTools/usr/bin/clang  -mmacosx-version-min=10.9    -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -mmacosx-version-min=10.9 -Wl,-search_paths_first -Wl,-headerpad_max_install_names -L/Users/murkeert/workplace/KPL/amazon-kinesis-producer/third_party/lib   CMakeFiles/cmTC_9d5a7.dir/CheckSymbolExists.c.o  -o cmTC_9d5a7 
+gmake[1]: Leaving directory '/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp'
+
+File /Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+

@@ -1,0 +1,5 @@
+/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/edit_cache.dir
+/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/rebuild_cache.dir
+/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/tests.dir
+/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/test_driver.dir
+/Users/murkeert/workplace/KPL/amazon-kinesis-producer/CMakeFiles/kinesis_producer.dir
