@@ -30,12 +30,6 @@ class FileAgeManager implements Runnable {
 
     private static final Logger log = LoggerFactory.getLogger(FileAgeManager.class);
 
-    private static final FileAgeManager instance = new FileAgeManager();
-
-    static synchronized FileAgeManager instance() {
-        return instance;
-    }
-
     private final ScheduledExecutorService executorService;
 
     private final Set<File> watchedFiles;
@@ -70,5 +64,10 @@ class FileAgeManager implements Runnable {
                 }
             }
         }
+    }
+
+    public synchronized void close() throws InterruptedException {
+        this.executorService.shutdown();
+        this.executorService.awaitTermination(10, TimeUnit.MINUTES);
     }
 }

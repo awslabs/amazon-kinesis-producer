@@ -117,6 +117,7 @@ public class KinesisProducer implements IKinesisProducer {
                     r.run();
                 }
             });
+    private FileAgeManager fileAgeManager;
 
 
     private String pathToExecutable;
@@ -241,6 +242,7 @@ public class KinesisProducer implements IKinesisProducer {
      */
     public KinesisProducer(KinesisProducerConfiguration config) {
         this.config = config;
+        this.fileAgeManager = new FileAgeManager();
         
         String caDirectory = extractBinaries();
         
@@ -750,6 +752,13 @@ public class KinesisProducer implements IKinesisProducer {
      */
     @Override
     public void destroy() {
+        try {
+            fileAgeManager.close();
+        } catch (InterruptedException e) {
+            // even though we were interrupted, let's try to finish destroying the producer
+            Thread.interrupted();
+            log.warn("Interrupted while closing the FileAgeManager", e);
+        }
         destroyed = true;
         this.callbackCompletionExecutor.shutdownNow();
         child.destroy();
@@ -871,7 +880,7 @@ public class KinesisProducer implements IKinesisProducer {
                     String caDirectory = certificateExtractor
                             .extractCertificates(parent.getAbsoluteFile());
                     watchFiles.addAll(certificateExtractor.getExtractedCertificates());
-                    FileAgeManager.instance().registerFiles(watchFiles);
+                    fileAgeManager.registerFiles(watchFiles);
                     return caDirectory;
                 } catch (IOException ioex) {
                     log.error("Exception while extracting certificates.  Returning no CA directory", ioex);
@@ -902,7 +911,7 @@ public class KinesisProducer implements IKinesisProducer {
                             .extractCertificates(new File(pathToTmpDir).getAbsoluteFile());
                     watchFiles.addAll(certificateExtractor.getExtractedCertificates());
                     pathToLibDir = pathToTmpDir;
-                    FileAgeManager.instance().registerFiles(watchFiles);
+                    fileAgeManager.registerFiles(watchFiles);
                     return caDirectory;
                 } catch (Exception e) {
                     throw new RuntimeException("Could not copy native binaries to temp directory " + tmpDir, e);
