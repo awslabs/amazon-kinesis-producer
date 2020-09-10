@@ -90,15 +90,17 @@ public class KinesisProducer implements IKinesisProducer {
     private static final Object EXTRACT_BIN_MUTEX = new Object();
     
     private static final AtomicInteger callbackCompletionPoolNumber = new AtomicInteger(0);
+    private static final int callbackCompletionPoolSize = Runtime.getRuntime().availableProcessors() * 4;
     
     private final KinesisProducerConfiguration config;
     private final Map<String, String> env;
     private final AtomicLong messageNumber = new AtomicLong(1);
     private final Map<Long, SettableFuture<?>> futures = new ConcurrentHashMap<>();
-      
+
+    // Creating a fixed thread pool as we use unbounded queue.
     private final ExecutorService callbackCompletionExecutor = new ThreadPoolExecutor(
-            1,
-            Runtime.getRuntime().availableProcessors() * 4,
+            callbackCompletionPoolSize,
+            callbackCompletionPoolSize,
             5,
             TimeUnit.MINUTES,
             new LinkedBlockingQueue<Runnable>(),
