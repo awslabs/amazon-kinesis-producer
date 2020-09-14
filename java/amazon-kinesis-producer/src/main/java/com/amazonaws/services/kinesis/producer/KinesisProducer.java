@@ -245,6 +245,7 @@ public class KinesisProducer implements IKinesisProducer {
         String caDirectory = extractBinaries();
         // Override the CA cert path if provided by the user config
         if(!StringUtils.isEmpty(caPath)) {
+            log.info("Overrding the ca cert path to use as provided in the kpl config to be " + caPath);
             caDirectory = caPath;
         }
 
