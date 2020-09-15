@@ -218,6 +218,22 @@ public class KinesisProducerConfiguration {
         
         return config;
     }
+
+    /**
+     * Use a provided cacert path to use which should be a full path to the cert location. When provided KPL will use
+     * this path to find certs and if empty, KPL will use the internal default certs.
+     */
+    public KinesisProducerConfiguration setCaCertPath(String val) {
+        caCertPath = val;
+        return this;
+    }
+
+    /**
+     * Return the provided cacert path
+     */
+    public String getCaCertPath() {
+        return caCertPath;
+    }
     
     protected Configuration.Builder additionalConfigsToProtobuf(Configuration.Builder builder) {
         return builder.addAllAdditionalMetricDims(additionalDims);
@@ -275,6 +291,7 @@ public class KinesisProducerConfiguration {
     private boolean verifyCertificate = true;
     private ThreadingModel threadingModel = ThreadingModel.PER_REQUEST;
     private int threadPoolSize = 0;
+    private String caCertPath = "";
 
     /**
      * Enable aggregation. With aggregation, multiple user records are packed into a single
