@@ -241,15 +241,20 @@ public class KinesisProducer implements IKinesisProducer {
      */
     public KinesisProducer(KinesisProducerConfiguration config) {
         this.config = config;
-        
+        String caPath = config.getCaCertPath();
         String caDirectory = extractBinaries();
-        
+        // Override the CA cert path if provided by the user config
+        if(!StringUtils.isEmpty(caPath)) {
+            log.info("Overrding the ca cert path to use as provided in the kpl config to be " + caPath);
+            caDirectory = caPath;
+        }
+
         env = new ImmutableMap.Builder<String, String>()
                 .put("LD_LIBRARY_PATH", pathToLibDir)
                 .put("DYLD_LIBRARY_PATH", pathToLibDir)
                 .put("CA_DIR", caDirectory)
                 .build();
-        
+
         child = new Daemon(pathToExecutable, new MessageHandler(), pathToTmpDir, config, env);
     }
     
