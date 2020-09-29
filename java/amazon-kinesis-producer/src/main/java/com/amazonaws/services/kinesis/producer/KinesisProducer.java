@@ -16,18 +16,12 @@
 package com.amazonaws.services.kinesis.producer;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileLock;
 import java.nio.file.Paths;
-import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,9 +34,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.xml.bind.DatatypeConverter;
-
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
@@ -89,22 +80,24 @@ public class KinesisProducer implements IKinesisProducer {
     private static final BigInteger UINT_128_MAX = new BigInteger(StringUtils.repeat("FF", 16), 16);
     private static final Object EXTRACT_BIN_MUTEX = new Object();
     
-    private static final AtomicInteger callbackCompletionPoolNumber = new AtomicInteger(0);
+    private static final AtomicInteger CALLBACK_COMPLETION_POOL_NUMBER = new AtomicInteger(0);
+    private static final int CALLBACK_COMPLETION_POOL_SIZE = Runtime.getRuntime().availableProcessors() * 4;
     
     private final KinesisProducerConfiguration config;
     private final Map<String, String> env;
     private final AtomicLong messageNumber = new AtomicLong(1);
     private final Map<Long, SettableFuture<?>> futures = new ConcurrentHashMap<>();
-      
+
+    // Creating a fixed thread pool as we use unbounded queue.
     private final ExecutorService callbackCompletionExecutor = new ThreadPoolExecutor(
-            1,
-            Runtime.getRuntime().availableProcessors() * 4,
+            CALLBACK_COMPLETION_POOL_SIZE,
+            CALLBACK_COMPLETION_POOL_SIZE,
             5,
             TimeUnit.MINUTES,
             new LinkedBlockingQueue<Runnable>(),
             new ThreadFactoryBuilder()
                     .setDaemon(true)
-                    .setNameFormat("kpl-callback-pool-" + callbackCompletionPoolNumber.getAndIncrement() + "-thread-%d")
+                    .setNameFormat("kpl-callback-pool-" + CALLBACK_COMPLETION_POOL_NUMBER.getAndIncrement() + "-thread-%d")
                     .build(),
             new RejectedExecutionHandler() {
                 /**
