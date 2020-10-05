@@ -589,8 +589,8 @@ const char descriptor_table_protodef_messages_2eproto[] PROTOBUF_SECTION_VARIABL
   "ds\030\004 \002(\004\"/\n\016MetricsRequest\022\014\n\004name\030\001 \001(\t"
   "\022\017\n\007seconds\030\002 \001(\004\"@\n\017MetricsResponse\022-\n\007"
   "metrics\030\001 \003(\0132\034.aws.kinesis.protobuf.Met"
-  "ricB)\n\'com.amazonaws.kinesis.producer.pr"
-  "otobuf"
+  "ricB2\n0com.amazonaws.services.kinesis.pr"
+  "oducer.protobuf"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_messages_2eproto_deps[1] = {
   &::descriptor_table_config_2eproto,
@@ -615,7 +615,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_mes
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_messages_2eproto_once;
 static bool descriptor_table_messages_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_messages_2eproto = {
-  &descriptor_table_messages_2eproto_initialized, descriptor_table_protodef_messages_2eproto, "messages.proto", 1766,
+  &descriptor_table_messages_2eproto_initialized, descriptor_table_protodef_messages_2eproto, "messages.proto", 1775,
   &descriptor_table_messages_2eproto_once, descriptor_table_messages_2eproto_sccs, descriptor_table_messages_2eproto_deps, 15, 1,
   schemas, file_default_instances, TableStruct_messages_2eproto::offsets,
   file_level_metadata_messages_2eproto, 15, file_level_enum_descriptors_messages_2eproto, file_level_service_descriptors_messages_2eproto,

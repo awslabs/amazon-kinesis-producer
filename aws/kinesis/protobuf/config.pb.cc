@@ -121,40 +121,48 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_config_2eproto::offsets[] PROT
   PROTOBUF_FIELD_OFFSET(::aws::kinesis::protobuf::Configuration, region_),
   PROTOBUF_FIELD_OFFSET(::aws::kinesis::protobuf::Configuration, request_timeout_),
   PROTOBUF_FIELD_OFFSET(::aws::kinesis::protobuf::Configuration, verify_certificate_),
+  PROTOBUF_FIELD_OFFSET(::aws::kinesis::protobuf::Configuration, proxy_host_),
+  PROTOBUF_FIELD_OFFSET(::aws::kinesis::protobuf::Configuration, proxy_port_),
+  PROTOBUF_FIELD_OFFSET(::aws::kinesis::protobuf::Configuration, proxy_user_name_),
+  PROTOBUF_FIELD_OFFSET(::aws::kinesis::protobuf::Configuration, proxy_password_),
   PROTOBUF_FIELD_OFFSET(::aws::kinesis::protobuf::Configuration, thread_config_),
   PROTOBUF_FIELD_OFFSET(::aws::kinesis::protobuf::Configuration, thread_pool_size_),
   ~0u,
+  23,
+  13,
+  14,
+  0,
+  15,
+  16,
+  17,
   18,
   10,
   11,
-  0,
-  12,
-  13,
-  14,
-  15,
-  7,
-  8,
   1,
-  16,
+  19,
   2,
-  17,
+  20,
   3,
   4,
   5,
   21,
   22,
-  23,
-  24,
-  25,
-  6,
   26,
-  19,
+  27,
+  28,
+  6,
+  29,
+  24,
+  7,
+  30,
+  8,
   9,
-  20,
+  12,
+  25,
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, 8, sizeof(::aws::kinesis::protobuf::AdditionalDimension)},
-  { 11, 44, sizeof(::aws::kinesis::protobuf::Configuration)},
+  { 11, 48, sizeof(::aws::kinesis::protobuf::Configuration)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -165,7 +173,7 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 const char descriptor_table_protodef_config_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\014config.proto\022\024aws.kinesis.protobuf\"F\n\023"
   "AdditionalDimension\022\013\n\003key\030\001 \002(\t\022\r\n\005valu"
-  "e\030\002 \002(\t\022\023\n\013granularity\030\003 \002(\t\"\254\010\n\rConfigu"
+  "e\030\002 \002(\t\022\023\n\013granularity\030\003 \002(\t\"\220\t\n\rConfigu"
   "ration\022J\n\026additional_metric_dims\030\200\001 \003(\0132"
   ").aws.kinesis.protobuf.AdditionalDimensi"
   "on\022!\n\023aggregation_enabled\030\001 \001(\010:\004true\022)\n"
@@ -188,12 +196,15 @@ const char descriptor_table_protodef_config_2eproto[] PROTOBUF_SECTION_VARIABLE(
   "max_buffered_time\030\025 \001(\004:\003100\022\031\n\nrecord_t"
   "tl\030\026 \001(\004:\00530000\022\020\n\006region\030\027 \001(\t:\000\022\035\n\017req"
   "uest_timeout\030\030 \001(\004:\0046000\022 \n\022verify_certi"
-  "ficate\030\031 \001(\010:\004true\022T\n\rthread_config\030\032 \001("
-  "\01620.aws.kinesis.protobuf.Configuration.T"
-  "hreadConfig:\013PER_REQUEST\022\034\n\020thread_pool_"
-  "size\030\033 \001(\r:\00264\"+\n\014ThreadConfig\022\017\n\013PER_RE"
-  "QUEST\020\000\022\n\n\006POOLED\020\001B2\n0com.amazonaws.ser"
-  "vices.kinesis.producer.protobuf"
+  "ficate\030\031 \001(\010:\004true\022\024\n\nproxy_host\030\032 \001(\t:\000"
+  "\022\027\n\nproxy_port\030\033 \001(\004:\003443\022\031\n\017proxy_user_"
+  "name\030\034 \001(\t:\000\022\030\n\016proxy_password\030\035 \001(\t:\000\022T"
+  "\n\rthread_config\030\036 \001(\01620.aws.kinesis.prot"
+  "obuf.Configuration.ThreadConfig:\013PER_REQ"
+  "UEST\022\034\n\020thread_pool_size\030\037 \001(\r:\00264\"+\n\014Th"
+  "readConfig\022\017\n\013PER_REQUEST\020\000\022\n\n\006POOLED\020\001B"
+  "2\n0com.amazonaws.services.kinesis.produc"
+  "er.protobuf"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_config_2eproto_deps[1] = {
 };
@@ -204,7 +215,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_con
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_config_2eproto_once;
 static bool descriptor_table_config_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_config_2eproto = {
-  &descriptor_table_config_2eproto_initialized, descriptor_table_protodef_config_2eproto, "config.proto", 1231,
+  &descriptor_table_config_2eproto_initialized, descriptor_table_protodef_config_2eproto, "config.proto", 1331,
   &descriptor_table_config_2eproto_once, descriptor_table_config_2eproto_sccs, descriptor_table_config_2eproto_deps, 2, 0,
   schemas, file_default_instances, TableStruct_config_2eproto::offsets,
   file_level_metadata_config_2eproto, 2, file_level_enum_descriptors_config_2eproto, file_level_service_descriptors_config_2eproto,
@@ -582,46 +593,46 @@ class Configuration::_Internal {
  public:
   using HasBits = decltype(std::declval<Configuration>()._has_bits_);
   static void set_has_aggregation_enabled(HasBits* has_bits) {
-    (*has_bits)[0] |= 262144u;
+    (*has_bits)[0] |= 8388608u;
   }
   static void set_has_aggregation_max_count(HasBits* has_bits) {
-    (*has_bits)[0] |= 1024u;
+    (*has_bits)[0] |= 8192u;
   }
   static void set_has_aggregation_max_size(HasBits* has_bits) {
-    (*has_bits)[0] |= 2048u;
+    (*has_bits)[0] |= 16384u;
   }
   static void set_has_cloudwatch_endpoint(HasBits* has_bits) {
     (*has_bits)[0] |= 1u;
   }
   static void set_has_cloudwatch_port(HasBits* has_bits) {
-    (*has_bits)[0] |= 4096u;
-  }
-  static void set_has_collection_max_count(HasBits* has_bits) {
-    (*has_bits)[0] |= 8192u;
-  }
-  static void set_has_collection_max_size(HasBits* has_bits) {
-    (*has_bits)[0] |= 16384u;
-  }
-  static void set_has_connect_timeout(HasBits* has_bits) {
     (*has_bits)[0] |= 32768u;
   }
+  static void set_has_collection_max_count(HasBits* has_bits) {
+    (*has_bits)[0] |= 65536u;
+  }
+  static void set_has_collection_max_size(HasBits* has_bits) {
+    (*has_bits)[0] |= 131072u;
+  }
+  static void set_has_connect_timeout(HasBits* has_bits) {
+    (*has_bits)[0] |= 262144u;
+  }
   static void set_has_enable_core_dumps(HasBits* has_bits) {
-    (*has_bits)[0] |= 128u;
+    (*has_bits)[0] |= 1024u;
   }
   static void set_has_fail_if_throttled(HasBits* has_bits) {
-    (*has_bits)[0] |= 256u;
+    (*has_bits)[0] |= 2048u;
   }
   static void set_has_kinesis_endpoint(HasBits* has_bits) {
     (*has_bits)[0] |= 2u;
   }
   static void set_has_kinesis_port(HasBits* has_bits) {
-    (*has_bits)[0] |= 65536u;
+    (*has_bits)[0] |= 524288u;
   }
   static void set_has_log_level(HasBits* has_bits) {
     (*has_bits)[0] |= 4u;
   }
   static void set_has_max_connections(HasBits* has_bits) {
-    (*has_bits)[0] |= 131072u;
+    (*has_bits)[0] |= 1048576u;
   }
   static void set_has_metrics_granularity(HasBits* has_bits) {
     (*has_bits)[0] |= 8u;
@@ -639,28 +650,40 @@ class Configuration::_Internal {
     (*has_bits)[0] |= 4194304u;
   }
   static void set_has_rate_limit(HasBits* has_bits) {
-    (*has_bits)[0] |= 8388608u;
+    (*has_bits)[0] |= 67108864u;
   }
   static void set_has_record_max_buffered_time(HasBits* has_bits) {
-    (*has_bits)[0] |= 16777216u;
+    (*has_bits)[0] |= 134217728u;
   }
   static void set_has_record_ttl(HasBits* has_bits) {
-    (*has_bits)[0] |= 33554432u;
+    (*has_bits)[0] |= 268435456u;
   }
   static void set_has_region(HasBits* has_bits) {
     (*has_bits)[0] |= 64u;
   }
   static void set_has_request_timeout(HasBits* has_bits) {
-    (*has_bits)[0] |= 67108864u;
+    (*has_bits)[0] |= 536870912u;
   }
   static void set_has_verify_certificate(HasBits* has_bits) {
-    (*has_bits)[0] |= 524288u;
+    (*has_bits)[0] |= 16777216u;
   }
-  static void set_has_thread_config(HasBits* has_bits) {
+  static void set_has_proxy_host(HasBits* has_bits) {
+    (*has_bits)[0] |= 128u;
+  }
+  static void set_has_proxy_port(HasBits* has_bits) {
+    (*has_bits)[0] |= 1073741824u;
+  }
+  static void set_has_proxy_user_name(HasBits* has_bits) {
+    (*has_bits)[0] |= 256u;
+  }
+  static void set_has_proxy_password(HasBits* has_bits) {
     (*has_bits)[0] |= 512u;
   }
+  static void set_has_thread_config(HasBits* has_bits) {
+    (*has_bits)[0] |= 4096u;
+  }
   static void set_has_thread_pool_size(HasBits* has_bits) {
-    (*has_bits)[0] |= 1048576u;
+    (*has_bits)[0] |= 33554432u;
   }
 };
 
@@ -707,9 +730,21 @@ Configuration::Configuration(const Configuration& from)
   if (from._internal_has_region()) {
     region_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.region_);
   }
+  proxy_host_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (from._internal_has_proxy_host()) {
+    proxy_host_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.proxy_host_);
+  }
+  proxy_user_name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (from._internal_has_proxy_user_name()) {
+    proxy_user_name_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.proxy_user_name_);
+  }
+  proxy_password_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (from._internal_has_proxy_password()) {
+    proxy_password_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.proxy_password_);
+  }
   ::memcpy(&enable_core_dumps_, &from.enable_core_dumps_,
-    static_cast<size_t>(reinterpret_cast<char*>(&request_timeout_) -
-    reinterpret_cast<char*>(&enable_core_dumps_)) + sizeof(request_timeout_));
+    static_cast<size_t>(reinterpret_cast<char*>(&proxy_port_) -
+    reinterpret_cast<char*>(&enable_core_dumps_)) + sizeof(proxy_port_));
   // @@protoc_insertion_point(copy_constructor:aws.kinesis.protobuf.Configuration)
 }
 
@@ -722,6 +757,9 @@ void Configuration::SharedCtor() {
   metrics_level_.UnsafeSetDefault(&::aws::kinesis::protobuf::Configuration::_i_give_permission_to_break_this_code_default_metrics_level_.get());
   metrics_namespace_.UnsafeSetDefault(&::aws::kinesis::protobuf::Configuration::_i_give_permission_to_break_this_code_default_metrics_namespace_.get());
   region_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  proxy_host_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  proxy_user_name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  proxy_password_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   ::memset(&enable_core_dumps_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&thread_config_) -
       reinterpret_cast<char*>(&enable_core_dumps_)) + sizeof(thread_config_));
@@ -733,15 +771,16 @@ void Configuration::SharedCtor() {
   connect_timeout_ = PROTOBUF_ULONGLONG(6000);
   kinesis_port_ = PROTOBUF_ULONGLONG(443);
   max_connections_ = PROTOBUF_ULONGLONG(24);
+  metrics_upload_delay_ = PROTOBUF_ULONGLONG(60000);
+  min_connections_ = PROTOBUF_ULONGLONG(1);
   aggregation_enabled_ = true;
   verify_certificate_ = true;
   thread_pool_size_ = 64u;
-  metrics_upload_delay_ = PROTOBUF_ULONGLONG(60000);
-  min_connections_ = PROTOBUF_ULONGLONG(1);
   rate_limit_ = PROTOBUF_ULONGLONG(150);
   record_max_buffered_time_ = PROTOBUF_ULONGLONG(100);
   record_ttl_ = PROTOBUF_ULONGLONG(30000);
   request_timeout_ = PROTOBUF_ULONGLONG(6000);
+  proxy_port_ = PROTOBUF_ULONGLONG(443);
 }
 
 Configuration::~Configuration() {
@@ -757,6 +796,9 @@ void Configuration::SharedDtor() {
   metrics_level_.DestroyNoArena(&::aws::kinesis::protobuf::Configuration::_i_give_permission_to_break_this_code_default_metrics_level_.get());
   metrics_namespace_.DestroyNoArena(&::aws::kinesis::protobuf::Configuration::_i_give_permission_to_break_this_code_default_metrics_namespace_.get());
   region_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  proxy_host_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  proxy_user_name_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  proxy_password_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 void Configuration::SetCachedSize(int size) const {
@@ -776,7 +818,7 @@ void Configuration::Clear() {
 
   additional_metric_dims_.Clear();
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x0000007fu) {
+  if (cached_has_bits & 0x000000ffu) {
     if (cached_has_bits & 0x00000001u) {
       cloudwatch_endpoint_.ClearNonDefaultToEmptyNoArena();
     }
@@ -798,33 +840,44 @@ void Configuration::Clear() {
     if (cached_has_bits & 0x00000040u) {
       region_.ClearNonDefaultToEmptyNoArena();
     }
+    if (cached_has_bits & 0x00000080u) {
+      proxy_host_.ClearNonDefaultToEmptyNoArena();
+    }
   }
-  enable_core_dumps_ = false;
-  if (cached_has_bits & 0x0000ff00u) {
-    ::memset(&fail_if_throttled_, 0, static_cast<size_t>(
+  if (cached_has_bits & 0x00000300u) {
+    if (cached_has_bits & 0x00000100u) {
+      proxy_user_name_.ClearNonDefaultToEmptyNoArena();
+    }
+    if (cached_has_bits & 0x00000200u) {
+      proxy_password_.ClearNonDefaultToEmptyNoArena();
+    }
+  }
+  if (cached_has_bits & 0x0000fc00u) {
+    ::memset(&enable_core_dumps_, 0, static_cast<size_t>(
         reinterpret_cast<char*>(&thread_config_) -
-        reinterpret_cast<char*>(&fail_if_throttled_)) + sizeof(thread_config_));
+        reinterpret_cast<char*>(&enable_core_dumps_)) + sizeof(thread_config_));
     aggregation_max_count_ = PROTOBUF_ULONGLONG(4294967295);
     aggregation_max_size_ = PROTOBUF_ULONGLONG(51200);
     cloudwatch_port_ = PROTOBUF_ULONGLONG(443);
+  }
+  if (cached_has_bits & 0x00ff0000u) {
     collection_max_count_ = PROTOBUF_ULONGLONG(500);
     collection_max_size_ = PROTOBUF_ULONGLONG(5242880);
     connect_timeout_ = PROTOBUF_ULONGLONG(6000);
-  }
-  if (cached_has_bits & 0x00ff0000u) {
     kinesis_port_ = PROTOBUF_ULONGLONG(443);
     max_connections_ = PROTOBUF_ULONGLONG(24);
-    aggregation_enabled_ = true;
-    verify_certificate_ = true;
-    thread_pool_size_ = 64u;
     metrics_upload_delay_ = PROTOBUF_ULONGLONG(60000);
     min_connections_ = PROTOBUF_ULONGLONG(1);
-    rate_limit_ = PROTOBUF_ULONGLONG(150);
+    aggregation_enabled_ = true;
   }
-  if (cached_has_bits & 0x07000000u) {
+  if (cached_has_bits & 0x7f000000u) {
+    verify_certificate_ = true;
+    thread_pool_size_ = 64u;
+    rate_limit_ = PROTOBUF_ULONGLONG(150);
     record_max_buffered_time_ = PROTOBUF_ULONGLONG(100);
     record_ttl_ = PROTOBUF_ULONGLONG(30000);
     request_timeout_ = PROTOBUF_ULONGLONG(6000);
+    proxy_port_ = PROTOBUF_ULONGLONG(443);
   }
   _has_bits_.Clear();
   _internal_metadata_.Clear();
@@ -1059,21 +1112,62 @@ const char* Configuration::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];
+      // optional string proxy_host = 26 [default = ""];
       case 26:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 208)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 210)) {
+          auto str = _internal_mutable_proxy_host();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          #ifndef NDEBUG
+          ::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "aws.kinesis.protobuf.Configuration.proxy_host");
+          #endif  // !NDEBUG
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // optional uint64 proxy_port = 27 [default = 443];
+      case 27:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 216)) {
+          _Internal::set_has_proxy_port(&has_bits);
+          proxy_port_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // optional string proxy_user_name = 28 [default = ""];
+      case 28:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 226)) {
+          auto str = _internal_mutable_proxy_user_name();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          #ifndef NDEBUG
+          ::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "aws.kinesis.protobuf.Configuration.proxy_user_name");
+          #endif  // !NDEBUG
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // optional string proxy_password = 29 [default = ""];
+      case 29:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 234)) {
+          auto str = _internal_mutable_proxy_password();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          #ifndef NDEBUG
+          ::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "aws.kinesis.protobuf.Configuration.proxy_password");
+          #endif  // !NDEBUG
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 30 [default = PER_REQUEST];
+      case 30:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 240)) {
           ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
           CHK_(ptr);
           if (PROTOBUF_PREDICT_TRUE(::aws::kinesis::protobuf::Configuration_ThreadConfig_IsValid(val))) {
             _internal_set_thread_config(static_cast<::aws::kinesis::protobuf::Configuration_ThreadConfig>(val));
           } else {
-            ::PROTOBUF_NAMESPACE_ID::internal::WriteVarint(26, val, mutable_unknown_fields());
+            ::PROTOBUF_NAMESPACE_ID::internal::WriteVarint(30, val, mutable_unknown_fields());
           }
         } else goto handle_unusual;
         continue;
-      // optional uint32 thread_pool_size = 27 [default = 64];
-      case 27:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 216)) {
+      // optional uint32 thread_pool_size = 31 [default = 64];
+      case 31:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 248)) {
           _Internal::set_has_thread_pool_size(&has_bits);
           thread_pool_size_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
           CHK_(ptr);
@@ -1120,19 +1214,19 @@ failure:
 
   cached_has_bits = _has_bits_[0];
   // optional bool aggregation_enabled = 1 [default = true];
-  if (cached_has_bits & 0x00040000u) {
+  if (cached_has_bits & 0x00800000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(1, this->_internal_aggregation_enabled(), target);
   }
 
   // optional uint64 aggregation_max_count = 2 [default = 4294967295];
-  if (cached_has_bits & 0x00000400u) {
+  if (cached_has_bits & 0x00002000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(2, this->_internal_aggregation_max_count(), target);
   }
 
   // optional uint64 aggregation_max_size = 3 [default = 51200];
-  if (cached_has_bits & 0x00000800u) {
+  if (cached_has_bits & 0x00004000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(3, this->_internal_aggregation_max_size(), target);
   }
@@ -1148,37 +1242,37 @@ failure:
   }
 
   // optional uint64 cloudwatch_port = 5 [default = 443];
-  if (cached_has_bits & 0x00001000u) {
+  if (cached_has_bits & 0x00008000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(5, this->_internal_cloudwatch_port(), target);
   }
 
   // optional uint64 collection_max_count = 6 [default = 500];
-  if (cached_has_bits & 0x00002000u) {
+  if (cached_has_bits & 0x00010000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(6, this->_internal_collection_max_count(), target);
   }
 
   // optional uint64 collection_max_size = 7 [default = 5242880];
-  if (cached_has_bits & 0x00004000u) {
+  if (cached_has_bits & 0x00020000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(7, this->_internal_collection_max_size(), target);
   }
 
   // optional uint64 connect_timeout = 8 [default = 6000];
-  if (cached_has_bits & 0x00008000u) {
+  if (cached_has_bits & 0x00040000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(8, this->_internal_connect_timeout(), target);
   }
 
   // optional bool enable_core_dumps = 9 [default = false];
-  if (cached_has_bits & 0x00000080u) {
+  if (cached_has_bits & 0x00000400u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(9, this->_internal_enable_core_dumps(), target);
   }
 
   // optional bool fail_if_throttled = 10 [default = false];
-  if (cached_has_bits & 0x00000100u) {
+  if (cached_has_bits & 0x00000800u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(10, this->_internal_fail_if_throttled(), target);
   }
@@ -1194,7 +1288,7 @@ failure:
   }
 
   // optional uint64 kinesis_port = 12 [default = 443];
-  if (cached_has_bits & 0x00010000u) {
+  if (cached_has_bits & 0x00080000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(12, this->_internal_kinesis_port(), target);
   }
@@ -1210,7 +1304,7 @@ failure:
   }
 
   // optional uint64 max_connections = 14 [default = 24];
-  if (cached_has_bits & 0x00020000u) {
+  if (cached_has_bits & 0x00100000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(14, this->_internal_max_connections(), target);
   }
@@ -1258,19 +1352,19 @@ failure:
   }
 
   // optional uint64 rate_limit = 20 [default = 150];
-  if (cached_has_bits & 0x00800000u) {
+  if (cached_has_bits & 0x04000000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(20, this->_internal_rate_limit(), target);
   }
 
   // optional uint64 record_max_buffered_time = 21 [default = 100];
-  if (cached_has_bits & 0x01000000u) {
+  if (cached_has_bits & 0x08000000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(21, this->_internal_record_max_buffered_time(), target);
   }
 
   // optional uint64 record_ttl = 22 [default = 30000];
-  if (cached_has_bits & 0x02000000u) {
+  if (cached_has_bits & 0x10000000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(22, this->_internal_record_ttl(), target);
   }
@@ -1286,28 +1380,64 @@ failure:
   }
 
   // optional uint64 request_timeout = 24 [default = 6000];
-  if (cached_has_bits & 0x04000000u) {
+  if (cached_has_bits & 0x20000000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(24, this->_internal_request_timeout(), target);
   }
 
   // optional bool verify_certificate = 25 [default = true];
-  if (cached_has_bits & 0x00080000u) {
+  if (cached_has_bits & 0x01000000u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(25, this->_internal_verify_certificate(), target);
   }
 
-  // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];
-  if (cached_has_bits & 0x00000200u) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
-      26, this->_internal_thread_config(), target);
+  // optional string proxy_host = 26 [default = ""];
+  if (cached_has_bits & 0x00000080u) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->_internal_proxy_host().data(), static_cast<int>(this->_internal_proxy_host().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
+      "aws.kinesis.protobuf.Configuration.proxy_host");
+    target = stream->WriteStringMaybeAliased(
+        26, this->_internal_proxy_host(), target);
   }
 
-  // optional uint32 thread_pool_size = 27 [default = 64];
-  if (cached_has_bits & 0x00100000u) {
+  // optional uint64 proxy_port = 27 [default = 443];
+  if (cached_has_bits & 0x40000000u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(27, this->_internal_thread_pool_size(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt64ToArray(27, this->_internal_proxy_port(), target);
+  }
+
+  // optional string proxy_user_name = 28 [default = ""];
+  if (cached_has_bits & 0x00000100u) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->_internal_proxy_user_name().data(), static_cast<int>(this->_internal_proxy_user_name().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
+      "aws.kinesis.protobuf.Configuration.proxy_user_name");
+    target = stream->WriteStringMaybeAliased(
+        28, this->_internal_proxy_user_name(), target);
+  }
+
+  // optional string proxy_password = 29 [default = ""];
+  if (cached_has_bits & 0x00000200u) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->_internal_proxy_password().data(), static_cast<int>(this->_internal_proxy_password().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
+      "aws.kinesis.protobuf.Configuration.proxy_password");
+    target = stream->WriteStringMaybeAliased(
+        29, this->_internal_proxy_password(), target);
+  }
+
+  // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 30 [default = PER_REQUEST];
+  if (cached_has_bits & 0x00001000u) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
+      30, this->_internal_thread_config(), target);
+  }
+
+  // optional uint32 thread_pool_size = 31 [default = 64];
+  if (cached_has_bits & 0x02000000u) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(31, this->_internal_thread_pool_size(), target);
   }
 
   // repeated .aws.kinesis.protobuf.AdditionalDimension additional_metric_dims = 128;
@@ -1392,97 +1522,101 @@ size_t Configuration::ByteSizeLong() const {
           this->_internal_region());
     }
 
-    // optional bool enable_core_dumps = 9 [default = false];
+    // optional string proxy_host = 26 [default = ""];
     if (cached_has_bits & 0x00000080u) {
-      total_size += 1 + 1;
+      total_size += 2 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+          this->_internal_proxy_host());
     }
 
   }
   if (cached_has_bits & 0x0000ff00u) {
-    // optional bool fail_if_throttled = 10 [default = false];
+    // optional string proxy_user_name = 28 [default = ""];
     if (cached_has_bits & 0x00000100u) {
+      total_size += 2 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+          this->_internal_proxy_user_name());
+    }
+
+    // optional string proxy_password = 29 [default = ""];
+    if (cached_has_bits & 0x00000200u) {
+      total_size += 2 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+          this->_internal_proxy_password());
+    }
+
+    // optional bool enable_core_dumps = 9 [default = false];
+    if (cached_has_bits & 0x00000400u) {
       total_size += 1 + 1;
     }
 
-    // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];
-    if (cached_has_bits & 0x00000200u) {
+    // optional bool fail_if_throttled = 10 [default = false];
+    if (cached_has_bits & 0x00000800u) {
+      total_size += 1 + 1;
+    }
+
+    // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 30 [default = PER_REQUEST];
+    if (cached_has_bits & 0x00001000u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_thread_config());
     }
 
     // optional uint64 aggregation_max_count = 2 [default = 4294967295];
-    if (cached_has_bits & 0x00000400u) {
+    if (cached_has_bits & 0x00002000u) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
           this->_internal_aggregation_max_count());
     }
 
     // optional uint64 aggregation_max_size = 3 [default = 51200];
-    if (cached_has_bits & 0x00000800u) {
+    if (cached_has_bits & 0x00004000u) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
           this->_internal_aggregation_max_size());
     }
 
     // optional uint64 cloudwatch_port = 5 [default = 443];
-    if (cached_has_bits & 0x00001000u) {
+    if (cached_has_bits & 0x00008000u) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
           this->_internal_cloudwatch_port());
     }
 
+  }
+  if (cached_has_bits & 0x00ff0000u) {
     // optional uint64 collection_max_count = 6 [default = 500];
-    if (cached_has_bits & 0x00002000u) {
+    if (cached_has_bits & 0x00010000u) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
           this->_internal_collection_max_count());
     }
 
     // optional uint64 collection_max_size = 7 [default = 5242880];
-    if (cached_has_bits & 0x00004000u) {
+    if (cached_has_bits & 0x00020000u) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
           this->_internal_collection_max_size());
     }
 
     // optional uint64 connect_timeout = 8 [default = 6000];
-    if (cached_has_bits & 0x00008000u) {
+    if (cached_has_bits & 0x00040000u) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
           this->_internal_connect_timeout());
     }
 
-  }
-  if (cached_has_bits & 0x00ff0000u) {
     // optional uint64 kinesis_port = 12 [default = 443];
-    if (cached_has_bits & 0x00010000u) {
+    if (cached_has_bits & 0x00080000u) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
           this->_internal_kinesis_port());
     }
 
     // optional uint64 max_connections = 14 [default = 24];
-    if (cached_has_bits & 0x00020000u) {
+    if (cached_has_bits & 0x00100000u) {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
           this->_internal_max_connections());
-    }
-
-    // optional bool aggregation_enabled = 1 [default = true];
-    if (cached_has_bits & 0x00040000u) {
-      total_size += 1 + 1;
-    }
-
-    // optional bool verify_certificate = 25 [default = true];
-    if (cached_has_bits & 0x00080000u) {
-      total_size += 2 + 1;
-    }
-
-    // optional uint32 thread_pool_size = 27 [default = 64];
-    if (cached_has_bits & 0x00100000u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
-          this->_internal_thread_pool_size());
     }
 
     // optional uint64 metrics_upload_delay = 18 [default = 60000];
@@ -1499,34 +1633,58 @@ size_t Configuration::ByteSizeLong() const {
           this->_internal_min_connections());
     }
 
-    // optional uint64 rate_limit = 20 [default = 150];
+    // optional bool aggregation_enabled = 1 [default = true];
     if (cached_has_bits & 0x00800000u) {
+      total_size += 1 + 1;
+    }
+
+  }
+  if (cached_has_bits & 0x7f000000u) {
+    // optional bool verify_certificate = 25 [default = true];
+    if (cached_has_bits & 0x01000000u) {
+      total_size += 2 + 1;
+    }
+
+    // optional uint32 thread_pool_size = 31 [default = 64];
+    if (cached_has_bits & 0x02000000u) {
+      total_size += 2 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32Size(
+          this->_internal_thread_pool_size());
+    }
+
+    // optional uint64 rate_limit = 20 [default = 150];
+    if (cached_has_bits & 0x04000000u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
           this->_internal_rate_limit());
     }
 
-  }
-  if (cached_has_bits & 0x07000000u) {
     // optional uint64 record_max_buffered_time = 21 [default = 100];
-    if (cached_has_bits & 0x01000000u) {
+    if (cached_has_bits & 0x08000000u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
           this->_internal_record_max_buffered_time());
     }
 
     // optional uint64 record_ttl = 22 [default = 30000];
-    if (cached_has_bits & 0x02000000u) {
+    if (cached_has_bits & 0x10000000u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
           this->_internal_record_ttl());
     }
 
     // optional uint64 request_timeout = 24 [default = 6000];
-    if (cached_has_bits & 0x04000000u) {
+    if (cached_has_bits & 0x20000000u) {
       total_size += 2 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
           this->_internal_request_timeout());
+    }
+
+    // optional uint64 proxy_port = 27 [default = 443];
+    if (cached_has_bits & 0x40000000u) {
+      total_size += 2 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt64Size(
+          this->_internal_proxy_port());
     }
 
   }
@@ -1593,52 +1751,54 @@ void Configuration::MergeFrom(const Configuration& from) {
       region_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.region_);
     }
     if (cached_has_bits & 0x00000080u) {
-      enable_core_dumps_ = from.enable_core_dumps_;
+      _has_bits_[0] |= 0x00000080u;
+      proxy_host_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.proxy_host_);
     }
-    _has_bits_[0] |= cached_has_bits;
   }
   if (cached_has_bits & 0x0000ff00u) {
     if (cached_has_bits & 0x00000100u) {
-      fail_if_throttled_ = from.fail_if_throttled_;
+      _has_bits_[0] |= 0x00000100u;
+      proxy_user_name_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.proxy_user_name_);
     }
     if (cached_has_bits & 0x00000200u) {
-      thread_config_ = from.thread_config_;
+      _has_bits_[0] |= 0x00000200u;
+      proxy_password_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.proxy_password_);
     }
     if (cached_has_bits & 0x00000400u) {
-      aggregation_max_count_ = from.aggregation_max_count_;
+      enable_core_dumps_ = from.enable_core_dumps_;
     }
     if (cached_has_bits & 0x00000800u) {
-      aggregation_max_size_ = from.aggregation_max_size_;
+      fail_if_throttled_ = from.fail_if_throttled_;
     }
     if (cached_has_bits & 0x00001000u) {
-      cloudwatch_port_ = from.cloudwatch_port_;
+      thread_config_ = from.thread_config_;
     }
     if (cached_has_bits & 0x00002000u) {
-      collection_max_count_ = from.collection_max_count_;
+      aggregation_max_count_ = from.aggregation_max_count_;
     }
     if (cached_has_bits & 0x00004000u) {
-      collection_max_size_ = from.collection_max_size_;
+      aggregation_max_size_ = from.aggregation_max_size_;
     }
     if (cached_has_bits & 0x00008000u) {
-      connect_timeout_ = from.connect_timeout_;
+      cloudwatch_port_ = from.cloudwatch_port_;
     }
     _has_bits_[0] |= cached_has_bits;
   }
   if (cached_has_bits & 0x00ff0000u) {
     if (cached_has_bits & 0x00010000u) {
-      kinesis_port_ = from.kinesis_port_;
+      collection_max_count_ = from.collection_max_count_;
     }
     if (cached_has_bits & 0x00020000u) {
-      max_connections_ = from.max_connections_;
+      collection_max_size_ = from.collection_max_size_;
     }
     if (cached_has_bits & 0x00040000u) {
-      aggregation_enabled_ = from.aggregation_enabled_;
+      connect_timeout_ = from.connect_timeout_;
     }
     if (cached_has_bits & 0x00080000u) {
-      verify_certificate_ = from.verify_certificate_;
+      kinesis_port_ = from.kinesis_port_;
     }
     if (cached_has_bits & 0x00100000u) {
-      thread_pool_size_ = from.thread_pool_size_;
+      max_connections_ = from.max_connections_;
     }
     if (cached_has_bits & 0x00200000u) {
       metrics_upload_delay_ = from.metrics_upload_delay_;
@@ -1647,19 +1807,31 @@ void Configuration::MergeFrom(const Configuration& from) {
       min_connections_ = from.min_connections_;
     }
     if (cached_has_bits & 0x00800000u) {
-      rate_limit_ = from.rate_limit_;
+      aggregation_enabled_ = from.aggregation_enabled_;
     }
     _has_bits_[0] |= cached_has_bits;
   }
-  if (cached_has_bits & 0x07000000u) {
+  if (cached_has_bits & 0x7f000000u) {
     if (cached_has_bits & 0x01000000u) {
-      record_max_buffered_time_ = from.record_max_buffered_time_;
+      verify_certificate_ = from.verify_certificate_;
     }
     if (cached_has_bits & 0x02000000u) {
-      record_ttl_ = from.record_ttl_;
+      thread_pool_size_ = from.thread_pool_size_;
     }
     if (cached_has_bits & 0x04000000u) {
+      rate_limit_ = from.rate_limit_;
+    }
+    if (cached_has_bits & 0x08000000u) {
+      record_max_buffered_time_ = from.record_max_buffered_time_;
+    }
+    if (cached_has_bits & 0x10000000u) {
+      record_ttl_ = from.record_ttl_;
+    }
+    if (cached_has_bits & 0x20000000u) {
       request_timeout_ = from.request_timeout_;
+    }
+    if (cached_has_bits & 0x40000000u) {
+      proxy_port_ = from.proxy_port_;
     }
     _has_bits_[0] |= cached_has_bits;
   }
@@ -1703,6 +1875,12 @@ void Configuration::InternalSwap(Configuration* other) {
     GetArenaNoVirtual());
   region_.Swap(&other->region_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
     GetArenaNoVirtual());
+  proxy_host_.Swap(&other->proxy_host_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  proxy_user_name_.Swap(&other->proxy_user_name_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  proxy_password_.Swap(&other->proxy_password_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
   swap(enable_core_dumps_, other->enable_core_dumps_);
   swap(fail_if_throttled_, other->fail_if_throttled_);
   swap(thread_config_, other->thread_config_);
@@ -1714,15 +1892,16 @@ void Configuration::InternalSwap(Configuration* other) {
   swap(connect_timeout_, other->connect_timeout_);
   swap(kinesis_port_, other->kinesis_port_);
   swap(max_connections_, other->max_connections_);
+  swap(metrics_upload_delay_, other->metrics_upload_delay_);
+  swap(min_connections_, other->min_connections_);
   swap(aggregation_enabled_, other->aggregation_enabled_);
   swap(verify_certificate_, other->verify_certificate_);
   swap(thread_pool_size_, other->thread_pool_size_);
-  swap(metrics_upload_delay_, other->metrics_upload_delay_);
-  swap(min_connections_, other->min_connections_);
   swap(rate_limit_, other->rate_limit_);
   swap(record_max_buffered_time_, other->record_max_buffered_time_);
   swap(record_ttl_, other->record_ttl_);
   swap(request_timeout_, other->request_timeout_);
+  swap(proxy_port_, other->proxy_port_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Configuration::GetMetadata() const {

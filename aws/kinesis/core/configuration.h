@@ -392,6 +392,36 @@ class Configuration : private boost::noncopyable {
     return verify_certificate_;
   }
 
+  /// If you have users going through a proxy, get the host here.
+  ///
+  /// Default: ""
+  const std::string& proxy_host() const noexcept {
+      return proxy_host_;
+  }
+
+  /// If you have users going through a proxy, get the port here.
+  ///
+  // Default: 443
+  // Minimum: 1
+  // Maximum (inclusive): 65535
+  size_t proxy_port() const noexcept {
+      return proxy_port_;
+  }
+
+  /// If you have users going through a proxy, get the user name here.
+  ///
+  /// Default: ""
+  const std::string& proxy_user_name() const noexcept {
+      return proxy_user_name_;
+  }
+
+  /// If you have users going through a proxy, get the password here.
+  ///
+  /// Default: ""
+  const std::string& proxy_password() const noexcept {
+      return proxy_password_;
+  }
+
   /// Indicates whether the SDK clients should use a thread pool or not
   /// \return true if the client should use a thread pool, false otherwise
   bool use_thread_pool() const noexcept {
@@ -939,6 +969,46 @@ class Configuration : private boost::noncopyable {
     return *this;
   }
 
+  /// If you have users going through a proxy, set the host here.
+  ///
+  /// Default: ""
+  Configuration& proxy_host(std::string val) {
+      proxy_host_ = val;
+      return *this;
+  }
+
+  /// If you have users going through a proxy, set the port here.
+  ///
+  /// Default: 443
+  // Minimum: 1
+  // Maximum (inclusive): 65535
+  Configuration& proxy_port(size_t val) {
+    if (val < 1ull || val > 65535ull) {
+      std::string err;
+      err += "proxy_port must be between 1 and 65535, got ";
+      err += std::to_string(val);
+      throw std::runtime_error(err);
+    }
+      proxy_port_ = val;
+      return *this;
+  }
+
+  /// If you have users going through a proxy, set the user name here.
+  ///
+  /// Default: ""
+  Configuration& proxy_user_name(std::string val) {
+      proxy_user_name_ = val;
+      return *this;
+  }
+
+  /// If you have users going through a proxy, set the password here.
+  ///
+  /// Default: ""
+  Configuration& proxy_password(std::string val) {
+      proxy_password_ = val;
+      return *this;
+  }
+
   /// Enables or disable the use of a thread pool for the SDK Client.
   /// Default: false
   /// \param val whether or not to use a thread pool
@@ -1004,6 +1074,10 @@ class Configuration : private boost::noncopyable {
     region(c.region());
     request_timeout(c.request_timeout());
     verify_certificate(c.verify_certificate());
+    proxy_host(c.proxy_host());
+    proxy_port(c.proxy_port());
+    proxy_user_name(c.proxy_user_name());
+    proxy_password(c.proxy_password());
     if (c.thread_config() == ::aws::kinesis::protobuf::Configuration_ThreadConfig::Configuration_ThreadConfig_POOLED) {
       use_thread_pool(true);
       thread_pool_size(c.thread_pool_size());
@@ -1045,6 +1119,10 @@ class Configuration : private boost::noncopyable {
   std::string region_ = "";
   uint64_t request_timeout_ = 6000;
   bool verify_certificate_ = true;
+  std::string proxy_host_ = "";
+  size_t proxy_port_ = 443;
+  std::string proxy_user_name_ = "";
+  std::string proxy_password_ = "";
 
   bool use_thread_pool_ = true;
   uint32_t thread_pool_size_ = 64;
