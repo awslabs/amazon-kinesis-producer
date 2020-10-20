@@ -16,6 +16,7 @@
 package com.amazonaws.services.kinesis.producer;
 
 import static com.confluex.mock.http.matchers.HttpMatchers.anyRequest;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -31,6 +32,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.amazonaws.services.schemaregistry.common.Schema;
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -45,6 +47,7 @@ import com.amazonaws.internal.StaticCredentialsProvider;
 import com.confluex.mock.http.ClientRequest;
 import com.confluex.mock.http.MockHttpsServer;
 import com.google.common.collect.ImmutableList;
+import software.amazon.awssdk.services.glue.model.DataFormat;
 
 public class KinesisProducerTest {
     private static final Logger log = LoggerFactory.getLogger(KinesisProducerTest.class);
@@ -200,7 +203,27 @@ public class KinesisProducerTest {
             kps[i].destroy();
         }
     }
- 
+
+    @Test
+    public void schemaIntegration_OnInvalidSchema_ThrowsException() {
+        KinesisProducer kinesisProducer = getProducer(null, null);
+        String stream = "testStream";
+        String partitionKey = "partitionKey";
+        String hashKey = null;
+        ByteBuffer data = ByteBuffer.wrap(new byte[] {01, 23, 54});
+        String schemaDefinition = null;
+        Schema schema = new Schema(schemaDefinition, DataFormat.AVRO.toString(), "testSchema");
+        UserRecord userRecord = new UserRecord(stream, partitionKey, hashKey, data, schema);
+
+        try {
+            kinesisProducer.addUserRecord(userRecord);
+            fail("Failed to throw IllegalArgumentException");
+        } catch (Exception e) {
+            assertEquals(IllegalArgumentException.class, e.getClass());
+            assertTrue(e.getMessage().contains("Schema specification is not valid. SchemaDefinition or DataFormat cannot be null."));
+        }
+    }
+
     private KinesisProducer getProducer(AWSCredentialsProvider provider, AWSCredentialsProvider metrics_creds_provider) {
         final KinesisProducerConfiguration cfg = new KinesisProducerConfiguration()
                 .setKinesisEndpoint("localhost")
