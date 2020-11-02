@@ -199,7 +199,6 @@ bool Retrier::succeed_if_correct_shard(const std::shared_ptr<UserRecord>& ur,
       *ur->predicted_shard() != actual_shard) {
     //We should call invalidate only if:
     // 1. If we are told to invalidate on incorrect shard.
-    // 2. The actual destination shard is newer than the predicted shard.
     if (should_invalidate_on_incorrect_shard) {
       LOG(warning) << "Record went to shard " << shard_id << " instead of the "
                    << "predicted shard " << *ur->predicted_shard() << "; this "
