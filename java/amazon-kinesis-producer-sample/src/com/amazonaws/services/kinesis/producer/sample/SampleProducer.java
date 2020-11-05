@@ -147,6 +147,7 @@ public class SampleProducer {
                 log.info(String.format(
                         "Put %d of %d so far (%.2f %%), %d have completed (%.2f %%)",
                         put, total, putPercent, done, donePercent));
+                log.info("Oldest future as of now is " + producer.getOldestFutureTimeFromNow());
             }
         }, 1, 1, TimeUnit.SECONDS);
         
