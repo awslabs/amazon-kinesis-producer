@@ -1,9 +1,4 @@
 ## Changelog
-### 0.14.2
-* [PR #307] Dependency Upgrade
-  * Upgrade Guava to 26.0-jre
-  * Update BOOST C++ Libraries link as cert expired on the older link
-* [PR #312] Adding new parameter in KPL config to allow cert path to be overridden.
 
 ### 0.14.1
 * [PR #302] Dependency Upgrade
