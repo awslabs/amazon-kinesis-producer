@@ -150,7 +150,7 @@ public class KinesisProducer implements IKinesisProducer {
                     } else if (m.hasMetricsResponse()) {
                         onMetricsResponse(m);
                     } else {
-                        // clear the future here as well since the native core has exhausted is retries.
+                        // clear the future here as well since the native core has exhausted its retries.
                         getFuture(m);
                         log.error(String.format("Unexpected message type with case %s from child process with message"
                                 + " id %s. Removing the submitted future from processing queue.",
@@ -580,7 +580,7 @@ public class KinesisProducer implements IKinesisProducer {
     /**
      * Get the time in seconds for the oldest record currently waiting in kpl to be processed for sending to kinesis
      * endpoint. The records could either be waiting to be sent to the child process, or have
-     * reached the child process and are being worked on. T
+     * reached the child process and are being worked on.
      *
      * <p>
      * This is time in seconds from the oldest future submitted from {@link #addUserRecord}

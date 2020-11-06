@@ -1,5 +1,4 @@
 ## Changelog
-
 ### 0.14.1
 * [PR #302] Dependency Upgrade
   * upgrade org.hibernate.validator:hibernate-validator 6.0.2.Final -> 6.0.18.Final
