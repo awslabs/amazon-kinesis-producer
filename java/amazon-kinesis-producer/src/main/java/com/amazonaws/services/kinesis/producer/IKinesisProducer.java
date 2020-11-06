@@ -15,6 +15,8 @@ public interface IKinesisProducer {
 
     int getOutstandingRecordsCount();
 
+    long getOldestFutureTimeFromNow();
+
     List<Metric> getMetrics(String metricName, int windowSeconds) throws InterruptedException, ExecutionException;
 
     List<Metric> getMetrics(String metricName) throws InterruptedException, ExecutionException;

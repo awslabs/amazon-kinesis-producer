@@ -57,6 +57,12 @@ If you have further questions [please open a GitHub Issue](https://github.com/aw
 This is a restatement of the [notice published](https://docs.aws.amazon.com/streams/latest/dev/kinesis-kpl-upgrades.html) in the [Amazon Kinesis Data Streams Developer Guide][kinesis-developer-guide]
 
 ## Release Notes
+### 0.14.2
+* [PR #307] Dependency Upgrade
+  * Upgrade Guava to 26.0-jre
+  * Update BOOST C++ Libraries link as cert expired on the older link
+* [PR #312] Adding new parameter in KPL config to allow cert path to be overridden.
+
 ### 0.14.1
 * [PR #302] Dependency Upgrade
   * upgrade org.hibernate.validator:hibernate-validator 6.0.2.Final -> 6.0.18.Final
