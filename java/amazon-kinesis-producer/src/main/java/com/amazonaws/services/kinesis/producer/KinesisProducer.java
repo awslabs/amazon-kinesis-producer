@@ -86,14 +86,13 @@ public class KinesisProducer implements IKinesisProducer {
     private final KinesisProducerConfiguration config;
     private final Map<String, String> env;
     private final AtomicLong messageNumber = new AtomicLong(1);
-    // Add timeouts on the futures submitted and track the duplicate metrics
-    private final Map<Long, FuturesTracking> futures = new ConcurrentHashMap<>();
+    private final Map<Long, SettableFutureTracking> futures = new ConcurrentHashMap<>();
 
-    private class FuturesTracking {
+    private class SettableFutureTracking {
         private SettableFuture<?> future;
         private Instant timestamp;
 
-        public FuturesTracking(SettableFuture<?> f, Instant timestamp) {
+        public SettableFutureTracking(SettableFuture<?> f, Instant timestamp) {
             this.future = f;
             this.timestamp = timestamp;
         }
@@ -151,8 +150,12 @@ public class KinesisProducer implements IKinesisProducer {
                     } else if (m.hasMetricsResponse()) {
                         onMetricsResponse(m);
                     } else {
-                        //clear the future here and add message context
-                        log.error("Unexpected message type from child process");
+                        // clear the future here as well since the native core has exhausted is retries.
+                        getFuture(m);
+                        log.error(String.format("Unexpected message type with case %s from child process with message"
+                                + " id %s. Removing the submitted future from processing queue.",
+                                m.getActualMessageCase().toString(), m.getSourceId()));
+
                     }
                 }
             });
@@ -166,7 +169,7 @@ public class KinesisProducer implements IKinesisProducer {
             }
 
             // Fail all outstanding futures
-            for (final Map.Entry<Long, FuturesTracking> entry : futures.entrySet()) {
+            for (final Map.Entry<Long, SettableFutureTracking> entry : futures.entrySet()) {
                 callbackCompletionExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
@@ -228,6 +231,7 @@ public class KinesisProducer implements IKinesisProducer {
             @SuppressWarnings("unchecked")
             SettableFuture<T> f = (SettableFuture<T>) futures.remove(id).getFuture();
             if (f == null) {
+                log.error(String.format("Future for message id %s not found", id));
                 throw new RuntimeException("Future for message id " + id + " not found");
             }
             return f;
@@ -537,7 +541,7 @@ public class KinesisProducer implements IKinesisProducer {
         
         long id = messageNumber.getAndIncrement();
         SettableFuture<UserRecordResult> f = SettableFuture.create();
-        FuturesTracking futuresTracking = new FuturesTracking(f, Instant.now());
+        SettableFutureTracking futuresTracking = new SettableFutureTracking(f, Instant.now());
         futures.put(id, futuresTracking);
         
         PutRecord.Builder pr = PutRecord.newBuilder()
@@ -573,13 +577,28 @@ public class KinesisProducer implements IKinesisProducer {
         return futures.size();
     }
 
+    /**
+     * Get the time in seconds for the oldest record currently waiting in kpl to be processed for sending to kinesis
+     * endpoint. The records could either be waiting to be sent to the child process, or have
+     * reached the child process and are being worked on. T
+     *
+     * <p>
+     * This is time in seconds from the oldest future submitted from {@link #addUserRecord}
+     * that have not finished. This returns -1 if there no pending records in processing state.
+     *
+     * @return The time in seconds since the oldest record is pending to be sent to kinesis endpoint. Returns -1 if
+     * there are no records in processing state.
+     */
     @Override
-    public long getOldestFutureTimeFromNow() {
+    public long getOldestRecordTimeInSeconds() {
         long oldestTime = Long.MAX_VALUE;
-        for (final Map.Entry<Long, FuturesTracking> entry : futures.entrySet()) {
+        for (final Map.Entry<Long, SettableFutureTracking> entry : futures.entrySet()) {
             if (entry.getValue().getTimestamp().getEpochSecond() <  oldestTime) {
                 oldestTime = entry.getValue().getTimestamp().getEpochSecond();
             }
+        }
+        if(oldestTime == Long.MAX_VALUE) {
+            return -1;
         }
         return Instant.now().getEpochSecond() - oldestTime;
     }
@@ -632,7 +651,7 @@ public class KinesisProducer implements IKinesisProducer {
         
         long id = messageNumber.getAndIncrement();
         SettableFuture<List<Metric>> f = SettableFuture.create();
-        FuturesTracking futuresTracking = new FuturesTracking(f, Instant.now());
+        SettableFutureTracking futuresTracking = new SettableFutureTracking(f, Instant.now());
         futures.put(id, futuresTracking);
         
         child.add(Message.newBuilder()
