@@ -15,7 +15,9 @@ public interface IKinesisProducer {
 
     int getOutstandingRecordsCount();
 
-    long getOldestRecordTimeInSeconds();
+    default long getOldestRecordTimeInSeconds() {
+        throw new UnsupportedOperationException("getOldestRecordTimeInSeconds is not supported by default");
+    }
 
     List<Metric> getMetrics(String metricName, int windowSeconds) throws InterruptedException, ExecutionException;
 

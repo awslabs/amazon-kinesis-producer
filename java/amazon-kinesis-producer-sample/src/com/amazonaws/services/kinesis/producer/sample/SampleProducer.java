@@ -22,6 +22,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.amazonaws.services.kinesis.producer.UnexpectedMessageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,6 +112,9 @@ public class SampleProducer {
                                 last.getErrorCode(), last.getErrorMessage()));
                     }
 
+                } else if (t instanceof UnexpectedMessageException) {
+                    log.error("Record failed to put due to unexpected message received from native layer",
+                            t);
                 }
                 log.error("Exception during put", t);
             }

@@ -39,8 +39,10 @@ import java.nio.ByteBuffer;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -86,13 +88,26 @@ public class KinesisProducer implements IKinesisProducer {
     private final KinesisProducerConfiguration config;
     private final Map<String, String> env;
     private final AtomicLong messageNumber = new AtomicLong(1);
-    private final Map<Long, SettableFutureTracking> futures = new ConcurrentHashMap<>();
+    private final Map<Long, SettableFutureTracker> futures = new ConcurrentHashMap<>();
+    private final PriorityQueue oldestFutureTrackerHeap = new PriorityQueue(new SettableFutureTrackerComparator());
 
-    private class SettableFutureTracking {
+    private class SettableFutureTrackerComparator implements Comparator<SettableFutureTracker>
+    {
+        public int compare(SettableFutureTracker x, SettableFutureTracker y)
+        {
+            if(y.getTimestamp().getEpochSecond() > x.getTimestamp().getEpochSecond()) {
+                return 1;
+            }
+            return -1;
+        }
+    }
+
+
+    private class SettableFutureTracker {
         private SettableFuture<?> future;
         private Instant timestamp;
 
-        public SettableFutureTracking(SettableFuture<?> f, Instant timestamp) {
+        public SettableFutureTracker(SettableFuture<?> f, Instant timestamp) {
             this.future = f;
             this.timestamp = timestamp;
         }
@@ -151,7 +166,8 @@ public class KinesisProducer implements IKinesisProducer {
                         onMetricsResponse(m);
                     } else {
                         // clear the future here as well since the native core has exhausted its retries.
-                        getFuture(m);
+                        SettableFuture<UserRecordResult> f = getFuture(m);
+                        f.setException(new UnexpectedMessageException("Unexpected message type from child process"));
                         log.error(String.format("Unexpected message type with case %s from child process with message"
                                 + " id %s. Removing the submitted future from processing queue.",
                                 m.getActualMessageCase().toString(), m.getSourceId()));
@@ -169,7 +185,7 @@ public class KinesisProducer implements IKinesisProducer {
             }
 
             // Fail all outstanding futures
-            for (final Map.Entry<Long, SettableFutureTracking> entry : futures.entrySet()) {
+            for (final Map.Entry<Long, SettableFutureTracker> entry : futures.entrySet()) {
                 callbackCompletionExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
@@ -178,6 +194,7 @@ public class KinesisProducer implements IKinesisProducer {
                 });
             }
             futures.clear();
+            oldestFutureTrackerHeap.clear();
 
             if (processFailureBehavior == ProcessFailureBehavior.AutoRestart && !destroyed) {
                 log.info("Restarting native producer process.");
@@ -229,7 +246,9 @@ public class KinesisProducer implements IKinesisProducer {
         private <T> SettableFuture<T> getFuture(Message msg) {
             long id = msg.getSourceId();
             @SuppressWarnings("unchecked")
-            SettableFuture<T> f = (SettableFuture<T>) futures.remove(id).getFuture();
+            SettableFutureTracker futureTracker = futures.remove(id);
+            SettableFuture<T> f = (SettableFuture<T>) futureTracker.getFuture();
+            oldestFutureTrackerHeap.remove(futureTracker);
             if (f == null) {
                 log.error(String.format("Future for message id %s not found", id));
                 throw new RuntimeException("Future for message id " + id + " not found");
@@ -541,8 +560,9 @@ public class KinesisProducer implements IKinesisProducer {
         
         long id = messageNumber.getAndIncrement();
         SettableFuture<UserRecordResult> f = SettableFuture.create();
-        SettableFutureTracking futuresTracking = new SettableFutureTracking(f, Instant.now());
+        SettableFutureTracker futuresTracking = new SettableFutureTracker(f, Instant.now());
         futures.put(id, futuresTracking);
+        oldestFutureTrackerHeap.add(futuresTracking);
         
         PutRecord.Builder pr = PutRecord.newBuilder()
                 .setStreamName(stream)
@@ -592,7 +612,7 @@ public class KinesisProducer implements IKinesisProducer {
     @Override
     public long getOldestRecordTimeInSeconds() {
         long oldestTime = Long.MAX_VALUE;
-        for (final Map.Entry<Long, SettableFutureTracking> entry : futures.entrySet()) {
+        for (final Map.Entry<Long, SettableFutureTracker> entry : futures.entrySet()) {
             if (entry.getValue().getTimestamp().getEpochSecond() <  oldestTime) {
                 oldestTime = entry.getValue().getTimestamp().getEpochSecond();
             }
@@ -651,8 +671,9 @@ public class KinesisProducer implements IKinesisProducer {
         
         long id = messageNumber.getAndIncrement();
         SettableFuture<List<Metric>> f = SettableFuture.create();
-        SettableFutureTracking futuresTracking = new SettableFutureTracking(f, Instant.now());
+        SettableFutureTracker futuresTracking = new SettableFutureTracker(f, Instant.now());
         futures.put(id, futuresTracking);
+        oldestFutureTrackerHeap.add(futuresTracking);
         
         child.add(Message.newBuilder()
                 .setId(id)
