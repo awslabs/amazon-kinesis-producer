@@ -89,7 +89,7 @@ public class KinesisProducer implements IKinesisProducer {
     private final Map<String, String> env;
     private final AtomicLong messageNumber = new AtomicLong(1);
     private final Map<Long, SettableFutureTracker> futures = new ConcurrentHashMap<>();
-    private final PriorityQueue oldestFutureTrackerHeap = new PriorityQueue(new SettableFutureTrackerComparator());
+    private final PriorityQueue<SettableFutureTracker> oldestFutureTrackerHeap = new PriorityQueue(new SettableFutureTrackerComparator());
 
     private class SettableFutureTrackerComparator implements Comparator<SettableFutureTracker>
     {
@@ -611,16 +611,10 @@ public class KinesisProducer implements IKinesisProducer {
      */
     @Override
     public long getOldestRecordTimeInSeconds() {
-        long oldestTime = Long.MAX_VALUE;
-        for (final Map.Entry<Long, SettableFutureTracker> entry : futures.entrySet()) {
-            if (entry.getValue().getTimestamp().getEpochSecond() <  oldestTime) {
-                oldestTime = entry.getValue().getTimestamp().getEpochSecond();
-            }
-        }
-        if(oldestTime == Long.MAX_VALUE) {
+        if (oldestFutureTrackerHeap.isEmpty()) {
             return -1;
         }
-        return Instant.now().getEpochSecond() - oldestTime;
+        return oldestFutureTrackerHeap.peek().getTimestamp().getEpochSecond();
     }
 
     /**
