@@ -51,7 +51,6 @@ matrix:
           packages:
           - ant
           - awscli
-          update: true
       script:
        - DIR=$(pwd)
        - ./bootstrap.sh
