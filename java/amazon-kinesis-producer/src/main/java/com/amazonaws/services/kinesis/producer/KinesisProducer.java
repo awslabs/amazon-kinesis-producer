@@ -34,6 +34,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.amazonaws.services.schemaregistry.common.Schema;
+import com.amazonaws.services.schemaregistry.serializers.GlueSchemaRegistrySerializer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
@@ -87,6 +89,7 @@ public class KinesisProducer implements IKinesisProducer {
     private final Map<String, String> env;
     private final AtomicLong messageNumber = new AtomicLong(1);
     private final Map<Long, SettableFuture<?>> futures = new ConcurrentHashMap<>();
+    private final GlueSchemaRegistrySerializerInstance glueSchemaRegistrySerializerInstance = new GlueSchemaRegistrySerializerInstance();
 
     // Creating a fixed thread pool as we use unbounded queue.
     private final ExecutorService callbackCompletionExecutor = new ThreadPoolExecutor(
@@ -401,7 +404,7 @@ public class KinesisProducer implements IKinesisProducer {
      */
     @Override
     public ListenableFuture<UserRecordResult> addUserRecord(UserRecord userRecord) {
-        return addUserRecord(userRecord.getStreamName(), userRecord.getPartitionKey(), userRecord.getExplicitHashKey(), userRecord.getData());
+        return addUserRecord(userRecord.getStreamName(), userRecord.getPartitionKey(), userRecord.getExplicitHashKey(), userRecord.getData(), userRecord.getSchema());
     }
 
     /**
@@ -468,6 +471,11 @@ public class KinesisProducer implements IKinesisProducer {
      */
     @Override
     public ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data) {
+        return addUserRecord(stream, partitionKey, explicitHashKey, data, null);
+    }
+
+    @Override
+    public ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data, Schema schema) {
         if (stream == null) {
             throw new IllegalArgumentException("Stream name cannot be null");
         }
@@ -509,7 +517,22 @@ public class KinesisProducer implements IKinesisProducer {
                 }
             }
         }
-        
+
+        if (schema != null && data != null) {
+            if (schema.getSchemaDefinition() == null || schema.getDataFormat() == null) {
+                throw new IllegalArgumentException(
+                    String.format(
+                        "Schema specification is not valid. SchemaDefinition or DataFormat cannot be null. SchemaDefinition: %s, DataFormat: %s",
+                        schema.getSchemaDefinition(),
+                        schema.getDataFormat()
+                    )
+                );
+            }
+            GlueSchemaRegistrySerializer serializer = glueSchemaRegistrySerializerInstance.get(config);
+            byte[] encodedBytes = serializer.encode(stream, schema, data.array());
+            data = ByteBuffer.wrap(encodedBytes);
+        }
+
         if (data != null && data.remaining() > 1024 * 1024) {
             throw new IllegalArgumentException(
                     "Data must be less than or equal to 1MB in size, got " + data.remaining() + " bytes");

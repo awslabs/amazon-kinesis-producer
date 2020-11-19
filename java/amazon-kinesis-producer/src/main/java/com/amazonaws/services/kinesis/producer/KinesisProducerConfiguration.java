@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+import com.amazonaws.services.schemaregistry.common.configs.GlueSchemaRegistryConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,8 @@ import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension;
 import com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration;
 import com.amazonaws.services.kinesis.producer.protobuf.Messages.Message;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 
 /**
  * Configuration for {@link KinesisProducer}. See each each individual set
@@ -43,6 +46,8 @@ public class KinesisProducerConfiguration {
     private List<AdditionalDimension> additionalDims = new ArrayList<>();
     private AWSCredentialsProvider credentialsProvider = new DefaultAWSCredentialsProviderChain();
     private AWSCredentialsProvider metricsCredentialsProvider = null;
+    private AwsCredentialsProvider glueSchemaRegistryCredentialsProvider = DefaultCredentialsProvider.create();
+    private GlueSchemaRegistryConfiguration glueSchemaRegistryConfiguration = null;
 
     /**
      * Add an additional, custom dimension to the metrics emitted by the KPL.
@@ -123,7 +128,7 @@ public class KinesisProducerConfiguration {
     public AWSCredentialsProvider getMetricsCredentialsProvider() {
         return metricsCredentialsProvider;
     }
-    
+
     /**
      * {@link AWSCredentialsProvider} that supplies credentials used to upload
      * metrics to CloudWatch.
@@ -137,7 +142,75 @@ public class KinesisProducerConfiguration {
         this.metricsCredentialsProvider = metricsCredentialsProvider;
         return this;
     }
-    
+
+    /**
+     * Return the set {@link GlueSchemaRegistryConfiguration} that has
+     * configuration options for Glue Schema Registry serializer to function.
+     * @return GlueSchemaRegistryConfiguration
+     */
+    public GlueSchemaRegistryConfiguration getGlueSchemaRegistryConfiguration() {
+        return glueSchemaRegistryConfiguration;
+    }
+
+    /**
+     * Set the {@link GlueSchemaRegistryConfiguration} that has configuration options for
+     * Glue Schema Registry serializer to function. This is an optional parameter.
+     * @param glueSchemaRegistryConfiguration {@link GlueSchemaRegistryConfiguration} instance.
+     * @return KinesisProducerConfiguration instance set with {@link GlueSchemaRegistryConfiguration}
+     */
+    public KinesisProducerConfiguration setGlueSchemaRegistryConfiguration(GlueSchemaRegistryConfiguration glueSchemaRegistryConfiguration) {
+        this.glueSchemaRegistryConfiguration = glueSchemaRegistryConfiguration;
+        return this;
+    }
+
+    /**
+     * Return the Property file path set for reading the {@link GlueSchemaRegistryConfiguration}.
+     * See GlueSchemaRegistry docs for list of supported configuration options.
+     *
+     * @return File path for GlueSchemaRegistry Properties.
+     */
+    public String getGlueSchemaRegistryPropertiesFilePath() {
+        return glueSchemaRegistryPropertiesFilePath;
+    }
+
+    /**
+     * Set the file path for GlueSchemaRegistry Properties. The property file will be read and
+     *  {@link GlueSchemaRegistryConfiguration} instance will be created from it.
+     * This is an optional parameter and the defaults will be used if not supplied.
+     * See GlueSchemaRegistry docs for list of supported configuration options.
+     * @param filePath Filepath for GlueSchemaRegistry Properties.
+     * @return KinesisProducerConfiguration instance set with
+     * {@link GlueSchemaRegistryConfiguration} and glueSchemaRegistryPropertiesFilePath.
+     */
+    public KinesisProducerConfiguration setGlueSchemaRegistryPropertiesFilePath(String filePath) {
+        this.glueSchemaRegistryPropertiesFilePath = filePath;
+        Properties properties = readPropertiesFile(filePath);
+        this.glueSchemaRegistryConfiguration = new GlueSchemaRegistryConfiguration(properties);
+        return this;
+    }
+
+    /**
+     * {@link AwsCredentialsProvider} that supplies credentials used to query
+     * AWS Glue Schema Registry. If not given, the credentials used to put records
+     * to Kinesis will be used.
+     *
+     * @see #setGlueSchemaRegistryCredentialsProvider(AwsCredentialsProvider) (AwsCredentialsProvider)
+     */
+    public AwsCredentialsProvider getGlueSchemaRegistryCredentialsProvider() {
+        return glueSchemaRegistryCredentialsProvider;
+    }
+
+    /**
+     * {@link AwsCredentialsProvider} that supplies credentials to query
+     * AWS Glue Schema Registry.
+     *
+     * If not given, the AWS SDK V2 default {@link DefaultCredentialsProvider} will be used.
+     */
+    public KinesisProducerConfiguration setGlueSchemaRegistryCredentialsProvider(AwsCredentialsProvider credentialsProvider) {
+        this.glueSchemaRegistryCredentialsProvider = credentialsProvider;
+        return this;
+    }
+
     /**
      * Load configuration from a properties file. Any fields not found in the
      * target file will take on default values.
@@ -155,6 +228,11 @@ public class KinesisProducerConfiguration {
      *             If one or more config values are invalid.
      */
     public static KinesisProducerConfiguration fromPropertiesFile(String path) {
+        Properties props = readPropertiesFile(path);
+        return fromProperties(props);
+    }
+
+    private static Properties readPropertiesFile(String path) {
         log.info("Attempting to load config from file " + path);
 
         Properties props = new Properties();
@@ -163,8 +241,7 @@ public class KinesisProducerConfiguration {
         } catch (Exception e) {
             throw new RuntimeException("Error loading config from properties file", e);
         }
-
-        return fromProperties(props);
+        return props;
     }
 
     /**
@@ -292,6 +369,7 @@ public class KinesisProducerConfiguration {
     private ThreadingModel threadingModel = ThreadingModel.PER_REQUEST;
     private int threadPoolSize = 0;
     private String caCertPath = "";
+    private String glueSchemaRegistryPropertiesFilePath = "";
 
     /**
      * Enable aggregation. With aggregation, multiple user records are packed into a single

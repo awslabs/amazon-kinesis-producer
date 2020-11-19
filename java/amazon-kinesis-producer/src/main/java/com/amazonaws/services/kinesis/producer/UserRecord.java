@@ -1,5 +1,7 @@
 package com.amazonaws.services.kinesis.producer;
 
+import com.amazonaws.services.schemaregistry.common.Schema;
+
 import java.nio.ByteBuffer;
 
 public class UserRecord {
@@ -26,6 +28,13 @@ public class UserRecord {
      */
     private ByteBuffer data;
 
+    /**
+     * Specify Schema for the data. Schemas are administered by AWS Glue Schema Registry.
+     * Read Glue Schema Registry docs on how to get started on using Schema for your data.
+     * This is an optional field.
+     */
+    private Schema schema;
+
     public UserRecord() {
     }
 
@@ -40,6 +49,14 @@ public class UserRecord {
         this.partitionKey = partitionKey;
         this.explicitHashKey = explicitHashKey;
         this.data = data;
+    }
+
+    public UserRecord(String streamName, String partitionKey, String explicitHashKey, ByteBuffer data, Schema schema) {
+        this.streamName = streamName;
+        this.partitionKey = partitionKey;
+        this.explicitHashKey = explicitHashKey;
+        this.data = data;
+        this.schema = schema;
     }
 
     public String getStreamName() {
@@ -91,6 +108,19 @@ public class UserRecord {
 
     public UserRecord withExplicitHashKey(String explicitHashKey) {
         this.explicitHashKey = explicitHashKey;
+        return this;
+    }
+
+    public Schema getSchema() {
+        return schema;
+    }
+
+    public void setSchema(Schema schema) {
+        this.schema = schema;
+    }
+
+    public UserRecord withSchema(Schema schema) {
+        this.schema = schema;
         return this;
     }
 }

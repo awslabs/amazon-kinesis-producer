@@ -19,6 +19,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -26,6 +27,7 @@ import java.util.Properties;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class KinesisProducerConfigurationTest {
     @SuppressWarnings("unused")
@@ -113,5 +115,30 @@ public class KinesisProducerConfigurationTest {
         p.setProperty("ThreadPoolSize", Integer.toString(v));
         KinesisProducerConfiguration cfg = KinesisProducerConfiguration.fromPropertiesFile(writeFile(p));
         assertEquals(v, cfg.getThreadPoolSize());
+    }
+
+    @Test
+    public void setGlueSchemaRegistryConfigFromProperties() {
+        String region = "ca-central-1";
+        Properties schemaRegistryProperties = new Properties();
+        schemaRegistryProperties.put("region", region);
+        String glueSchemaRegistryPropertyFilePath = writeFile(schemaRegistryProperties);
+
+        Properties kinesisProducerProperties = new Properties();
+        kinesisProducerProperties.put("GlueSchemaRegistryPropertiesFilePath", glueSchemaRegistryPropertyFilePath);
+        KinesisProducerConfiguration cfg = KinesisProducerConfiguration.fromPropertiesFile(writeFile(kinesisProducerProperties));
+
+        assertNotNull(cfg);
+        assertNotNull(cfg.getGlueSchemaRegistryConfiguration());
+        assertEquals(glueSchemaRegistryPropertyFilePath, cfg.getGlueSchemaRegistryPropertiesFilePath());
+        assertEquals(region, cfg.getGlueSchemaRegistryConfiguration().getRegion());
+    }
+
+    @Test
+    public void setGlueSchemaRegistryCredentialsProvider() {
+        KinesisProducerConfiguration cfg = new KinesisProducerConfiguration();
+        cfg.setGlueSchemaRegistryCredentialsProvider(DefaultCredentialsProvider.create());
+
+        assertNotNull(cfg.getGlueSchemaRegistryCredentialsProvider());
     }
 }
