@@ -116,6 +116,3 @@ after_success:
   - sleep 10
 after_failure:
   - sleep 10
-cache:
-  - directories:
-    - $HOME/Library/Caches/Homebrew
