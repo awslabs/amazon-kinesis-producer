@@ -154,8 +154,7 @@ public class KinesisProducerConfiguration {
 
     /**
      * Set the {@link GlueSchemaRegistryConfiguration} that has configuration options for
-     * Glue Schema Registry serializer to function. If this is set explicitly, it will be used.
-     * If not, a default will be created at runtime.
+     * Glue Schema Registry serializer to function. This is an optional parameter.
      * @param glueSchemaRegistryConfiguration {@link GlueSchemaRegistryConfiguration} instance.
      * @return KinesisProducerConfiguration instance set with {@link GlueSchemaRegistryConfiguration}
      */
