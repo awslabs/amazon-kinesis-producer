@@ -1,4 +1,14 @@
 ## Changelog
+### 0.14.2
+* [PR #320] Adding support for Glue Schema Registry.
+   * Serialize and send schemas along with records, support for compression and auto-registration of schemas.
+* [PR #316] Bumping junit from 4.12 to 4.13.1
+* [PR #312] Adding new parameter in KPL config to allow cert path to be overridden.
+* [PR #310] Fixing bug to make the executor service to use 4*num_cores threads.
+* [PR #307] Dependency Upgrade
+  * Upgrade Guava to 26.0-jre
+  * Update BOOST C++ Libraries link as cert expired on the older link
+
 ### 0.14.1
 * [PR #302] Dependency Upgrade
   * upgrade org.hibernate.validator:hibernate-validator 6.0.2.Final -> 6.0.18.Final
