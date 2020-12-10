@@ -13,7 +13,7 @@ silence() {
 }
 
 LIB_OPENSSL="https://ftp.openssl.org/source/old/1.0.1/openssl-1.0.1m.tar.gz"
-LIB_BOOST="http://sourceforge.net/projects/boost/files/boost/1.58.0/boost_1_58_0.tar.gz"
+LIB_BOOST="http://sourceforge.net/projects/boost/files/boost/1.61.0/boost_1_61_0.tar.gz"
 LIB_ZLIB="https://zlib.net/fossils/zlib-1.2.8.tar.gz"
 LIB_PROTOBUF="https://github.com/protocolbuffers/protobuf/releases/download/v3.11.4/protobuf-all-3.11.4.tar.gz"
 LIB_CURL="https://curl.haxx.se/download/curl-7.47.0.tar.gz"
@@ -135,12 +135,12 @@ if [ ! -d "openssl-1.0.1m" ]; then
 fi
 
 # Boost C++ Libraries
-if [ ! -d "boost_1_58_0" ]; then
+if [ ! -d "boost_1_61_0" ]; then
   _curl "$LIB_BOOST" > boost.tgz
   tar xf boost.tgz
   rm boost.tgz
 
-  cd boost_1_58_0
+  cd boost_1_61_0
 
   LIBS="atomic,chrono,log,system,test,random,regex,thread,filesystem"
   OPTS="-j 8 --build-type=minimal --layout=system --prefix=$INSTALL_DIR link=static threading=multi release install"
