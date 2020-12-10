@@ -976,9 +976,9 @@ public class KinesisProducer implements IKinesisProducer {
             if (SystemUtils.IS_OS_WINDOWS) {
                 os = "windows";
             } else if (SystemUtils.IS_OS_LINUX) {
-                os = "linux";
+                os = "linux-" + SystemUtils.OS_ARCH;
             } else if (SystemUtils.IS_OS_MAC_OSX) {
-                os = "osx";
+                os = "osx-" + SystemUtils.OS_ARCH;
             } else {
                 throw new RuntimeException("Your operation system is not supported (" +
                         os + "), the KPL only supports Linux, OSX and Windows");
