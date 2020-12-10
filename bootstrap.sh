@@ -42,7 +42,7 @@ function find_release_type() {
 	echo "unknown"
 }
 
-
+CMAKE=$(which cmake3 &> /dev/null && echo "cmake3 " || echo "cmake")
 RELEASE_TYPE=$(find_release_type)
 
 [[ $RELEASE_TYPE == "unknown" ]] && {
@@ -231,7 +231,7 @@ if [ ! -d "aws-sdk-cpp" ]; then
 
   cd aws-sdk-cpp-build
 
-  silence cmake \
+  silence $CMAKE \
     -DBUILD_ONLY="kinesis;monitoring" \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -DSTATIC_LINKING=1 \
@@ -253,7 +253,7 @@ fi
 cd ..
 
 #Build the native kinesis producer
-cmake -DCMAKE_PREFIX_PATH="$INSTALL_DIR" .
+$CMAKE -DCMAKE_PREFIX_PATH="$INSTALL_DIR" .
 make -j8
 
 #copy native producer to a location that the java producer can package it
