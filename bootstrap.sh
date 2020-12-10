@@ -29,7 +29,7 @@ mkdir -p $INSTALL_DIR
 # of the native binary
 function find_release_type() {
   if [[ $OSTYPE == "linux-gnu" ]]; then
-		echo "linux"
+		echo "linux-$(uname -m)"
 		return
 	elif [[ $OSTYPE == darwin* ]]; then
 		echo "osx"
