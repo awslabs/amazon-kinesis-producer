@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(amazon_kinesis_producer)
+include(CheckCCompilerFlag)
+
 
 set(THIRD_PARTY_LIB_DIR "${amazon_kinesis_producer_SOURCE_DIR}/third_party/lib")
 
@@ -158,6 +160,10 @@ if(LINUX)
 
     add_library(libUUID STATIC IMPORTED)
 
+    check_c_compiler_flag(-moutline-atomics HAS_MOUTLINE_ATOMICS)
+    if (HAS_MOUTLINE_ATOMICS)
+        list(APPEND AWS_C_FLAGS -moutline-atomics)
+    endif()
 endif(LINUX)
 
 
