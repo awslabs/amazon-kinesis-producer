@@ -18,7 +18,7 @@ public interface IKinesisProducer {
 
     int getOutstandingRecordsCount();
 
-    default long getOldestRecordTimeInSeconds() {
+    default long getOldestRecordTimeInMillis() {
         throw new UnsupportedOperationException("This method is not supported in this IKinesisProducer type");
     }
 

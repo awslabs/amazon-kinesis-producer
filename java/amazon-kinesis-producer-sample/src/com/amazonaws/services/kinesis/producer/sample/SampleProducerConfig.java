@@ -78,6 +78,8 @@ public class SampleProducerConfig {
     private long aggregationMaxCount;
     @Min(value = 2, message = "KPL Sample aggregationMaxSize should not be less than 2")
     private long aggregationMaxSize;
+    @Min(value = 0, message = "KPL Sample requestTimeoutInMillis should not be less than 0")
+    private long requestTimeoutInMillis;
 
     public static String getArgIfPresent(final String[] args, final int index, final String defaultValue) {
         return args.length > index ? args[index] : defaultValue;
@@ -127,6 +129,8 @@ public class SampleProducerConfig {
         aggregationEnabled = getBooleanArgIfPresent(args, argIndex++, "true");
         aggregationMaxCount = getLongArgIfPresent(args, argIndex++, "4294967295");
         aggregationMaxSize = getLongArgIfPresent(args, argIndex++, "51200");
+        // Value of 0 for requestTimeoutInMillis means its disabled and this is disabled by default
+        requestTimeoutInMillis = getLongArgIfPresent(args, argIndex++, "0");
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
@@ -200,6 +204,10 @@ public class SampleProducerConfig {
         return aggregationMaxSize;
     }
 
+    public long getRequestTimeoutInMillis() {
+        return requestTimeoutInMillis;
+    }
+
     public KinesisProducerConfiguration transformToKinesisProducerConfiguration(){
         // There are many configurable parameters in the KPL. See the javadocs
         // on each each set method for details.
@@ -256,6 +264,7 @@ public class SampleProducerConfig {
         config.setAggregationEnabled(this.isAggregationEnabled());
         config.setAggregationMaxCount(this.getAggregationMaxCount());
         config.setAggregationMaxSize(this.getAggregationMaxSize());
+        config.setUserRecordTimeoutInMillis(this.getRequestTimeoutInMillis());
 
         // If you have built the native binary yourself, you can point the Java
         // wrapper to it with the NativeExecutable option. If you want to pass

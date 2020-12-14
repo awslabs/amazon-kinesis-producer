@@ -28,12 +28,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.protobuf.ByteString;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NonNull;
 import lombok.Value;
-import lombok.experimental.Wither;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
@@ -50,12 +47,17 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -95,19 +97,23 @@ public class KinesisProducer implements IKinesisProducer {
     private final KinesisProducerConfiguration config;
     private final Map<String, String> env;
     private final AtomicLong messageNumber = new AtomicLong(1);
+    private final AtomicLong totalFutureTimeouts = new AtomicLong(0);
     private final GlueSchemaRegistrySerializerInstance glueSchemaRegistrySerializerInstance = new GlueSchemaRegistrySerializerInstance();
     private final Map<Long, SettableFutureTracker> futures = new ConcurrentHashMap<>();
     private final PriorityBlockingQueue<SettableFutureTracker> oldestFutureTrackerHeap = new PriorityBlockingQueue
             (10, new SettableFutureTrackerComparator());
+    private final ScheduledThreadPoolExecutor futureTimeoutExecutor = new ScheduledThreadPoolExecutor(1,
+            new ThreadFactoryBuilder()
+            .setDaemon(true)
+            .setNameFormat("kpl-timeout-future-" + CALLBACK_COMPLETION_POOL_NUMBER.getAndIncrement() + "-thread-%d")
+            .build());
+
 
     private static class SettableFutureTrackerComparator implements Comparator<SettableFutureTracker>
     {
         public int compare(SettableFutureTracker x, SettableFutureTracker y)
         {
-            if(y.getTimestamp().getEpochSecond() > x.getTimestamp().getEpochSecond()) {
-                return 1;
-            }
-            return -1;
+            return Long.compare(x.getTimestamp().toEpochMilli(), y.getTimestamp().toEpochMilli());
         }
     }
 
@@ -117,6 +123,12 @@ public class KinesisProducer implements IKinesisProducer {
         private SettableFuture<?> future;
         @NonNull
         private Instant timestamp;
+        @NonNull
+        private Optional<FutureTask> timeoutTask;
+
+        private void cancelTimeoutTaskIfPresent() {
+            timeoutTask.ifPresent(t -> t.cancel(false));
+        }
     }
 
     // Creating a fixed thread pool as we use unbounded queue.
@@ -164,10 +176,11 @@ public class KinesisProducer implements IKinesisProducer {
                         onMetricsResponse(m);
                     } else {
                         // clear the future here as well since the native core has exhausted its retries.
-                        final SettableFuture<UserRecordResult> f = getFuture(m);
+                        SettableFutureTracker futureTracker = getFuture(m);
+                        SettableFuture<?> f = futureTracker.getFuture();
                         f.setException(new UnexpectedMessageException("Unexpected message type from child process"));
                         log.error(String.format("Unexpected message type with case %s from child process with message"
-                                + " id %s. Removing the submitted future from processing queue.",
+                                        + " id %s. Removing the submitted future from processing queue.",
                                 m.getActualMessageCase(), m.getSourceId()));
 
                     }
@@ -220,7 +233,8 @@ public class KinesisProducer implements IKinesisProducer {
          * @param msg
          */
         private void onPutRecordResult(Message msg) {
-            SettableFuture<UserRecordResult> f = getFuture(msg);
+            SettableFutureTracker futureTracker = getFuture(msg);
+            SettableFuture<UserRecordResult> f = (SettableFuture<UserRecordResult>) futureTracker.getFuture();
             UserRecordResult result = UserRecordResult.fromProtobufMessage(msg.getPutRecordResult());
             if (result.isSuccessful()) {
                 f.set(result);
@@ -230,8 +244,8 @@ public class KinesisProducer implements IKinesisProducer {
         }
         
         private void onMetricsResponse(Message msg) {
-            SettableFuture<List<Metric>> f = getFuture(msg);
-            
+            SettableFutureTracker futureTracker = getFuture(msg);
+            SettableFuture<List<Metric>> f = (SettableFuture<List<Metric>>) futureTracker.getFuture();
             List<Metric> userMetrics = new ArrayList<>();
             MetricsResponse res = msg.getMetricsResponse();
             for (Messages.Metric metric : res.getMetricsList()) {
@@ -241,21 +255,26 @@ public class KinesisProducer implements IKinesisProducer {
             f.set(userMetrics);
         }
         
-        private <T> SettableFuture<T> getFuture(Message msg) {
+        private SettableFutureTracker getFuture(Message msg) {
             long id = msg.getSourceId();
-            @SuppressWarnings("unchecked")
-            SettableFutureTracker futureTracker = futures.remove(id);
-            if (futureTracker == null) {
-                log.error(String.format("Future for message id %s not found as potentially it was a duplicate message "
-                        + "or was timed out in Java layer.", id));
-                throw new RuntimeException("Future for message id " + id + " not found as potentially it was a "
-                        + "duplicate message or was timed out in Java layer.");
-            }
-            // This cannot be null since SettableFuture class doesn't allow null values on future object
-            SettableFuture<T> f = (SettableFuture<T>) futureTracker.getFuture();
-            oldestFutureTrackerHeap.remove(futureTracker);
-            return f;
+            SettableFutureTracker futureTracker = getFutureTracker(id);
+            // Cancel the future timeout task if present to relieve memory from the ScheduledThreadPoolExecutor
+            futureTracker.cancelTimeoutTaskIfPresent();
+            return  futureTracker;
         }
+    }
+
+    private SettableFutureTracker getFutureTracker(long id) {
+        @SuppressWarnings("unchecked")
+        SettableFutureTracker futureTracker = futures.remove(id);
+        if (futureTracker == null) {
+            String message = "Future for message id "+ id +" not found as potentially it was a duplicate message "
+                    + "or was timed out in Java layer.";
+            log.error(message);
+            throw new RuntimeException(message);
+        }
+        oldestFutureTrackerHeap.remove(futureTracker);
+        return futureTracker;
     }
     
     /**
@@ -291,6 +310,10 @@ public class KinesisProducer implements IKinesisProducer {
                 .put("DYLD_LIBRARY_PATH", pathToLibDir)
                 .put("CA_DIR", caDirectory)
                 .build();
+
+        // We set the policy for the executor service to remove queued tasks if they are cancelled to relieve
+        // unwanted cpu load.
+        futureTimeoutExecutor.setRemoveOnCancelPolicy(true);
 
         child = new Daemon(pathToExecutable, new MessageHandler(), pathToTmpDir, config, env);
     }
@@ -581,9 +604,14 @@ public class KinesisProducer implements IKinesisProducer {
         
         long id = messageNumber.getAndIncrement();
         SettableFuture<UserRecordResult> f = SettableFuture.create();
-        SettableFutureTracker futureTracker = new SettableFutureTracker(f, Instant.now());
-        futures.put(id, futureTracker);
-        oldestFutureTrackerHeap.add(futureTracker);
+        FutureTask<String> task = null;
+        if(config.getUserRecordTimeoutInMillis() > 0) {
+            task = new FutureTask(new FutureTimeoutRunnableTask(id), "TimedOut");
+            futureTimeoutExecutor.schedule(task, config.getUserRecordTimeoutInMillis(), TimeUnit.MILLISECONDS);
+        }
+        SettableFutureTracker futuresTracking = new SettableFutureTracker(f, Instant.now(), Optional.ofNullable(task));
+        futures.put(id, futuresTracking);
+        oldestFutureTrackerHeap.add(futuresTracking);
         
         PutRecord.Builder pr = PutRecord.newBuilder()
                 .setStreamName(stream)
@@ -600,6 +628,21 @@ public class KinesisProducer implements IKinesisProducer {
         child.add(m);
         
         return f;
+    }
+
+    @AllArgsConstructor
+    private class FutureTimeoutRunnableTask implements Runnable {
+        private long id;
+
+        @Override
+        public void run() {
+            SettableFutureTracker futureTracker = getFutureTracker(id);
+            totalFutureTimeouts.getAndIncrement();
+            SettableFuture<?> f = futureTracker.getFuture();
+            String message = "Message id " + id + " timeout out. Removing the submitted future from processing queue.";
+            f.setException(new FutureTimedOutException(message));
+            log.error(message);
+        }
     }
     
     /**
@@ -619,23 +662,23 @@ public class KinesisProducer implements IKinesisProducer {
     }
 
     /**
-     * Get the time in seconds for the oldest record currently waiting in kpl to be processed for sending to kinesis
+     * Get the time in millis for the oldest record currently waiting in kpl to be processed for sending to kinesis
      * endpoint. The records could either be waiting to be sent to the child process, or have
      * reached the child process and are being worked on.
      *
      * <p>
-     * This is time in seconds from the oldest future submitted from {@link #addUserRecord}
+     * This is time in millis from the oldest future submitted from {@link #addUserRecord}
      * that have not finished. This returns 0 if there are no pending records in processing state.
      *
-     * @return The time in seconds since the oldest record is pending to be sent to kinesis endpoint. Returns 0 if
+     * @return The time in millis since the oldest record is pending to be sent to kinesis endpoint. Returns 0 if
      * there are no records in processing state.
      */
     @Override
-    public long getOldestRecordTimeInSeconds() {
+    public long getOldestRecordTimeInMillis() {
         if (oldestFutureTrackerHeap.isEmpty()) {
             return 0;
         }
-        return Instant.now().getEpochSecond() - oldestFutureTrackerHeap.peek().getTimestamp().getEpochSecond();
+        return Instant.now().toEpochMilli() - oldestFutureTrackerHeap.peek().getTimestamp().toEpochMilli();
     }
 
     /**
@@ -686,9 +729,14 @@ public class KinesisProducer implements IKinesisProducer {
         
         long id = messageNumber.getAndIncrement();
         SettableFuture<List<Metric>> f = SettableFuture.create();
-        SettableFutureTracker futureTracker = new SettableFutureTracker(f, Instant.now());
-        futures.put(id, futureTracker);
-        oldestFutureTrackerHeap.add(futureTracker);
+        FutureTask<String> task = null;
+        if(config.getUserRecordTimeoutInMillis() > 0) {
+            task = new FutureTask(new FutureTimeoutRunnableTask(id), "TimedOut");
+            futureTimeoutExecutor.schedule(task, config.getUserRecordTimeoutInMillis(), TimeUnit.MILLISECONDS);
+        }
+        SettableFutureTracker futuresTracking = new SettableFutureTracker(f, Instant.now(), Optional.ofNullable(task));
+        futures.put(id, futuresTracking);
+        oldestFutureTrackerHeap.add(futuresTracking);
         
         child.add(Message.newBuilder()
                 .setId(id)
