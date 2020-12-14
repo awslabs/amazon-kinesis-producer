@@ -18,6 +18,10 @@ public interface IKinesisProducer {
 
     int getOutstandingRecordsCount();
 
+    default long getOldestRecordTimeInSeconds() {
+        throw new UnsupportedOperationException("This method is not supported in this IKinesisProducer type");
+    }
+
     List<Metric> getMetrics(String metricName, int windowSeconds) throws InterruptedException, ExecutionException;
 
     List<Metric> getMetrics(String metricName) throws InterruptedException, ExecutionException;
