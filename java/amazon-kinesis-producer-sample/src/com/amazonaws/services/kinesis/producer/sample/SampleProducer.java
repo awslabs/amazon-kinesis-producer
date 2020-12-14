@@ -22,6 +22,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.amazonaws.services.kinesis.producer.UnexpectedMessageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,8 +98,8 @@ public class SampleProducer {
             @Override
             public void onFailure(Throwable t) {
                 // If we see any failures, we will log them.
-                int attempts = ((UserRecordFailedException) t).getResult().getAttempts().size()-1;
                 if (t instanceof UserRecordFailedException) {
+                    int attempts = ((UserRecordFailedException) t).getResult().getAttempts().size()-1;
                     Attempt last = ((UserRecordFailedException) t).getResult().getAttempts().get(attempts);
                     if(attempts > 1) {
                         Attempt previous = ((UserRecordFailedException) t).getResult().getAttempts().get(attempts - 1);
@@ -111,6 +112,9 @@ public class SampleProducer {
                                 last.getErrorCode(), last.getErrorMessage()));
                     }
 
+                } else if (t instanceof UnexpectedMessageException) {
+                    log.error("Record failed to put due to unexpected message received from native layer",
+                            t);
                 }
                 log.error("Exception during put", t);
             }
@@ -147,6 +151,7 @@ public class SampleProducer {
                 log.info(String.format(
                         "Put %d of %d so far (%.2f %%), %d have completed (%.2f %%)",
                         put, total, putPercent, done, donePercent));
+                log.info("Oldest future as of now is " + producer.getOldestRecordTimeInSeconds());
             }
         }, 1, 1, TimeUnit.SECONDS);
         

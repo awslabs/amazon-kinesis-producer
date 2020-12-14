@@ -15,44 +15,51 @@
 
 package com.amazonaws.services.kinesis.producer;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigInteger;
-import java.nio.ByteBuffer;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-
-import com.amazonaws.services.schemaregistry.common.Schema;
-import com.amazonaws.services.schemaregistry.serializers.GlueSchemaRegistrySerializer;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.SystemUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.amazonaws.services.kinesis.producer.protobuf.Messages;
 import com.amazonaws.services.kinesis.producer.protobuf.Messages.Flush;
 import com.amazonaws.services.kinesis.producer.protobuf.Messages.Message;
 import com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsRequest;
 import com.amazonaws.services.kinesis.producer.protobuf.Messages.MetricsResponse;
 import com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecord;
+import com.amazonaws.services.schemaregistry.common.Schema;
+import com.amazonaws.services.schemaregistry.serializers.GlueSchemaRegistrySerializer;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.protobuf.ByteString;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Value;
+import lombok.experimental.Wither;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.file.Paths;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 /**
  * An interface to the native KPL daemon. This class handles the creation,
  * destruction and use of the child process.
@@ -88,8 +95,29 @@ public class KinesisProducer implements IKinesisProducer {
     private final KinesisProducerConfiguration config;
     private final Map<String, String> env;
     private final AtomicLong messageNumber = new AtomicLong(1);
-    private final Map<Long, SettableFuture<?>> futures = new ConcurrentHashMap<>();
     private final GlueSchemaRegistrySerializerInstance glueSchemaRegistrySerializerInstance = new GlueSchemaRegistrySerializerInstance();
+    private final Map<Long, SettableFutureTracker> futures = new ConcurrentHashMap<>();
+    private final PriorityBlockingQueue<SettableFutureTracker> oldestFutureTrackerHeap = new PriorityBlockingQueue
+            (10, new SettableFutureTrackerComparator());
+
+    private static class SettableFutureTrackerComparator implements Comparator<SettableFutureTracker>
+    {
+        public int compare(SettableFutureTracker x, SettableFutureTracker y)
+        {
+            if(y.getTimestamp().getEpochSecond() > x.getTimestamp().getEpochSecond()) {
+                return 1;
+            }
+            return -1;
+        }
+    }
+
+    @Value
+    private static class SettableFutureTracker {
+        @NonNull
+        private SettableFuture<?> future;
+        @NonNull
+        private Instant timestamp;
+    }
 
     // Creating a fixed thread pool as we use unbounded queue.
     private final ExecutorService callbackCompletionExecutor = new ThreadPoolExecutor(
@@ -135,7 +163,13 @@ public class KinesisProducer implements IKinesisProducer {
                     } else if (m.hasMetricsResponse()) {
                         onMetricsResponse(m);
                     } else {
-                        log.error("Unexpected message type from child process");
+                        // clear the future here as well since the native core has exhausted its retries.
+                        final SettableFuture<UserRecordResult> f = getFuture(m);
+                        f.setException(new UnexpectedMessageException("Unexpected message type from child process"));
+                        log.error(String.format("Unexpected message type with case %s from child process with message"
+                                + " id %s. Removing the submitted future from processing queue.",
+                                m.getActualMessageCase(), m.getSourceId()));
+
                     }
                 }
             });
@@ -149,15 +183,16 @@ public class KinesisProducer implements IKinesisProducer {
             }
 
             // Fail all outstanding futures
-            for (final Map.Entry<Long, SettableFuture<?>> entry : futures.entrySet()) {
+            for (final Map.Entry<Long, SettableFutureTracker> entry : futures.entrySet()) {
                 callbackCompletionExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        entry.getValue().setException(t);
+                        entry.getValue().getFuture().setException(t);
                     }
                 });
             }
             futures.clear();
+            oldestFutureTrackerHeap.clear();
 
             if (processFailureBehavior == ProcessFailureBehavior.AutoRestart && !destroyed) {
                 log.info("Restarting native producer process.");
@@ -209,10 +244,16 @@ public class KinesisProducer implements IKinesisProducer {
         private <T> SettableFuture<T> getFuture(Message msg) {
             long id = msg.getSourceId();
             @SuppressWarnings("unchecked")
-            SettableFuture<T> f = (SettableFuture<T>) futures.remove(id);
-            if (f == null) {
-                throw new RuntimeException("Future for message id " + id + " not found");
+            SettableFutureTracker futureTracker = futures.remove(id);
+            if (futureTracker == null) {
+                log.error(String.format("Future for message id %s not found as potentially it was a duplicate message "
+                        + "or was timed out in Java layer.", id));
+                throw new RuntimeException("Future for message id " + id + " not found as potentially it was a "
+                        + "duplicate message or was timed out in Java layer.");
             }
+            // This cannot be null since SettableFuture class doesn't allow null values on future object
+            SettableFuture<T> f = (SettableFuture<T>) futureTracker.getFuture();
+            oldestFutureTrackerHeap.remove(futureTracker);
             return f;
         }
     }
@@ -540,7 +581,9 @@ public class KinesisProducer implements IKinesisProducer {
         
         long id = messageNumber.getAndIncrement();
         SettableFuture<UserRecordResult> f = SettableFuture.create();
-        futures.put(id, f);
+        SettableFutureTracker futureTracker = new SettableFutureTracker(f, Instant.now());
+        futures.put(id, futureTracker);
+        oldestFutureTrackerHeap.add(futureTracker);
         
         PutRecord.Builder pr = PutRecord.newBuilder()
                 .setStreamName(stream)
@@ -574,7 +617,27 @@ public class KinesisProducer implements IKinesisProducer {
     public int getOutstandingRecordsCount() {
         return futures.size();
     }
-    
+
+    /**
+     * Get the time in seconds for the oldest record currently waiting in kpl to be processed for sending to kinesis
+     * endpoint. The records could either be waiting to be sent to the child process, or have
+     * reached the child process and are being worked on.
+     *
+     * <p>
+     * This is time in seconds from the oldest future submitted from {@link #addUserRecord}
+     * that have not finished. This returns 0 if there are no pending records in processing state.
+     *
+     * @return The time in seconds since the oldest record is pending to be sent to kinesis endpoint. Returns 0 if
+     * there are no records in processing state.
+     */
+    @Override
+    public long getOldestRecordTimeInSeconds() {
+        if (oldestFutureTrackerHeap.isEmpty()) {
+            return 0;
+        }
+        return Instant.now().getEpochSecond() - oldestFutureTrackerHeap.peek().getTimestamp().getEpochSecond();
+    }
+
     /**
      * Get metrics from the KPL.
      * 
@@ -623,7 +686,9 @@ public class KinesisProducer implements IKinesisProducer {
         
         long id = messageNumber.getAndIncrement();
         SettableFuture<List<Metric>> f = SettableFuture.create();
-        futures.put(id, f);
+        SettableFutureTracker futureTracker = new SettableFutureTracker(f, Instant.now());
+        futures.put(id, futureTracker);
+        oldestFutureTrackerHeap.add(futureTracker);
         
         child.add(Message.newBuilder()
                 .setId(id)
