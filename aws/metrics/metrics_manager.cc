@@ -129,15 +129,6 @@ void MetricsManager::upload() {
   }
 }
 
-std::chrono::milliseconds random_retry_duration(
-    std::chrono::milliseconds retry_delay,
-    size_t attempts) {
-  auto retry_delay_max = std::chrono::seconds(MAX_RETRY_DELAY_SECONDS);
-  retry_delay += std::chrono::seconds((attempts * 5) + (rand() % 5));
-  retry_delay = (retry_delay > retry_delay_max) ? retry_delay_max : retry_delay;
-  return retry_delay;
-}
-
 void MetricsManager::upload_one(
     const Aws::CloudWatch::Model::PutMetricDataRequest& pmdr,
     const std::shared_ptr<detail::UploadContext>& ctx) {
@@ -151,18 +142,9 @@ void MetricsManager::upload_one(
           auto e = outcome.GetError();
           auto code = e.GetExceptionName();
           auto msg = e.GetMessage();
-          if (aws::utils::seconds_since(ctx->created) > 10 * 60) {
-            LOG(error) << "Metrics upload failed. | Code: " << code
-                       << " | Message: " << msg << " | Request was: "
-                       << req.SerializePayload();
-          } else {
-            if (ctx->attempts++ == 4) {
-              LOG(warning) << "Metrics upload failed, but will retry. | Code: "
-                           << code << " | Message: " << msg;
-            }
-            executor_->schedule([=] { this->upload_one(req, ctx); },
-                                random_retry_duration(retry_delay_, ctx->attempts));
-          }
+          LOG(error) << "Metrics upload failed. | Code: " << code
+                     << " | Message: " << msg << " | Request was: "
+                     << req.SerializePayload();
         }
       },
       ctx);
