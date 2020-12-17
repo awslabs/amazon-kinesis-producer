@@ -98,7 +98,7 @@ std::shared_ptr<Aws::Utils::Threading::Executor> sdk_client_executor;
 Aws::Client::ClientConfiguration
 make_sdk_client_cfg(const aws::kinesis::core::Configuration& kpl_cfg,
                     const std::string& region,
-                    const std::string& ca_path) {
+                    const std::string& ca_path, int retryCount) {
   Aws::Client::ClientConfiguration cfg;
   cfg.userAgent = user_agent();
   LOG(info) << "Using Region: " << region;
@@ -106,7 +106,7 @@ make_sdk_client_cfg(const aws::kinesis::core::Configuration& kpl_cfg,
   cfg.maxConnections = cast_size_t<unsigned>(kpl_cfg.max_connections());
   cfg.requestTimeoutMs = cast_size_t<long>(kpl_cfg.request_timeout());
   cfg.connectTimeoutMs = cast_size_t<long>(kpl_cfg.connect_timeout());
-  cfg.retryStrategy = std::make_shared<Aws::Client::DefaultRetryStrategy>(0, 0);
+  cfg.retryStrategy = std::make_shared<Aws::Client::DefaultRetryStrategy>(retryCount);
   if (kpl_cfg.use_thread_pool()) {
     if (sdk_client_executor == nullptr) {
       uint32_t thread_pool_size = kpl_cfg.thread_pool_size();
@@ -167,7 +167,7 @@ void KinesisProducer::create_metrics_manager() {
 }
 
 void KinesisProducer::create_kinesis_client(const std::string& ca_path) {
-  auto cfg = make_sdk_client_cfg(*config_, region_, ca_path);
+  auto cfg = make_sdk_client_cfg(*config_, region_, ca_path, 0);
   if (config_->kinesis_endpoint().size() > 0) {
     cfg.endpointOverride = config_->kinesis_endpoint() + ":" +
         std::to_string(config_->kinesis_port());
@@ -182,7 +182,7 @@ void KinesisProducer::create_kinesis_client(const std::string& ca_path) {
 }
 
 void KinesisProducer::create_cw_client(const std::string& ca_path) {
-  auto cfg = make_sdk_client_cfg(*config_, region_, ca_path);
+  auto cfg = make_sdk_client_cfg(*config_, region_, ca_path, 2);
   if (config_->cloudwatch_endpoint().size() > 0) {
     cfg.endpointOverride = config_->cloudwatch_endpoint() + ":" +
         std::to_string(config_->cloudwatch_port());
