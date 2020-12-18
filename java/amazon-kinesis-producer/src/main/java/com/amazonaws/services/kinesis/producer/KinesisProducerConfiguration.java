@@ -370,6 +370,7 @@ public class KinesisProducerConfiguration {
     private int threadPoolSize = 0;
     private String caCertPath = "";
     private String glueSchemaRegistryPropertiesFilePath = "";
+    private long userRecordTimeoutInMillis = 0;
 
     /**
      * Enable aggregation. With aggregation, multiple user records are packed into a single
@@ -862,6 +863,22 @@ public class KinesisProducerConfiguration {
      */
     public int getThreadPoolSize() {
         return threadPoolSize;
+    }
+
+    /**
+     * Value in millis when the user submitted records will be timed out at the Java layer.
+     *
+     * <p>
+     * There should be normally no need to adjust this and by default this will be off. But if you are seeing too much
+     * outstanding records causing memory problems you can adjust this value based on your readings from
+     * getOldestRecordTimeInMillis and when your application starts to have memory problems.
+     *
+     * <p><b>Default</b>: 0(Off)
+     * <p><b>Minimum</b>: 0
+     * <p><b>Maximum (inclusive)</b>: 9223372036854775807
+     */
+    public long getUserRecordTimeoutInMillis() {
+        return userRecordTimeoutInMillis;
     }
 
     /**
@@ -1470,6 +1487,29 @@ public class KinesisProducerConfiguration {
             throw new IllegalArgumentException("Max threads must greater than or equal to 0");
         }
         this.threadPoolSize = threadPoolSize;
+        return this;
+    }
+
+    /**
+     * Set the value in millis when the user submitted records will be timed out at the Java layer. Please be careful
+     * around setting this value and not to set it too low which can cause high amount records timing out.
+     *
+     * <p>
+     * There should be normally no need to adjust this and by default this will be off (value set to 0). But if you are
+     * seeing too much outstanding records causing memory problems you can adjust this value based on your readings from
+     * getOldestRecordTimeInMillis and when your application starts to have memory problems.
+     *
+     * @param userRecordTimeoutInMillis
+     *             the value in millis when the user submitted records will be timed out at the Java layer
+     * @throws IllegalArgumentException
+     *             if userRecordTimeoutInMillis is less than 0
+     * @return this configuration object
+     */
+    public KinesisProducerConfiguration setUserRecordTimeoutInMillis(long userRecordTimeoutInMillis) {
+        if (userRecordTimeoutInMillis < 0) {
+            throw new IllegalArgumentException("Timeout value must greater than or equal to 0");
+        }
+        this.userRecordTimeoutInMillis = userRecordTimeoutInMillis;
         return this;
     }
 
