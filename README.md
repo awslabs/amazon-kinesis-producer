@@ -57,6 +57,13 @@ If you have further questions [please open a GitHub Issue](https://github.com/aw
 This is a restatement of the [notice published](https://docs.aws.amazon.com/streams/latest/dev/kinesis-kpl-upgrades.html) in the [Amazon Kinesis Data Streams Developer Guide][kinesis-developer-guide]
 
 ## Release Notes
+### 0.14.3
+* [PR #327] Adding support for timeout on user records at Java layer.
+   * New optional KPL config parameter userRecordTimeoutInMillis which can be used to timeout records at the java layer queued for processing.
+* [PR #328] Changing CloudWatch client retry strategy to use default SDK retry strategy with exponential backoff.
+* [PR #324] Adding KPL metric to track the time for oldest user record in processing at the java layer.
+* [PR #318] Fixing bug where KPL goes into a continuous retry storm if the stream is deleted and re-created.
+
 ### 0.14.2
 * [PR #320] Adding support for Glue Schema Registry.
    * Serialize and send schemas along with records, support for compression and auto-registration of schemas.
