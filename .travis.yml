@@ -6,7 +6,7 @@ matrix:
       dist: trusty
       before_install:
         - echo "################################################################################"
-        - echo "Installing Dependencies for Linux"
+        - echo "Installing Dependencies for Linux/x86_64"
         - echo "################################################################################"
         - sudo apt-get update
         - sudo apt-get install python3
@@ -21,11 +21,11 @@ matrix:
           aws_secret_access_key = $AWS_SECRET_ACCESS_KEY
         - cat <<'EOF' >> ~/.aws/credentials
         - echo "################################################################################"
-        - echo "SUCCESS Installed Dependencies for Linux"
+        - echo "SUCCESS Installed Dependencies for Linux/x86_64"
         - echo "################################################################################"
       script:
         - echo "################################################################################"
-        - echo "Starting build phase for Linux"
+        - echo "Starting build phase for Linux/x86_64"
         - echo "################################################################################"
         - $(aws ecr get-login --no-include-email --region us-west-2)
         - echo "Getting Docker image for AL2012 build of KPL..."
@@ -34,13 +34,57 @@ matrix:
         - df -h
         - echo "Building KPL in current directory in the Container..."
         - docker run --memory 9g -v $(pwd):/kpl -it 056543101242.dkr.ecr.us-west-2.amazonaws.com/kinesis-producer-library-builder:latest /bin/bash -c "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY && export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID && cd /kpl && ls && ./bootstrap.sh"
-        - cd java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/$TRAVIS_OS_NAME
+        - cd java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/$TRAVIS_OS_NAME-`uname -m`
         - ls
         - sudo zip kinesis-producer.zip kinesis_producer
         - echo "Uploading build artifacts for KPL built on Linux..."
-        - aws s3 cp kinesis-producer.zip s3://kpl-build-kinesis-internal/$KPL_VERSION-$HASH/$TRAVIS_OS_NAME/kinesis-producer.zip
+        - aws s3 cp kinesis-producer.zip s3://kpl-build-kinesis-internal/$KPL_VERSION-$HASH/$TRAVIS_OS_NAME-`uname -m`/kinesis-producer.zip
         - echo "################################################################################"
-        - echo "SUCCESS Build phase for Linux, complete. Check for any errors reported"
+        - echo "SUCCESS Build phase for Linux/x86_64, complete. Check for any errors reported"
+        - echo "################################################################################"
+    - name: "Build C++/Java and Upload to S3 on AL2/Arm64"
+      os: linux
+      arch: arm64-graviton2
+      virt: vm
+      services: docker
+      dist: focal
+      before_install:
+        - echo "################################################################################"
+        - echo "Installing Dependencies for Linux/arm64"
+        - echo "################################################################################"
+        - sudo apt-get update
+        - sudo apt-get install python3
+        - sudo apt-get -y install python3-pip
+        - pip3 --version
+        - pip3 install --user awscli
+        - mkdir -p ~/.aws
+        - |
+          cat > ~/.aws/credentials << EOF
+          [default]
+          aws_access_key_id = $AWS_ACCESS_KEY_ID
+          aws_secret_access_key = $AWS_SECRET_ACCESS_KEY
+        - cat <<'EOF' >> ~/.aws/credentials
+        - echo "################################################################################"
+        - echo "SUCCESS Installed Dependencies for Linux/arm64"
+        - echo "################################################################################"
+      script:
+        - echo "################################################################################"
+        - echo "Starting build phase for Linux/arm64"
+        - echo "################################################################################"
+        - $(aws ecr get-login --no-include-email --region us-west-2)
+        - echo "Getting Docker image for AL2/Arm64 build of KPL..."
+        - docker pull amazonlinux:2
+        - ls
+        - df -h
+        - echo "Building KPL in current directory in the Container..."
+        - docker run --memory 9g -v $(pwd):/kpl -it amazonlinux:2 /bin/bash -c "yum install -y -q cmake3 gcc gcc-c++ make file tar gzip which perl git libuuid libuuid-devel maven zlib zlib-devel zlib-static && cd /kpl && ls && ./bootstrap.sh"
+        - cd java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/$TRAVIS_OS_NAME-`uname -m`
+        - ls
+        - sudo zip kinesis-producer.zip kinesis_producer
+        - echo "Uploading build artifacts for KPL built on Linux Arm64..."
+        - aws s3 cp kinesis-producer.zip s3://kpl-build-kinesis-internal/$KPL_VERSION-$HASH/$TRAVIS_OS_NAME-`uname -m`/kinesis-producer.zip
+        - echo "################################################################################"
+        - echo "SUCCESS Build phase for Linux/arm64, complete. Check for any errors reported"
         - echo "################################################################################"
     - name: "Build C++/Java and Upload to S3 on OSX"
       os: osx
@@ -55,20 +99,33 @@ matrix:
       script:
        - DIR=$(pwd)
        - ./bootstrap.sh
-       - cd java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/$TRAVIS_OS_NAME
+       - cd java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/$TRAVIS_OS_NAME-`uname -m`
        - zip kinesis-producer.zip kinesis_producer
-       - aws s3 cp kinesis-producer.zip s3://kpl-build-kinesis-internal/$KPL_VERSION-$HASH/$TRAVIS_OS_NAME/kinesis-producer.zip
+       - aws s3 cp kinesis-producer.zip s3://kpl-build-kinesis-internal/$KPL_VERSION-$HASH/$TRAVIS_OS_NAME-`uname -m`/kinesis-producer.zip
        - echo "################################################################################"
-       - echo "Finished building KPL on OSX...Starting Bundling of Linux with OSX binaries"
+       - echo "Finished building KPL on OSX...Starting Bundling of Linux/x86_64 with OSX binaries"
        - echo "################################################################################"
-       - test -e $DIR/java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/osx/kinesis_producer
-       - aws s3 cp s3://kpl-build-kinesis-internal/$KPL_VERSION-$HASH/linux/kinesis-producer.zip linux-binaries.zip
-       - mkdir -p java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/linux/
-       - unzip linux-binaries.zip -d $DIR/java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/linux/
-       - cd $DIR/java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/linux/
+       - test -e $DIR/java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/osx-`uname -m`/kinesis_producer
+       - aws s3 cp s3://kpl-build-kinesis-internal/$KPL_VERSION-$HASH/linux-x86_64/kinesis-producer.zip linux-x86_64-binaries.zip
+       - mkdir -p java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/linux-x86_64/
+       - unzip linux-x86_64-binaries.zip -d $DIR/java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/linux-x86_64/
+       - cd $DIR/java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/linux-x86_64/
        - pwd
        - ls
-       - test -e $DIR/java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/linux/kinesis_producer
+       - test -e $DIR/java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/linux-x86_64/kinesis_producer
+       - cd $DIR
+       - pwd
+       - ls
+       - echo "################################################################################"
+       - echo "Starting Bundling of Linux/arm64 with OSX binaries"
+       - echo "################################################################################"
+       - aws s3 cp s3://kpl-build-kinesis-internal/$KPL_VERSION-$HASH/linux-aarch64/kinesis-producer.zip linux-aarch64-binaries.zip
+       - mkdir -p java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/linux-aarch64/
+       - unzip linux-aarch64-binaries.zip -d $DIR/java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/linux-aarch64/
+       - cd $DIR/java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/linux-aarch64/
+       - pwd
+       - ls
+       - test -e $DIR/java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/linux-aarch64/kinesis_producer
        - cd $DIR
        - pwd
        - ls
