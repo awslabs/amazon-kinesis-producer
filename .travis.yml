@@ -91,13 +91,11 @@ matrix:
       os: osx
       compiler: clang
       osx_image: xcode9.3
-      addons:
-        homebrew:
-          packages:
-          - ant
-          - awscli
-          update: true
       script:
+       - curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg"
+       - sudo installer -pkg AWSCLIV2.pkg -target /
+       - java -XshowSettings:properties -version 2>&1 > /dev/null | grep 'java.home'
+       - export JAVA_HOME=$(java -XshowSettings:properties -version 2>&1 > /dev/null | grep 'java.home' | awk '{print $3}')
        - DIR=$(pwd)
        - ./bootstrap.sh
        - cd java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/$TRAVIS_OS_NAME
