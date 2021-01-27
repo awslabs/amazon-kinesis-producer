@@ -359,7 +359,6 @@ int main(int argc, char* const* argv) {
   process_options(argc, argv);
   aws::utils::setup_logging(options.boost_log_level);
   aws::utils::setup_aws_logging(options.aws_log_level);
-
   Aws::SDKOptions sdk_options;
   Aws::InitAPI(sdk_options);
 

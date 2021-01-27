@@ -15,6 +15,17 @@
 
 package com.amazonaws.services.kinesis.producer;
 
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension;
+import com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration;
+import com.amazonaws.services.kinesis.producer.protobuf.Messages.Message;
+import com.amazonaws.services.schemaregistry.common.configs.GlueSchemaRegistryConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -24,25 +35,12 @@ import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-import com.amazonaws.services.schemaregistry.common.configs.GlueSchemaRegistryConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension;
-import com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration;
-import com.amazonaws.services.kinesis.producer.protobuf.Messages.Message;
-import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
-
 /**
  * Configuration for {@link KinesisProducer}. See each each individual set
  * method for details about each parameter.
  */
 public class KinesisProducerConfiguration {
     private static final Logger log = LoggerFactory.getLogger(KinesisProducerConfiguration.class);
-
     private List<AdditionalDimension> additionalDims = new ArrayList<>();
     private AWSCredentialsProvider credentialsProvider = new DefaultAWSCredentialsProviderChain();
     private AWSCredentialsProvider metricsCredentialsProvider = null;
@@ -1122,11 +1120,11 @@ public class KinesisProducerConfiguration {
      * native KPL daemon show up on stderr.
      * 
      * <p><b>Default</b>: info
-     * <p><b>Expected pattern</b>: info|warning|error
+     * <p><b>Expected pattern</b>: trace|debug|info|warning|error
      */
     public KinesisProducerConfiguration setLogLevel(String val) {
-        if (!Pattern.matches("info|warning|error", val)) {
-            throw new IllegalArgumentException("logLevel must match the pattern info|warning|error, got " + val);
+        if (!Pattern.matches("trace|debug|info|warning|error", val)) {
+            throw new IllegalArgumentException("logLevel must match the pattern trace|debug|info|warning|error, got " + val);
         }
         logLevel = val;
         return this;

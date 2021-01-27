@@ -15,6 +15,11 @@
 
 package com.amazonaws.services.kinesis.producer;
 
+import org.apache.commons.io.Charsets;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,15 +31,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.Charsets;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class LogInputStreamReader implements Runnable {
-
     private static final Logger log = LoggerFactory.getLogger(LogInputStreamReader.class);
-
     private static final Pattern LEVEL_REGEX = Pattern.compile(
             "\\[(?<level>trace|debug|info|warn(?:ing)?|error|fatal)\\]", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
@@ -46,13 +44,13 @@ public class LogInputStreamReader implements Runnable {
         emitters.put("trace", new LoggingFunction() {
             @Override
             public void apply(String message) {
-                log.trace(message);
+                log.info(message);
             }
         });
         emitters.put("debug", new LoggingFunction() {
             @Override
             public void apply(String message) {
-                log.debug(message);
+                log.info(message);
             }
         });
         emitters.put("info", new LoggingFunction() {

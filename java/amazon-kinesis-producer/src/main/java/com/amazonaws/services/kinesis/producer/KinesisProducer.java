@@ -48,11 +48,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -87,7 +85,6 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class KinesisProducer implements IKinesisProducer {
     private static final Logger log = LoggerFactory.getLogger(KinesisProducer.class);
-    
     private static final BigInteger UINT_128_MAX = new BigInteger(StringUtils.repeat("FF", 16), 16);
     private static final Object EXTRACT_BIN_MUTEX = new Object();
     

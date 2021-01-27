@@ -42,7 +42,11 @@ using BoostLevel = boost::log::trivial::severity_level;
 
 BoostLevel set_log_level(const std::string& min_level) {
   auto min = boost::log::trivial::info;
-  if (min_level == "warning") {
+  if (min_level == "trace") {
+    min = boost::log::trivial::trace;
+  } else if (min_level == "debug") {
+    min = boost::log::trivial::debug;
+  } else if (min_level == "warning") {
     min = boost::log::trivial::warning;
   } else if (min_level == "error") {
     min = boost::log::trivial::error;
@@ -86,7 +90,6 @@ void setup_logging(const BoostLevel level) {
 }
 using BoostLog = boost::log::trivial::severity_level;
 const BoostLog AwsLevelToBoostLevel[] = {
-  BoostLog::fatal,
   BoostLog::fatal,
   BoostLog::error,
   BoostLog::warning,
