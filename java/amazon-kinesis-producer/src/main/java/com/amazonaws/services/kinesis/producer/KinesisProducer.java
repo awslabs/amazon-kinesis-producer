@@ -976,7 +976,7 @@ public class KinesisProducer implements IKinesisProducer {
             if (SystemUtils.IS_OS_WINDOWS) {
                 os = "windows";
             } else if (SystemUtils.IS_OS_LINUX) {
-                os = "linux";
+                os = "linux-" + (SystemUtils.OS_ARCH.equals("amd64") ? "x86_64" : SystemUtils.OS_ARCH);
             } else if (SystemUtils.IS_OS_MAC_OSX) {
                 os = "osx";
             } else {

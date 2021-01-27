@@ -13,7 +13,7 @@ silence() {
 }
 
 LIB_OPENSSL="https://ftp.openssl.org/source/old/1.0.1/openssl-1.0.1m.tar.gz"
-LIB_BOOST="http://sourceforge.net/projects/boost/files/boost/1.58.0/boost_1_58_0.tar.gz"
+LIB_BOOST="http://sourceforge.net/projects/boost/files/boost/1.61.0/boost_1_61_0.tar.gz"
 LIB_ZLIB="https://zlib.net/fossils/zlib-1.2.8.tar.gz"
 LIB_PROTOBUF="https://github.com/protocolbuffers/protobuf/releases/download/v3.11.4/protobuf-all-3.11.4.tar.gz"
 LIB_CURL="https://curl.haxx.se/download/curl-7.47.0.tar.gz"
@@ -29,7 +29,7 @@ mkdir -p $INSTALL_DIR
 # of the native binary
 function find_release_type() {
   if [[ $OSTYPE == "linux-gnu" ]]; then
-		echo "linux"
+		echo "linux-$(uname -m)"
 		return
 	elif [[ $OSTYPE == darwin* ]]; then
 		echo "osx"
@@ -42,7 +42,7 @@ function find_release_type() {
 	echo "unknown"
 }
 
-
+CMAKE=$(which cmake3 &> /dev/null && echo "cmake3 " || echo "cmake")
 RELEASE_TYPE=$(find_release_type)
 
 [[ $RELEASE_TYPE == "unknown" ]] && {
@@ -135,12 +135,12 @@ if [ ! -d "openssl-1.0.1m" ]; then
 fi
 
 # Boost C++ Libraries
-if [ ! -d "boost_1_58_0" ]; then
+if [ ! -d "boost_1_61_0" ]; then
   _curl "$LIB_BOOST" > boost.tgz
   tar xf boost.tgz
   rm boost.tgz
 
-  cd boost_1_58_0
+  cd boost_1_61_0
 
   LIBS="atomic,chrono,log,system,test,random,regex,thread,filesystem"
   OPTS="-j 8 --build-type=minimal --layout=system --prefix=$INSTALL_DIR link=static threading=multi release install"
@@ -231,7 +231,7 @@ if [ ! -d "aws-sdk-cpp" ]; then
 
   cd aws-sdk-cpp-build
 
-  silence cmake \
+  silence $CMAKE \
     -DBUILD_ONLY="kinesis;monitoring" \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -DSTATIC_LINKING=1 \
@@ -253,7 +253,7 @@ fi
 cd ..
 
 #Build the native kinesis producer
-cmake -DCMAKE_PREFIX_PATH="$INSTALL_DIR" .
+$CMAKE -DCMAKE_PREFIX_PATH="$INSTALL_DIR" .
 make -j8
 
 #copy native producer to a location that the java producer can package it
