@@ -1,4 +1,10 @@
 ## Changelog
+### 0.14.4
+* [PR #334] Add support for building multiple architectures, specifically arm64.
+   * This now supports AWS Graviton based instances.
+   * Bumped Boost slightly to a version that includes Arm support and added the architecture to the path for kinesis_producer.
+* [PR #335] Fixed logging for native layer allowing to enable debug/trace logs.
+
 ### 0.14.3
 * [PR #327] Adding support for timeout on user records at Java layer.
    * New optional KPL config parameter userRecordTimeoutInMillis which can be used to timeout records at the java layer queued for processing.
