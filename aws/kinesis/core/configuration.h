@@ -633,14 +633,14 @@ class Configuration : private boost::noncopyable {
   // logged. Logs for the native KPL daemon show up on stderr.
   //
   // Default: info
-  // Expected pattern: info|warning|error
+  // Expected pattern: trace|debug|info|warning|error
   Configuration& log_level(std::string val) {
     static std::regex pattern(
-        "info|warning|error",
+        "trace|debug|info|warning|error",
         std::regex::ECMAScript | std::regex::optimize);
     if (!std::regex_match(val, pattern)) {
       std::string err;
-      err += "log_level must match the pattern info|warning|error, got ";
+      err += "log_level must match the pattern trace|debug|info|warning|error, got ";
       err += val;
       throw std::runtime_error(err);
     }

@@ -15,6 +15,19 @@
 
 package com.amazonaws.services.kinesis.producer;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.AWSSessionCredentials;
+import com.amazonaws.services.kinesis.producer.protobuf.Messages;
+import com.amazonaws.services.kinesis.producer.protobuf.Messages.Message;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.protobuf.ByteString;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.xml.bind.DatatypeConverter;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -37,21 +50,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.xml.bind.DatatypeConverter;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.SystemUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.AWSSessionCredentials;
-import com.amazonaws.services.kinesis.producer.protobuf.Messages;
-import com.amazonaws.services.kinesis.producer.protobuf.Messages.Message;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.google.protobuf.ByteString;
-
 /**
  * This class manages the child process. It takes cares of starting the process,
  * connecting to it over TCP, and reading and writing messages from and to it
@@ -62,7 +60,6 @@ import com.google.protobuf.ByteString;
  */
 public class Daemon {
     private static final Logger log = LoggerFactory.getLogger(Daemon.class);
-    
     /**
      * Callback interface used by clients to receive messages and errors.
      * 
@@ -441,6 +438,8 @@ public class Daemon {
         }
         args.add("-w");
         args.add(protobufToHex(makeSetCredentialsMessage(metricsCreds, true)));
+        args.add("-l");
+        args.add(config.getLogLevel());
 
         log.debug("Starting Native Process: {}", StringUtils.join(args, " "));
 
