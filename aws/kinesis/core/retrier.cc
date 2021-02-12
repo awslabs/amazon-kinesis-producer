@@ -47,6 +47,7 @@ Retrier::handle_put_records_result(std::shared_ptr<PutRecordsContext> prc) {
   auto start = prc->get_start();
   auto end = prc->get_end();
 
+  emit_metrics(prc); // Emit PutRecords call specific metrics like client side latencies, records per call etc.
 
   if (!outcome.IsSuccess()) {
     auto e = outcome.GetError();
