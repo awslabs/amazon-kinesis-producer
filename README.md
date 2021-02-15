@@ -57,6 +57,9 @@ If you have further questions [please open a GitHub Issue](https://github.com/aw
 This is a restatement of the [notice published](https://docs.aws.amazon.com/streams/latest/dev/kinesis-kpl-upgrades.html) in the [Amazon Kinesis Data Streams Developer Guide][kinesis-developer-guide]
 
 ## Release Notes
+### 0.14.5
+* [PR #339] Fixing KPL not emmiting Kinesis PutRecords call context metrics.
+
 ### 0.14.4
 * [PR #334] Add support for building multiple architectures, specifically arm64.
    * This now supports AWS Graviton based instances.
