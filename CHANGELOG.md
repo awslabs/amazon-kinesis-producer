@@ -1,4 +1,7 @@
 ## Changelog
+### 0.14.5
+* [PR #339] Fixing KPL not emmiting Kinesis PutRecords call context metrics.
+
 ### 0.14.4
 * [PR #334] Add support for building multiple architectures, specifically arm64.
    * This now supports AWS Graviton based instances.
