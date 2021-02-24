@@ -57,7 +57,7 @@
     </build>
 
     <properties>
-        <aws-sdk-core-version>1.11.312</aws-sdk-core-version>
+        <aws-sdk-core-version>1.11.960</aws-sdk-core-version>
     </properties>
 
     <dependencies>
