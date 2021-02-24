@@ -39,7 +39,7 @@
     </build>
     <name>KinesisProducerLibrary Sample Application</name>
     <properties>
-        <aws-java-sdk.version>1.11.603</aws-java-sdk.version>
+        <aws-java-sdk.version>1.11.960</aws-java-sdk.version>
     </properties>
     <dependencies>
         <dependency>
