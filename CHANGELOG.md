@@ -1,4 +1,7 @@
 ## Changelog
+### 0.14.6
+* [PR #341] Updating Java SDK version in KPL to 1.11.960
+
 ### 0.14.5
 * [PR #339] Fixing KPL not emmiting Kinesis PutRecords call context metrics.
 
