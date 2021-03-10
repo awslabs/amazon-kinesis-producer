@@ -57,6 +57,9 @@ If you have further questions [please open a GitHub Issue](https://github.com/aw
 This is a restatement of the [notice published](https://docs.aws.amazon.com/streams/latest/dev/kinesis-kpl-upgrades.html) in the [Amazon Kinesis Data Streams Developer Guide][kinesis-developer-guide]
 
 ## Release Notes
+### 0.14.6
+* [PR #341] Updating Java SDK version in KPL to 1.11.960. 
+
 ### 0.14.5
 * [PR #339] Fixing KPL not emmiting Kinesis PutRecords call context metrics.
 
