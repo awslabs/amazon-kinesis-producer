@@ -9,10 +9,10 @@ matrix:
         - echo "Installing Dependencies for Linux"
         - echo "################################################################################"
         - sudo apt-get update
-        - sudo apt-get install python3
-        - sudo apt-get -y install python3-pip
-        - pip3 --version
-        - pip3 install --user awscli
+        - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" 
+        - unzip awscliv2.zip
+        - sudo ./aws/install
+        - export PATH=~/bin:$PATH
         - mkdir -p ~/.aws
         - |
           cat > ~/.aws/credentials << EOF
@@ -27,7 +27,7 @@ matrix:
         - echo "################################################################################"
         - echo "Starting build phase for Linux"
         - echo "################################################################################"
-        - $(aws ecr get-login --no-include-email --region us-west-2)
+        - aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 056543101242.dkr.ecr.us-west-2.amazonaws.com
         - echo "Getting Docker image for AL2012 build of KPL..."
         - docker pull 056543101242.dkr.ecr.us-west-2.amazonaws.com/kinesis-producer-library-builder:latest
         - ls
