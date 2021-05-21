@@ -525,7 +525,9 @@ public class Daemon {
             }
             try {
                 executor.awaitTermination(1, TimeUnit.SECONDS);
-            } catch (InterruptedException e) { }
+            } catch (Exception e) {
+                log.warn("Wait termination of executor failed", e);
+            }
             executor.shutdownNow();
             if (handler != null) {
                 if (retryable) {
