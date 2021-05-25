@@ -57,6 +57,10 @@ If you have further questions [please open a GitHub Issue](https://github.com/aw
 This is a restatement of the [notice published](https://docs.aws.amazon.com/streams/latest/dev/kinesis-kpl-upgrades.html) in the [Amazon Kinesis Data Streams Developer Guide][kinesis-developer-guide]
 
 ## Release Notes
+### 0.14.7
+* [PR #350](https://github.com/awslabs/amazon-kinesis-producer/pull/350/files) Upgrading Guava to 29.0-jre.
+* [PR #352](https://github.com/awslabs/amazon-kinesis-producer/pull/352/files) Upgrading Commons IO to 2.7.
+
 ### 0.14.6
 * [PR #341] Updating Java SDK version in KPL to 1.11.960. 
 

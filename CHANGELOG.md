@@ -1,4 +1,8 @@
 ## Changelog
+### 0.14.7
+* [PR #350](https://github.com/awslabs/amazon-kinesis-producer/pull/350/files) Upgrading Guava to 29.0-jre.
+* [PR #352](https://github.com/awslabs/amazon-kinesis-producer/pull/352/files) Upgrading Commons IO to 2.7.
+
 ### 0.14.6
 * [PR #341] Updating Java SDK version in KPL to 1.11.960
 
