@@ -445,9 +445,12 @@ class Configuration :
     kMetricsLevelFieldNumber = 16,
     kMetricsNamespaceFieldNumber = 17,
     kRegionFieldNumber = 23,
+    kProxyHostFieldNumber = 26,
+    kProxyUserNameFieldNumber = 28,
+    kProxyPasswordFieldNumber = 29,
     kEnableCoreDumpsFieldNumber = 9,
     kFailIfThrottledFieldNumber = 10,
-    kThreadConfigFieldNumber = 26,
+    kThreadConfigFieldNumber = 30,
     kAggregationMaxCountFieldNumber = 2,
     kAggregationMaxSizeFieldNumber = 3,
     kCloudwatchPortFieldNumber = 5,
@@ -456,15 +459,16 @@ class Configuration :
     kConnectTimeoutFieldNumber = 8,
     kKinesisPortFieldNumber = 12,
     kMaxConnectionsFieldNumber = 14,
-    kAggregationEnabledFieldNumber = 1,
-    kVerifyCertificateFieldNumber = 25,
-    kThreadPoolSizeFieldNumber = 27,
     kMetricsUploadDelayFieldNumber = 18,
     kMinConnectionsFieldNumber = 19,
+    kAggregationEnabledFieldNumber = 1,
+    kVerifyCertificateFieldNumber = 25,
+    kThreadPoolSizeFieldNumber = 31,
     kRateLimitFieldNumber = 20,
     kRecordMaxBufferedTimeFieldNumber = 21,
     kRecordTtlFieldNumber = 22,
     kRequestTimeoutFieldNumber = 24,
+    kProxyPortFieldNumber = 27,
   };
   // repeated .aws.kinesis.protobuf.AdditionalDimension additional_metric_dims = 128;
   int additional_metric_dims_size() const;
@@ -624,6 +628,66 @@ class Configuration :
   std::string* _internal_mutable_region();
   public:
 
+  // optional string proxy_host = 26 [default = ""];
+  bool has_proxy_host() const;
+  private:
+  bool _internal_has_proxy_host() const;
+  public:
+  void clear_proxy_host();
+  const std::string& proxy_host() const;
+  void set_proxy_host(const std::string& value);
+  void set_proxy_host(std::string&& value);
+  void set_proxy_host(const char* value);
+  void set_proxy_host(const char* value, size_t size);
+  std::string* mutable_proxy_host();
+  std::string* release_proxy_host();
+  void set_allocated_proxy_host(std::string* proxy_host);
+  private:
+  const std::string& _internal_proxy_host() const;
+  void _internal_set_proxy_host(const std::string& value);
+  std::string* _internal_mutable_proxy_host();
+  public:
+
+  // optional string proxy_user_name = 28 [default = ""];
+  bool has_proxy_user_name() const;
+  private:
+  bool _internal_has_proxy_user_name() const;
+  public:
+  void clear_proxy_user_name();
+  const std::string& proxy_user_name() const;
+  void set_proxy_user_name(const std::string& value);
+  void set_proxy_user_name(std::string&& value);
+  void set_proxy_user_name(const char* value);
+  void set_proxy_user_name(const char* value, size_t size);
+  std::string* mutable_proxy_user_name();
+  std::string* release_proxy_user_name();
+  void set_allocated_proxy_user_name(std::string* proxy_user_name);
+  private:
+  const std::string& _internal_proxy_user_name() const;
+  void _internal_set_proxy_user_name(const std::string& value);
+  std::string* _internal_mutable_proxy_user_name();
+  public:
+
+  // optional string proxy_password = 29 [default = ""];
+  bool has_proxy_password() const;
+  private:
+  bool _internal_has_proxy_password() const;
+  public:
+  void clear_proxy_password();
+  const std::string& proxy_password() const;
+  void set_proxy_password(const std::string& value);
+  void set_proxy_password(std::string&& value);
+  void set_proxy_password(const char* value);
+  void set_proxy_password(const char* value, size_t size);
+  std::string* mutable_proxy_password();
+  std::string* release_proxy_password();
+  void set_allocated_proxy_password(std::string* proxy_password);
+  private:
+  const std::string& _internal_proxy_password() const;
+  void _internal_set_proxy_password(const std::string& value);
+  std::string* _internal_mutable_proxy_password();
+  public:
+
   // optional bool enable_core_dumps = 9 [default = false];
   bool has_enable_core_dumps() const;
   private:
@@ -650,7 +714,7 @@ class Configuration :
   void _internal_set_fail_if_throttled(bool value);
   public:
 
-  // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];
+  // optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 30 [default = PER_REQUEST];
   bool has_thread_config() const;
   private:
   bool _internal_has_thread_config() const;
@@ -767,6 +831,32 @@ class Configuration :
   void _internal_set_max_connections(::PROTOBUF_NAMESPACE_ID::uint64 value);
   public:
 
+  // optional uint64 metrics_upload_delay = 18 [default = 60000];
+  bool has_metrics_upload_delay() const;
+  private:
+  bool _internal_has_metrics_upload_delay() const;
+  public:
+  void clear_metrics_upload_delay();
+  ::PROTOBUF_NAMESPACE_ID::uint64 metrics_upload_delay() const;
+  void set_metrics_upload_delay(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint64 _internal_metrics_upload_delay() const;
+  void _internal_set_metrics_upload_delay(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  public:
+
+  // optional uint64 min_connections = 19 [default = 1];
+  bool has_min_connections() const;
+  private:
+  bool _internal_has_min_connections() const;
+  public:
+  void clear_min_connections();
+  ::PROTOBUF_NAMESPACE_ID::uint64 min_connections() const;
+  void set_min_connections(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint64 _internal_min_connections() const;
+  void _internal_set_min_connections(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  public:
+
   // optional bool aggregation_enabled = 1 [default = true];
   bool has_aggregation_enabled() const;
   private:
@@ -793,7 +883,7 @@ class Configuration :
   void _internal_set_verify_certificate(bool value);
   public:
 
-  // optional uint32 thread_pool_size = 27 [default = 64];
+  // optional uint32 thread_pool_size = 31 [default = 64];
   bool has_thread_pool_size() const;
   private:
   bool _internal_has_thread_pool_size() const;
@@ -804,32 +894,6 @@ class Configuration :
   private:
   ::PROTOBUF_NAMESPACE_ID::uint32 _internal_thread_pool_size() const;
   void _internal_set_thread_pool_size(::PROTOBUF_NAMESPACE_ID::uint32 value);
-  public:
-
-  // optional uint64 metrics_upload_delay = 18 [default = 60000];
-  bool has_metrics_upload_delay() const;
-  private:
-  bool _internal_has_metrics_upload_delay() const;
-  public:
-  void clear_metrics_upload_delay();
-  ::PROTOBUF_NAMESPACE_ID::uint64 metrics_upload_delay() const;
-  void set_metrics_upload_delay(::PROTOBUF_NAMESPACE_ID::uint64 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint64 _internal_metrics_upload_delay() const;
-  void _internal_set_metrics_upload_delay(::PROTOBUF_NAMESPACE_ID::uint64 value);
-  public:
-
-  // optional uint64 min_connections = 19 [default = 1];
-  bool has_min_connections() const;
-  private:
-  bool _internal_has_min_connections() const;
-  public:
-  void clear_min_connections();
-  ::PROTOBUF_NAMESPACE_ID::uint64 min_connections() const;
-  void set_min_connections(::PROTOBUF_NAMESPACE_ID::uint64 value);
-  private:
-  ::PROTOBUF_NAMESPACE_ID::uint64 _internal_min_connections() const;
-  void _internal_set_min_connections(::PROTOBUF_NAMESPACE_ID::uint64 value);
   public:
 
   // optional uint64 rate_limit = 20 [default = 150];
@@ -884,6 +948,19 @@ class Configuration :
   void _internal_set_request_timeout(::PROTOBUF_NAMESPACE_ID::uint64 value);
   public:
 
+  // optional uint64 proxy_port = 27 [default = 443];
+  bool has_proxy_port() const;
+  private:
+  bool _internal_has_proxy_port() const;
+  public:
+  void clear_proxy_port();
+  ::PROTOBUF_NAMESPACE_ID::uint64 proxy_port() const;
+  void set_proxy_port(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint64 _internal_proxy_port() const;
+  void _internal_set_proxy_port(::PROTOBUF_NAMESPACE_ID::uint64 value);
+  public:
+
   // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.Configuration)
  private:
   class _Internal;
@@ -911,6 +988,9 @@ class Configuration :
   private:
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr metrics_namespace_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr region_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr proxy_host_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr proxy_user_name_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr proxy_password_;
   bool enable_core_dumps_;
   bool fail_if_throttled_;
   int thread_config_;
@@ -922,15 +1002,16 @@ class Configuration :
   ::PROTOBUF_NAMESPACE_ID::uint64 connect_timeout_;
   ::PROTOBUF_NAMESPACE_ID::uint64 kinesis_port_;
   ::PROTOBUF_NAMESPACE_ID::uint64 max_connections_;
+  ::PROTOBUF_NAMESPACE_ID::uint64 metrics_upload_delay_;
+  ::PROTOBUF_NAMESPACE_ID::uint64 min_connections_;
   bool aggregation_enabled_;
   bool verify_certificate_;
   ::PROTOBUF_NAMESPACE_ID::uint32 thread_pool_size_;
-  ::PROTOBUF_NAMESPACE_ID::uint64 metrics_upload_delay_;
-  ::PROTOBUF_NAMESPACE_ID::uint64 min_connections_;
   ::PROTOBUF_NAMESPACE_ID::uint64 rate_limit_;
   ::PROTOBUF_NAMESPACE_ID::uint64 record_max_buffered_time_;
   ::PROTOBUF_NAMESPACE_ID::uint64 record_ttl_;
   ::PROTOBUF_NAMESPACE_ID::uint64 request_timeout_;
+  ::PROTOBUF_NAMESPACE_ID::uint64 proxy_port_;
   friend struct ::TableStruct_config_2eproto;
 };
 // ===================================================================
@@ -1202,7 +1283,7 @@ Configuration::additional_metric_dims() const {
 
 // optional bool aggregation_enabled = 1 [default = true];
 inline bool Configuration::_internal_has_aggregation_enabled() const {
-  bool value = (_has_bits_[0] & 0x00040000u) != 0;
+  bool value = (_has_bits_[0] & 0x00800000u) != 0;
   return value;
 }
 inline bool Configuration::has_aggregation_enabled() const {
@@ -1210,7 +1291,7 @@ inline bool Configuration::has_aggregation_enabled() const {
 }
 inline void Configuration::clear_aggregation_enabled() {
   aggregation_enabled_ = true;
-  _has_bits_[0] &= ~0x00040000u;
+  _has_bits_[0] &= ~0x00800000u;
 }
 inline bool Configuration::_internal_aggregation_enabled() const {
   return aggregation_enabled_;
@@ -1220,7 +1301,7 @@ inline bool Configuration::aggregation_enabled() const {
   return _internal_aggregation_enabled();
 }
 inline void Configuration::_internal_set_aggregation_enabled(bool value) {
-  _has_bits_[0] |= 0x00040000u;
+  _has_bits_[0] |= 0x00800000u;
   aggregation_enabled_ = value;
 }
 inline void Configuration::set_aggregation_enabled(bool value) {
@@ -1230,7 +1311,7 @@ inline void Configuration::set_aggregation_enabled(bool value) {
 
 // optional uint64 aggregation_max_count = 2 [default = 4294967295];
 inline bool Configuration::_internal_has_aggregation_max_count() const {
-  bool value = (_has_bits_[0] & 0x00000400u) != 0;
+  bool value = (_has_bits_[0] & 0x00002000u) != 0;
   return value;
 }
 inline bool Configuration::has_aggregation_max_count() const {
@@ -1238,7 +1319,7 @@ inline bool Configuration::has_aggregation_max_count() const {
 }
 inline void Configuration::clear_aggregation_max_count() {
   aggregation_max_count_ = PROTOBUF_ULONGLONG(4294967295);
-  _has_bits_[0] &= ~0x00000400u;
+  _has_bits_[0] &= ~0x00002000u;
 }
 inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::_internal_aggregation_max_count() const {
   return aggregation_max_count_;
@@ -1248,7 +1329,7 @@ inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::aggregation_max_count() co
   return _internal_aggregation_max_count();
 }
 inline void Configuration::_internal_set_aggregation_max_count(::PROTOBUF_NAMESPACE_ID::uint64 value) {
-  _has_bits_[0] |= 0x00000400u;
+  _has_bits_[0] |= 0x00002000u;
   aggregation_max_count_ = value;
 }
 inline void Configuration::set_aggregation_max_count(::PROTOBUF_NAMESPACE_ID::uint64 value) {
@@ -1258,7 +1339,7 @@ inline void Configuration::set_aggregation_max_count(::PROTOBUF_NAMESPACE_ID::ui
 
 // optional uint64 aggregation_max_size = 3 [default = 51200];
 inline bool Configuration::_internal_has_aggregation_max_size() const {
-  bool value = (_has_bits_[0] & 0x00000800u) != 0;
+  bool value = (_has_bits_[0] & 0x00004000u) != 0;
   return value;
 }
 inline bool Configuration::has_aggregation_max_size() const {
@@ -1266,7 +1347,7 @@ inline bool Configuration::has_aggregation_max_size() const {
 }
 inline void Configuration::clear_aggregation_max_size() {
   aggregation_max_size_ = PROTOBUF_ULONGLONG(51200);
-  _has_bits_[0] &= ~0x00000800u;
+  _has_bits_[0] &= ~0x00004000u;
 }
 inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::_internal_aggregation_max_size() const {
   return aggregation_max_size_;
@@ -1276,7 +1357,7 @@ inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::aggregation_max_size() con
   return _internal_aggregation_max_size();
 }
 inline void Configuration::_internal_set_aggregation_max_size(::PROTOBUF_NAMESPACE_ID::uint64 value) {
-  _has_bits_[0] |= 0x00000800u;
+  _has_bits_[0] |= 0x00004000u;
   aggregation_max_size_ = value;
 }
 inline void Configuration::set_aggregation_max_size(::PROTOBUF_NAMESPACE_ID::uint64 value) {
@@ -1357,7 +1438,7 @@ inline void Configuration::set_allocated_cloudwatch_endpoint(std::string* cloudw
 
 // optional uint64 cloudwatch_port = 5 [default = 443];
 inline bool Configuration::_internal_has_cloudwatch_port() const {
-  bool value = (_has_bits_[0] & 0x00001000u) != 0;
+  bool value = (_has_bits_[0] & 0x00008000u) != 0;
   return value;
 }
 inline bool Configuration::has_cloudwatch_port() const {
@@ -1365,7 +1446,7 @@ inline bool Configuration::has_cloudwatch_port() const {
 }
 inline void Configuration::clear_cloudwatch_port() {
   cloudwatch_port_ = PROTOBUF_ULONGLONG(443);
-  _has_bits_[0] &= ~0x00001000u;
+  _has_bits_[0] &= ~0x00008000u;
 }
 inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::_internal_cloudwatch_port() const {
   return cloudwatch_port_;
@@ -1375,7 +1456,7 @@ inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::cloudwatch_port() const {
   return _internal_cloudwatch_port();
 }
 inline void Configuration::_internal_set_cloudwatch_port(::PROTOBUF_NAMESPACE_ID::uint64 value) {
-  _has_bits_[0] |= 0x00001000u;
+  _has_bits_[0] |= 0x00008000u;
   cloudwatch_port_ = value;
 }
 inline void Configuration::set_cloudwatch_port(::PROTOBUF_NAMESPACE_ID::uint64 value) {
@@ -1385,7 +1466,7 @@ inline void Configuration::set_cloudwatch_port(::PROTOBUF_NAMESPACE_ID::uint64 v
 
 // optional uint64 collection_max_count = 6 [default = 500];
 inline bool Configuration::_internal_has_collection_max_count() const {
-  bool value = (_has_bits_[0] & 0x00002000u) != 0;
+  bool value = (_has_bits_[0] & 0x00010000u) != 0;
   return value;
 }
 inline bool Configuration::has_collection_max_count() const {
@@ -1393,7 +1474,7 @@ inline bool Configuration::has_collection_max_count() const {
 }
 inline void Configuration::clear_collection_max_count() {
   collection_max_count_ = PROTOBUF_ULONGLONG(500);
-  _has_bits_[0] &= ~0x00002000u;
+  _has_bits_[0] &= ~0x00010000u;
 }
 inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::_internal_collection_max_count() const {
   return collection_max_count_;
@@ -1403,7 +1484,7 @@ inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::collection_max_count() con
   return _internal_collection_max_count();
 }
 inline void Configuration::_internal_set_collection_max_count(::PROTOBUF_NAMESPACE_ID::uint64 value) {
-  _has_bits_[0] |= 0x00002000u;
+  _has_bits_[0] |= 0x00010000u;
   collection_max_count_ = value;
 }
 inline void Configuration::set_collection_max_count(::PROTOBUF_NAMESPACE_ID::uint64 value) {
@@ -1413,7 +1494,7 @@ inline void Configuration::set_collection_max_count(::PROTOBUF_NAMESPACE_ID::uin
 
 // optional uint64 collection_max_size = 7 [default = 5242880];
 inline bool Configuration::_internal_has_collection_max_size() const {
-  bool value = (_has_bits_[0] & 0x00004000u) != 0;
+  bool value = (_has_bits_[0] & 0x00020000u) != 0;
   return value;
 }
 inline bool Configuration::has_collection_max_size() const {
@@ -1421,7 +1502,7 @@ inline bool Configuration::has_collection_max_size() const {
 }
 inline void Configuration::clear_collection_max_size() {
   collection_max_size_ = PROTOBUF_ULONGLONG(5242880);
-  _has_bits_[0] &= ~0x00004000u;
+  _has_bits_[0] &= ~0x00020000u;
 }
 inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::_internal_collection_max_size() const {
   return collection_max_size_;
@@ -1431,7 +1512,7 @@ inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::collection_max_size() cons
   return _internal_collection_max_size();
 }
 inline void Configuration::_internal_set_collection_max_size(::PROTOBUF_NAMESPACE_ID::uint64 value) {
-  _has_bits_[0] |= 0x00004000u;
+  _has_bits_[0] |= 0x00020000u;
   collection_max_size_ = value;
 }
 inline void Configuration::set_collection_max_size(::PROTOBUF_NAMESPACE_ID::uint64 value) {
@@ -1441,7 +1522,7 @@ inline void Configuration::set_collection_max_size(::PROTOBUF_NAMESPACE_ID::uint
 
 // optional uint64 connect_timeout = 8 [default = 6000];
 inline bool Configuration::_internal_has_connect_timeout() const {
-  bool value = (_has_bits_[0] & 0x00008000u) != 0;
+  bool value = (_has_bits_[0] & 0x00040000u) != 0;
   return value;
 }
 inline bool Configuration::has_connect_timeout() const {
@@ -1449,7 +1530,7 @@ inline bool Configuration::has_connect_timeout() const {
 }
 inline void Configuration::clear_connect_timeout() {
   connect_timeout_ = PROTOBUF_ULONGLONG(6000);
-  _has_bits_[0] &= ~0x00008000u;
+  _has_bits_[0] &= ~0x00040000u;
 }
 inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::_internal_connect_timeout() const {
   return connect_timeout_;
@@ -1459,7 +1540,7 @@ inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::connect_timeout() const {
   return _internal_connect_timeout();
 }
 inline void Configuration::_internal_set_connect_timeout(::PROTOBUF_NAMESPACE_ID::uint64 value) {
-  _has_bits_[0] |= 0x00008000u;
+  _has_bits_[0] |= 0x00040000u;
   connect_timeout_ = value;
 }
 inline void Configuration::set_connect_timeout(::PROTOBUF_NAMESPACE_ID::uint64 value) {
@@ -1469,7 +1550,7 @@ inline void Configuration::set_connect_timeout(::PROTOBUF_NAMESPACE_ID::uint64 v
 
 // optional bool enable_core_dumps = 9 [default = false];
 inline bool Configuration::_internal_has_enable_core_dumps() const {
-  bool value = (_has_bits_[0] & 0x00000080u) != 0;
+  bool value = (_has_bits_[0] & 0x00000400u) != 0;
   return value;
 }
 inline bool Configuration::has_enable_core_dumps() const {
@@ -1477,7 +1558,7 @@ inline bool Configuration::has_enable_core_dumps() const {
 }
 inline void Configuration::clear_enable_core_dumps() {
   enable_core_dumps_ = false;
-  _has_bits_[0] &= ~0x00000080u;
+  _has_bits_[0] &= ~0x00000400u;
 }
 inline bool Configuration::_internal_enable_core_dumps() const {
   return enable_core_dumps_;
@@ -1487,7 +1568,7 @@ inline bool Configuration::enable_core_dumps() const {
   return _internal_enable_core_dumps();
 }
 inline void Configuration::_internal_set_enable_core_dumps(bool value) {
-  _has_bits_[0] |= 0x00000080u;
+  _has_bits_[0] |= 0x00000400u;
   enable_core_dumps_ = value;
 }
 inline void Configuration::set_enable_core_dumps(bool value) {
@@ -1497,7 +1578,7 @@ inline void Configuration::set_enable_core_dumps(bool value) {
 
 // optional bool fail_if_throttled = 10 [default = false];
 inline bool Configuration::_internal_has_fail_if_throttled() const {
-  bool value = (_has_bits_[0] & 0x00000100u) != 0;
+  bool value = (_has_bits_[0] & 0x00000800u) != 0;
   return value;
 }
 inline bool Configuration::has_fail_if_throttled() const {
@@ -1505,7 +1586,7 @@ inline bool Configuration::has_fail_if_throttled() const {
 }
 inline void Configuration::clear_fail_if_throttled() {
   fail_if_throttled_ = false;
-  _has_bits_[0] &= ~0x00000100u;
+  _has_bits_[0] &= ~0x00000800u;
 }
 inline bool Configuration::_internal_fail_if_throttled() const {
   return fail_if_throttled_;
@@ -1515,7 +1596,7 @@ inline bool Configuration::fail_if_throttled() const {
   return _internal_fail_if_throttled();
 }
 inline void Configuration::_internal_set_fail_if_throttled(bool value) {
-  _has_bits_[0] |= 0x00000100u;
+  _has_bits_[0] |= 0x00000800u;
   fail_if_throttled_ = value;
 }
 inline void Configuration::set_fail_if_throttled(bool value) {
@@ -1596,7 +1677,7 @@ inline void Configuration::set_allocated_kinesis_endpoint(std::string* kinesis_e
 
 // optional uint64 kinesis_port = 12 [default = 443];
 inline bool Configuration::_internal_has_kinesis_port() const {
-  bool value = (_has_bits_[0] & 0x00010000u) != 0;
+  bool value = (_has_bits_[0] & 0x00080000u) != 0;
   return value;
 }
 inline bool Configuration::has_kinesis_port() const {
@@ -1604,7 +1685,7 @@ inline bool Configuration::has_kinesis_port() const {
 }
 inline void Configuration::clear_kinesis_port() {
   kinesis_port_ = PROTOBUF_ULONGLONG(443);
-  _has_bits_[0] &= ~0x00010000u;
+  _has_bits_[0] &= ~0x00080000u;
 }
 inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::_internal_kinesis_port() const {
   return kinesis_port_;
@@ -1614,7 +1695,7 @@ inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::kinesis_port() const {
   return _internal_kinesis_port();
 }
 inline void Configuration::_internal_set_kinesis_port(::PROTOBUF_NAMESPACE_ID::uint64 value) {
-  _has_bits_[0] |= 0x00010000u;
+  _has_bits_[0] |= 0x00080000u;
   kinesis_port_ = value;
 }
 inline void Configuration::set_kinesis_port(::PROTOBUF_NAMESPACE_ID::uint64 value) {
@@ -1695,7 +1776,7 @@ inline void Configuration::set_allocated_log_level(std::string* log_level) {
 
 // optional uint64 max_connections = 14 [default = 24];
 inline bool Configuration::_internal_has_max_connections() const {
-  bool value = (_has_bits_[0] & 0x00020000u) != 0;
+  bool value = (_has_bits_[0] & 0x00100000u) != 0;
   return value;
 }
 inline bool Configuration::has_max_connections() const {
@@ -1703,7 +1784,7 @@ inline bool Configuration::has_max_connections() const {
 }
 inline void Configuration::clear_max_connections() {
   max_connections_ = PROTOBUF_ULONGLONG(24);
-  _has_bits_[0] &= ~0x00020000u;
+  _has_bits_[0] &= ~0x00100000u;
 }
 inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::_internal_max_connections() const {
   return max_connections_;
@@ -1713,7 +1794,7 @@ inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::max_connections() const {
   return _internal_max_connections();
 }
 inline void Configuration::_internal_set_max_connections(::PROTOBUF_NAMESPACE_ID::uint64 value) {
-  _has_bits_[0] |= 0x00020000u;
+  _has_bits_[0] |= 0x00100000u;
   max_connections_ = value;
 }
 inline void Configuration::set_max_connections(::PROTOBUF_NAMESPACE_ID::uint64 value) {
@@ -1992,7 +2073,7 @@ inline void Configuration::set_min_connections(::PROTOBUF_NAMESPACE_ID::uint64 v
 
 // optional uint64 rate_limit = 20 [default = 150];
 inline bool Configuration::_internal_has_rate_limit() const {
-  bool value = (_has_bits_[0] & 0x00800000u) != 0;
+  bool value = (_has_bits_[0] & 0x04000000u) != 0;
   return value;
 }
 inline bool Configuration::has_rate_limit() const {
@@ -2000,7 +2081,7 @@ inline bool Configuration::has_rate_limit() const {
 }
 inline void Configuration::clear_rate_limit() {
   rate_limit_ = PROTOBUF_ULONGLONG(150);
-  _has_bits_[0] &= ~0x00800000u;
+  _has_bits_[0] &= ~0x04000000u;
 }
 inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::_internal_rate_limit() const {
   return rate_limit_;
@@ -2010,7 +2091,7 @@ inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::rate_limit() const {
   return _internal_rate_limit();
 }
 inline void Configuration::_internal_set_rate_limit(::PROTOBUF_NAMESPACE_ID::uint64 value) {
-  _has_bits_[0] |= 0x00800000u;
+  _has_bits_[0] |= 0x04000000u;
   rate_limit_ = value;
 }
 inline void Configuration::set_rate_limit(::PROTOBUF_NAMESPACE_ID::uint64 value) {
@@ -2020,7 +2101,7 @@ inline void Configuration::set_rate_limit(::PROTOBUF_NAMESPACE_ID::uint64 value)
 
 // optional uint64 record_max_buffered_time = 21 [default = 100];
 inline bool Configuration::_internal_has_record_max_buffered_time() const {
-  bool value = (_has_bits_[0] & 0x01000000u) != 0;
+  bool value = (_has_bits_[0] & 0x08000000u) != 0;
   return value;
 }
 inline bool Configuration::has_record_max_buffered_time() const {
@@ -2028,7 +2109,7 @@ inline bool Configuration::has_record_max_buffered_time() const {
 }
 inline void Configuration::clear_record_max_buffered_time() {
   record_max_buffered_time_ = PROTOBUF_ULONGLONG(100);
-  _has_bits_[0] &= ~0x01000000u;
+  _has_bits_[0] &= ~0x08000000u;
 }
 inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::_internal_record_max_buffered_time() const {
   return record_max_buffered_time_;
@@ -2038,7 +2119,7 @@ inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::record_max_buffered_time()
   return _internal_record_max_buffered_time();
 }
 inline void Configuration::_internal_set_record_max_buffered_time(::PROTOBUF_NAMESPACE_ID::uint64 value) {
-  _has_bits_[0] |= 0x01000000u;
+  _has_bits_[0] |= 0x08000000u;
   record_max_buffered_time_ = value;
 }
 inline void Configuration::set_record_max_buffered_time(::PROTOBUF_NAMESPACE_ID::uint64 value) {
@@ -2048,7 +2129,7 @@ inline void Configuration::set_record_max_buffered_time(::PROTOBUF_NAMESPACE_ID:
 
 // optional uint64 record_ttl = 22 [default = 30000];
 inline bool Configuration::_internal_has_record_ttl() const {
-  bool value = (_has_bits_[0] & 0x02000000u) != 0;
+  bool value = (_has_bits_[0] & 0x10000000u) != 0;
   return value;
 }
 inline bool Configuration::has_record_ttl() const {
@@ -2056,7 +2137,7 @@ inline bool Configuration::has_record_ttl() const {
 }
 inline void Configuration::clear_record_ttl() {
   record_ttl_ = PROTOBUF_ULONGLONG(30000);
-  _has_bits_[0] &= ~0x02000000u;
+  _has_bits_[0] &= ~0x10000000u;
 }
 inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::_internal_record_ttl() const {
   return record_ttl_;
@@ -2066,7 +2147,7 @@ inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::record_ttl() const {
   return _internal_record_ttl();
 }
 inline void Configuration::_internal_set_record_ttl(::PROTOBUF_NAMESPACE_ID::uint64 value) {
-  _has_bits_[0] |= 0x02000000u;
+  _has_bits_[0] |= 0x10000000u;
   record_ttl_ = value;
 }
 inline void Configuration::set_record_ttl(::PROTOBUF_NAMESPACE_ID::uint64 value) {
@@ -2147,7 +2228,7 @@ inline void Configuration::set_allocated_region(std::string* region) {
 
 // optional uint64 request_timeout = 24 [default = 6000];
 inline bool Configuration::_internal_has_request_timeout() const {
-  bool value = (_has_bits_[0] & 0x04000000u) != 0;
+  bool value = (_has_bits_[0] & 0x20000000u) != 0;
   return value;
 }
 inline bool Configuration::has_request_timeout() const {
@@ -2155,7 +2236,7 @@ inline bool Configuration::has_request_timeout() const {
 }
 inline void Configuration::clear_request_timeout() {
   request_timeout_ = PROTOBUF_ULONGLONG(6000);
-  _has_bits_[0] &= ~0x04000000u;
+  _has_bits_[0] &= ~0x20000000u;
 }
 inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::_internal_request_timeout() const {
   return request_timeout_;
@@ -2165,7 +2246,7 @@ inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::request_timeout() const {
   return _internal_request_timeout();
 }
 inline void Configuration::_internal_set_request_timeout(::PROTOBUF_NAMESPACE_ID::uint64 value) {
-  _has_bits_[0] |= 0x04000000u;
+  _has_bits_[0] |= 0x20000000u;
   request_timeout_ = value;
 }
 inline void Configuration::set_request_timeout(::PROTOBUF_NAMESPACE_ID::uint64 value) {
@@ -2175,7 +2256,7 @@ inline void Configuration::set_request_timeout(::PROTOBUF_NAMESPACE_ID::uint64 v
 
 // optional bool verify_certificate = 25 [default = true];
 inline bool Configuration::_internal_has_verify_certificate() const {
-  bool value = (_has_bits_[0] & 0x00080000u) != 0;
+  bool value = (_has_bits_[0] & 0x01000000u) != 0;
   return value;
 }
 inline bool Configuration::has_verify_certificate() const {
@@ -2183,7 +2264,7 @@ inline bool Configuration::has_verify_certificate() const {
 }
 inline void Configuration::clear_verify_certificate() {
   verify_certificate_ = true;
-  _has_bits_[0] &= ~0x00080000u;
+  _has_bits_[0] &= ~0x01000000u;
 }
 inline bool Configuration::_internal_verify_certificate() const {
   return verify_certificate_;
@@ -2193,7 +2274,7 @@ inline bool Configuration::verify_certificate() const {
   return _internal_verify_certificate();
 }
 inline void Configuration::_internal_set_verify_certificate(bool value) {
-  _has_bits_[0] |= 0x00080000u;
+  _has_bits_[0] |= 0x01000000u;
   verify_certificate_ = value;
 }
 inline void Configuration::set_verify_certificate(bool value) {
@@ -2201,9 +2282,250 @@ inline void Configuration::set_verify_certificate(bool value) {
   // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.verify_certificate)
 }
 
-// optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 26 [default = PER_REQUEST];
-inline bool Configuration::_internal_has_thread_config() const {
+// optional string proxy_host = 26 [default = ""];
+inline bool Configuration::_internal_has_proxy_host() const {
+  bool value = (_has_bits_[0] & 0x00000080u) != 0;
+  return value;
+}
+inline bool Configuration::has_proxy_host() const {
+  return _internal_has_proxy_host();
+}
+inline void Configuration::clear_proxy_host() {
+  proxy_host_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  _has_bits_[0] &= ~0x00000080u;
+}
+inline const std::string& Configuration::proxy_host() const {
+  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.Configuration.proxy_host)
+  return _internal_proxy_host();
+}
+inline void Configuration::set_proxy_host(const std::string& value) {
+  _internal_set_proxy_host(value);
+  // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.proxy_host)
+}
+inline std::string* Configuration::mutable_proxy_host() {
+  // @@protoc_insertion_point(field_mutable:aws.kinesis.protobuf.Configuration.proxy_host)
+  return _internal_mutable_proxy_host();
+}
+inline const std::string& Configuration::_internal_proxy_host() const {
+  return proxy_host_.GetNoArena();
+}
+inline void Configuration::_internal_set_proxy_host(const std::string& value) {
+  _has_bits_[0] |= 0x00000080u;
+  proxy_host_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void Configuration::set_proxy_host(std::string&& value) {
+  _has_bits_[0] |= 0x00000080u;
+  proxy_host_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:aws.kinesis.protobuf.Configuration.proxy_host)
+}
+inline void Configuration::set_proxy_host(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _has_bits_[0] |= 0x00000080u;
+  proxy_host_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:aws.kinesis.protobuf.Configuration.proxy_host)
+}
+inline void Configuration::set_proxy_host(const char* value, size_t size) {
+  _has_bits_[0] |= 0x00000080u;
+  proxy_host_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:aws.kinesis.protobuf.Configuration.proxy_host)
+}
+inline std::string* Configuration::_internal_mutable_proxy_host() {
+  _has_bits_[0] |= 0x00000080u;
+  return proxy_host_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* Configuration::release_proxy_host() {
+  // @@protoc_insertion_point(field_release:aws.kinesis.protobuf.Configuration.proxy_host)
+  if (!_internal_has_proxy_host()) {
+    return nullptr;
+  }
+  _has_bits_[0] &= ~0x00000080u;
+  return proxy_host_.ReleaseNonDefaultNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void Configuration::set_allocated_proxy_host(std::string* proxy_host) {
+  if (proxy_host != nullptr) {
+    _has_bits_[0] |= 0x00000080u;
+  } else {
+    _has_bits_[0] &= ~0x00000080u;
+  }
+  proxy_host_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), proxy_host);
+  // @@protoc_insertion_point(field_set_allocated:aws.kinesis.protobuf.Configuration.proxy_host)
+}
+
+// optional uint64 proxy_port = 27 [default = 443];
+inline bool Configuration::_internal_has_proxy_port() const {
+  bool value = (_has_bits_[0] & 0x40000000u) != 0;
+  return value;
+}
+inline bool Configuration::has_proxy_port() const {
+  return _internal_has_proxy_port();
+}
+inline void Configuration::clear_proxy_port() {
+  proxy_port_ = PROTOBUF_ULONGLONG(443);
+  _has_bits_[0] &= ~0x40000000u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::_internal_proxy_port() const {
+  return proxy_port_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint64 Configuration::proxy_port() const {
+  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.Configuration.proxy_port)
+  return _internal_proxy_port();
+}
+inline void Configuration::_internal_set_proxy_port(::PROTOBUF_NAMESPACE_ID::uint64 value) {
+  _has_bits_[0] |= 0x40000000u;
+  proxy_port_ = value;
+}
+inline void Configuration::set_proxy_port(::PROTOBUF_NAMESPACE_ID::uint64 value) {
+  _internal_set_proxy_port(value);
+  // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.proxy_port)
+}
+
+// optional string proxy_user_name = 28 [default = ""];
+inline bool Configuration::_internal_has_proxy_user_name() const {
+  bool value = (_has_bits_[0] & 0x00000100u) != 0;
+  return value;
+}
+inline bool Configuration::has_proxy_user_name() const {
+  return _internal_has_proxy_user_name();
+}
+inline void Configuration::clear_proxy_user_name() {
+  proxy_user_name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  _has_bits_[0] &= ~0x00000100u;
+}
+inline const std::string& Configuration::proxy_user_name() const {
+  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.Configuration.proxy_user_name)
+  return _internal_proxy_user_name();
+}
+inline void Configuration::set_proxy_user_name(const std::string& value) {
+  _internal_set_proxy_user_name(value);
+  // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.proxy_user_name)
+}
+inline std::string* Configuration::mutable_proxy_user_name() {
+  // @@protoc_insertion_point(field_mutable:aws.kinesis.protobuf.Configuration.proxy_user_name)
+  return _internal_mutable_proxy_user_name();
+}
+inline const std::string& Configuration::_internal_proxy_user_name() const {
+  return proxy_user_name_.GetNoArena();
+}
+inline void Configuration::_internal_set_proxy_user_name(const std::string& value) {
+  _has_bits_[0] |= 0x00000100u;
+  proxy_user_name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void Configuration::set_proxy_user_name(std::string&& value) {
+  _has_bits_[0] |= 0x00000100u;
+  proxy_user_name_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:aws.kinesis.protobuf.Configuration.proxy_user_name)
+}
+inline void Configuration::set_proxy_user_name(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _has_bits_[0] |= 0x00000100u;
+  proxy_user_name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:aws.kinesis.protobuf.Configuration.proxy_user_name)
+}
+inline void Configuration::set_proxy_user_name(const char* value, size_t size) {
+  _has_bits_[0] |= 0x00000100u;
+  proxy_user_name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:aws.kinesis.protobuf.Configuration.proxy_user_name)
+}
+inline std::string* Configuration::_internal_mutable_proxy_user_name() {
+  _has_bits_[0] |= 0x00000100u;
+  return proxy_user_name_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* Configuration::release_proxy_user_name() {
+  // @@protoc_insertion_point(field_release:aws.kinesis.protobuf.Configuration.proxy_user_name)
+  if (!_internal_has_proxy_user_name()) {
+    return nullptr;
+  }
+  _has_bits_[0] &= ~0x00000100u;
+  return proxy_user_name_.ReleaseNonDefaultNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void Configuration::set_allocated_proxy_user_name(std::string* proxy_user_name) {
+  if (proxy_user_name != nullptr) {
+    _has_bits_[0] |= 0x00000100u;
+  } else {
+    _has_bits_[0] &= ~0x00000100u;
+  }
+  proxy_user_name_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), proxy_user_name);
+  // @@protoc_insertion_point(field_set_allocated:aws.kinesis.protobuf.Configuration.proxy_user_name)
+}
+
+// optional string proxy_password = 29 [default = ""];
+inline bool Configuration::_internal_has_proxy_password() const {
   bool value = (_has_bits_[0] & 0x00000200u) != 0;
+  return value;
+}
+inline bool Configuration::has_proxy_password() const {
+  return _internal_has_proxy_password();
+}
+inline void Configuration::clear_proxy_password() {
+  proxy_password_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  _has_bits_[0] &= ~0x00000200u;
+}
+inline const std::string& Configuration::proxy_password() const {
+  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.Configuration.proxy_password)
+  return _internal_proxy_password();
+}
+inline void Configuration::set_proxy_password(const std::string& value) {
+  _internal_set_proxy_password(value);
+  // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.proxy_password)
+}
+inline std::string* Configuration::mutable_proxy_password() {
+  // @@protoc_insertion_point(field_mutable:aws.kinesis.protobuf.Configuration.proxy_password)
+  return _internal_mutable_proxy_password();
+}
+inline const std::string& Configuration::_internal_proxy_password() const {
+  return proxy_password_.GetNoArena();
+}
+inline void Configuration::_internal_set_proxy_password(const std::string& value) {
+  _has_bits_[0] |= 0x00000200u;
+  proxy_password_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
+}
+inline void Configuration::set_proxy_password(std::string&& value) {
+  _has_bits_[0] |= 0x00000200u;
+  proxy_password_.SetNoArena(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:aws.kinesis.protobuf.Configuration.proxy_password)
+}
+inline void Configuration::set_proxy_password(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _has_bits_[0] |= 0x00000200u;
+  proxy_password_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:aws.kinesis.protobuf.Configuration.proxy_password)
+}
+inline void Configuration::set_proxy_password(const char* value, size_t size) {
+  _has_bits_[0] |= 0x00000200u;
+  proxy_password_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:aws.kinesis.protobuf.Configuration.proxy_password)
+}
+inline std::string* Configuration::_internal_mutable_proxy_password() {
+  _has_bits_[0] |= 0x00000200u;
+  return proxy_password_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline std::string* Configuration::release_proxy_password() {
+  // @@protoc_insertion_point(field_release:aws.kinesis.protobuf.Configuration.proxy_password)
+  if (!_internal_has_proxy_password()) {
+    return nullptr;
+  }
+  _has_bits_[0] &= ~0x00000200u;
+  return proxy_password_.ReleaseNonDefaultNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+inline void Configuration::set_allocated_proxy_password(std::string* proxy_password) {
+  if (proxy_password != nullptr) {
+    _has_bits_[0] |= 0x00000200u;
+  } else {
+    _has_bits_[0] &= ~0x00000200u;
+  }
+  proxy_password_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), proxy_password);
+  // @@protoc_insertion_point(field_set_allocated:aws.kinesis.protobuf.Configuration.proxy_password)
+}
+
+// optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 30 [default = PER_REQUEST];
+inline bool Configuration::_internal_has_thread_config() const {
+  bool value = (_has_bits_[0] & 0x00001000u) != 0;
   return value;
 }
 inline bool Configuration::has_thread_config() const {
@@ -2211,7 +2533,7 @@ inline bool Configuration::has_thread_config() const {
 }
 inline void Configuration::clear_thread_config() {
   thread_config_ = 0;
-  _has_bits_[0] &= ~0x00000200u;
+  _has_bits_[0] &= ~0x00001000u;
 }
 inline ::aws::kinesis::protobuf::Configuration_ThreadConfig Configuration::_internal_thread_config() const {
   return static_cast< ::aws::kinesis::protobuf::Configuration_ThreadConfig >(thread_config_);
@@ -2222,7 +2544,7 @@ inline ::aws::kinesis::protobuf::Configuration_ThreadConfig Configuration::threa
 }
 inline void Configuration::_internal_set_thread_config(::aws::kinesis::protobuf::Configuration_ThreadConfig value) {
   assert(::aws::kinesis::protobuf::Configuration_ThreadConfig_IsValid(value));
-  _has_bits_[0] |= 0x00000200u;
+  _has_bits_[0] |= 0x00001000u;
   thread_config_ = value;
 }
 inline void Configuration::set_thread_config(::aws::kinesis::protobuf::Configuration_ThreadConfig value) {
@@ -2230,9 +2552,9 @@ inline void Configuration::set_thread_config(::aws::kinesis::protobuf::Configura
   // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.Configuration.thread_config)
 }
 
-// optional uint32 thread_pool_size = 27 [default = 64];
+// optional uint32 thread_pool_size = 31 [default = 64];
 inline bool Configuration::_internal_has_thread_pool_size() const {
-  bool value = (_has_bits_[0] & 0x00100000u) != 0;
+  bool value = (_has_bits_[0] & 0x02000000u) != 0;
   return value;
 }
 inline bool Configuration::has_thread_pool_size() const {
@@ -2240,7 +2562,7 @@ inline bool Configuration::has_thread_pool_size() const {
 }
 inline void Configuration::clear_thread_pool_size() {
   thread_pool_size_ = 64u;
-  _has_bits_[0] &= ~0x00100000u;
+  _has_bits_[0] &= ~0x02000000u;
 }
 inline ::PROTOBUF_NAMESPACE_ID::uint32 Configuration::_internal_thread_pool_size() const {
   return thread_pool_size_;
@@ -2250,7 +2572,7 @@ inline ::PROTOBUF_NAMESPACE_ID::uint32 Configuration::thread_pool_size() const {
   return _internal_thread_pool_size();
 }
 inline void Configuration::_internal_set_thread_pool_size(::PROTOBUF_NAMESPACE_ID::uint32 value) {
-  _has_bits_[0] |= 0x00100000u;
+  _has_bits_[0] |= 0x02000000u;
   thread_pool_size_ = value;
 }
 inline void Configuration::set_thread_pool_size(::PROTOBUF_NAMESPACE_ID::uint32 value) {

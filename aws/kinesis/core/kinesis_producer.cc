@@ -107,6 +107,10 @@ make_sdk_client_cfg(const aws::kinesis::core::Configuration& kpl_cfg,
   cfg.requestTimeoutMs = cast_size_t<long>(kpl_cfg.request_timeout());
   cfg.connectTimeoutMs = cast_size_t<long>(kpl_cfg.connect_timeout());
   cfg.retryStrategy = std::make_shared<Aws::Client::DefaultRetryStrategy>(retryCount);
+  cfg.proxyHost = kpl_cfg.proxy_host();
+  cfg.proxyPort = cast_size_t<unsigned>(kpl_cfg.proxy_port());
+  cfg.proxyUserName = kpl_cfg.proxy_user_name();
+  cfg.proxyPassword = kpl_cfg.proxy_password();
   if (kpl_cfg.use_thread_pool()) {
     if (sdk_client_executor == nullptr) {
       uint32_t thread_pool_size = kpl_cfg.thread_pool_size();
