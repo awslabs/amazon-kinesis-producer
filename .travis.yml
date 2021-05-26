@@ -3,7 +3,7 @@ matrix:
     - name: "Build C++/Java and Upload to S3 on AL2012"
       os: linux
       services: docker
-      dist: trusty
+      dist: xenial
       before_install:
         - echo "################################################################################"
         - echo "Installing Dependencies for Linux/x86_64"
