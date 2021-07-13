@@ -7,7 +7,7 @@ You will need the following:
 + A stream to put into (with any number of shards). There should be no previous data in the stream, creating a new stream is recommended.
 + AWS credentials, preferably an IAM role if using EC2
 + JDK
-+ Maven (```brew install maven```, ```sudo apt-get install maven```, [Amazon Liunx](https://gist.github.com/sebsto/19b99f1fa1f32cae5d00))
++ Maven (```brew install maven```, ```sudo apt-get install maven```, [Amazon Linux](https://gist.github.com/sebsto/19b99f1fa1f32cae5d00))
 
 Since we'll be running a consumer as well as a producer, the credentials/IAM role should contain permissions for DynamoDB and CloudWatch, in addition to Kinesis. See the [official guide](http://docs.aws.amazon.com/kinesis/latest/dev/learning-kinesis-module-one-iam.html) for details.
 
