@@ -57,6 +57,12 @@ If you have further questions [please open a GitHub Issue](https://github.com/aw
 This is a restatement of the [notice published](https://docs.aws.amazon.com/streams/latest/dev/kinesis-kpl-upgrades.html) in the [Amazon Kinesis Data Streams Developer Guide][kinesis-developer-guide]
 
 ## Release Notes
+### 0.14.8
+* [PR #331](https://github.com/awslabs/amazon-kinesis-producer/pull/331) Fixed a typo in README.md
+* [PR #363](https://github.com/awslabs/amazon-kinesis-producer/pull/363) Upgrading hibernate-validator to 6.0.20.Final
+* [PR #365](https://github.com/awslabs/amazon-kinesis-producer/pull/365) Upgrading logback-classic to 1.2.0
+* [PR #367](https://github.com/awslabs/amazon-kinesis-producer/pull/367) Upgrading Glue Schema Registry to 1.1.1  
+
 ### 0.14.7
 * [PR #350](https://github.com/awslabs/amazon-kinesis-producer/pull/350/files) Upgrading Guava to 29.0-jre
 * [PR #352](https://github.com/awslabs/amazon-kinesis-producer/pull/352/files) Upgrading Commons IO to 2.7
