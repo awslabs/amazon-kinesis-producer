@@ -14,7 +14,7 @@ silence() {
 
 LIB_OPENSSL="https://ftp.openssl.org/source/old/1.0.1/openssl-1.0.1m.tar.gz"
 LIB_BOOST="http://sourceforge.net/projects/boost/files/boost/1.61.0/boost_1_61_0.tar.gz"
-LIB_ZLIB="https://zlib.net/fossils/zlib-1.2.8.tar.gz"
+LIB_ZLIB="https://zlib.net/fossils/zlib-1.2.11.tar.gz"
 LIB_PROTOBUF="https://github.com/protocolbuffers/protobuf/releases/download/v3.11.4/protobuf-all-3.11.4.tar.gz"
 LIB_CURL="https://curl.haxx.se/download/curl-7.47.0.tar.gz"
 
@@ -166,12 +166,12 @@ if [ ! -d "boost_1_61_0" ]; then
 fi
 
 # zlib
-if [ ! -d "zlib-1.2.8" ]; then
+if [ ! -d "zlib-1.2.11" ]; then
   _curl "$LIB_ZLIB" > zlib.tgz
   tar xf zlib.tgz
   rm zlib.tgz
 
-  cd zlib-1.2.8
+  cd zlib-1.2.11
   silence ./configure --static --prefix="$INSTALL_DIR"
   silence make -j
   silence make install
