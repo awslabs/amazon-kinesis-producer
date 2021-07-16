@@ -12,11 +12,11 @@ silence() {
     fi
 }
 
-LIB_OPENSSL="https://ftp.openssl.org/source/old/1.0.1/openssl-1.0.1m.tar.gz"
+LIB_OPENSSL="https://ftp.openssl.org/source/old/1.1.1/openssl-1.1.1j.tar.gz"
 LIB_BOOST="http://sourceforge.net/projects/boost/files/boost/1.61.0/boost_1_61_0.tar.gz"
-LIB_ZLIB="https://zlib.net/fossils/zlib-1.2.8.tar.gz"
+LIB_ZLIB="https://zlib.net/fossils/zlib-1.2.11.tar.gz"
 LIB_PROTOBUF="https://github.com/protocolbuffers/protobuf/releases/download/v3.11.4/protobuf-all-3.11.4.tar.gz"
-LIB_CURL="https://curl.haxx.se/download/curl-7.47.0.tar.gz"
+LIB_CURL="https://curl.haxx.se/download/curl-7.77.0.tar.gz"
 
 
 INSTALL_DIR=$(pwd)/third_party
@@ -109,15 +109,15 @@ function conf {
 }
 
 # OpenSSL
-if [ ! -d "openssl-1.0.1m" ]; then
+if [ ! -d "openssl-1.1.1j" ]; then
   _curl "$LIB_OPENSSL" > openssl.tgz
   tar xf openssl.tgz
   rm openssl.tgz
 
-  cd openssl-1.0.1m
+  cd openssl-1.1.1j
 
   # Have to leave MD4 enabled because curl expects it
-  OPTS="threads no-shared no-idea no-camellia no-seed no-bf no-cast no-rc2 no-rc4 no-rc5 no-md2 no-ripemd no-mdc2 no-ssl2 no-ssl3 no-krb5 no-jpake no-capieng no-dso"
+  OPTS="threads no-shared no-idea no-camellia no-seed no-bf no-cast no-rc2 no-rc4 no-rc5 no-md2 no-mdc2 no-ssl2 no-ssl3 no-capieng no-dso"
 
   if [[ $(uname) == 'Darwin' ]]; then
     silence ./Configure darwin64-x86_64-cc $OPTS --prefix=$INSTALL_DIR
@@ -166,12 +166,12 @@ if [ ! -d "boost_1_61_0" ]; then
 fi
 
 # zlib
-if [ ! -d "zlib-1.2.8" ]; then
+if [ ! -d "zlib-1.2.11" ]; then
   _curl "$LIB_ZLIB" > zlib.tgz
   tar xf zlib.tgz
   rm zlib.tgz
 
-  cd zlib-1.2.8
+  cd zlib-1.2.11
   silence ./configure --static --prefix="$INSTALL_DIR"
   silence make -j
   silence make install
@@ -195,13 +195,13 @@ fi
 
 
 # libcurl
-if [ ! -d "curl-7.47.0" ]; then
+if [ ! -d "curl-7.77.0" ]; then
   _curl "$LIB_CURL" > curl.tgz
   tar xf curl.tgz
   rm curl.tgz
 
 
-  cd curl-7.47.0
+  cd curl-7.77.0
 
   silence conf --disable-shared --disable-ldap --disable-ldaps \
        --enable-threaded-resolver --disable-debug --without-libssh2 --without-ca-bundle --with-ssl="${INSTALL_DIR}" --without-libidn
