@@ -97,7 +97,10 @@ void ShardMap::update() {
 
 void ShardMap::list_shards(const Aws::String& next_token) {
   Aws::Kinesis::Model::ListShardsRequest req;
+  Aws::Kinesis::Model::ShardFilter filter;
+  filter.SetType(Aws::Kinesis::Model::ShardFilterType::AT_LATEST);
   req.SetMaxResults(1000);
+  req.SetShardFilter(filter);
 
   if (!next_token.empty()) {
     req.SetNextToken(next_token);
@@ -192,3 +195,4 @@ void ShardMap::sort_all_open_shards() {
 } //namespace core
 } //namespace kinesis
 } //namespace aws
+

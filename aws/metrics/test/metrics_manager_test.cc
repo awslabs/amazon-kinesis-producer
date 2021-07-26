@@ -18,6 +18,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <aws/core/AmazonWebServiceResult.h>
 #include <aws/core/NoResult.h>
 #include <aws/metrics/metrics_manager.h>
 #include <aws/monitoring/model/PutMetricDataRequest.h>
