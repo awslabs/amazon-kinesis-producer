@@ -12,7 +12,7 @@ silence() {
     fi
 }
 
-LIB_OPENSSL="https://ftp.openssl.org/source/old/1.0.2/openssl-1.0.2u.tar.gz"
+LIB_OPENSSL="https://ftp.openssl.org/source/old/1.0.1/openssl-1.0.1m.tar.gz"
 LIB_BOOST="http://sourceforge.net/projects/boost/files/boost/1.61.0/boost_1_61_0.tar.gz"
 LIB_ZLIB="https://zlib.net/fossils/zlib-1.2.11.tar.gz"
 LIB_PROTOBUF="https://github.com/protocolbuffers/protobuf/releases/download/v3.11.4/protobuf-all-3.11.4.tar.gz"
@@ -109,12 +109,12 @@ function conf {
 }
 
 # OpenSSL
-if [ ! -d "openssl-1.0.2u" ]; then
+if [ ! -d "openssl-1.0.1m" ]; then
   _curl "$LIB_OPENSSL" > openssl.tgz
   tar xf openssl.tgz
   rm openssl.tgz
 
-  cd openssl-1.0.2u
+  cd openssl-1.0.1m
 
   # Have to leave MD4 enabled because curl expects it
   OPTS="threads no-shared no-idea no-camellia no-seed no-bf no-cast no-rc2 no-rc4 no-rc5 no-md2 no-ripemd no-mdc2 no-ssl2 no-ssl3 no-krb5 no-jpake no-capieng no-dso"
@@ -128,7 +128,6 @@ if [ ! -d "openssl-1.0.2u" ]; then
     silence ./config $OPTS --prefix=$INSTALL_DIR
   fi
 
-  silence make depend
   silence make # don't use -j, doesn't work half the time
   silence make install
 
