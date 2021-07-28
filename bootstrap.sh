@@ -52,7 +52,7 @@ RELEASE_TYPE=$(find_release_type)
 
 
 if [ $1 == "clang" ] || [ $(uname) == 'Darwin' ]; then
-  export MACOSX_DEPLOYMENT_TARGET='10.9'
+  export MACOSX_DEPLOYMENT_TARGET='10.13'
   export MACOSX_MIN_COMPILER_OPT="-mmacosx-version-min=${MACOSX_DEPLOYMENT_TARGET}"
   export CC=$(which clang)
   export CXX=$(which clang++)
@@ -224,7 +224,7 @@ fi
 if [ ! -d "aws-sdk-cpp" ]; then
   git clone https://github.com/awslabs/aws-sdk-cpp.git aws-sdk-cpp
   pushd aws-sdk-cpp
-  git checkout 1.7.180
+  git checkout 1.8.30
   popd
 
   rm -rf aws-sdk-cpp-build

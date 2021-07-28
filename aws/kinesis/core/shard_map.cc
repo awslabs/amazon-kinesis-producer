@@ -103,6 +103,9 @@ void ShardMap::list_shards(const Aws::String& next_token) {
     req.SetNextToken(next_token);
   } else {
     req.SetStreamName(stream_);
+    Aws::Kinesis::Model::ShardFilter shardFilter;
+    shardFilter.SetType(Aws::Kinesis::Model::ShardFilterType::AT_LATEST);
+    req.SetShardFilter(shardFilter);
   }
 
   kinesis_client_->ListShardsAsync(

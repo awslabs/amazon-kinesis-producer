@@ -147,7 +147,7 @@ The KPL is written in C++ and runs as a child process to the main user process. 
 The Java package should run without the need to install any additional native libraries on the following operating systems:
 
 + Linux distributions with glibc 2.9 or later
-+ Apple OS X 10.9 and later
++ Apple OS X 10.13 and later
 
 Note the release is 64-bit only.
 
