@@ -53,7 +53,7 @@ RELEASE_TYPE=$(find_release_type)
 
 if [ $1 == "clang" ] || [ $(uname) == 'Darwin' ]; then
   export MACOSX_DEPLOYMENT_TARGET='10.13'
-  export MACOSX_MIN_COMPILER_OPT="-mmacosx-version-min=${MACOSX_DEPLOYMENT_TARGET}"
+  export MACOSX_MIN_COMPILER_OPT="-mmacosx-version-min=${MACOSX_DEPLOYMENT_TARGET} -framework CoreFoundation -framework SystemConfiguration -framework Security"
   export CC=$(which clang)
   export CXX=$(which clang++)
   export CXXFLAGS="-I$INSTALL_DIR/include -O3 -stdlib=libc++ ${MACOSX_MIN_COMPILER_OPT} "
