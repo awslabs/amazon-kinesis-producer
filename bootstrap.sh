@@ -59,6 +59,7 @@ if [ $1 == "clang" ] || [ $(uname) == 'Darwin' ]; then
   export CXXFLAGS="-I$INSTALL_DIR/include -O3 -stdlib=libc++ ${MACOSX_MIN_COMPILER_OPT} "
   export CFLAGS="${MACOSX_MIN_COMPILER_OPT} "
   export C_INCLUDE_PATH="$INSTALL_DIR/include"
+  export LDFLAGS="-framework CoreFoundation -framework SystemConfiguration -framework Security "
 
   if [ $(uname) == 'Linux' ]; then
     export LDFLAGS="-L$INSTALL_DIR/lib -nodefaultlibs -lpthread -ldl -lc++ -lc++abi -lm -lc -lgcc_s"
