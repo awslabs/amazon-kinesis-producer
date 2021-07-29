@@ -126,10 +126,7 @@ void ShardMap::list_shards_callback(
 
   auto& shards = outcome.GetResult().GetShards();  
   for (auto& shard : shards) {
-    // Check if the shard is closed, if so, do not use it.
-    if (shard.GetSequenceNumberRange().GetEndingSequenceNumber().size() > 0) {
-      continue;
-    }
+    // We use shard filter for server end to filter out closed shards
     store_open_shard(shard_id_from_str(shard.GetShardId()), 
       uint128_t(shard.GetHashKeyRange().GetEndingHashKey()));
   }
