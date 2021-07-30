@@ -16,6 +16,7 @@
 #ifndef AWS_UTILS_IO_SERVICE_EXECUTOR_H_
 #define AWS_UTILS_IO_SERVICE_EXECUTOR_H_
 
+#include <boost/asio/io_service.hpp>
 #include <boost/asio/steady_timer.hpp>
 
 #include <aws/mutex.h>
