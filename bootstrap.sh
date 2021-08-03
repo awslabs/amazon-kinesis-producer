@@ -204,7 +204,7 @@ if [ ! -d "curl-7.77.0" ]; then
 
   cd curl-7.77.0
 
-  silence conf --disable-shared --disable-ldap --disable-ldaps \
+  silence conf --disable-shared --disable-ldap --disable-ldaps --without-libidn2 \
        --enable-threaded-resolver --disable-debug --without-libssh2 --without-ca-bundle --with-ssl="${INSTALL_DIR}" --without-libidn
   if [[ $(uname) == 'Darwin' ]]; then
     #
