@@ -13,7 +13,7 @@ silence() {
 }
 
 LIB_OPENSSL="https://ftp.openssl.org/source/old/1.0.2/openssl-1.0.2u.tar.gz"
-LIB_BOOST="http://sourceforge.net/projects/boost/files/boost/1.61.0/boost_1_61_0.tar.gz"
+LIB_BOOST="http://sourceforge.net/projects/boost/files/boost/1.76.0/boost_1_76_0.tar.gz"
 LIB_ZLIB="https://zlib.net/fossils/zlib-1.2.11.tar.gz"
 LIB_PROTOBUF="https://github.com/protocolbuffers/protobuf/releases/download/v3.11.4/protobuf-all-3.11.4.tar.gz"
 LIB_CURL="https://curl.haxx.se/download/curl-7.77.0.tar.gz"
@@ -52,7 +52,7 @@ RELEASE_TYPE=$(find_release_type)
 
 
 if [ $1 == "clang" ] || [ $(uname) == 'Darwin' ]; then
-  export MACOSX_DEPLOYMENT_TARGET='10.9'
+  export MACOSX_DEPLOYMENT_TARGET='10.13'
   export MACOSX_MIN_COMPILER_OPT="-mmacosx-version-min=${MACOSX_DEPLOYMENT_TARGET}"
   export CC=$(which clang)
   export CXX=$(which clang++)
@@ -136,12 +136,12 @@ if [ ! -d "openssl-1.0.2u" ]; then
 fi
 
 # Boost C++ Libraries
-if [ ! -d "boost_1_61_0" ]; then
+if [ ! -d "boost_1_76_0" ]; then
   _curl "$LIB_BOOST" > boost.tgz
   tar xf boost.tgz
   rm boost.tgz
 
-  cd boost_1_61_0
+  cd boost_1_76_0
 
   LIBS="atomic,chrono,log,system,test,random,regex,thread,filesystem"
   OPTS="-j 8 --build-type=minimal --layout=system --prefix=$INSTALL_DIR link=static threading=multi release install"
@@ -204,7 +204,7 @@ if [ ! -d "curl-7.77.0" ]; then
 
   cd curl-7.77.0
 
-  silence conf --disable-shared --disable-ldap --disable-ldaps \
+  silence conf --disable-shared --disable-ldap --disable-ldaps --without-libidn2 \
        --enable-threaded-resolver --disable-debug --without-libssh2 --without-ca-bundle --with-ssl="${INSTALL_DIR}" --without-libidn
   if [[ $(uname) == 'Darwin' ]]; then
     #
@@ -224,7 +224,7 @@ fi
 if [ ! -d "aws-sdk-cpp" ]; then
   git clone https://github.com/awslabs/aws-sdk-cpp.git aws-sdk-cpp
   pushd aws-sdk-cpp
-  git checkout 1.7.180
+  git checkout 1.8.30
   popd
 
   rm -rf aws-sdk-cpp-build
