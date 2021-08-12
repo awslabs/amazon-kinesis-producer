@@ -1,4 +1,8 @@
 ## Changelog
+### 0.14.9
+* [#370](https://github.com/awslabs/amazon-kinesis-producer/pull/370) Upgraded build script dependencies.
+* [#377](https://github.com/awslabs/amazon-kinesis-producer/pull/377) Added an optimization to filter out closed shards.
+
 ### 0.14.8
 * [PR #331](https://github.com/awslabs/amazon-kinesis-producer/pull/331) Fixed a typo in README.md
 * [PR #363](https://github.com/awslabs/amazon-kinesis-producer/pull/363) Upgrading hibernate-validator to 6.0.20.Final
