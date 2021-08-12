@@ -57,6 +57,13 @@ If you have further questions [please open a GitHub Issue](https://github.com/aw
 This is a restatement of the [notice published](https://docs.aws.amazon.com/streams/latest/dev/kinesis-kpl-upgrades.html) in the [Amazon Kinesis Data Streams Developer Guide][kinesis-developer-guide]
 
 ## Release Notes
+### 0.14.9
+* [#370](https://github.com/awslabs/amazon-kinesis-producer/pull/370) Upgraded build script dependencies
+  * Upgraded version of openssl from 1.0.1m to 1.0.2u
+  * Upgraded version of boost from 1.61 to 1.76
+  * Upgraded version of zlib from 1.2.8 to 1.2.11
+* [#377](https://github.com/awslabs/amazon-kinesis-producer/pull/377) Added an optimization to filter out closed shards.
+
 ### 0.14.8
 * [PR #331](https://github.com/awslabs/amazon-kinesis-producer/pull/331) Fixed a typo in README.md
 * [PR #363](https://github.com/awslabs/amazon-kinesis-producer/pull/363) Upgrading hibernate-validator to 6.0.20.Final
