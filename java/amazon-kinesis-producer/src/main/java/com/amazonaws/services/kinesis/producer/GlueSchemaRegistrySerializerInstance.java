@@ -11,6 +11,7 @@ import com.amazonaws.services.schemaregistry.serializers.GlueSchemaRegistrySeria
 public final class GlueSchemaRegistrySerializerInstance {
 
     private volatile GlueSchemaRegistrySerializer instance = null;
+    private static final String USER_AGENT_APP_NAME = "kpl" + "-" + KinesisProducerLibraryPackage.VERSION;
 
     /**
      * Instantiate GlueSchemaRegistrySerializer using the KinesisProducerConfiguration.
@@ -39,11 +40,14 @@ public final class GlueSchemaRegistrySerializerInstance {
 
     private GlueSchemaRegistryConfiguration getConfigFromKinesisProducerConfig(
         KinesisProducerConfiguration configuration) {
-        if (configuration.getGlueSchemaRegistryConfiguration() == null) {
+        GlueSchemaRegistryConfiguration glueSchemaRegistryConfiguration = configuration.getGlueSchemaRegistryConfiguration();
+        if (glueSchemaRegistryConfiguration == null) {
             //Reuse the region from KinesisProducerConfiguration.
-            return new GlueSchemaRegistryConfiguration(configuration.getRegion());
+            glueSchemaRegistryConfiguration = new GlueSchemaRegistryConfiguration(configuration.getRegion());
         }
 
-        return configuration.getGlueSchemaRegistryConfiguration();
+        glueSchemaRegistryConfiguration.setUserAgentApp(USER_AGENT_APP_NAME);
+
+        return glueSchemaRegistryConfiguration;
     }
 }
