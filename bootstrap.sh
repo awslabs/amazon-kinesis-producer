@@ -17,6 +17,7 @@ LIB_BOOST="http://sourceforge.net/projects/boost/files/boost/1.76.0/boost_1_76_0
 LIB_ZLIB="https://zlib.net/fossils/zlib-1.2.11.tar.gz"
 LIB_PROTOBUF="https://github.com/protocolbuffers/protobuf/releases/download/v3.11.4/protobuf-all-3.11.4.tar.gz"
 LIB_CURL="https://curl.haxx.se/download/curl-7.77.0.tar.gz"
+CA_CERT="https://curl.haxx.se/ca/cacert.pem"
 
 
 INSTALL_DIR=$(pwd)/third_party
@@ -84,10 +85,11 @@ fi
 # have MD4, which curl tries to use.
 function _curl {
   #(unset LD_LIBRARY_PATH; curl -L $@)
-  curl -L $@
+  curl -L --cacert "$INSTALL_DIR/cacert.pem" $@
 }
 
 cd $INSTALL_DIR
+wget -P $INSTALL_DIR $CA_CERT
 
 function conf {
   if [[ "$OSTYPE" == "darwin"* ]]; then
