@@ -57,6 +57,11 @@ If you have further questions [please open a GitHub Issue](https://github.com/aw
 This is a restatement of the [notice published](https://docs.aws.amazon.com/streams/latest/dev/kinesis-kpl-upgrades.html) in the [Amazon Kinesis Data Streams Developer Guide][kinesis-developer-guide]
 
 ## Release Notes
+### 0.14.10
+* [#386](https://github.com/awslabs/amazon-kinesis-producer/pull/386) Upgraded Glue schema registry from 1.1.1 to 1.1.5
+* [#384](https://github.com/awslabs/amazon-kinesis-producer/pull/384) Upgraded logback-classic from 1.2.0 to 1.2.6
+* [#323](https://github.com/awslabs/amazon-kinesis-producer/pull/323) Upgraded junit from 4.12 to 4.13.1
+
 ### 0.14.9
 * [#370](https://github.com/awslabs/amazon-kinesis-producer/pull/370) Upgraded build script dependencies
   * Upgraded version of openssl from 1.0.1m to 1.0.2u
