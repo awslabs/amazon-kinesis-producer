@@ -84,7 +84,7 @@ fi
 # have MD4, which curl tries to use.
 function _curl {
   #(unset LD_LIBRARY_PATH; curl -L $@)
-  curl -L $@
+  curl -L -k $@
 }
 
 cd $INSTALL_DIR
