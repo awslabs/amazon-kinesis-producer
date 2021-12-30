@@ -3,7 +3,7 @@ matrix:
     - name: "Build C++/Java and Upload to S3 on AL2012"
       os: linux
       services: docker
-      dist: xenial
+      dist: focal
       before_install:
         - echo "################################################################################"
         - echo "Installing Dependencies for Linux/x86_64"
@@ -92,7 +92,7 @@ matrix:
     - name: "Build C++/Java and Upload to S3 on OSX"
       os: osx
       compiler: clang
-      osx_image: xcode9.3
+      osx_image: xcode13.1
       script:
        - curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg"
        - sudo installer -pkg AWSCLIV2.pkg -target /
