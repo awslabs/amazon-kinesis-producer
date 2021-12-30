@@ -9,6 +9,7 @@ matrix:
         - echo "Installing Dependencies for Linux/x86_64"
         - echo "################################################################################"
         - sudo apt-get update
+        - sudo apt-get install -y ca-certificates
         - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" 
         - unzip awscliv2.zip
         - sudo ./aws/install
@@ -54,6 +55,7 @@ matrix:
         - echo "Installing Dependencies for Linux/arm64"
         - echo "################################################################################"
         - sudo apt-get update
+        - sudo apt-get install -y ca-certificates
         - sudo apt-get install python3
         - sudo apt-get -y install python3-pip
         - pip3 --version
