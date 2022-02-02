@@ -57,6 +57,13 @@ If you have further questions [please open a GitHub Issue](https://github.com/aw
 This is a restatement of the [notice published](https://docs.aws.amazon.com/streams/latest/dev/kinesis-kpl-upgrades.html) in the [Amazon Kinesis Data Streams Developer Guide][kinesis-developer-guide]
 
 ## Release Notes
+### 0.14.11
+* [#409](https://github.com/awslabs/amazon-kinesis-producer/pull/409) Bump protobuf-java from 3.11.4 to 3.16.1 in /java/amazon-kinesis-producer
+* [#408](https://github.com/awslabs/amazon-kinesis-producer/pull/408) Update curl version from 7.77 to 7.81
+* [#395](https://github.com/awslabs/amazon-kinesis-producer/pull/395) Configure dependabot
+* [#391](https://github.com/awslabs/amazon-kinesis-producer/pull/391) Fixing travis build issues
+* [#388](https://github.com/awslabs/amazon-kinesis-producer/pull/388) Fixing build issues due to stale CA certs
+
 ### 0.14.10
 * [#386](https://github.com/awslabs/amazon-kinesis-producer/pull/386) Upgraded Glue schema registry from 1.1.1 to 1.1.5
 * [#384](https://github.com/awslabs/amazon-kinesis-producer/pull/384) Upgraded logback-classic from 1.2.0 to 1.2.6
