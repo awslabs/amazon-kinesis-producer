@@ -16,7 +16,7 @@ LIB_OPENSSL="https://ftp.openssl.org/source/old/1.0.2/openssl-1.0.2u.tar.gz"
 LIB_BOOST="http://sourceforge.net/projects/boost/files/boost/1.76.0/boost_1_76_0.tar.gz"
 LIB_ZLIB="https://zlib.net/fossils/zlib-1.2.11.tar.gz"
 LIB_PROTOBUF="https://github.com/protocolbuffers/protobuf/releases/download/v3.11.4/protobuf-all-3.11.4.tar.gz"
-LIB_CURL="https://curl.haxx.se/download/curl-7.77.0.tar.gz"
+LIB_CURL="https://curl.haxx.se/download/curl-7.81.0.tar.gz"
 CA_CERT="https://curl.haxx.se/ca/cacert.pem"
 
 
@@ -198,13 +198,13 @@ fi
 
 
 # libcurl
-if [ ! -d "curl-7.77.0" ]; then
+if [ ! -d "curl-7.81.0" ]; then
   _curl "$LIB_CURL" > curl.tgz
   tar xf curl.tgz
   rm curl.tgz
 
 
-  cd curl-7.77.0
+  cd curl-7.81.0
 
   silence conf --disable-shared --disable-ldap --disable-ldaps --without-libidn2 \
        --enable-threaded-resolver --disable-debug --without-libssh2 --without-ca-bundle --with-ssl="${INSTALL_DIR}" --without-libidn
