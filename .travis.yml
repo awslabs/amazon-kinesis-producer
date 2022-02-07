@@ -58,6 +58,7 @@ matrix:
         - sudo apt-get install -y ca-certificates
         - sudo apt-get install python3
         - sudo apt-get -y install python3-pip
+        - sudo apt-get install wget
         - pip3 --version
         - pip3 install --user awscli
         - mkdir -p ~/.aws
