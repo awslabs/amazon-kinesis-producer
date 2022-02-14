@@ -80,7 +80,7 @@ matrix:
         - ls
         - df -h
         - echo "Building KPL in current directory in the Container..."
-        - docker run --memory 9g -v $(pwd):/kpl -it amazonlinux:2 /bin/bash -c "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY && export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID && yum install -y -q cmake3 gcc gcc-c++ make file tar gzip which perl git libuuid libuuid-devel maven zlib zlib-devel zlib-static && cd /kpl && ls && ./bootstrap.sh"
+        - docker run --memory 9g -v $(pwd):/kpl -it amazonlinux:2 /bin/bash -c "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY && export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID && yum install -y -q cmake3 gcc gcc-c++ make file tar gzip which perl git libuuid libuuid-devel maven zlib zlib-devel zlib-static wget && cd /kpl && ls && ./bootstrap.sh"
         - cd java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/$TRAVIS_OS_NAME-`uname -m`
         - ls
         - sudo zip kinesis-producer.zip kinesis_producer
