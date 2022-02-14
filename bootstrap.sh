@@ -226,7 +226,7 @@ fi
 if [ ! -d "aws-sdk-cpp" ]; then
   git clone https://github.com/awslabs/aws-sdk-cpp.git aws-sdk-cpp
   pushd aws-sdk-cpp
-  git checkout 1.8.30
+  git checkout 1.9.194
   popd
 
   rm -rf aws-sdk-cpp-build
