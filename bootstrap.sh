@@ -89,7 +89,7 @@ function _curl {
 }
 
 cd $INSTALL_DIR
-wget -P $INSTALL_DIR $CA_CERT
+wget --no-check-certificate -P $INSTALL_DIR $CA_CERT
 
 function conf {
   if [[ "$OSTYPE" == "darwin"* ]]; then
