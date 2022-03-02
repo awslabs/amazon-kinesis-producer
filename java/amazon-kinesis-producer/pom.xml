@@ -64,7 +64,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>29.0-jre</version>
+            <version>31.1-jre</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -94,7 +94,7 @@
         <dependency>
             <groupId>software.amazon.glue</groupId>
             <artifactId>schema-registry-serde</artifactId>
-            <version>1.1.8</version>
+            <version>1.1.9</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
