@@ -1,4 +1,15 @@
 ## Changelog
+### 0.14.12
+* [#425](https://github.com/awslabs/amazon-kinesis-producer/pull/425) Fix build issues in CI
+* [#424](https://github.com/awslabs/amazon-kinesis-producer/pull/424) Fix build issues in CI
+* [#423](https://github.com/awslabs/amazon-kinesis-producer/pull/423) Upgrade GSR version to 1.1.9
+* [#420](https://github.com/awslabs/amazon-kinesis-producer/pull/420) Fix cpp branch
+* [#419](https://github.com/awslabs/amazon-kinesis-producer/pull/419) Fix aws-cpp branch
+* [#418](https://github.com/awslabs/amazon-kinesis-producer/pull/418) Fix travis build
+* [#416](https://github.com/awslabs/amazon-kinesis-producer/pull/416) Configure dependabot
+* [#415](https://github.com/awslabs/amazon-kinesis-producer/pull/415) Fix travis build
+* [#414](https://github.com/awslabs/amazon-kinesis-producer/pull/414) Fix travis build
+
 ### 0.14.11
 * [#409](https://github.com/awslabs/amazon-kinesis-producer/pull/409) Bump protobuf-java from 3.11.4 to 3.16.1 in /java/amazon-kinesis-producer
 * [#408](https://github.com/awslabs/amazon-kinesis-producer/pull/408) Update curl version from 7.77 to 7.81
