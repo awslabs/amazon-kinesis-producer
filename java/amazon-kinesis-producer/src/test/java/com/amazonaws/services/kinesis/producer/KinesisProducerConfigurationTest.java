@@ -15,45 +15,20 @@
 
 package com.amazonaws.services.kinesis.producer;
 
-import org.apache.commons.io.FileUtils;
+import static com.amazonaws.services.kinesis.producer.TestHelper.writeFile;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.Properties;
+import java.util.UUID;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.util.Properties;
-import java.util.UUID;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 public class KinesisProducerConfigurationTest {
     @SuppressWarnings("unused")
     private static final Logger log = LoggerFactory.getLogger(KinesisProducerConfigurationTest.class);
-
-    private static String writeFile(String contents) {
-        try {
-            File f = File.createTempFile(UUID.randomUUID().toString(), "");
-            f.deleteOnExit();
-            FileUtils.write(f, contents);
-            return f.getAbsolutePath();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static String writeFile(Properties p) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            p.store(baos, "");
-            baos.close();
-            return writeFile(new String(baos.toByteArray(), "UTF-8"));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     @Test
     public void loadString() {
