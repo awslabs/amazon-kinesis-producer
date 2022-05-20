@@ -120,7 +120,8 @@ Retrier::handle_put_records_result(std::shared_ptr<PutRecordsContext> prc) {
         auto& err_msg = put_result.GetErrorMessage();
         if (!(config_->fail_if_throttled() &&
               err_code == "ProvisionedThroughputExceededException")) {
-          retry_not_expired(kr, start, end, err_code, err_msg);
+		  //retry_not_expired(kr, start, end, err_code, err_msg);
+          fail(kr, start, end, err_code, err_msg);
         } else {
           fail(kr, start, end, err_code, err_msg);
         }
@@ -208,11 +209,12 @@ bool Retrier::succeed_if_correct_shard(const std::shared_ptr<UserRecord>& ur,
       shard_map_invalidate_cb_(start, ur->predicted_shard());
     }
 
-    retry_not_expired(ur,
-                      start,
-                      end,
-                      "Wrong Shard",
-                      "Record did not end up in expected shard.");
+    finish_user_record(
+       ur,
+       Attempt()
+           .set_start(start)
+           .set_end(end)
+           .set_result(shard_id, sequence_number));
     return false;
   } else {
     finish_user_record(
