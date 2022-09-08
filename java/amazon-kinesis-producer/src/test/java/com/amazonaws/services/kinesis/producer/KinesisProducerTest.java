@@ -246,7 +246,8 @@ public class KinesisProducerTest {
                 .setRegion("us-west-1")
                 .setRecordTtl(200)
                 .setMetricsUploadDelay(100)
-                .setRecordTtl(100);
+                .setRecordTtl(100)
+                .setLogLevel("warning");
         if (provider != null) {
             cfg.setCredentialsProvider(provider);
         }

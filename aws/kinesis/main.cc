@@ -52,7 +52,7 @@ struct {
   std::string ca_path;
   int enable_stack_trace = 0;
   Aws::Utils::Logging::LogLevel aws_log_level = Aws::Utils::Logging::LogLevel::Warn;
-  boost::log::trivial::severity_level boost_log_level = boost::log::trivial::info;
+  boost::log::trivial::severity_level boost_log_level = boost::log::trivial::warning;
 } options;
 
 struct option long_opts[]{
@@ -78,6 +78,7 @@ void handle_log_level(std::string input_level) {
     level_mapping["debug"] = std::make_pair(AwsLog::Debug, BoostLog::debug);
     level_mapping["info"] = std::make_pair(AwsLog::Info, BoostLog::info);
     level_mapping["warn"] = std::make_pair(AwsLog::Warn, BoostLog::warning);
+    level_mapping["warning"] = std::make_pair(AwsLog::Warn, BoostLog::warning);  // to fix issue #137
     level_mapping["error"] = std::make_pair(AwsLog::Error, BoostLog::error);
     level_mapping["fatal"] = std::make_pair(AwsLog::Fatal, BoostLog::fatal);
     //
