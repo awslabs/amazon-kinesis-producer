@@ -57,6 +57,11 @@ If you have further questions [please open a GitHub Issue](https://github.com/aw
 This is a restatement of the [notice published](https://docs.aws.amazon.com/streams/latest/dev/kinesis-kpl-upgrades.html) in the [Amazon Kinesis Data Streams Developer Guide][kinesis-developer-guide]
 
 ## Release Notes
+### 0.14.13
+* [#440](https://github.com/awslabs/amazon-kinesis-producer/pull/440)
+  * Upgrade the dependencies used in bootstrap + Java dependencies
+  * Correct the log level discrepancy for the warnings
+
 ### 0.14.12
 * [#425](https://github.com/awslabs/amazon-kinesis-producer/pull/425) Fix build issues in CI
 * [#424](https://github.com/awslabs/amazon-kinesis-producer/pull/424) Fix build issues in CI
