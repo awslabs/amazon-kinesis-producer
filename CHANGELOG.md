@@ -1,4 +1,10 @@
 ## Changelog
+
+### 0.14.13 
+* [#440](https://github.com/awslabs/amazon-kinesis-producer/pull/440)
+  * Upgrade the dependencies used in bootstrap + Java dependencies
+  * Correct the log level discrepancy for the warnings
+
 ### 0.14.12
 * [#425](https://github.com/awslabs/amazon-kinesis-producer/pull/425) Fix build issues in CI
 * [#424](https://github.com/awslabs/amazon-kinesis-producer/pull/424) Fix build issues in CI
