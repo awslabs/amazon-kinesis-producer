@@ -14,10 +14,6 @@
  */
 package com.amazonaws.services.kinesis.producer;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -26,15 +22,19 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
-import org.hamcrest.Matchers;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.matchers.JUnitMatchers.hasItem;
 
 public class CertificateExtractorTest {
 
@@ -53,11 +53,11 @@ public class CertificateExtractorTest {
     public void testDirectoryExistsOnExtractionWithMismatch() throws Exception {
         File tempDirectory = Files.createTempDirectory("kpl-ca-test").toFile();
         File caDirectory = new File(tempDirectory, CertificateExtractor.CA_CERTS_DIRECTORY_NAME);
-        assertThat(caDirectory.mkdirs(), equalTo(true));
+        assertTrue(caDirectory.mkdirs());
         File existingCert = new File(caDirectory, CertificateExtractor.CERTIFICATE_FILES.get(5));
 
         try (FileOutputStream fos = new FileOutputStream(existingCert)) {
-            fos.write(new byte[]{1, 2, 3, 4});
+            fos.write(new byte[] { 1, 2, 3, 4 });
         }
 
         CertificateExtractor extractor = new CertificateExtractor();
@@ -70,22 +70,20 @@ public class CertificateExtractorTest {
         ClassLoader classLoader = CertificateExtractor.class.getClassLoader();
 
         Set<File> extractedCertificates = new HashSet<>(extractor.getExtractedCertificates());
-
-        assertThat(extractedCertificates.size(), equalTo(extractor.getExtractedCertificates().size()));
+        assertEquals(extractedCertificates.size(), extractor.getExtractedCertificates().size());
 
         for (String expectedCert : CertificateExtractor.CERTIFICATE_FILES) {
             File resourceFile = new File(CertificateExtractor.CA_CERTS_DIRECTORY_NAME, expectedCert);
 
             InputStream is = classLoader.getResourceAsStream(resourceFile.getPath());
-            assertThat(is, notNullValue());
+            assertNotNull(is);
             List<String> expectedCertLines = IOUtils.readLines(is, Charsets.UTF_8);
 
             File actualCaFile = new File(caCertsDirectory, expectedCert);
             List<String> actualCertLines = Files.readAllLines(actualCaFile.toPath(), Charsets.UTF_8);
 
-            assertThat(extractedCertificates, Matchers.hasItem(actualCaFile.getAbsoluteFile()));
-
-            assertThat(actualCertLines, equalTo(expectedCertLines));
+            assertThat(extractedCertificates, hasItem(actualCaFile.getAbsoluteFile()));
+            assertEquals(expectedCertLines, actualCertLines);
         }
     }
 
