@@ -36,7 +36,7 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 
 /**
- * Configuration for {@link KinesisProducer}. See each each individual set
+ * Configuration for {@link KinesisProducer}. See each individual set
  * method for details about each parameter.
  */
 public class KinesisProducerConfiguration {
