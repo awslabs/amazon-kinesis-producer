@@ -58,6 +58,7 @@ auto make_prr_ctx(size_t num_kr,
   }
   auto ctx = std::make_shared<aws::kinesis::core::PutRecordsContext>(
       "myStream",
+      "arn:aws:kinesis:us-east-2:123456789012:stream/myStream",
       krs);
   ctx->set_outcome(outcome);
   return ctx;

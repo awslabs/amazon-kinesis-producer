@@ -517,7 +517,7 @@ public class KinesisProducer implements IKinesisProducer {
      *            The hash value used to explicitly determine the shard the data
      *            record is assigned to by overriding the partition key hash.
      *            Must be a valid string representation of a positive integer
-     *            with value between 0 and <tt>2^128 - 1</tt> (inclusive).
+     *            with value between 0 and <code>2^128 - 1</code> (inclusive).
      * @param data
      *            Binary data of the record. Maximum size 1MiB.
      * @return A future for the result of the put.

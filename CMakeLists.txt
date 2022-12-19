@@ -212,7 +212,7 @@ set(STATIC_LIBS
         boost_chrono)
 
 find_package(Threads)
-find_package(AWSSDK REQUIRED COMPONENTS kinesis monitoring)
+find_package(AWSSDK REQUIRED COMPONENTS kinesis monitoring sts)
 
 add_library(LibCrypto STATIC IMPORTED)
 set_property(TARGET LibCrypto PROPERTY IMPORTED_LOCATION ${THIRD_PARTY_LIB_DIR}/libcrypto.a)

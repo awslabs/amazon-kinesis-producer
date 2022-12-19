@@ -38,6 +38,7 @@ class ShardMap : boost::noncopyable {
   ShardMap(std::shared_ptr<aws::utils::Executor> executor,
            std::shared_ptr<Aws::Kinesis::KinesisClient> kinesis_client,
            std::string stream,
+           std::string stream_arn,
            std::shared_ptr<aws::metrics::MetricsManager> metrics_manager
               = std::make_shared<aws::metrics::NullMetricsManager>(),
            std::chrono::milliseconds min_backoff = kMinBackoff,
@@ -88,6 +89,7 @@ class ShardMap : boost::noncopyable {
   std::shared_ptr<aws::utils::Executor> executor_;
   std::shared_ptr<Aws::Kinesis::KinesisClient> kinesis_client_;
   std::string stream_;
+  std::string stream_arn_;
   std::shared_ptr<aws::metrics::MetricsManager> metrics_manager_;
 
   State state_;
