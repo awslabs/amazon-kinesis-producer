@@ -12,19 +12,13 @@ silence() {
   fi
 }
 
-OPENSSL_VERSION="1.1.1q"
+OPENSSL_VERSION="1.1.1s"
 BOOST_VERSION="1.80.0"
 BOOST_VERSION_UNDERSCORED="${BOOST_VERSION//\./_}" # convert from 1.80.0 to 1_80_0
 ZLIB_VERSION="1.2.12"
 PROTOBUF_VERSION="3.11.4"
-CURL_VERSION="7.85.0"
-AWS_SDK_CPP_VERSION="1.9.67"
-
-# 1.1.1.q is not stable for MacOS, downgraded to 1.1.1n
-# see https://github.com/openssl/openssl/issues/18720
-if [[ $(uname) == 'Darwin' ]]; then
-  OPENSSL_VERSION="1.1.1n"
-fi
+CURL_VERSION="7.86.0"
+AWS_SDK_CPP_VERSION="1.10.32"
 
 LIB_OPENSSL="https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz"
 LIB_BOOST="https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION}/source/boost_${BOOST_VERSION_UNDERSCORED}.tar.gz"
@@ -222,9 +216,10 @@ if [ ! -d "curl-${CURL_VERSION}" ]; then
   cd curl-${CURL_VERSION}
 
   if [[ $(uname) == 'Darwin' ]]; then
-    silence conf --disable-shared --disable-ldap --disable-ldaps --without-libidn2 \
-      --enable-threaded-resolver --disable-debug --without-libssh2 --without-ca-bundle --with-openssl
-
+    silence conf --with-openssl --enable-threaded-resolver \
+      --disable-shared --disable-ldap --disable-ldaps --disable-debug \
+      --without-libidn2 --without-libssh2 --without-ca-bundle \
+      --without-brotli --without-nghttp2 --without-librtmp --without-zstd
     # Apply a patch for macOS that should prevent curl from trying to use clock_gettime
     # This is a temporary work around for https://github.com/awslabs/amazon-kinesis-producer/issues/117
     # until dependencies are updated
@@ -255,7 +250,7 @@ if [ ! -d "aws-sdk-cpp" ]; then
   cd aws-sdk-cpp-build
 
   silence $CMAKE \
-    -DBUILD_ONLY="kinesis;monitoring" \
+    -DBUILD_ONLY="kinesis;monitoring;sts" \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -DSTATIC_LINKING=1 \
     -DCMAKE_PREFIX_PATH="$INSTALL_DIR" \

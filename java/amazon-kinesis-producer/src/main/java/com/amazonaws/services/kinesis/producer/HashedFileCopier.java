@@ -25,7 +25,7 @@ import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.util.Arrays;
 
-import javax.xml.bind.DatatypeConverter;
+import jakarta.xml.bind.DatatypeConverter;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;

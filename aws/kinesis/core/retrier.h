@@ -46,6 +46,7 @@ class MetricsPutter {
  private:
   std::shared_ptr<aws::metrics::MetricsManager> metrics_manager_;
   std::string stream_;
+  std::string stream_arn_;
 };
 
 } // namespace detail

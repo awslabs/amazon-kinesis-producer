@@ -28,12 +28,14 @@ ShardMap::ShardMap(
     std::shared_ptr<aws::utils::Executor> executor,
     std::shared_ptr<Aws::Kinesis::KinesisClient> kinesis_client,
     std::string stream,
+    std::string stream_arn,
     std::shared_ptr<aws::metrics::MetricsManager> metrics_manager,
     std::chrono::milliseconds min_backoff,
     std::chrono::milliseconds max_backoff)
     : executor_(std::move(executor)),
       kinesis_client_(std::move(kinesis_client)),
       stream_(std::move(stream)),
+      stream_arn_(std::move(stream_arn)),
       metrics_manager_(std::move(metrics_manager)),
       state_(INVALID),
       min_backoff_(min_backoff),
@@ -101,8 +103,10 @@ void ShardMap::list_shards(const Aws::String& next_token) {
 
   if (!next_token.empty()) {
     req.SetNextToken(next_token);
+    if (!stream_arn_.empty()) req.SetStreamARN(stream_arn_);
   } else {
     req.SetStreamName(stream_);
+    if (!stream_arn_.empty()) req.SetStreamARN(stream_arn_);
     Aws::Kinesis::Model::ShardFilter shardFilter;
     shardFilter.SetType(Aws::Kinesis::Model::ShardFilterType::AT_LATEST);
     req.SetShardFilter(shardFilter);
@@ -146,13 +150,14 @@ void ShardMap::list_shards_callback(
   updated_at_ = std::chrono::steady_clock::now();
 
   LOG(info) << "Successfully updated shard map for stream \""
-            << stream_ << "\" found " << end_hash_key_to_shard_id_.size()
-            << " shards";
+            << stream_ << (stream_arn_.empty() ? "\"" : "\" (arn: \"" + stream_arn_ + "\")")
+            << ". Found " << end_hash_key_to_shard_id_.size() << " shards";
 }
 
-void ShardMap::update_fail(const std::string& code, const std::string& msg) {
-  LOG(error) << "Shard map update for stream \"" << stream_ << "\" failed. "
-             << "Code: " << code << " Message: " << msg << "; retrying in "
+void ShardMap::update_fail(const std::string &code, const std::string &msg) {
+  LOG(error) << "Shard map update for stream \""
+             << stream_ << (stream_arn_.empty() ? "\"" : "\" (arn: \"" + stream_arn_ + "\")")
+             << "failed. Code: " << code << " Message: " << msg << "; retrying in "
              << backoff_.count() << " ms";
 
   WriteLock lock(mutex_);

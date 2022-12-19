@@ -26,6 +26,7 @@
 namespace {
 
 const std::string kStreamName = "myStream";
+const std::string kStreamARN = "arn:aws:kinesis:us-east-2:123456789012:stream/myStream";
 
 Aws::Client::ClientConfiguration fake_client_cfg() {
   Aws::Client::ClientConfiguration cfg;
@@ -88,6 +89,7 @@ class Wrapper {
                 outcomes_list_shards,
                 [this] { num_req_received_++; }),
             kStreamName,
+            kStreamARN,
             std::make_shared<aws::metrics::NullMetricsManager>(),
             std::chrono::milliseconds(100),
             std::chrono::milliseconds(1000));

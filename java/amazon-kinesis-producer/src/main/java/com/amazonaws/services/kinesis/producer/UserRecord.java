@@ -11,6 +11,11 @@ public class UserRecord {
     private String streamName;
 
     /**
+     * ARN of the stream, e.g., arn:aws:kinesis:us-east-2:123456789012:stream/mystream
+     */
+    private String streamARN;
+
+    /**
      * Partition key. Length must be at least one, and at most 256 (inclusive).
      */
     private String partitionKey;
@@ -19,7 +24,7 @@ public class UserRecord {
      * The hash value used to explicitly determine the shard the data
      * record is assigned to by overriding the partition key hash.
      * Must be a valid string representation of a positive integer
-     * with value between 0 and <tt>2^128 - 1</tt> (inclusive).
+     * with value between 0 and <code>2^128 - 1</code> (inclusive).
      */
     private String explicitHashKey;
 

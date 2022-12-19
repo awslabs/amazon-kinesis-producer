@@ -34,12 +34,18 @@ namespace core {
 class PutRecordsContext : public Aws::Client::AsyncCallerContext {
  public:
   PutRecordsContext(std::string stream,
+                    std::string stream_arn,
                     std::vector<std::shared_ptr<KinesisRecord>> records)
-      : stream_(stream),
+      : stream_(std::move(stream)),
+        stream_arn_(std::move(stream_arn)),
         records_(std::move(records)) {}
 
   const std::string& get_stream() const {
     return stream_;
+  }
+
+  const std::string& get_stream_arn() const {
+    return stream_arn_;
   }
 
   std::chrono::steady_clock::time_point get_start() const {
@@ -76,6 +82,7 @@ class PutRecordsContext : public Aws::Client::AsyncCallerContext {
       req.AddRecords(std::move(e));
     }
     req.SetStreamName(stream_);
+    if (!stream_arn_.empty()) req.SetStreamARN(stream_arn_);
     return req;
   }
 
@@ -96,6 +103,7 @@ class PutRecordsContext : public Aws::Client::AsyncCallerContext {
 
  private:
   std::string stream_;
+  std::string stream_arn_;
   std::chrono::steady_clock::time_point start_;
   std::chrono::steady_clock::time_point end_;
   std::vector<std::shared_ptr<KinesisRecord>> records_;
