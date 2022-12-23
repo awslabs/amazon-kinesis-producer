@@ -15,7 +15,7 @@ silence() {
 OPENSSL_VERSION="1.1.1s"
 BOOST_VERSION="1.80.0"
 BOOST_VERSION_UNDERSCORED="${BOOST_VERSION//\./_}" # convert from 1.80.0 to 1_80_0
-ZLIB_VERSION="1.2.12"
+ZLIB_VERSION="1.2.13"
 PROTOBUF_VERSION="3.11.4"
 CURL_VERSION="7.86.0"
 AWS_SDK_CPP_VERSION="1.10.32"
@@ -138,7 +138,7 @@ if [ ! -d "openssl-${OPENSSL_VERSION}" ]; then
       echo -e '\t$(COMPILE.c) $(OUTPUT_OPTION) $<;' >>$f
     done
   else
-    silence ./config "$OPTS" --prefix="$INSTALL_DIR"
+    silence ./config $OPTS --prefix="$INSTALL_DIR"
   fi
 
   silence make depend
@@ -271,7 +271,7 @@ fi
 cd ..
 
 # Build the native kinesis producer
-$CMAKE -DCMAKE_PREFIX_PATH="$INSTALL_DIR" .
+$CMAKE -DCMAKE_PREFIX_PATH="$INSTALL_DIR" -DCMAKE_BUILD_TYPE=RelWithDebInfo .
 make -j8
 
 #copy native producer to a location that the java producer can package it

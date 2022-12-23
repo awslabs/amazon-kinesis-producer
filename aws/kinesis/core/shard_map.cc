@@ -150,14 +150,14 @@ void ShardMap::list_shards_callback(
   updated_at_ = std::chrono::steady_clock::now();
 
   LOG(info) << "Successfully updated shard map for stream \""
-            << stream_ << (stream_arn_.empty() ? "\"" : "\" (arn: \"" + stream_arn_ + "\")")
-            << ". Found " << end_hash_key_to_shard_id_.size() << " shards";
+            << stream_ << (stream_arn_.empty() ? "\"" : "\" (arn: \"" + stream_arn_ + "\"). Found ")
+            << end_hash_key_to_shard_id_.size() << " shards";
 }
 
 void ShardMap::update_fail(const std::string &code, const std::string &msg) {
   LOG(error) << "Shard map update for stream \""
-             << stream_ << (stream_arn_.empty() ? "\"" : "\" (arn: \"" + stream_arn_ + "\")")
-             << "failed. Code: " << code << " Message: " << msg << "; retrying in "
+             << stream_ << (stream_arn_.empty() ? "\"" : "\" (arn: \"" + stream_arn_ + "\") failed. ")
+             << "Code: " << code << " Message: " << msg << "; retrying in "
              << backoff_.count() << " ms";
 
   WriteLock lock(mutex_);

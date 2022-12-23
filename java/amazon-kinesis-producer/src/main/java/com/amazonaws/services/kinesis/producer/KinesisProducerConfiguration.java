@@ -368,6 +368,8 @@ public class KinesisProducerConfiguration {
     private long proxyPort = 443L;
     private String proxyUserName = "";
     private String proxyPassword = "";
+    private String stsEndpoint = "";
+    private long stsPort = 443L;
     private ThreadingModel threadingModel = ThreadingModel.PER_REQUEST;
     private int threadPoolSize = 0;
     private String caCertPath = "";
@@ -874,6 +876,30 @@ public class KinesisProducerConfiguration {
      */
     public String getProxyPassword() {
         return proxyPassword;
+    }
+
+    /**
+     * Get a custom STS endpoint.
+     *
+     * <p>
+     * Note this does not accept protocols or paths, only host names or ip addresses. There is no
+     * way to disable TLS. The KPL always connects with TLS.
+     *
+     * <p><b>Expected pattern</b>: ^([A-Za-z0-9-\\.]+)?$
+     */
+    public String getStsEndpoint() {
+      return stsEndpoint;
+    }
+
+    /**
+     * Server port to connect to for STS.
+     *
+     * <p><b>Default</b>: 443
+     * <p><b>Minimum</b>: 1
+     * <p><b>Maximum (inclusive)</b>: 65535
+     */
+    public long getStsPort() {
+      return stsPort;
     }
 
     /**
@@ -1528,10 +1554,42 @@ public class KinesisProducerConfiguration {
     }
 
     /**
+     * Use a custom STS endpoint.
+     *
+     * <p>
+     * Note this does not accept protocols or paths, only host names or ip addresses. There is no
+     * way to disable TLS. The KPL always connects with TLS.
+     *
+     * <p><b>Expected pattern</b>: ^([A-Za-z0-9-\\.]+)?$
+     */
+    public KinesisProducerConfiguration setStsEndpoint(String val) {
+        if (!Pattern.matches("^([A-Za-z0-9-\\.]+)?$", val)) {
+            throw new IllegalArgumentException("stsEndpoint must match the pattern ^([A-Za-z0-9-\\.]+)?$, got " + val);
+        }
+        stsEndpoint = val;
+        return this;
+    }
+
+    /**
+     * Server port to connect to for STS.
+     *
+     * <p><b>Default</b>: 443
+     * <p><b>Minimum</b>: 1
+     * <p><b>Maximum (inclusive)</b>: 65535
+     */
+    public KinesisProducerConfiguration setStsPort(long val) {
+        if (val < 1L || val > 65535L) {
+            throw new IllegalArgumentException("kinesisPort must be between 1 and 65535, got " + val);
+        }
+        stsPort = val;
+        return this;
+    }
+
+    /**
      * Sets the threading model that the native process will use.
      *
      * See {@link #getThreadingModel()} for more information
-     * 
+     *
      * @param threadingModel
      *            the threading model to use
      * @return this configuration object
@@ -1631,6 +1689,8 @@ public class KinesisProducerConfiguration {
                 .setProxyPort(proxyPort)
                 .setProxyUserName(proxyUserName)
                 .setProxyPassword(proxyPassword)
+                .setStsEndpoint(stsEndpoint)
+                .setStsPort(stsPort)
                 .setThreadConfig(threadingModel.threadConfig);
         //@formatter:on
         if (threadPoolSize > 0) {
