@@ -256,19 +256,15 @@ std::string get_region(const aws::kinesis::core::Configuration& config) {
     return config.region();
   }
 
-  Aws::Internal::EC2MetadataClient ec2_md;
-  auto az = ec2_md.GetResource(
-      "/latest/meta-data/placement/availability-zone/");
-  auto regex = std::regex("^([a-z]+-[a-z]+-[0-9])[a-z]$",
-                          std::regex::ECMAScript);
-  std::smatch m;
-  if (std::regex_match(az, m, regex)) {
-    return m.str(1);
+  Aws::Internal::EC2MetadataClient ec2_client;
+  Aws::String region = ec2_client.GetCurrentRegion();
+  if (region.empty()) {
+    LOG(error) << "Could not configure the region. It was not given in the "
+               << "config and we were unable to retrieve it from EC2 metadata.";
+    throw 1;
   }
 
-  LOG(error) << "Could not configure the region. It was not given in the "
-             << "config and we were unable to retrieve it from EC2 metadata.";
-  throw 1;
+  return region;
 }
 
 std::pair<
