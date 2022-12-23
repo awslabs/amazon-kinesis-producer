@@ -1404,6 +1404,34 @@ public final class Config {
         getProxyPasswordBytes();
 
     /**
+     * <code>optional string sts_endpoint = 32 [default = ""];</code>
+     * @return Whether the stsEndpoint field is set.
+     */
+    boolean hasStsEndpoint();
+    /**
+     * <code>optional string sts_endpoint = 32 [default = ""];</code>
+     * @return The stsEndpoint.
+     */
+    java.lang.String getStsEndpoint();
+    /**
+     * <code>optional string sts_endpoint = 32 [default = ""];</code>
+     * @return The bytes for stsEndpoint.
+     */
+    com.google.protobuf.ByteString
+        getStsEndpointBytes();
+
+    /**
+     * <code>optional uint64 sts_port = 33 [default = 443];</code>
+     * @return Whether the stsPort field is set.
+     */
+    boolean hasStsPort();
+    /**
+     * <code>optional uint64 sts_port = 33 [default = 443];</code>
+     * @return The stsPort.
+     */
+    long getStsPort();
+
+    /**
      * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 30 [default = PER_REQUEST];</code>
      * @return Whether the threadConfig field is set.
      */
@@ -1466,6 +1494,8 @@ public final class Config {
       proxyPort_ = 443L;
       proxyUserName_ = "";
       proxyPassword_ = "";
+      stsEndpoint_ = "";
+      stsPort_ = 443L;
       threadConfig_ = 0;
       threadPoolSize_ = 64;
     }
@@ -1491,6 +1521,7 @@ public final class Config {
         throw new java.lang.NullPointerException();
       }
       int mutable_bitField0_ = 0;
+      int mutable_bitField1_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
@@ -1663,14 +1694,25 @@ public final class Config {
               if (value == null) {
                 unknownFields.mergeVarintField(30, rawValue);
               } else {
-                bitField0_ |= 0x20000000;
+                bitField0_ |= 0x80000000;
                 threadConfig_ = rawValue;
               }
               break;
             }
             case 248: {
-              bitField0_ |= 0x40000000;
+              bitField1_ |= 0x00000001;
               threadPoolSize_ = input.readUInt32();
+              break;
+            }
+            case 258: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x20000000;
+              stsEndpoint_ = bs;
+              break;
+            }
+            case 264: {
+              bitField0_ |= 0x40000000;
+              stsPort_ = input.readUInt64();
               break;
             }
             case 1026: {
@@ -1814,6 +1856,7 @@ public final class Config {
     }
 
     private int bitField0_;
+    private int bitField1_;
     public static final int ADDITIONAL_METRIC_DIMS_FIELD_NUMBER = 128;
     private java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension> additionalMetricDims_;
     /**
@@ -1825,7 +1868,7 @@ public final class Config {
     /**
      * <code>repeated .aws.kinesis.protobuf.AdditionalDimension additional_metric_dims = 128;</code>
      */
-    public java.util.List<? extends com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimensionOrBuilder> 
+    public java.util.List<? extends com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimensionOrBuilder>
         getAdditionalMetricDimsOrBuilderList() {
       return additionalMetricDims_;
     }
@@ -1918,7 +1961,7 @@ public final class Config {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs = 
+        com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
@@ -1935,7 +1978,7 @@ public final class Config {
         getCloudwatchEndpointBytes() {
       java.lang.Object ref = cloudwatchEndpoint_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
+        com.google.protobuf.ByteString b =
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         cloudwatchEndpoint_ = b;
@@ -2065,7 +2108,7 @@ public final class Config {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs = 
+        com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
@@ -2082,7 +2125,7 @@ public final class Config {
         getKinesisEndpointBytes() {
       java.lang.Object ref = kinesisEndpoint_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
+        com.google.protobuf.ByteString b =
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         kinesisEndpoint_ = b;
@@ -2127,7 +2170,7 @@ public final class Config {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs = 
+        com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
@@ -2144,7 +2187,7 @@ public final class Config {
         getLogLevelBytes() {
       java.lang.Object ref = logLevel_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
+        com.google.protobuf.ByteString b =
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         logLevel_ = b;
@@ -2189,7 +2232,7 @@ public final class Config {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs = 
+        com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
@@ -2206,7 +2249,7 @@ public final class Config {
         getMetricsGranularityBytes() {
       java.lang.Object ref = metricsGranularity_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
+        com.google.protobuf.ByteString b =
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         metricsGranularity_ = b;
@@ -2234,7 +2277,7 @@ public final class Config {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs = 
+        com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
@@ -2251,7 +2294,7 @@ public final class Config {
         getMetricsLevelBytes() {
       java.lang.Object ref = metricsLevel_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
+        com.google.protobuf.ByteString b =
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         metricsLevel_ = b;
@@ -2279,7 +2322,7 @@ public final class Config {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs = 
+        com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
@@ -2296,7 +2339,7 @@ public final class Config {
         getMetricsNamespaceBytes() {
       java.lang.Object ref = metricsNamespace_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
+        com.google.protobuf.ByteString b =
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         metricsNamespace_ = b;
@@ -2409,7 +2452,7 @@ public final class Config {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs = 
+        com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
@@ -2426,7 +2469,7 @@ public final class Config {
         getRegionBytes() {
       java.lang.Object ref = region_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
+        com.google.protobuf.ByteString b =
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         region_ = b;
@@ -2488,7 +2531,7 @@ public final class Config {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs = 
+        com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
@@ -2505,7 +2548,7 @@ public final class Config {
         getProxyHostBytes() {
       java.lang.Object ref = proxyHost_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
+        com.google.protobuf.ByteString b =
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         proxyHost_ = b;
@@ -2550,7 +2593,7 @@ public final class Config {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs = 
+        com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
@@ -2567,7 +2610,7 @@ public final class Config {
         getProxyUserNameBytes() {
       java.lang.Object ref = proxyUserName_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
+        com.google.protobuf.ByteString b =
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         proxyUserName_ = b;
@@ -2595,7 +2638,7 @@ public final class Config {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs = 
+        com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
@@ -2612,7 +2655,7 @@ public final class Config {
         getProxyPasswordBytes() {
       java.lang.Object ref = proxyPassword_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
+        com.google.protobuf.ByteString b =
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         proxyPassword_ = b;
@@ -2622,6 +2665,68 @@ public final class Config {
       }
     }
 
+    public static final int STS_ENDPOINT_FIELD_NUMBER = 32;
+    private volatile java.lang.Object stsEndpoint_;
+    /**
+     * <code>optional string sts_endpoint = 32 [default = ""];</code>
+     * @return Whether the stsEndpoint field is set.
+     */
+    public boolean hasStsEndpoint() {
+      return ((bitField0_ & 0x20000000) != 0);
+    }
+    /**
+     * <code>optional string sts_endpoint = 32 [default = ""];</code>
+     * @return The stsEndpoint.
+     */
+    public java.lang.String getStsEndpoint() {
+      java.lang.Object ref = stsEndpoint_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          stsEndpoint_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string sts_endpoint = 32 [default = ""];</code>
+     * @return The bytes for stsEndpoint.
+     */
+    public com.google.protobuf.ByteString
+        getStsEndpointBytes() {
+      java.lang.Object ref = stsEndpoint_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b =
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        stsEndpoint_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int STS_PORT_FIELD_NUMBER = 33;
+    private long stsPort_;
+    /**
+     * <code>optional uint64 sts_port = 33 [default = 443];</code>
+     * @return Whether the stsPort field is set.
+     */
+    public boolean hasStsPort() {
+      return ((bitField0_ & 0x40000000) != 0);
+    }
+    /**
+     * <code>optional uint64 sts_port = 33 [default = 443];</code>
+     * @return The stsPort.
+     */
+    public long getStsPort() {
+      return stsPort_;
+    }
+
     public static final int THREAD_CONFIG_FIELD_NUMBER = 30;
     private int threadConfig_;
     /**
@@ -2629,7 +2734,7 @@ public final class Config {
      * @return Whether the threadConfig field is set.
      */
     public boolean hasThreadConfig() {
-      return ((bitField0_ & 0x20000000) != 0);
+      return ((bitField0_ & 0x80000000) != 0);
     }
     /**
      * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 30 [default = PER_REQUEST];</code>
@@ -2648,7 +2753,7 @@ public final class Config {
      * @return Whether the threadPoolSize field is set.
      */
     public boolean hasThreadPoolSize() {
-      return ((bitField0_ & 0x40000000) != 0);
+      return ((bitField1_ & 0x00000001) != 0);
     }
     /**
      * <code>optional uint32 thread_pool_size = 31 [default = 64];</code>
@@ -2765,11 +2870,17 @@ public final class Config {
       if (((bitField0_ & 0x10000000) != 0)) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 29, proxyPassword_);
       }
-      if (((bitField0_ & 0x20000000) != 0)) {
+      if (((bitField0_ & 0x80000000) != 0)) {
         output.writeEnum(30, threadConfig_);
       }
-      if (((bitField0_ & 0x40000000) != 0)) {
+      if (((bitField1_ & 0x00000001) != 0)) {
         output.writeUInt32(31, threadPoolSize_);
+      }
+      if (((bitField0_ & 0x20000000) != 0)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 32, stsEndpoint_);
+      }
+      if (((bitField0_ & 0x40000000) != 0)) {
+        output.writeUInt64(33, stsPort_);
       }
       for (int i = 0; i < additionalMetricDims_.size(); i++) {
         output.writeMessage(128, additionalMetricDims_.get(i));
@@ -2889,13 +3000,20 @@ public final class Config {
       if (((bitField0_ & 0x10000000) != 0)) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(29, proxyPassword_);
       }
-      if (((bitField0_ & 0x20000000) != 0)) {
+      if (((bitField0_ & 0x80000000) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(30, threadConfig_);
       }
-      if (((bitField0_ & 0x40000000) != 0)) {
+      if (((bitField1_ & 0x00000001) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeUInt32Size(31, threadPoolSize_);
+      }
+      if (((bitField0_ & 0x20000000) != 0)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(32, stsEndpoint_);
+      }
+      if (((bitField0_ & 0x40000000) != 0)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt64Size(33, stsPort_);
       }
       for (int i = 0; i < additionalMetricDims_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
@@ -3063,6 +3181,16 @@ public final class Config {
         if (!getProxyPassword()
             .equals(other.getProxyPassword())) return false;
       }
+      if (hasStsEndpoint() != other.hasStsEndpoint()) return false;
+      if (hasStsEndpoint()) {
+        if (!getStsEndpoint()
+            .equals(other.getStsEndpoint())) return false;
+      }
+      if (hasStsPort() != other.hasStsPort()) return false;
+      if (hasStsPort()) {
+        if (getStsPort()
+            != other.getStsPort()) return false;
+      }
       if (hasThreadConfig() != other.hasThreadConfig()) return false;
       if (hasThreadConfig()) {
         if (threadConfig_ != other.threadConfig_) return false;
@@ -3221,6 +3349,15 @@ public final class Config {
       if (hasProxyPassword()) {
         hash = (37 * hash) + PROXY_PASSWORD_FIELD_NUMBER;
         hash = (53 * hash) + getProxyPassword().hashCode();
+      }
+      if (hasStsEndpoint()) {
+        hash = (37 * hash) + STS_ENDPOINT_FIELD_NUMBER;
+        hash = (53 * hash) + getStsEndpoint().hashCode();
+      }
+      if (hasStsPort()) {
+        hash = (37 * hash) + STS_PORT_FIELD_NUMBER;
+        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+            getStsPort());
       }
       if (hasThreadConfig()) {
         hash = (37 * hash) + THREAD_CONFIG_FIELD_NUMBER;
@@ -3428,10 +3565,14 @@ public final class Config {
         bitField0_ = (bitField0_ & ~0x10000000);
         proxyPassword_ = "";
         bitField0_ = (bitField0_ & ~0x20000000);
-        threadConfig_ = 0;
+        stsEndpoint_ = "";
         bitField0_ = (bitField0_ & ~0x40000000);
-        threadPoolSize_ = 64;
+        stsPort_ = 443L;
         bitField0_ = (bitField0_ & ~0x80000000);
+        threadConfig_ = 0;
+        bitField1_ = (bitField1_ & ~0x00000001);
+        threadPoolSize_ = 64;
+        bitField1_ = (bitField1_ & ~0x00000002);
         return this;
       }
 
@@ -3459,7 +3600,9 @@ public final class Config {
       public com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration buildPartial() {
         com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration result = new com.amazonaws.services.kinesis.producer.protobuf.Config.Configuration(this);
         int from_bitField0_ = bitField0_;
+        int from_bitField1_ = bitField1_;
         int to_bitField0_ = 0;
+        int to_bitField1_ = 0;
         if (additionalMetricDimsBuilder_ == null) {
           if (((bitField0_ & 0x00000001) != 0)) {
             additionalMetricDims_ = java.util.Collections.unmodifiableList(additionalMetricDims_);
@@ -3588,12 +3731,21 @@ public final class Config {
         if (((from_bitField0_ & 0x40000000) != 0)) {
           to_bitField0_ |= 0x20000000;
         }
-        result.threadConfig_ = threadConfig_;
+        result.stsEndpoint_ = stsEndpoint_;
         if (((from_bitField0_ & 0x80000000) != 0)) {
           to_bitField0_ |= 0x40000000;
         }
+        result.stsPort_ = stsPort_;
+        if (((from_bitField1_ & 0x00000001) != 0)) {
+          to_bitField0_ |= 0x80000000;
+        }
+        result.threadConfig_ = threadConfig_;
+        if (((from_bitField1_ & 0x00000002) != 0)) {
+          to_bitField1_ |= 0x00000001;
+        }
         result.threadPoolSize_ = threadPoolSize_;
         result.bitField0_ = to_bitField0_;
+        result.bitField1_ = to_bitField1_;
         onBuilt();
         return result;
       }
@@ -3660,7 +3812,7 @@ public final class Config {
               additionalMetricDimsBuilder_ = null;
               additionalMetricDims_ = other.additionalMetricDims_;
               bitField0_ = (bitField0_ & ~0x00000001);
-              additionalMetricDimsBuilder_ = 
+              additionalMetricDimsBuilder_ =
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
                    getAdditionalMetricDimsFieldBuilder() : null;
             } else {
@@ -3775,6 +3927,14 @@ public final class Config {
           proxyPassword_ = other.proxyPassword_;
           onChanged();
         }
+        if (other.hasStsEndpoint()) {
+          bitField0_ |= 0x40000000;
+          stsEndpoint_ = other.stsEndpoint_;
+          onChanged();
+        }
+        if (other.hasStsPort()) {
+          setStsPort(other.getStsPort());
+        }
         if (other.hasThreadConfig()) {
           setThreadConfig(other.getThreadConfig());
         }
@@ -3815,6 +3975,7 @@ public final class Config {
         return this;
       }
       private int bitField0_;
+      private int bitField1_;
 
       private java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension> additionalMetricDims_ =
         java.util.Collections.emptyList();
@@ -4011,7 +4172,7 @@ public final class Config {
       /**
        * <code>repeated .aws.kinesis.protobuf.AdditionalDimension additional_metric_dims = 128;</code>
        */
-      public java.util.List<? extends com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimensionOrBuilder> 
+      public java.util.List<? extends com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimensionOrBuilder>
            getAdditionalMetricDimsOrBuilderList() {
         if (additionalMetricDimsBuilder_ != null) {
           return additionalMetricDimsBuilder_.getMessageOrBuilderList();
@@ -4037,12 +4198,12 @@ public final class Config {
       /**
        * <code>repeated .aws.kinesis.protobuf.AdditionalDimension additional_metric_dims = 128;</code>
        */
-      public java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension.Builder> 
+      public java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension.Builder>
            getAdditionalMetricDimsBuilderList() {
         return getAdditionalMetricDimsFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension, com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension.Builder, com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimensionOrBuilder> 
+          com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension, com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension.Builder, com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimensionOrBuilder>
           getAdditionalMetricDimsFieldBuilder() {
         if (additionalMetricDimsBuilder_ == null) {
           additionalMetricDimsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
@@ -4201,7 +4362,7 @@ public final class Config {
           getCloudwatchEndpointBytes() {
         java.lang.Object ref = cloudwatchEndpoint_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString b =
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
           cloudwatchEndpoint_ = b;
@@ -4507,7 +4668,7 @@ public final class Config {
           getKinesisEndpointBytes() {
         java.lang.Object ref = kinesisEndpoint_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString b =
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
           kinesisEndpoint_ = b;
@@ -4628,7 +4789,7 @@ public final class Config {
           getLogLevelBytes() {
         java.lang.Object ref = logLevel_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString b =
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
           logLevel_ = b;
@@ -4749,7 +4910,7 @@ public final class Config {
           getMetricsGranularityBytes() {
         java.lang.Object ref = metricsGranularity_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString b =
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
           metricsGranularity_ = b;
@@ -4833,7 +4994,7 @@ public final class Config {
           getMetricsLevelBytes() {
         java.lang.Object ref = metricsLevel_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString b =
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
           metricsLevel_ = b;
@@ -4917,7 +5078,7 @@ public final class Config {
           getMetricsNamespaceBytes() {
         java.lang.Object ref = metricsNamespace_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString b =
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
           metricsNamespace_ = b;
@@ -5186,7 +5347,7 @@ public final class Config {
           getRegionBytes() {
         java.lang.Object ref = region_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString b =
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
           region_ = b;
@@ -5344,7 +5505,7 @@ public final class Config {
           getProxyHostBytes() {
         java.lang.Object ref = proxyHost_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString b =
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
           proxyHost_ = b;
@@ -5465,7 +5626,7 @@ public final class Config {
           getProxyUserNameBytes() {
         java.lang.Object ref = proxyUserName_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString b =
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
           proxyUserName_ = b;
@@ -5549,7 +5710,7 @@ public final class Config {
           getProxyPasswordBytes() {
         java.lang.Object ref = proxyPassword_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString b =
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
           proxyPassword_ = b;
@@ -5599,13 +5760,134 @@ public final class Config {
         return this;
       }
 
+      private java.lang.Object stsEndpoint_ = "";
+      /**
+       * <code>optional string sts_endpoint = 32 [default = ""];</code>
+       * @return Whether the stsEndpoint field is set.
+       */
+      public boolean hasStsEndpoint() {
+        return ((bitField0_ & 0x40000000) != 0);
+      }
+      /**
+       * <code>optional string sts_endpoint = 32 [default = ""];</code>
+       * @return The stsEndpoint.
+       */
+      public java.lang.String getStsEndpoint() {
+        java.lang.Object ref = stsEndpoint_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            stsEndpoint_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string sts_endpoint = 32 [default = ""];</code>
+       * @return The bytes for stsEndpoint.
+       */
+      public com.google.protobuf.ByteString
+          getStsEndpointBytes() {
+        java.lang.Object ref = stsEndpoint_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b =
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          stsEndpoint_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string sts_endpoint = 32 [default = ""];</code>
+       * @param value The stsEndpoint to set.
+       * @return This builder for chaining.
+       */
+      public Builder setStsEndpoint(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x40000000;
+        stsEndpoint_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string sts_endpoint = 32 [default = ""];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearStsEndpoint() {
+        bitField0_ = (bitField0_ & ~0x40000000);
+        stsEndpoint_ = getDefaultInstance().getStsEndpoint();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string sts_endpoint = 32 [default = ""];</code>
+       * @param value The bytes for stsEndpoint to set.
+       * @return This builder for chaining.
+       */
+      public Builder setStsEndpointBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x40000000;
+        stsEndpoint_ = value;
+        onChanged();
+        return this;
+      }
+
+      private long stsPort_ = 443L;
+      /**
+       * <code>optional uint64 sts_port = 33 [default = 443];</code>
+       * @return Whether the stsPort field is set.
+       */
+      public boolean hasStsPort() {
+        return ((bitField0_ & 0x80000000) != 0);
+      }
+      /**
+       * <code>optional uint64 sts_port = 33 [default = 443];</code>
+       * @return The stsPort.
+       */
+      public long getStsPort() {
+        return stsPort_;
+      }
+      /**
+       * <code>optional uint64 sts_port = 33 [default = 443];</code>
+       * @param value The stsPort to set.
+       * @return This builder for chaining.
+       */
+      public Builder setStsPort(long value) {
+        bitField0_ |= 0x80000000;
+        stsPort_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional uint64 sts_port = 33 [default = 443];</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearStsPort() {
+        bitField0_ = (bitField0_ & ~0x80000000);
+        stsPort_ = 443L;
+        onChanged();
+        return this;
+      }
+
       private int threadConfig_ = 0;
       /**
        * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 30 [default = PER_REQUEST];</code>
        * @return Whether the threadConfig field is set.
        */
       public boolean hasThreadConfig() {
-        return ((bitField0_ & 0x40000000) != 0);
+        return ((bitField1_ & 0x00000001) != 0);
       }
       /**
        * <code>optional .aws.kinesis.protobuf.Configuration.ThreadConfig thread_config = 30 [default = PER_REQUEST];</code>
@@ -5625,7 +5907,7 @@ public final class Config {
         if (value == null) {
           throw new NullPointerException();
         }
-        bitField0_ |= 0x40000000;
+        bitField1_ |= 0x00000001;
         threadConfig_ = value.getNumber();
         onChanged();
         return this;
@@ -5635,7 +5917,7 @@ public final class Config {
        * @return This builder for chaining.
        */
       public Builder clearThreadConfig() {
-        bitField0_ = (bitField0_ & ~0x40000000);
+        bitField1_ = (bitField1_ & ~0x00000001);
         threadConfig_ = 0;
         onChanged();
         return this;
@@ -5647,7 +5929,7 @@ public final class Config {
        * @return Whether the threadPoolSize field is set.
        */
       public boolean hasThreadPoolSize() {
-        return ((bitField0_ & 0x80000000) != 0);
+        return ((bitField1_ & 0x00000002) != 0);
       }
       /**
        * <code>optional uint32 thread_pool_size = 31 [default = 64];</code>
@@ -5662,7 +5944,7 @@ public final class Config {
        * @return This builder for chaining.
        */
       public Builder setThreadPoolSize(int value) {
-        bitField0_ |= 0x80000000;
+        bitField1_ |= 0x00000002;
         threadPoolSize_ = value;
         onChanged();
         return this;
@@ -5672,7 +5954,7 @@ public final class Config {
        * @return This builder for chaining.
        */
       public Builder clearThreadPoolSize() {
-        bitField0_ = (bitField0_ & ~0x80000000);
+        bitField1_ = (bitField1_ & ~0x00000002);
         threadPoolSize_ = 64;
         onChanged();
         return this;
@@ -5732,12 +6014,12 @@ public final class Config {
 
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_aws_kinesis_protobuf_AdditionalDimension_descriptor;
-  private static final 
+  private static final
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_aws_kinesis_protobuf_AdditionalDimension_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_aws_kinesis_protobuf_Configuration_descriptor;
-  private static final 
+  private static final
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_aws_kinesis_protobuf_Configuration_fieldAccessorTable;
 
@@ -5751,7 +6033,7 @@ public final class Config {
     java.lang.String[] descriptorData = {
       "\n\014config.proto\022\024aws.kinesis.protobuf\"F\n\023" +
       "AdditionalDimension\022\013\n\003key\030\001 \002(\t\022\r\n\005valu" +
-      "e\030\002 \002(\t\022\023\n\013granularity\030\003 \002(\t\"\220\t\n\rConfigu" +
+      "e\030\002 \002(\t\022\023\n\013granularity\030\003 \002(\t\"\277\t\n\rConfigu" +
       "ration\022J\n\026additional_metric_dims\030\200\001 \003(\0132" +
       ").aws.kinesis.protobuf.AdditionalDimensi" +
       "on\022!\n\023aggregation_enabled\030\001 \001(\010:\004true\022)\n" +
@@ -5776,13 +6058,14 @@ public final class Config {
       "uest_timeout\030\030 \001(\004:\0046000\022 \n\022verify_certi" +
       "ficate\030\031 \001(\010:\004true\022\024\n\nproxy_host\030\032 \001(\t:\000" +
       "\022\027\n\nproxy_port\030\033 \001(\004:\003443\022\031\n\017proxy_user_" +
-      "name\030\034 \001(\t:\000\022\030\n\016proxy_password\030\035 \001(\t:\000\022T" +
-      "\n\rthread_config\030\036 \001(\01620.aws.kinesis.prot" +
-      "obuf.Configuration.ThreadConfig:\013PER_REQ" +
-      "UEST\022\034\n\020thread_pool_size\030\037 \001(\r:\00264\"+\n\014Th" +
-      "readConfig\022\017\n\013PER_REQUEST\020\000\022\n\n\006POOLED\020\001B" +
-      "2\n0com.amazonaws.services.kinesis.produc" +
-      "er.protobuf"
+      "name\030\034 \001(\t:\000\022\030\n\016proxy_password\030\035 \001(\t:\000\022\026" +
+      "\n\014sts_endpoint\030  \001(\t:\000\022\025\n\010sts_port\030! \001(\004" +
+      ":\003443\022T\n\rthread_config\030\036 \001(\01620.aws.kines" +
+      "is.protobuf.Configuration.ThreadConfig:\013" +
+      "PER_REQUEST\022\034\n\020thread_pool_size\030\037 \001(\r:\0026" +
+      "4\"+\n\014ThreadConfig\022\017\n\013PER_REQUEST\020\000\022\n\n\006PO" +
+      "OLED\020\001B2\n0com.amazonaws.services.kinesis" +
+      ".producer.protobuf"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -5799,7 +6082,7 @@ public final class Config {
     internal_static_aws_kinesis_protobuf_Configuration_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_aws_kinesis_protobuf_Configuration_descriptor,
-        new java.lang.String[] { "AdditionalMetricDims", "AggregationEnabled", "AggregationMaxCount", "AggregationMaxSize", "CloudwatchEndpoint", "CloudwatchPort", "CollectionMaxCount", "CollectionMaxSize", "ConnectTimeout", "EnableCoreDumps", "FailIfThrottled", "KinesisEndpoint", "KinesisPort", "LogLevel", "MaxConnections", "MetricsGranularity", "MetricsLevel", "MetricsNamespace", "MetricsUploadDelay", "MinConnections", "RateLimit", "RecordMaxBufferedTime", "RecordTtl", "Region", "RequestTimeout", "VerifyCertificate", "ProxyHost", "ProxyPort", "ProxyUserName", "ProxyPassword", "ThreadConfig", "ThreadPoolSize", });
+        new java.lang.String[] { "AdditionalMetricDims", "AggregationEnabled", "AggregationMaxCount", "AggregationMaxSize", "CloudwatchEndpoint", "CloudwatchPort", "CollectionMaxCount", "CollectionMaxSize", "ConnectTimeout", "EnableCoreDumps", "FailIfThrottled", "KinesisEndpoint", "KinesisPort", "LogLevel", "MaxConnections", "MetricsGranularity", "MetricsLevel", "MetricsNamespace", "MetricsUploadDelay", "MinConnections", "RateLimit", "RecordMaxBufferedTime", "RecordTtl", "Region", "RequestTimeout", "VerifyCertificate", "ProxyHost", "ProxyPort", "ProxyUserName", "ProxyPassword", "StsEndpoint", "StsPort", "ThreadConfig", "ThreadPoolSize", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

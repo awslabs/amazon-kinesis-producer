@@ -41,6 +41,8 @@ message Configuration {
   optional uint64 proxy_port = 27 [default = 443];
   optional string proxy_user_name = 28 [default = ""];
   optional string proxy_password = 29 [default = ""];
+  optional string sts_endpoint = 32 [default = ""];
+  optional uint64 sts_port = 33 [default = 443];
   enum ThreadConfig {
     PER_REQUEST = 0;
     POOLED = 1;
