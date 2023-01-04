@@ -1,4 +1,14 @@
 ## Changelog
+### 0.15.0
+* [#465](https://github.com/awslabs/amazon-kinesis-producer/pull/465)
+  * Revert the upgrade of jakarta.xml.bind to be backward-compatible with Java8
+  * Add more logs to verify that IMDSV2 is used correctly for getting region info for KPL running in EC2 instances
+* [#463](https://github.com/awslabs/amazon-kinesis-producer/pull/463)
+  * Use sts to construct stream arn
+  * Exit KPL if STS call fails to avoid dual mode
+  * Deprecate IMDSv1 calls for obtaining EC2 metadata
+* [#444](https://github.com/awslabs/amazon-kinesis-producer/pull/444)
+  *  Update bootstrap.sh to work on three platforms
 
 ### 0.14.13 
 * [#440](https://github.com/awslabs/amazon-kinesis-producer/pull/440)
