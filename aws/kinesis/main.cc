@@ -253,7 +253,9 @@ std::shared_ptr<aws::auth::MutableStaticCredentialsProvider> create_creds(const 
 
 std::string get_region(const aws::kinesis::core::Configuration& config) {
   if (!config.region().empty()) {
-    return config.region();
+    std::string region = config.region();
+    LOG(info) << "Region has been successfully set to " << region << " from user's input configuration";
+    return region;
   }
 
   Aws::Internal::EC2MetadataClient ec2_client;
@@ -264,6 +266,7 @@ std::string get_region(const aws::kinesis::core::Configuration& config) {
     throw 1;
   }
 
+  LOG(info) << "Region has been successfully set to " << region << " using EC2 metadata (IMDSV2)";
   return region;
 }
 
