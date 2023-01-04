@@ -45,6 +45,9 @@ The KPL is an application for ingesting data to your Kinesis Data Streams. As yo
 
 _We recommend performing sufficient testing before applying these changes to production, as every customer has different usage patterns_
 
+## Required KPL Update – v0.15.0
+KPL 0.15.0 now incorporates StreamARN in the Kinesis requests, such as PutRecords and ListShards, to take advantage of Kinesis Data Streams (KDS) enhanced availability as the result of service cellularization. Version 0.15.0 adds STS as the new dependency; by using STS, customers can benefit from StreamARN without modifying any code.
+
 ## Required KPL Update – v0.14.0
 KPL 0.14.0 now uses ListShards API, making it easier for your Kinesis Producer applications to scale. Kinesis Data Streams (KDS) enables you to scale your stream capacity without any changes to producers and consumers. After a scaling event, producer applications need to discover the new shard map. Version 0.14.0 replaces the DescribeStream with the ListShards API for shard discovery. ListShards API supports 100TPS per stream compared to DescribeStream that supports 10TPS per account. For an account with 10 streams using KPL v0.14.0 will provide you a 100X higher call rate for shard discovery, eliminating the need for a DescribeStream API limit increase for scaling. You can find more information on the [ListShards API ](https://docs.aws.amazon.com/kinesis/latest/APIReference/API_ListShards.html) in the Kinesis Data Streams documentation.
 
@@ -57,6 +60,20 @@ If you have further questions [please open a GitHub Issue](https://github.com/aw
 This is a restatement of the [notice published](https://docs.aws.amazon.com/streams/latest/dev/kinesis-kpl-upgrades.html) in the [Amazon Kinesis Data Streams Developer Guide][kinesis-developer-guide]
 
 ## Release Notes
+
+### 0.15.0
+* [#465](https://github.com/awslabs/amazon-kinesis-producer/pull/465)
+  * Revert the upgrade of jakarta.xml.bind to be backward-compatible with Java8
+  * Add more logs to verify that IMDSV2 is used correctly for getting region info for KPL running in EC2 instances
+* [#463](https://github.com/awslabs/amazon-kinesis-producer/pull/463)
+  * Use sts to construct stream arn
+  * Exit KPL if STS call fails to avoid dual mode
+  * Deprecate IMDSv1 calls for obtaining EC2 metadata
+* [#444](https://github.com/awslabs/amazon-kinesis-producer/pull/444)
+  *  Update bootstrap.sh to work on three platforms
+
+
+
 ### 0.14.13
 * [#440](https://github.com/awslabs/amazon-kinesis-producer/pull/440)
   * Upgrade the dependencies used in bootstrap + Java dependencies
