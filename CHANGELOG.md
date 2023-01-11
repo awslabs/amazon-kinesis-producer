@@ -1,4 +1,8 @@
 ## Changelog
+
+### 0.15.1
+* [#469](https://github.com/awslabs/amazon-kinesis-producer/pull/469) Use AWS CodeBuild to compile C++ binary
+
 ### 0.15.0
 * [#465](https://github.com/awslabs/amazon-kinesis-producer/pull/465)
   * Revert the upgrade of jakarta.xml.bind to be backward-compatible with Java8
