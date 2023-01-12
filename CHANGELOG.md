@@ -1,5 +1,8 @@
 ## Changelog
 
+### 0.15.2
+* [#471](https://github.com/awslabs/amazon-kinesis-producer/pull/471) Upgrade Java dependencies
+
 ### 0.15.1
 * [#469](https://github.com/awslabs/amazon-kinesis-producer/pull/469) Use AWS CodeBuild to compile C++ binary
 
