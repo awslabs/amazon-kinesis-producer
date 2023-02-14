@@ -1,5 +1,8 @@
 ## Changelog
 
+### 0.15.3
+* [#478](https://github.com/awslabs/amazon-kinesis-producer/pull/478) Update AWS SDK CPP version
+
 ### 0.15.2
 * [#471](https://github.com/awslabs/amazon-kinesis-producer/pull/471) Upgrade Java dependencies
 
