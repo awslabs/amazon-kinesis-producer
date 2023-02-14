@@ -18,7 +18,7 @@ BOOST_VERSION_UNDERSCORED="${BOOST_VERSION//\./_}" # convert from 1.76.0 to 1_76
 ZLIB_VERSION="1.2.13"
 PROTOBUF_VERSION="3.11.4"
 CURL_VERSION="7.86.0"
-AWS_SDK_CPP_VERSION="1.10.32"
+AWS_SDK_CPP_VERSION="1.10.56"
 
 LIB_OPENSSL="https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz"
 LIB_BOOST="https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION}/source/boost_${BOOST_VERSION_UNDERSCORED}.tar.gz"
