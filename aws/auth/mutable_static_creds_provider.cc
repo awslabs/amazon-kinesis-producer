@@ -40,7 +40,7 @@ void MutableStaticCredentialsProvider::set_credentials(const std::string& akid, 
   std::lock_guard<std::mutex> lock(update_mutex_);
 
   std::uint64_t next_version = version_ + 1;
-
+  int temp = 0;
   //
   // Since the credentials are created with the expected next version, and the entire update
   // is protected by a lock we can't get into a scenario where one of the consumers has
