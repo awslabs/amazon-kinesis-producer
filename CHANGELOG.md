@@ -1,4 +1,6 @@
 ## Changelog
+### 0.15.5
+* [#482](https://github.com/awslabs/amazon-kinesis-producer/pull/482)  Remove the stream arn parameter when the next token is present
 
 ### 0.15.4
 
