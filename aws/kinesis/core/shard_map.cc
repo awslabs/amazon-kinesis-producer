@@ -103,7 +103,6 @@ void ShardMap::list_shards(const Aws::String& next_token) {
 
   if (!next_token.empty()) {
     req.SetNextToken(next_token);
-    if (!stream_arn_.empty()) req.SetStreamARN(stream_arn_);
   } else {
     req.SetStreamName(stream_);
     if (!stream_arn_.empty()) req.SetStreamARN(stream_arn_);
