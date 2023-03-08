@@ -334,6 +334,14 @@ void set_core_limit() {
 #endif
 }
 
+void create_process_group() {
+#if !BOOST_OS_WINDOWS
+  if (setpgid(0, 0) != 0) {
+    LOG(error) << "Could not create a new process group";
+  }
+#endif
+}
+
 std::string get_ca_path() {
   std::string p = ".";
   if (!options.ca_path.empty()) {
@@ -372,6 +380,8 @@ int main(int argc, char* const* argv) {
     if (config->enable_core_dumps()) {
       set_core_limit();
     }
+
+    create_process_group()
 
     aws::utils::set_log_level(config->log_level());
 
