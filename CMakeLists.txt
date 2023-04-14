@@ -212,6 +212,7 @@ set(STATIC_LIBS
         boost_chrono)
 
 find_package(Threads)
+find_package(ZLIB)
 find_package(AWSSDK REQUIRED COMPONENTS kinesis monitoring sts)
 
 add_library(LibCrypto STATIC IMPORTED)
