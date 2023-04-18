@@ -44,7 +44,7 @@ void pop(const std::list<T>* q) {
 
 class MockKinesisClient : public Aws::Kinesis::KinesisClient {
  public:
-  MockKinesisClient(
+  MockKinesisClient (
       std::list<Aws::Kinesis::Model::ListShardsOutcome> outcomes_list_shards,
       std::function<void ()> callback_list_shards = []{})
       : Aws::Kinesis::KinesisClient(kEmptyCreds, fake_client_cfg()),
@@ -56,7 +56,7 @@ class MockKinesisClient : public Aws::Kinesis::KinesisClient {
       const Aws::Kinesis::Model::ListShardsRequest& request,
       const Aws::Kinesis::ListShardsResponseReceivedHandler& handler,
       const std::shared_ptr<const Aws::Client::AsyncCallerContext>& context
-          = nullptr) const override {
+          = nullptr) const {
     executor_->schedule([=] {
     
       if (outcomes_list_shards_.size() == 0) {
