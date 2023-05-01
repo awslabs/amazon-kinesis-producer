@@ -65,6 +65,11 @@ If you have further questions [please open a GitHub Issue](https://github.com/aw
 This is a restatement of the [notice published](https://docs.aws.amazon.com/streams/latest/dev/kinesis-kpl-upgrades.html) in the [Amazon Kinesis Data Streams Developer Guide][kinesis-developer-guide]
 
 ## Release Notes
+## 0.15.7
+* [#498](https://github.com/awslabs/amazon-kinesis-producer/pull/498) Fix some memory leak cases in legacy code
+  * Upgrade SDK version to avoid s2n_cleanup related memory leak 
+  * Fix resource cleanup on KPL end to avoid memory leak
+
 ## 0.15.6
 * [#490](https://github.com/awslabs/amazon-kinesis-producer/pull/490) Updating aws cpp sdk version
 

@@ -1,7 +1,12 @@
 ## Changelog
+## 0.15.7
+* [#498](https://github.com/awslabs/amazon-kinesis-producer/pull/498) Fix some memory leak cases in legacy code
+  * Upgrade SDK version to avoid s2n_cleanup related memory leak
+  * Fix resource cleanup on KPL end to avoid memory leak
+  
 ### 0.15.6
 * [#490](https://github.com/awslabs/amazon-kinesis-producer/pull/490) Updating aws cpp sdk version
-* 
+
 ### 0.15.5
 * [#482](https://github.com/awslabs/amazon-kinesis-producer/pull/482)  Remove the stream arn parameter when the next token is present
 
