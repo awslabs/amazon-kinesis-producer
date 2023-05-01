@@ -39,6 +39,7 @@ void setup_logging(const std::string& min_level = "info");
 void setup_logging(boost::log::trivial::severity_level level);
 
 void setup_aws_logging(Aws::Utils::Logging::LogLevel log_level);
+void teardown_aws_logging();
 
 } //namespace utils
 } //namespace aws
