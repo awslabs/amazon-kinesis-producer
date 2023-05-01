@@ -179,5 +179,9 @@ void setup_aws_logging(Aws::Utils::Logging::LogLevel log_level) {
     LOG(info) << "Set AWS Log Level to " << Aws::Utils::Logging::GetLogLevelName(log_level);
 }
 
+void teardown_aws_logging() {
+    Aws::Utils::Logging::ShutdownAWSLogging();
+}
+
 } //namespace utils
 } //namespace aws
