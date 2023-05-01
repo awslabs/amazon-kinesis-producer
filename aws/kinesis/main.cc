@@ -361,46 +361,50 @@ int main(int argc, char* const* argv) {
   aws::utils::setup_aws_logging(options.aws_log_level);
   Aws::SDKOptions sdk_options;
   Aws::InitAPI(sdk_options);
-
-  if (options.enable_stack_trace) {
-    aws::utils::setup_stack_trace(argv[0]);
-  }
-
-  try {
-    auto config = get_config(options.configuration);
-
-    if (config->enable_core_dumps()) {
-      set_core_limit();
+  {
+    if (options.enable_stack_trace) {
+      aws::utils::setup_stack_trace(argv[0]);
     }
 
-    aws::utils::set_log_level(config->log_level());
+    try {
+      auto config = get_config(options.configuration);
 
-    auto executor = get_executor();
-    auto region = get_region(*config);
-    auto creds_providers = get_creds_providers();
-    auto ipc_manager = get_ipc_manager(options.output_pipe, options.input_pipe);
-    auto ca_path = get_ca_path();
-    LOG(info) << "Starting up main producer";
+      if (config->enable_core_dumps()) {
+        set_core_limit();
+      }
 
-    aws::kinesis::core::KinesisProducer kp(
-        ipc_manager,
-        region,
-        config,
-        creds_providers.first,
-        creds_providers.second,
-        executor,
-        ca_path);
+      aws::utils::set_log_level(config->log_level());
 
-    LOG(info) << "Entering join";
+      auto executor = get_executor();
+      auto region = get_region(*config);
+      auto creds_providers = get_creds_providers();
+      auto ipc_manager = get_ipc_manager(options.output_pipe, options.input_pipe);
+      auto ca_path = get_ca_path();
+      LOG(info) << "Starting up main producer";
 
-    // Never returns
-    kp.join();
-  } catch (const std::exception& e) {
-    LOG(error) << e.what();
-    return 2;
-  } catch (int code) {
-    return code;
+      aws::kinesis::core::KinesisProducer kp(
+          ipc_manager,
+          region,
+          config,
+          creds_providers.first,
+          creds_providers.second,
+          executor,
+          ca_path);
+
+      LOG(info) << "Entering join";
+
+      // Never returns
+      kp.join();
+    } catch (const std::exception& e) {
+      LOG(error) << e.what();
+      return 2;
+    } catch (int code) {
+      return code;
+    }
   }
-
+  aws::utils::teardown_aws_logging();
+  Aws::ShutdownAPI(sdk_options);
   return 0;
 }
+
+
