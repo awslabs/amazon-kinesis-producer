@@ -36,10 +36,10 @@ ClickEvent event = inputQueue.take();
 
 _Sample above is provided as an example implementation. Please take your application and use cases into consideration before applying logic_
 
-## Recommended Upgrade for All Users of 0.15.2 - 0.15.5 Amazon Kinesis Producer
-⚠️ It's highly recommended for users of version 0.15.2 - 0.15.5 of the Amazon Kinesis Producer to upgrade to version 0.15.6 or later. A bug has been identified in versions prior from 0.15.2 - 0.15.5 is causing memory leak issue.
+## Recommended Upgrade for All Users of 0.15.0 - 0.15.6 Amazon Kinesis Producer
+⚠️ It's highly recommended for users of version 0.15.0 - 0.15.6 of the Amazon Kinesis Producer to upgrade to version 0.15.7 . A bug has been identified in versions prior from 0.15.0 - 0.15.6 is causing memory leak issue.
 
-ℹ️ Amazon Kinesis Producer versions prior to 0.15.2 are not impacted.
+ℹ️ Amazon Kinesis Producer versions prior to 0.15.0 are not impacted.
 
 ## Recommended Settings for Streams larger than 800 shards
 The KPL is an application for ingesting data to your Kinesis Data Streams. As your streams grow you may find the need to tune the KPL to enable it to accommodate the growing needs of your applications. Without optimized configurations your KPL processes will see inefficient CPU usage and delays in writing records into KDS. For streams larger than 800 shards, we recommend the following settings:
@@ -65,6 +65,11 @@ If you have further questions [please open a GitHub Issue](https://github.com/aw
 This is a restatement of the [notice published](https://docs.aws.amazon.com/streams/latest/dev/kinesis-kpl-upgrades.html) in the [Amazon Kinesis Data Streams Developer Guide][kinesis-developer-guide]
 
 ## Release Notes
+## 0.15.7
+* [#498](https://github.com/awslabs/amazon-kinesis-producer/pull/498) Fix some memory leak cases in legacy code
+  * Upgrade SDK version to avoid s2n_cleanup related memory leak 
+  * Fix resource cleanup on KPL end to avoid memory leak
+
 ## 0.15.6
 * [#490](https://github.com/awslabs/amazon-kinesis-producer/pull/490) Updating aws cpp sdk version
 
