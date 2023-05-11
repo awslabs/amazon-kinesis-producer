@@ -159,7 +159,7 @@ public class MetricsAwareSampleProducer {
         
         // Put records
         while (true) {
-            // We're going to putÏ as fast as we can until we've reached the max
+            // We're going to put as fast as we can until we've reached the max
             // number of records outstanding.
             if (sequenceNumber.get() < totalRecordsToPut) {
                 if (kinesisProducer.getOutstandingRecordsCount() < outstandingLimit) {
