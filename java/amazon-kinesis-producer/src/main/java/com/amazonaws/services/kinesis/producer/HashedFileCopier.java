@@ -25,8 +25,6 @@ import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.util.Arrays;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +51,7 @@ public class HashedFileCopier {
             digestOutputStream.close();
             byte[] digest = digestOutputStream.getMessageDigest().digest();
             log.debug("Calculated digest of new file: {}", Arrays.toString(digest));
-            String digestHex = DatatypeConverter.printHexBinary(digest);
+            String digestHex = BinaryToHexConverter.convert(digest);
             File finalFile = new File(destinationDirectory, String.format(fileNameFormat, digestHex));
             File lockFile = new File(destinationDirectory, String.format(fileNameFormat + LOCK_SUFFIX, digestHex));
             log.debug("Preparing to check and copy {} to {}", tempFile.getAbsolutePath(), finalFile.getAbsolutePath());
