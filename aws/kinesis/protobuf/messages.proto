@@ -42,6 +42,7 @@ message PutRecord {
   required string partition_key        = 2;
   optional string explicit_hash_key    = 3;
   required bytes  data                 = 4;
+  optional string stream_arn           = 5;
 }
 
 message Flush {
