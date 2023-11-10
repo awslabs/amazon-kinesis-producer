@@ -5516,6 +5516,23 @@ public final class Messages {
      * @return The data.
      */
     com.google.protobuf.ByteString getData();
+
+    /**
+     * <code>optional string stream_arn = 5;</code>
+     * @return Whether the streamArn field is set.
+     */
+    boolean hasStreamArn();
+    /**
+     * <code>optional string stream_arn = 5;</code>
+     * @return The streamArn.
+     */
+    java.lang.String getStreamArn();
+    /**
+     * <code>optional string stream_arn = 5;</code>
+     * @return The bytes for streamArn.
+     */
+    com.google.protobuf.ByteString
+        getStreamArnBytes();
   }
   /**
    * Protobuf type {@code aws.kinesis.protobuf.PutRecord}
@@ -5534,6 +5551,7 @@ public final class Messages {
       partitionKey_ = "";
       explicitHashKey_ = "";
       data_ = com.google.protobuf.ByteString.EMPTY;
+      streamArn_ = "";
     }
 
     @java.lang.Override
@@ -5588,6 +5606,12 @@ public final class Messages {
             case 34: {
               bitField0_ |= 0x00000008;
               data_ = input.readBytes();
+              break;
+            }
+            case 42: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000010;
+              streamArn_ = bs;
               break;
             }
             default: {
@@ -5775,6 +5799,51 @@ public final class Messages {
       return data_;
     }
 
+    public static final int STREAM_ARN_FIELD_NUMBER = 5;
+    private volatile java.lang.Object streamArn_;
+    /**
+     * <code>optional string stream_arn = 5;</code>
+     * @return Whether the streamArn field is set.
+     */
+    public boolean hasStreamArn() {
+      return ((bitField0_ & 0x00000010) != 0);
+    }
+    /**
+     * <code>optional string stream_arn = 5;</code>
+     * @return The streamArn.
+     */
+    public java.lang.String getStreamArn() {
+      java.lang.Object ref = streamArn_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          streamArn_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string stream_arn = 5;</code>
+     * @return The bytes for streamArn.
+     */
+    public com.google.protobuf.ByteString
+        getStreamArnBytes() {
+      java.lang.Object ref = streamArn_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        streamArn_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -5813,6 +5882,9 @@ public final class Messages {
       if (((bitField0_ & 0x00000008) != 0)) {
         output.writeBytes(4, data_);
       }
+      if (((bitField0_ & 0x00000010) != 0)) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 5, streamArn_);
+      }
       unknownFields.writeTo(output);
     }
 
@@ -5834,6 +5906,9 @@ public final class Messages {
       if (((bitField0_ & 0x00000008) != 0)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(4, data_);
+      }
+      if (((bitField0_ & 0x00000010) != 0)) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(5, streamArn_);
       }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
@@ -5870,6 +5945,11 @@ public final class Messages {
         if (!getData()
             .equals(other.getData())) return false;
       }
+      if (hasStreamArn() != other.hasStreamArn()) return false;
+      if (hasStreamArn()) {
+        if (!getStreamArn()
+            .equals(other.getStreamArn())) return false;
+      }
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -5896,6 +5976,10 @@ public final class Messages {
       if (hasData()) {
         hash = (37 * hash) + DATA_FIELD_NUMBER;
         hash = (53 * hash) + getData().hashCode();
+      }
+      if (hasStreamArn()) {
+        hash = (37 * hash) + STREAM_ARN_FIELD_NUMBER;
+        hash = (53 * hash) + getStreamArn().hashCode();
       }
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
@@ -6038,6 +6122,8 @@ public final class Messages {
         bitField0_ = (bitField0_ & ~0x00000004);
         data_ = com.google.protobuf.ByteString.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000008);
+        streamArn_ = "";
+        bitField0_ = (bitField0_ & ~0x00000010);
         return this;
       }
 
@@ -6082,6 +6168,10 @@ public final class Messages {
           to_bitField0_ |= 0x00000008;
         }
         result.data_ = data_;
+        if (((from_bitField0_ & 0x00000010) != 0)) {
+          to_bitField0_ |= 0x00000010;
+        }
+        result.streamArn_ = streamArn_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -6148,6 +6238,11 @@ public final class Messages {
         }
         if (other.hasData()) {
           setData(other.getData());
+        }
+        if (other.hasStreamArn()) {
+          bitField0_ |= 0x00000010;
+          streamArn_ = other.streamArn_;
+          onChanged();
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -6476,6 +6571,90 @@ public final class Messages {
       public Builder clearData() {
         bitField0_ = (bitField0_ & ~0x00000008);
         data_ = getDefaultInstance().getData();
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object streamArn_ = "";
+      /**
+       * <code>optional string stream_arn = 5;</code>
+       * @return Whether the streamArn field is set.
+       */
+      public boolean hasStreamArn() {
+        return ((bitField0_ & 0x00000010) != 0);
+      }
+      /**
+       * <code>optional string stream_arn = 5;</code>
+       * @return The streamArn.
+       */
+      public java.lang.String getStreamArn() {
+        java.lang.Object ref = streamArn_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            streamArn_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string stream_arn = 5;</code>
+       * @return The bytes for streamArn.
+       */
+      public com.google.protobuf.ByteString
+          getStreamArnBytes() {
+        java.lang.Object ref = streamArn_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          streamArn_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string stream_arn = 5;</code>
+       * @param value The streamArn to set.
+       * @return This builder for chaining.
+       */
+      public Builder setStreamArn(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000010;
+        streamArn_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string stream_arn = 5;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearStreamArn() {
+        bitField0_ = (bitField0_ & ~0x00000010);
+        streamArn_ = getDefaultInstance().getStreamArn();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string stream_arn = 5;</code>
+       * @param value The bytes for streamArn to set.
+       * @return This builder for chaining.
+       */
+      public Builder setStreamArnBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000010;
+        streamArn_ = value;
         onChanged();
         return this;
       }
@@ -15853,31 +16032,31 @@ public final class Messages {
       "H\000\022A\n\020metrics_response\030\010 \001(\0132%.aws.kines" +
       "is.protobuf.MetricsResponseH\000\022?\n\017set_cre" +
       "dentials\030\t \001(\0132$.aws.kinesis.protobuf.Se" +
-      "tCredentialsH\000B\020\n\016actual_message\"`\n\tPutR" +
+      "tCredentialsH\000B\020\n\016actual_message\"t\n\tPutR" +
       "ecord\022\023\n\013stream_name\030\001 \002(\t\022\025\n\rpartition_" +
       "key\030\002 \002(\t\022\031\n\021explicit_hash_key\030\003 \001(\t\022\014\n\004" +
-      "data\030\004 \002(\014\"\034\n\005Flush\022\023\n\013stream_name\030\001 \001(\t" +
-      "\"f\n\007Attempt\022\r\n\005delay\030\001 \002(\r\022\020\n\010duration\030\002" +
-      " \002(\r\022\017\n\007success\030\003 \002(\010\022\022\n\nerror_code\030\004 \001(" +
-      "\t\022\025\n\rerror_message\030\005 \001(\t\"~\n\017PutRecordRes" +
-      "ult\022/\n\010attempts\030\001 \003(\0132\035.aws.kinesis.prot" +
-      "obuf.Attempt\022\017\n\007success\030\002 \002(\010\022\020\n\010shard_i" +
-      "d\030\003 \001(\t\022\027\n\017sequence_number\030\004 \001(\t\">\n\013Cred" +
-      "entials\022\014\n\004akid\030\001 \002(\t\022\022\n\nsecret_key\030\002 \002(" +
-      "\t\022\r\n\005token\030\003 \001(\t\"]\n\016SetCredentials\022\023\n\013fo" +
-      "r_metrics\030\001 \001(\010\0226\n\013credentials\030\002 \002(\0132!.a" +
-      "ws.kinesis.protobuf.Credentials\"\'\n\tDimen" +
-      "sion\022\013\n\003key\030\001 \002(\t\022\r\n\005value\030\002 \002(\t\"K\n\005Stat" +
-      "s\022\r\n\005count\030\001 \002(\001\022\013\n\003sum\030\002 \002(\001\022\014\n\004mean\030\003 " +
-      "\002(\001\022\013\n\003min\030\004 \002(\001\022\013\n\003max\030\005 \002(\001\"\210\001\n\006Metric" +
-      "\022\014\n\004name\030\001 \002(\t\0223\n\ndimensions\030\002 \003(\0132\037.aws" +
-      ".kinesis.protobuf.Dimension\022*\n\005stats\030\003 \002" +
-      "(\0132\033.aws.kinesis.protobuf.Stats\022\017\n\007secon" +
-      "ds\030\004 \002(\004\"/\n\016MetricsRequest\022\014\n\004name\030\001 \001(\t" +
-      "\022\017\n\007seconds\030\002 \001(\004\"@\n\017MetricsResponse\022-\n\007" +
-      "metrics\030\001 \003(\0132\034.aws.kinesis.protobuf.Met" +
-      "ricB2\n0com.amazonaws.services.kinesis.pr" +
-      "oducer.protobuf"
+      "data\030\004 \002(\014\022\022\n\nstream_arn\030\005 \001(\t\"\034\n\005Flush\022" +
+      "\023\n\013stream_name\030\001 \001(\t\"f\n\007Attempt\022\r\n\005delay" +
+      "\030\001 \002(\r\022\020\n\010duration\030\002 \002(\r\022\017\n\007success\030\003 \002(" +
+      "\010\022\022\n\nerror_code\030\004 \001(\t\022\025\n\rerror_message\030\005" +
+      " \001(\t\"~\n\017PutRecordResult\022/\n\010attempts\030\001 \003(" +
+      "\0132\035.aws.kinesis.protobuf.Attempt\022\017\n\007succ" +
+      "ess\030\002 \002(\010\022\020\n\010shard_id\030\003 \001(\t\022\027\n\017sequence_" +
+      "number\030\004 \001(\t\">\n\013Credentials\022\014\n\004akid\030\001 \002(" +
+      "\t\022\022\n\nsecret_key\030\002 \002(\t\022\r\n\005token\030\003 \001(\t\"]\n\016" +
+      "SetCredentials\022\023\n\013for_metrics\030\001 \001(\010\0226\n\013c" +
+      "redentials\030\002 \002(\0132!.aws.kinesis.protobuf." +
+      "Credentials\"\'\n\tDimension\022\013\n\003key\030\001 \002(\t\022\r\n" +
+      "\005value\030\002 \002(\t\"K\n\005Stats\022\r\n\005count\030\001 \002(\001\022\013\n\003" +
+      "sum\030\002 \002(\001\022\014\n\004mean\030\003 \002(\001\022\013\n\003min\030\004 \002(\001\022\013\n\003" +
+      "max\030\005 \002(\001\"\210\001\n\006Metric\022\014\n\004name\030\001 \002(\t\0223\n\ndi" +
+      "mensions\030\002 \003(\0132\037.aws.kinesis.protobuf.Di" +
+      "mension\022*\n\005stats\030\003 \002(\0132\033.aws.kinesis.pro" +
+      "tobuf.Stats\022\017\n\007seconds\030\004 \002(\004\"/\n\016MetricsR" +
+      "equest\022\014\n\004name\030\001 \001(\t\022\017\n\007seconds\030\002 \001(\004\"@\n" +
+      "\017MetricsResponse\022-\n\007metrics\030\001 \003(\0132\034.aws." +
+      "kinesis.protobuf.MetricB2\n0com.amazonaws" +
+      ".services.kinesis.producer.protobuf"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -15913,7 +16092,7 @@ public final class Messages {
     internal_static_aws_kinesis_protobuf_PutRecord_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_aws_kinesis_protobuf_PutRecord_descriptor,
-        new java.lang.String[] { "StreamName", "PartitionKey", "ExplicitHashKey", "Data", });
+        new java.lang.String[] { "StreamName", "PartitionKey", "ExplicitHashKey", "Data", "StreamArn", });
     internal_static_aws_kinesis_protobuf_Flush_descriptor =
       getDescriptor().getMessageTypes().get(5);
     internal_static_aws_kinesis_protobuf_Flush_fieldAccessorTable = new

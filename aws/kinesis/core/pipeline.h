@@ -50,6 +50,7 @@ class Pipeline : boost::noncopyable {
   Pipeline(
       std::string region,
       std::string stream,
+      boost::optional<std::string> stream_arn,
       std::shared_ptr<Configuration> config,
       std::shared_ptr<aws::utils::Executor> executor,
       std::shared_ptr<Aws::Kinesis::KinesisClient> kinesis_client,
@@ -58,7 +59,7 @@ class Pipeline : boost::noncopyable {
       Retrier::UserRecordCallback finish_user_record_cb)
       : stream_(std::move(stream)),
         region_(std::move(region)),
-        stream_arn_(std::move(init_stream_arn(sts_client, region_, stream_))),
+        stream_arn_(std::move(init_stream_arn(sts_client, region_, stream_, stream_arn_))),
         config_(std::move(config)),
         stats_logger_(stream_, config_->record_max_buffered_time()),
         executor_(std::move(executor)),
@@ -205,7 +206,11 @@ class Pipeline : boost::noncopyable {
   // Retrieve the account ID and partition from the STS service.
   static std::string init_stream_arn(const std::shared_ptr<Aws::STS::STSClient>& sts_client,
                                      const std::string &region,
-                                     const std::string &stream_name) {
+                                     const std::string &stream_name,
+                                     const boost::optional<std::string> &stream_arn_) {
+    if (!stream_arn_) {
+      return stream_arn_.get();
+    }
     Aws::STS::Model::GetCallerIdentityRequest request;
     auto outcome = sts_client->GetCallerIdentity(request);
     if (outcome.IsSuccess()) {

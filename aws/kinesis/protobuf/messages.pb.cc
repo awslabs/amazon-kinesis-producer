@@ -396,10 +396,12 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_messages_2eproto::offsets[] PR
   PROTOBUF_FIELD_OFFSET(::aws::kinesis::protobuf::PutRecord, partition_key_),
   PROTOBUF_FIELD_OFFSET(::aws::kinesis::protobuf::PutRecord, explicit_hash_key_),
   PROTOBUF_FIELD_OFFSET(::aws::kinesis::protobuf::PutRecord, data_),
+  PROTOBUF_FIELD_OFFSET(::aws::kinesis::protobuf::PutRecord, stream_arn_),
   0,
   1,
   2,
   3,
+  4,
   PROTOBUF_FIELD_OFFSET(::aws::kinesis::protobuf::Flush, _has_bits_),
   PROTOBUF_FIELD_OFFSET(::aws::kinesis::protobuf::Flush, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -514,17 +516,17 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 9, 18, sizeof(::aws::kinesis::protobuf::Record)},
   { 22, 30, sizeof(::aws::kinesis::protobuf::AggregatedRecord)},
   { 33, 48, sizeof(::aws::kinesis::protobuf::Message)},
-  { 57, 66, sizeof(::aws::kinesis::protobuf::PutRecord)},
-  { 70, 76, sizeof(::aws::kinesis::protobuf::Flush)},
-  { 77, 87, sizeof(::aws::kinesis::protobuf::Attempt)},
-  { 92, 101, sizeof(::aws::kinesis::protobuf::PutRecordResult)},
-  { 105, 113, sizeof(::aws::kinesis::protobuf::Credentials)},
-  { 116, 123, sizeof(::aws::kinesis::protobuf::SetCredentials)},
-  { 125, 132, sizeof(::aws::kinesis::protobuf::Dimension)},
-  { 134, 144, sizeof(::aws::kinesis::protobuf::Stats)},
-  { 149, 158, sizeof(::aws::kinesis::protobuf::Metric)},
-  { 162, 169, sizeof(::aws::kinesis::protobuf::MetricsRequest)},
-  { 171, 177, sizeof(::aws::kinesis::protobuf::MetricsResponse)},
+  { 57, 67, sizeof(::aws::kinesis::protobuf::PutRecord)},
+  { 72, 78, sizeof(::aws::kinesis::protobuf::Flush)},
+  { 79, 89, sizeof(::aws::kinesis::protobuf::Attempt)},
+  { 94, 103, sizeof(::aws::kinesis::protobuf::PutRecordResult)},
+  { 107, 115, sizeof(::aws::kinesis::protobuf::Credentials)},
+  { 118, 125, sizeof(::aws::kinesis::protobuf::SetCredentials)},
+  { 127, 134, sizeof(::aws::kinesis::protobuf::Dimension)},
+  { 136, 146, sizeof(::aws::kinesis::protobuf::Stats)},
+  { 151, 160, sizeof(::aws::kinesis::protobuf::Metric)},
+  { 164, 171, sizeof(::aws::kinesis::protobuf::MetricsRequest)},
+  { 173, 179, sizeof(::aws::kinesis::protobuf::MetricsResponse)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -566,31 +568,31 @@ const char descriptor_table_protodef_messages_2eproto[] PROTOBUF_SECTION_VARIABL
   "H\000\022A\n\020metrics_response\030\010 \001(\0132%.aws.kines"
   "is.protobuf.MetricsResponseH\000\022\?\n\017set_cre"
   "dentials\030\t \001(\0132$.aws.kinesis.protobuf.Se"
-  "tCredentialsH\000B\020\n\016actual_message\"`\n\tPutR"
+  "tCredentialsH\000B\020\n\016actual_message\"t\n\tPutR"
   "ecord\022\023\n\013stream_name\030\001 \002(\t\022\025\n\rpartition_"
   "key\030\002 \002(\t\022\031\n\021explicit_hash_key\030\003 \001(\t\022\014\n\004"
-  "data\030\004 \002(\014\"\034\n\005Flush\022\023\n\013stream_name\030\001 \001(\t"
-  "\"f\n\007Attempt\022\r\n\005delay\030\001 \002(\r\022\020\n\010duration\030\002"
-  " \002(\r\022\017\n\007success\030\003 \002(\010\022\022\n\nerror_code\030\004 \001("
-  "\t\022\025\n\rerror_message\030\005 \001(\t\"~\n\017PutRecordRes"
-  "ult\022/\n\010attempts\030\001 \003(\0132\035.aws.kinesis.prot"
-  "obuf.Attempt\022\017\n\007success\030\002 \002(\010\022\020\n\010shard_i"
-  "d\030\003 \001(\t\022\027\n\017sequence_number\030\004 \001(\t\">\n\013Cred"
-  "entials\022\014\n\004akid\030\001 \002(\t\022\022\n\nsecret_key\030\002 \002("
-  "\t\022\r\n\005token\030\003 \001(\t\"]\n\016SetCredentials\022\023\n\013fo"
-  "r_metrics\030\001 \001(\010\0226\n\013credentials\030\002 \002(\0132!.a"
-  "ws.kinesis.protobuf.Credentials\"\'\n\tDimen"
-  "sion\022\013\n\003key\030\001 \002(\t\022\r\n\005value\030\002 \002(\t\"K\n\005Stat"
-  "s\022\r\n\005count\030\001 \002(\001\022\013\n\003sum\030\002 \002(\001\022\014\n\004mean\030\003 "
-  "\002(\001\022\013\n\003min\030\004 \002(\001\022\013\n\003max\030\005 \002(\001\"\210\001\n\006Metric"
-  "\022\014\n\004name\030\001 \002(\t\0223\n\ndimensions\030\002 \003(\0132\037.aws"
-  ".kinesis.protobuf.Dimension\022*\n\005stats\030\003 \002"
-  "(\0132\033.aws.kinesis.protobuf.Stats\022\017\n\007secon"
-  "ds\030\004 \002(\004\"/\n\016MetricsRequest\022\014\n\004name\030\001 \001(\t"
-  "\022\017\n\007seconds\030\002 \001(\004\"@\n\017MetricsResponse\022-\n\007"
-  "metrics\030\001 \003(\0132\034.aws.kinesis.protobuf.Met"
-  "ricB2\n0com.amazonaws.services.kinesis.pr"
-  "oducer.protobuf"
+  "data\030\004 \002(\014\022\022\n\nstream_arn\030\005 \001(\t\"\034\n\005Flush\022"
+  "\023\n\013stream_name\030\001 \001(\t\"f\n\007Attempt\022\r\n\005delay"
+  "\030\001 \002(\r\022\020\n\010duration\030\002 \002(\r\022\017\n\007success\030\003 \002("
+  "\010\022\022\n\nerror_code\030\004 \001(\t\022\025\n\rerror_message\030\005"
+  " \001(\t\"~\n\017PutRecordResult\022/\n\010attempts\030\001 \003("
+  "\0132\035.aws.kinesis.protobuf.Attempt\022\017\n\007succ"
+  "ess\030\002 \002(\010\022\020\n\010shard_id\030\003 \001(\t\022\027\n\017sequence_"
+  "number\030\004 \001(\t\">\n\013Credentials\022\014\n\004akid\030\001 \002("
+  "\t\022\022\n\nsecret_key\030\002 \002(\t\022\r\n\005token\030\003 \001(\t\"]\n\016"
+  "SetCredentials\022\023\n\013for_metrics\030\001 \001(\010\0226\n\013c"
+  "redentials\030\002 \002(\0132!.aws.kinesis.protobuf."
+  "Credentials\"\'\n\tDimension\022\013\n\003key\030\001 \002(\t\022\r\n"
+  "\005value\030\002 \002(\t\"K\n\005Stats\022\r\n\005count\030\001 \002(\001\022\013\n\003"
+  "sum\030\002 \002(\001\022\014\n\004mean\030\003 \002(\001\022\013\n\003min\030\004 \002(\001\022\013\n\003"
+  "max\030\005 \002(\001\"\210\001\n\006Metric\022\014\n\004name\030\001 \002(\t\0223\n\ndi"
+  "mensions\030\002 \003(\0132\037.aws.kinesis.protobuf.Di"
+  "mension\022*\n\005stats\030\003 \002(\0132\033.aws.kinesis.pro"
+  "tobuf.Stats\022\017\n\007seconds\030\004 \002(\004\"/\n\016MetricsR"
+  "equest\022\014\n\004name\030\001 \001(\t\022\017\n\007seconds\030\002 \001(\004\"@\n"
+  "\017MetricsResponse\022-\n\007metrics\030\001 \003(\0132\034.aws."
+  "kinesis.protobuf.MetricB2\n0com.amazonaws"
+  ".services.kinesis.producer.protobuf"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_messages_2eproto_deps[1] = {
   &::descriptor_table_config_2eproto,
@@ -615,7 +617,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_mes
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_messages_2eproto_once;
 static bool descriptor_table_messages_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_messages_2eproto = {
-  &descriptor_table_messages_2eproto_initialized, descriptor_table_protodef_messages_2eproto, "messages.proto", 1775,
+  &descriptor_table_messages_2eproto_initialized, descriptor_table_protodef_messages_2eproto, "messages.proto", 1795,
   &descriptor_table_messages_2eproto_once, descriptor_table_messages_2eproto_sccs, descriptor_table_messages_2eproto_deps, 15, 1,
   schemas, file_default_instances, TableStruct_messages_2eproto::offsets,
   file_level_metadata_messages_2eproto, 15, file_level_enum_descriptors_messages_2eproto, file_level_service_descriptors_messages_2eproto,
@@ -2218,6 +2220,9 @@ class PutRecord::_Internal {
   static void set_has_data(HasBits* has_bits) {
     (*has_bits)[0] |= 8u;
   }
+  static void set_has_stream_arn(HasBits* has_bits) {
+    (*has_bits)[0] |= 16u;
+  }
 };
 
 PutRecord::PutRecord()
@@ -2246,6 +2251,10 @@ PutRecord::PutRecord(const PutRecord& from)
   if (from._internal_has_data()) {
     data_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.data_);
   }
+  stream_arn_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (from._internal_has_stream_arn()) {
+    stream_arn_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.stream_arn_);
+  }
   // @@protoc_insertion_point(copy_constructor:aws.kinesis.protobuf.PutRecord)
 }
 
@@ -2255,6 +2264,7 @@ void PutRecord::SharedCtor() {
   partition_key_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   explicit_hash_key_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   data_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  stream_arn_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 PutRecord::~PutRecord() {
@@ -2267,6 +2277,7 @@ void PutRecord::SharedDtor() {
   partition_key_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   explicit_hash_key_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   data_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  stream_arn_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 void PutRecord::SetCachedSize(int size) const {
@@ -2285,7 +2296,7 @@ void PutRecord::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x0000000fu) {
+  if (cached_has_bits & 0x0000001fu) {
     if (cached_has_bits & 0x00000001u) {
       stream_name_.ClearNonDefaultToEmptyNoArena();
     }
@@ -2297,6 +2308,9 @@ void PutRecord::Clear() {
     }
     if (cached_has_bits & 0x00000008u) {
       data_.ClearNonDefaultToEmptyNoArena();
+    }
+    if (cached_has_bits & 0x00000010u) {
+      stream_arn_.ClearNonDefaultToEmptyNoArena();
     }
   }
   _has_bits_.Clear();
@@ -2349,6 +2363,17 @@ const char* PutRecord::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
           auto str = _internal_mutable_data();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // optional string stream_arn = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
+          auto str = _internal_mutable_stream_arn();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          #ifndef NDEBUG
+          ::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "aws.kinesis.protobuf.PutRecord.stream_arn");
+          #endif  // !NDEBUG
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -2414,6 +2439,16 @@ failure:
   if (cached_has_bits & 0x00000008u) {
     target = stream->WriteBytesMaybeAliased(
         4, this->_internal_data(), target);
+  }
+
+  // optional string stream_arn = 5;
+  if (cached_has_bits & 0x00000010u) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->_internal_stream_arn().data(), static_cast<int>(this->_internal_stream_arn().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::SERIALIZE,
+      "aws.kinesis.protobuf.PutRecord.stream_arn");
+    target = stream->WriteStringMaybeAliased(
+        5, this->_internal_stream_arn(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2486,6 +2521,13 @@ size_t PutRecord::ByteSizeLong() const {
         this->_internal_explicit_hash_key());
   }
 
+  // optional string stream_arn = 5;
+  if (cached_has_bits & 0x00000010u) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_stream_arn());
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
         _internal_metadata_, total_size, &_cached_size_);
@@ -2518,7 +2560,7 @@ void PutRecord::MergeFrom(const PutRecord& from) {
   (void) cached_has_bits;
 
   cached_has_bits = from._has_bits_[0];
-  if (cached_has_bits & 0x0000000fu) {
+  if (cached_has_bits & 0x0000001fu) {
     if (cached_has_bits & 0x00000001u) {
       _has_bits_[0] |= 0x00000001u;
       stream_name_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.stream_name_);
@@ -2534,6 +2576,10 @@ void PutRecord::MergeFrom(const PutRecord& from) {
     if (cached_has_bits & 0x00000008u) {
       _has_bits_[0] |= 0x00000008u;
       data_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.data_);
+    }
+    if (cached_has_bits & 0x00000010u) {
+      _has_bits_[0] |= 0x00000010u;
+      stream_arn_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.stream_arn_);
     }
   }
 }
@@ -2568,6 +2614,8 @@ void PutRecord::InternalSwap(PutRecord* other) {
   explicit_hash_key_.Swap(&other->explicit_hash_key_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
     GetArenaNoVirtual());
   data_.Swap(&other->data_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  stream_arn_.Swap(&other->stream_arn_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
     GetArenaNoVirtual());
 }
 
