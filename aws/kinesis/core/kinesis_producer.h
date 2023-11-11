@@ -46,8 +46,8 @@ class KinesisProducer : boost::noncopyable {
         cw_creds_provider_(std::move(cw_creds_provider)),
         executor_(std::move(executor)),
         ipc_manager_(std::move(ipc_manager)),
-        pipelines_([this](auto& stream) {
-          return this->create_pipeline(stream);
+        pipelines_([this](auto& stream, auto& stream_arn) {
+          return this->create_pipeline(stream, stream_arn);
         }),
         shutdown_(false) {
     create_kinesis_client(ca_path);
@@ -80,7 +80,7 @@ class KinesisProducer : boost::noncopyable {
 
   void create_sts_client(const std::string& ca_path);
 
-  Pipeline* create_pipeline(const std::string& stream);
+  Pipeline* create_pipeline(const std::string& stream, const boost::optional<std::string>& stream_arn);
 
   void drain_messages();
 

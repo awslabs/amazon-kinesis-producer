@@ -31,6 +31,10 @@ UserRecord::UserRecord(aws::kinesis::protobuf::Message& m)
   source_id_ = m.id();
   auto put_record = m.put_record();
   stream_ = std::move(put_record.stream_name());
+  has_stream_arn_ = put_record.has_stream_arn();
+  if (has_stream_arn_) {
+    stream_arn_ = std::move(put_record.stream_arn());
+  }
   partition_key_ = std::move(put_record.partition_key());
   data_ = std::move(put_record.data());
   has_explicit_hash_key_ = put_record.has_explicit_hash_key();

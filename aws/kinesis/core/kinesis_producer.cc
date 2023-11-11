@@ -222,11 +222,12 @@ void KinesisProducer::create_sts_client(const std::string& ca_path) {
           cfg);
 }
 
-Pipeline* KinesisProducer::create_pipeline(const std::string& stream) {
+Pipeline* KinesisProducer::create_pipeline(const std::string& stream, const boost::optional<std::string>& stream_arn) {
   LOG(info) << "Created pipeline for stream \"" << stream << "\"";
   return new Pipeline(
       region_,
       stream,
+      stream_arn,
       config_,
       executor_,
       kinesis_client_,
@@ -287,6 +288,7 @@ void KinesisProducer::on_ipc_message(std::string&& message) noexcept {
 
 void KinesisProducer::on_put_record(aws::kinesis::protobuf::Message& m) {
   auto ur = std::make_shared<UserRecord>(m);
+  auto pr = std::make_shared<PutRecord>(m);
   ur->set_deadline_from_now(
       std::chrono::milliseconds(config_->record_max_buffered_time()));
   ur->set_expiration_from_now(
