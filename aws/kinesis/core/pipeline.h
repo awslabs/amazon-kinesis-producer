@@ -208,7 +208,7 @@ class Pipeline : boost::noncopyable {
                                      const std::string &region,
                                      const std::string &stream_name,
                                      const boost::optional<std::string> &stream_arn_) {
-    if (!stream_arn_.empty()) {
+    if (!stream_arn_) {
       return stream_arn_.get();
     }
     Aws::STS::Model::GetCallerIdentityRequest request;

@@ -288,12 +288,15 @@ void KinesisProducer::on_ipc_message(std::string&& message) noexcept {
 
 void KinesisProducer::on_put_record(aws::kinesis::protobuf::Message& m) {
   auto ur = std::make_shared<UserRecord>(m);
-  auto pr = std::make_shared<PutRecord>(m);
   ur->set_deadline_from_now(
       std::chrono::milliseconds(config_->record_max_buffered_time()));
   ur->set_expiration_from_now(
       std::chrono::milliseconds(config_->record_ttl()));
-  pipelines_[ur->stream()].put(ur);
+  if (ur->stream_arn()) {
+    pipelines_[ur->stream_arn().get()].put(ur);
+  } else {
+    pipelines_[ur->stream()].put(ur);
+  }
 }
 
 void KinesisProducer::on_flush(const aws::kinesis::protobuf::Flush& flush_msg) {
