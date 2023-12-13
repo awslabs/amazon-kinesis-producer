@@ -1114,7 +1114,6 @@ class PutRecord :
     kPartitionKeyFieldNumber = 2,
     kExplicitHashKeyFieldNumber = 3,
     kDataFieldNumber = 4,
-    kStreamArnFieldNumber = 5,
   };
   // required string stream_name = 1;
   bool has_stream_name() const;
@@ -1196,26 +1195,6 @@ class PutRecord :
   std::string* _internal_mutable_data();
   public:
 
-  // optional string stream_arn = 5;
-  bool has_stream_arn() const;
-  private:
-  bool _internal_has_stream_arn() const;
-  public:
-  void clear_stream_arn();
-  const std::string& stream_arn() const;
-  void set_stream_arn(const std::string& value);
-  void set_stream_arn(std::string&& value);
-  void set_stream_arn(const char* value);
-  void set_stream_arn(const char* value, size_t size);
-  std::string* mutable_stream_arn();
-  std::string* release_stream_arn();
-  void set_allocated_stream_arn(std::string* stream_arn);
-  private:
-  const std::string& _internal_stream_arn() const;
-  void _internal_set_stream_arn(const std::string& value);
-  std::string* _internal_mutable_stream_arn();
-  public:
-
   // @@protoc_insertion_point(class_scope:aws.kinesis.protobuf.PutRecord)
  private:
   class _Internal;
@@ -1230,7 +1209,6 @@ class PutRecord :
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr partition_key_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr explicit_hash_key_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr data_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr stream_arn_;
   friend struct ::TableStruct_messages_2eproto;
 };
 // -------------------------------------------------------------------
@@ -4249,77 +4227,6 @@ inline void PutRecord::set_allocated_data(std::string* data) {
   }
   data_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), data);
   // @@protoc_insertion_point(field_set_allocated:aws.kinesis.protobuf.PutRecord.data)
-}
-
-// optional string stream_arn = 5;
-inline bool PutRecord::_internal_has_stream_arn() const {
-  bool value = (_has_bits_[0] & 0x00000010u) != 0;
-  return value;
-}
-inline bool PutRecord::has_stream_arn() const {
-  return _internal_has_stream_arn();
-}
-inline void PutRecord::clear_stream_arn() {
-  stream_arn_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  _has_bits_[0] &= ~0x00000010u;
-}
-inline const std::string& PutRecord::stream_arn() const {
-  // @@protoc_insertion_point(field_get:aws.kinesis.protobuf.PutRecord.stream_arn)
-  return _internal_stream_arn();
-}
-inline void PutRecord::set_stream_arn(const std::string& value) {
-  _internal_set_stream_arn(value);
-  // @@protoc_insertion_point(field_set:aws.kinesis.protobuf.PutRecord.stream_arn)
-}
-inline std::string* PutRecord::mutable_stream_arn() {
-  // @@protoc_insertion_point(field_mutable:aws.kinesis.protobuf.PutRecord.stream_arn)
-  return _internal_mutable_stream_arn();
-}
-inline const std::string& PutRecord::_internal_stream_arn() const {
-  return stream_arn_.GetNoArena();
-}
-inline void PutRecord::_internal_set_stream_arn(const std::string& value) {
-  _has_bits_[0] |= 0x00000010u;
-  stream_arn_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
-}
-inline void PutRecord::set_stream_arn(std::string&& value) {
-  _has_bits_[0] |= 0x00000010u;
-  stream_arn_.SetNoArena(
-    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:aws.kinesis.protobuf.PutRecord.stream_arn)
-}
-inline void PutRecord::set_stream_arn(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  _has_bits_[0] |= 0x00000010u;
-  stream_arn_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:aws.kinesis.protobuf.PutRecord.stream_arn)
-}
-inline void PutRecord::set_stream_arn(const char* value, size_t size) {
-  _has_bits_[0] |= 0x00000010u;
-  stream_arn_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:aws.kinesis.protobuf.PutRecord.stream_arn)
-}
-inline std::string* PutRecord::_internal_mutable_stream_arn() {
-  _has_bits_[0] |= 0x00000010u;
-  return stream_arn_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-}
-inline std::string* PutRecord::release_stream_arn() {
-  // @@protoc_insertion_point(field_release:aws.kinesis.protobuf.PutRecord.stream_arn)
-  if (!_internal_has_stream_arn()) {
-    return nullptr;
-  }
-  _has_bits_[0] &= ~0x00000010u;
-  return stream_arn_.ReleaseNonDefaultNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-}
-inline void PutRecord::set_allocated_stream_arn(std::string* stream_arn) {
-  if (stream_arn != nullptr) {
-    _has_bits_[0] |= 0x00000010u;
-  } else {
-    _has_bits_[0] &= ~0x00000010u;
-  }
-  stream_arn_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), stream_arn);
-  // @@protoc_insertion_point(field_set_allocated:aws.kinesis.protobuf.PutRecord.stream_arn)
 }
 
 // -------------------------------------------------------------------
