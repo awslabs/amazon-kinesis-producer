@@ -84,6 +84,14 @@ class UserRecord : public aws::utils::TimeSensitive {
     return ss.str();
   }
 
+  boost::optional<std::string> stream_arn() const noexcept {
+    if (has_stream_arn_) {
+      return stream_arn_;
+    } else {
+      return boost::none;
+    }
+  }
+
   boost::optional<std::string> explicit_hash_key() const noexcept {
     if (has_explicit_hash_key_) {
       return hash_key_decimal_str();
@@ -99,12 +107,14 @@ class UserRecord : public aws::utils::TimeSensitive {
  private:
   uint64_t source_id_;
   std::string stream_;
+  std::string stream_arn_;
   std::string partition_key_;
   uint128_t hash_key_;
   std::string data_;
   std::vector<Attempt> attempts_;
   boost::optional<uint64_t> predicted_shard_;
   bool has_explicit_hash_key_;
+  bool has_stream_arn_;
   bool finished_;
 };
 

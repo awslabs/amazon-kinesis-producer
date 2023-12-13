@@ -1868,7 +1868,7 @@ public final class Config {
     /**
      * <code>repeated .aws.kinesis.protobuf.AdditionalDimension additional_metric_dims = 128;</code>
      */
-    public java.util.List<? extends com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimensionOrBuilder>
+    public java.util.List<? extends com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimensionOrBuilder> 
         getAdditionalMetricDimsOrBuilderList() {
       return additionalMetricDims_;
     }
@@ -1961,7 +1961,7 @@ public final class Config {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs =
+        com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
@@ -1978,7 +1978,7 @@ public final class Config {
         getCloudwatchEndpointBytes() {
       java.lang.Object ref = cloudwatchEndpoint_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b =
+        com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         cloudwatchEndpoint_ = b;
@@ -2108,7 +2108,7 @@ public final class Config {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs =
+        com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
@@ -2125,7 +2125,7 @@ public final class Config {
         getKinesisEndpointBytes() {
       java.lang.Object ref = kinesisEndpoint_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b =
+        com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         kinesisEndpoint_ = b;
@@ -2170,7 +2170,7 @@ public final class Config {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs =
+        com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
@@ -2187,7 +2187,7 @@ public final class Config {
         getLogLevelBytes() {
       java.lang.Object ref = logLevel_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b =
+        com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         logLevel_ = b;
@@ -2232,7 +2232,7 @@ public final class Config {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs =
+        com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
@@ -2249,7 +2249,7 @@ public final class Config {
         getMetricsGranularityBytes() {
       java.lang.Object ref = metricsGranularity_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b =
+        com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         metricsGranularity_ = b;
@@ -2277,7 +2277,7 @@ public final class Config {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs =
+        com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
@@ -2294,7 +2294,7 @@ public final class Config {
         getMetricsLevelBytes() {
       java.lang.Object ref = metricsLevel_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b =
+        com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         metricsLevel_ = b;
@@ -2322,7 +2322,7 @@ public final class Config {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs =
+        com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
@@ -2339,7 +2339,7 @@ public final class Config {
         getMetricsNamespaceBytes() {
       java.lang.Object ref = metricsNamespace_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b =
+        com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         metricsNamespace_ = b;
@@ -2452,7 +2452,7 @@ public final class Config {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs =
+        com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
@@ -2469,7 +2469,7 @@ public final class Config {
         getRegionBytes() {
       java.lang.Object ref = region_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b =
+        com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         region_ = b;
@@ -2531,7 +2531,7 @@ public final class Config {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs =
+        com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
@@ -2548,7 +2548,7 @@ public final class Config {
         getProxyHostBytes() {
       java.lang.Object ref = proxyHost_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b =
+        com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         proxyHost_ = b;
@@ -2593,7 +2593,7 @@ public final class Config {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs =
+        com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
@@ -2610,7 +2610,7 @@ public final class Config {
         getProxyUserNameBytes() {
       java.lang.Object ref = proxyUserName_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b =
+        com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         proxyUserName_ = b;
@@ -2638,7 +2638,7 @@ public final class Config {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs =
+        com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
@@ -2655,7 +2655,7 @@ public final class Config {
         getProxyPasswordBytes() {
       java.lang.Object ref = proxyPassword_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b =
+        com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         proxyPassword_ = b;
@@ -2683,7 +2683,7 @@ public final class Config {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs =
+        com.google.protobuf.ByteString bs = 
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         if (bs.isValidUtf8()) {
@@ -2700,7 +2700,7 @@ public final class Config {
         getStsEndpointBytes() {
       java.lang.Object ref = stsEndpoint_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b =
+        com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         stsEndpoint_ = b;
@@ -3812,7 +3812,7 @@ public final class Config {
               additionalMetricDimsBuilder_ = null;
               additionalMetricDims_ = other.additionalMetricDims_;
               bitField0_ = (bitField0_ & ~0x00000001);
-              additionalMetricDimsBuilder_ =
+              additionalMetricDimsBuilder_ = 
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
                    getAdditionalMetricDimsFieldBuilder() : null;
             } else {
@@ -4172,7 +4172,7 @@ public final class Config {
       /**
        * <code>repeated .aws.kinesis.protobuf.AdditionalDimension additional_metric_dims = 128;</code>
        */
-      public java.util.List<? extends com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimensionOrBuilder>
+      public java.util.List<? extends com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimensionOrBuilder> 
            getAdditionalMetricDimsOrBuilderList() {
         if (additionalMetricDimsBuilder_ != null) {
           return additionalMetricDimsBuilder_.getMessageOrBuilderList();
@@ -4198,12 +4198,12 @@ public final class Config {
       /**
        * <code>repeated .aws.kinesis.protobuf.AdditionalDimension additional_metric_dims = 128;</code>
        */
-      public java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension.Builder>
+      public java.util.List<com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension.Builder> 
            getAdditionalMetricDimsBuilderList() {
         return getAdditionalMetricDimsFieldBuilder().getBuilderList();
       }
       private com.google.protobuf.RepeatedFieldBuilderV3<
-          com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension, com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension.Builder, com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimensionOrBuilder>
+          com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension, com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimension.Builder, com.amazonaws.services.kinesis.producer.protobuf.Config.AdditionalDimensionOrBuilder> 
           getAdditionalMetricDimsFieldBuilder() {
         if (additionalMetricDimsBuilder_ == null) {
           additionalMetricDimsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
@@ -4362,7 +4362,7 @@ public final class Config {
           getCloudwatchEndpointBytes() {
         java.lang.Object ref = cloudwatchEndpoint_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b =
+          com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
           cloudwatchEndpoint_ = b;
@@ -4668,7 +4668,7 @@ public final class Config {
           getKinesisEndpointBytes() {
         java.lang.Object ref = kinesisEndpoint_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b =
+          com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
           kinesisEndpoint_ = b;
@@ -4789,7 +4789,7 @@ public final class Config {
           getLogLevelBytes() {
         java.lang.Object ref = logLevel_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b =
+          com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
           logLevel_ = b;
@@ -4910,7 +4910,7 @@ public final class Config {
           getMetricsGranularityBytes() {
         java.lang.Object ref = metricsGranularity_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b =
+          com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
           metricsGranularity_ = b;
@@ -4994,7 +4994,7 @@ public final class Config {
           getMetricsLevelBytes() {
         java.lang.Object ref = metricsLevel_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b =
+          com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
           metricsLevel_ = b;
@@ -5078,7 +5078,7 @@ public final class Config {
           getMetricsNamespaceBytes() {
         java.lang.Object ref = metricsNamespace_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b =
+          com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
           metricsNamespace_ = b;
@@ -5347,7 +5347,7 @@ public final class Config {
           getRegionBytes() {
         java.lang.Object ref = region_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b =
+          com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
           region_ = b;
@@ -5505,7 +5505,7 @@ public final class Config {
           getProxyHostBytes() {
         java.lang.Object ref = proxyHost_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b =
+          com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
           proxyHost_ = b;
@@ -5626,7 +5626,7 @@ public final class Config {
           getProxyUserNameBytes() {
         java.lang.Object ref = proxyUserName_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b =
+          com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
           proxyUserName_ = b;
@@ -5710,7 +5710,7 @@ public final class Config {
           getProxyPasswordBytes() {
         java.lang.Object ref = proxyPassword_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b =
+          com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
           proxyPassword_ = b;
@@ -5794,7 +5794,7 @@ public final class Config {
           getStsEndpointBytes() {
         java.lang.Object ref = stsEndpoint_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b =
+          com.google.protobuf.ByteString b = 
               com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
           stsEndpoint_ = b;
@@ -6014,12 +6014,12 @@ public final class Config {
 
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_aws_kinesis_protobuf_AdditionalDimension_descriptor;
-  private static final
+  private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_aws_kinesis_protobuf_AdditionalDimension_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_aws_kinesis_protobuf_Configuration_descriptor;
-  private static final
+  private static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_aws_kinesis_protobuf_Configuration_fieldAccessorTable;
 
