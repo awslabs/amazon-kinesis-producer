@@ -46,14 +46,8 @@ class KinesisProducer : boost::noncopyable {
         cw_creds_provider_(std::move(cw_creds_provider)),
         executor_(std::move(executor)),
         ipc_manager_(std::move(ipc_manager)),
-        pipelines_([this](auto& stream_or_arn) {
-          std::regex kinesisStreamArnRegex("^arn:aws:kinesis:[a-zA-Z0-9-]+:[0-9]+:stream/[a-zA-Z0-9_.-]+$");
-          std::smatch match;
-          if (std::regex_search(stream_or_arn, match, kinesisStreamArnRegex)) {
-            return this->create_pipeline(match[1].str(), stream_or_arn);
-          } else {
-            return this->create_pipeline(stream_or_arn, boost::none);
-          }
+        pipelines_([this](auto& stream) {
+          return this->create_pipeline(stream);
         }),
         shutdown_(false) {
     create_kinesis_client(ca_path);
@@ -86,7 +80,7 @@ class KinesisProducer : boost::noncopyable {
 
   void create_sts_client(const std::string& ca_path);
 
-  Pipeline* create_pipeline(const std::string& stream, const boost::optional<std::string>& stream_arn);
+  Pipeline* create_pipeline(const std::string& stream);
 
   void drain_messages();
 

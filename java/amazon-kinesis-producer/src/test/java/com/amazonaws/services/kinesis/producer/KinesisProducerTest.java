@@ -138,7 +138,7 @@ public class KinesisProducerTest {
 
         final long start = System.nanoTime();
         while (System.nanoTime() - start < 500 * 1000000) {
-            kp.addUserRecord("streamName", "partitionKey", ByteBuffer.wrap(new byte[0]), "streamARN");
+            kp.addUserRecord("streamName", "partitionKey", ByteBuffer.wrap(new byte[0]));
             kp.flush();
             Thread.sleep(10);
         }
@@ -187,7 +187,7 @@ public class KinesisProducerTest {
 
         final long start = System.nanoTime();
         while (System.nanoTime() - start < 500 * 1000000) {
-            kp.addUserRecord("streamName", "partitionKey", ByteBuffer.wrap(new byte[0]), "streamARN");
+            kp.addUserRecord("streamName", "partitionKey", ByteBuffer.wrap(new byte[0]));
             kp.flush();
             Thread.sleep(10);
         }
@@ -253,10 +253,9 @@ public class KinesisProducerTest {
         String partitionKey = "partitionKey";
         String hashKey = null;
         ByteBuffer data = ByteBuffer.wrap(new byte[] { 01, 23, 54 });
-        String streamARN = "streamARN";
         String schemaDefinition = null;
         Schema schema = new Schema(schemaDefinition, DataFormat.AVRO.toString(), "testSchema");
-        UserRecord userRecord = new UserRecord(stream, partitionKey, hashKey, data, streamARN, schema);
+        UserRecord userRecord = new UserRecord(stream, partitionKey, hashKey, data, schema);
 
         try {
             kinesisProducer.addUserRecord(userRecord);
