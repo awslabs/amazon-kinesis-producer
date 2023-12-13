@@ -408,7 +408,7 @@ public class KinesisProducer implements IKinesisProducer {
      */
     @Override
     public ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, ByteBuffer data) {
-        return addUserRecord(stream, partitionKey, null, data);
+        return addUserRecord(stream, partitionKey, null, data, null);
     }
 
     /**
@@ -465,7 +465,7 @@ public class KinesisProducer implements IKinesisProducer {
      */
     @Override
     public ListenableFuture<UserRecordResult> addUserRecord(UserRecord userRecord) {
-        return addUserRecord(userRecord.getStreamName(), userRecord.getPartitionKey(), userRecord.getExplicitHashKey(), userRecord.getData(), userRecord.getSchema());
+        return addUserRecord(userRecord.getStreamName(), userRecord.getPartitionKey(), userRecord.getExplicitHashKey(), userRecord.getData(), userRecord.getStreamARN(), userRecord.getSchema());
     }
 
     /**
@@ -531,12 +531,22 @@ public class KinesisProducer implements IKinesisProducer {
      * @see UserRecordFailedException
      */
     @Override
-    public ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data) {
-        return addUserRecord(stream, partitionKey, explicitHashKey, data, null);
+    public ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data, String streamARN) {
+        return addUserRecord(stream, partitionKey, explicitHashKey, data, streamARN, null);
     }
 
     @Override
-    public ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data, Schema schema) {
+    public ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, ByteBuffer data, String streamARN) {
+        return addUserRecord(stream, partitionKey, null, data, streamARN, null);
+    }
+
+    @Override
+    public ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data) {
+        return addUserRecord(stream, partitionKey, explicitHashKey, data, null, null);
+    }
+
+    @Override
+    public ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data, String streamARN, Schema schema) {
         if (stream == null) {
             throw new IllegalArgumentException("Stream name cannot be null");
         }
@@ -616,6 +626,9 @@ public class KinesisProducer implements IKinesisProducer {
                 .setData(data != null ? ByteString.copyFrom(data) : ByteString.EMPTY);
         if (b != null) {
             pr.setExplicitHashKey(b.toString(10));
+        }
+        if(streamARN != null) {
+            pr.setStreamArn(streamARN);
         }
         
         Message m = Message.newBuilder()

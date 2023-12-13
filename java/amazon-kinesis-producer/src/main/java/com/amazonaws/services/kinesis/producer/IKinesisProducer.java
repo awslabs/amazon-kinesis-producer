@@ -10,11 +10,15 @@ import com.amazonaws.services.schemaregistry.common.Schema;
 public interface IKinesisProducer {
     ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, ByteBuffer data);
 
+    ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, ByteBuffer data,  String streamARN);
+
     ListenableFuture<UserRecordResult> addUserRecord(UserRecord userRecord);
+
+    ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data, String streamARN);
 
     ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data);
 
-    ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data, Schema schema);
+    ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data, String streamARN, Schema schema);
 
     int getOutstandingRecordsCount();
 
