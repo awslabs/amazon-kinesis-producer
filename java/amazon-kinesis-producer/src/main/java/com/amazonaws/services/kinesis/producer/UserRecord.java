@@ -48,6 +48,12 @@ public class UserRecord {
         this.partitionKey = partitionKey;
         this.data = data;
     }
+    public UserRecord(String streamName, String partitionKey, ByteBuffer data, String streamARN) {
+        this.streamName = streamName;
+        this.partitionKey = partitionKey;
+        this.streamARN = streamARN;
+        this.data = data;
+    }
 
     public UserRecord(String streamName, String partitionKey, String explicitHashKey, ByteBuffer data) {
         this.streamName = streamName;
@@ -55,11 +61,19 @@ public class UserRecord {
         this.explicitHashKey = explicitHashKey;
         this.data = data;
     }
-
-    public UserRecord(String streamName, String partitionKey, String explicitHashKey, ByteBuffer data, Schema schema) {
+    public UserRecord(String streamName, String partitionKey, String explicitHashKey, ByteBuffer data, String streamARN) {
         this.streamName = streamName;
         this.partitionKey = partitionKey;
         this.explicitHashKey = explicitHashKey;
+        this.streamARN = streamARN;
+        this.data = data;
+    }
+
+    public UserRecord(String streamName, String partitionKey, String explicitHashKey, ByteBuffer data, String streamARN, Schema schema) {
+        this.streamName = streamName;
+        this.partitionKey = partitionKey;
+        this.explicitHashKey = explicitHashKey;
+        this.streamARN= streamARN;
         this.data = data;
         this.schema = schema;
     }
@@ -87,6 +101,17 @@ public class UserRecord {
 
     public UserRecord withPartitionKey(String partitionKey) {
         this.partitionKey = partitionKey;
+        return this;
+    }
+
+    public String getStreamARN() { return streamARN; }
+
+    public void setStreamARN(String streamARN) {
+        this.streamARN = streamARN;
+    }
+
+    public UserRecord withStreamARN(String streamARN) {
+        this.streamARN = streamARN;
         return this;
     }
 

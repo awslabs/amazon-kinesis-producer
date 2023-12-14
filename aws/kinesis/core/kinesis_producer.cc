@@ -222,11 +222,12 @@ void KinesisProducer::create_sts_client(const std::string& ca_path) {
           cfg);
 }
 
-Pipeline* KinesisProducer::create_pipeline(const std::string& stream) {
+Pipeline* KinesisProducer::create_pipeline(const std::string& stream, const boost::optional<std::string>& stream_arn) {
   LOG(info) << "Created pipeline for stream \"" << stream << "\"";
   return new Pipeline(
       region_,
       stream,
+      stream_arn,
       config_,
       executor_,
       kinesis_client_,
@@ -291,7 +292,11 @@ void KinesisProducer::on_put_record(aws::kinesis::protobuf::Message& m) {
       std::chrono::milliseconds(config_->record_max_buffered_time()));
   ur->set_expiration_from_now(
       std::chrono::milliseconds(config_->record_ttl()));
-  pipelines_[ur->stream()].put(ur);
+  if (ur->stream_arn()) {
+    pipelines_[ur->stream_arn().get()].put(ur);
+  } else {
+    pipelines_[ur->stream()].put(ur);
+  }
 }
 
 void KinesisProducer::on_flush(const aws::kinesis::protobuf::Flush& flush_msg) {
