@@ -47,7 +47,7 @@ class KinesisProducer : boost::noncopyable {
         executor_(std::move(executor)),
         ipc_manager_(std::move(ipc_manager)),
         pipelines_([this](auto& stream_or_arn) {
-          std::regex kinesisStreamArnRegex("^arn:aws:kinesis:[a-zA-Z0-9-]+:[0-9]+:stream/[a-zA-Z0-9_.-]+$");
+          std::regex kinesisStreamArnRegex("^arn:aws.*:kinesis:.*:\\d{12}:stream/\\S+$");
           std::smatch match;
           if (std::regex_search(stream_or_arn, match, kinesisStreamArnRegex)) {
             return this->create_pipeline(match[1].str(), stream_or_arn);
