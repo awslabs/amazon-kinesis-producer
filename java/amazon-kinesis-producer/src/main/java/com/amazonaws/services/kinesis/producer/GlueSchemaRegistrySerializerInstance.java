@@ -11,7 +11,7 @@ import com.amazonaws.services.schemaregistry.serializers.GlueSchemaRegistrySeria
 public final class GlueSchemaRegistrySerializerInstance {
 
     private volatile GlueSchemaRegistrySerializer instance = null;
-    private static final String USER_AGENT_APP_NAME = "kpl-0.15.8";
+    private static final String USER_AGENT_APP_NAME = "kpl-0.15.9";
 
     /**
      * Instantiate GlueSchemaRegistrySerializer using the KinesisProducerConfiguration.
