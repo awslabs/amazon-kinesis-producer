@@ -1,7 +1,12 @@
 ## Changelog
+
+## 0.15.10
+* [#554](https://github.com/awslabs/amazon-kinesis-producer/pull/554) Fix bug for addUserRecord
+
 ## 0.15.9
 * [#552](https://github.com/awslabs/amazon-kinesis-producer/pull/552) Add StreamARN parameter to support CAA
     * StreamARN parameter can be now be used to benefit from Cross account access for KPL requests.
+
 ## 0.15.8
 * [#537](https://github.com/awslabs/amazon-kinesis-producer/pull/537) Update to latest version of Glue Schema Registry library
  
