@@ -65,6 +65,9 @@ If you have further questions [please open a GitHub Issue](https://github.com/aw
 This is a restatement of the [notice published](https://docs.aws.amazon.com/streams/latest/dev/kinesis-kpl-upgrades.html) in the [Amazon Kinesis Data Streams Developer Guide][kinesis-developer-guide]
 
 ## Release Notes
+## 0.15.10
+* [#554](https://github.com/awslabs/amazon-kinesis-producer/pull/554) Fix bug for addUserRecord
+
 ## 0.15.9
 * [#552](https://github.com/awslabs/amazon-kinesis-producer/pull/552) Add StreamARN parameter to support CAA
     * StreamARN parameter can be now be used to benefit from Cross account access for KPL requests.
