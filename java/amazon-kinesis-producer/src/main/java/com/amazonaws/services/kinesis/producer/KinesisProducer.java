@@ -408,7 +408,7 @@ public class KinesisProducer implements IKinesisProducer {
      */
     @Override
     public ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, ByteBuffer data) {
-        return addUserRecord(stream, partitionKey, null, data, null, null);
+        return addUserRecord(stream, partitionKey, null, data);
     }
 
     /**
@@ -465,7 +465,7 @@ public class KinesisProducer implements IKinesisProducer {
      */
     @Override
     public ListenableFuture<UserRecordResult> addUserRecord(UserRecord userRecord) {
-        return addUserRecord(userRecord.getStreamName(), userRecord.getPartitionKey(), userRecord.getExplicitHashKey(), userRecord.getData(), userRecord.getStreamARN(), userRecord.getSchema());
+        return addUserRecord(userRecord.getStreamName(), userRecord.getPartitionKey(), userRecord.getExplicitHashKey(), userRecord.getData(), userRecord.getSchema());
     }
 
     /**
@@ -532,280 +532,11 @@ public class KinesisProducer implements IKinesisProducer {
      */
     @Override
     public ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data) {
-        return addUserRecord(stream, partitionKey, explicitHashKey, data, null, null);
+        return addUserRecord(stream, partitionKey, explicitHashKey, data, null);
     }
 
-    /**
-     * Put a record asynchronously. A {@link ListenableFuture} is returned that
-     * can be used to retrieve the result, either by polling or by registering a
-     * callback.
-     * 
-     * <p>
-     * The return value can be disregarded if you do not wish to process the
-     * result. Under the covers, the KPL will automatically reattempt puts in
-     * case of transient errors (including throttling). A failed result is
-     * generally returned only if an irrecoverable error is detected (e.g.
-     * trying to put to a stream that doesn't exist), or if the record expires.
-     *
-     * <p>
-     * <b>Thread safe.</b>
-     * 
-     * <p>
-     * To add a listener to the future:
-     * <p>
-     * <code>
-     * ListenableFuture&lt;PutRecordResult&gt; f = myKinesisProducer.addUserRecord(...);
-     * com.google.common.util.concurrent.Futures.addCallback(f, callback, executor);
-     * </code>
-     * <p>
-     * where <code>callback</code> is an instance of
-     * {@link com.google.common.util.concurrent.FutureCallback} and
-     * <code>executor</code> is an instance of
-     * {@link java.util.concurrent.Executor}.
-     * <p>
-     * <b>Important:</b>
-     * <p>
-     * If long-running tasks are performed in the callbacks, it is recommended
-     * that a custom executor be provided when registering callbacks to ensure
-     * that there are enough threads to achieve the desired level of
-     * parallelism. By default, the KPL will use an internal thread pool to
-     * execute callbacks, but this pool may not have a sufficient number of
-     * threads if a large number is desired.
-     * <p>
-     * Another option would be to hand the result off to a different component
-     * for processing and keep the callback routine fast.
-     * 
-     * @param stream
-     *            Stream to put to.
-     * @param partitionKey
-     *            Partition key. Length must be at least one, and at most 256
-     *            (inclusive).
-     * @param data
-     *            Binary data of the record. Maximum size 1MiB.
-     * @param streamARN
-     *            ARN of the stream, e.g., arn:aws:kinesis:us-east-2:123456789012:stream/mystream
-     * @return A future for the result of the put.
-     * @throws IllegalArgumentException
-     *             if input does not meet stated constraints
-     * @throws DaemonException
-     *             if the child process is dead
-     * @see ListenableFuture
-     * @see UserRecordResult
-     * @see KinesisProducerConfiguration#setRecordTtl(long)
-     * @see UserRecordFailedException
-     */
-    @Override
-    public ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, ByteBuffer data, String streamARN) {
-        return addUserRecord(stream, partitionKey, null, data, streamARN, null);
-    }
-
-    /**
-     * Put a record asynchronously. A {@link ListenableFuture} is returned that
-     * can be used to retrieve the result, either by polling or by registering a
-     * callback.
-     * 
-     * <p>
-     * The return value can be disregarded if you do not wish to process the
-     * result. Under the covers, the KPL will automatically reattempt puts in
-     * case of transient errors (including throttling). A failed result is
-     * generally returned only if an irrecoverable error is detected (e.g.
-     * trying to put to a stream that doesn't exist), or if the record expires.
-     *
-     * <p>
-     * <b>Thread safe.</b>
-     * 
-     * <p>
-     * To add a listener to the future:
-     * <p>
-     * <code>
-     * ListenableFuture&lt;PutRecordResult&gt; f = myKinesisProducer.addUserRecord(...);
-     * com.google.common.util.concurrent.Futures.addCallback(f, callback, executor);
-     * </code>
-     * <p>
-     * where <code>callback</code> is an instance of
-     * {@link com.google.common.util.concurrent.FutureCallback} and
-     * <code>executor</code> is an instance of
-     * {@link java.util.concurrent.Executor}.
-     * <p>
-     * <b>Important:</b>
-     * <p>
-     * If long-running tasks are performed in the callbacks, it is recommended
-     * that a custom executor be provided when registering callbacks to ensure
-     * that there are enough threads to achieve the desired level of
-     * parallelism. By default, the KPL will use an internal thread pool to
-     * execute callbacks, but this pool may not have a sufficient number of
-     * threads if a large number is desired.
-     * <p>
-     * Another option would be to hand the result off to a different component
-     * for processing and keep the callback routine fast.
-     * 
-     * @param stream
-     *            Stream to put to.
-     * @param partitionKey
-     *            Partition key. Length must be at least one, and at most 256
-     *            (inclusive).
-     * @param explicitHashKey
-     *            The hash value used to explicitly determine the shard the data
-     *            record is assigned to by overriding the partition key hash.
-     *            Must be a valid string representation of a positive integer
-     *            with value between 0 and <code>2^128 - 1</code> (inclusive).
-     * @param data
-     *            Binary data of the record. Maximum size 1MiB.
-     * @return A future for the result of the put.
-     * @param streamARN
-     *            ARN of the stream, e.g., arn:aws:kinesis:us-east-2:123456789012:stream/mystream
-     * @throws IllegalArgumentException
-     *             if input does not meet stated constraints
-     * @throws DaemonException
-     *             if the child process is dead
-     * @see ListenableFuture
-     * @see UserRecordResult
-     * @see KinesisProducerConfiguration#setRecordTtl(long)
-     * @see UserRecordFailedException
-     */
-    @Override
-    public ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data, String streamARN) {
-        return addUserRecord(stream, partitionKey, explicitHashKey, data, streamARN, null);
-    }
-
-    /**
-     * Put a record asynchronously. A {@link ListenableFuture} is returned that
-     * can be used to retrieve the result, either by polling or by registering a
-     * callback.
-     *
-     * <p>
-     * The return value can be disregarded if you do not wish to process the
-     * result. Under the covers, the KPL will automatically reattempt puts in
-     * case of transient errors (including throttling). A failed result is
-     * generally returned only if an irrecoverable error is detected (e.g.
-     * trying to put to a stream that doesn't exist), or if the record expires.
-     *
-     * <p>
-     * <b>Thread safe.</b>
-     *
-     * <p>
-     * To add a listener to the future:
-     * <p>
-     * <code>
-     * ListenableFuture&lt;PutRecordResult&gt; f = myKinesisProducer.addUserRecord(...);
-     * com.google.common.util.concurrent.Futures.addCallback(f, callback, executor);
-     * </code>
-     * <p>
-     * where <code>callback</code> is an instance of
-     * {@link com.google.common.util.concurrent.FutureCallback} and
-     * <code>executor</code> is an instance of
-     * {@link java.util.concurrent.Executor}.
-     * <p>
-     * <b>Important:</b>
-     * <p>
-     * If long-running tasks are performed in the callbacks, it is recommended
-     * that a custom executor be provided when registering callbacks to ensure
-     * that there are enough threads to achieve the desired level of
-     * parallelism. By default, the KPL will use an internal thread pool to
-     * execute callbacks, but this pool may not have a sufficient number of
-     * threads if a large number is desired.
-     * <p>
-     * Another option would be to hand the result off to a different component
-     * for processing and keep the callback routine fast.
-     *
-     * @param stream
-     *            Stream to put to.
-     * @param partitionKey
-     *            Partition key. Length must be at least one, and at most 256
-     *            (inclusive).
-     * @param explicitHashKey
-     *            The hash value used to explicitly determine the shard the data
-     *            record is assigned to by overriding the partition key hash.
-     *            Must be a valid string representation of a positive integer
-     *            with value between 0 and <code>2^128 - 1</code> (inclusive).
-     * @param data
-     *            Binary data of the record. Maximum size 1MiB.
-     * @param schema
-     *            Defines structure and format of a data record.
-     * @return A future for the result of the put.
-     * @throws IllegalArgumentException
-     *             if input does not meet stated constraints
-     * @throws DaemonException
-     *             if the child process is dead
-     * @see ListenableFuture
-     * @see UserRecordResult
-     * @see KinesisProducerConfiguration#setRecordTtl(long)
-     * @see UserRecordFailedException
-     */
     @Override
     public ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data, Schema schema) {
-        return addUserRecord(stream, partitionKey, explicitHashKey, data, null, schema);
-    }
-
-    /**
-     * Put a record asynchronously. A {@link ListenableFuture} is returned that
-     * can be used to retrieve the result, either by polling or by registering a
-     * callback.
-     *
-     * <p>
-     * The return value can be disregarded if you do not wish to process the
-     * result. Under the covers, the KPL will automatically reattempt puts in
-     * case of transient errors (including throttling). A failed result is
-     * generally returned only if an irrecoverable error is detected (e.g.
-     * trying to put to a stream that doesn't exist), or if the record expires.
-     *
-     * <p>
-     * <b>Thread safe.</b>
-     *
-     * <p>
-     * To add a listener to the future:
-     * <p>
-     * <code>
-     * ListenableFuture&lt;PutRecordResult&gt; f = myKinesisProducer.addUserRecord(...);
-     * com.google.common.util.concurrent.Futures.addCallback(f, callback, executor);
-     * </code>
-     * <p>
-     * where <code>callback</code> is an instance of
-     * {@link com.google.common.util.concurrent.FutureCallback} and
-     * <code>executor</code> is an instance of
-     * {@link java.util.concurrent.Executor}.
-     * <p>
-     * <b>Important:</b>
-     * <p>
-     * If long-running tasks are performed in the callbacks, it is recommended
-     * that a custom executor be provided when registering callbacks to ensure
-     * that there are enough threads to achieve the desired level of
-     * parallelism. By default, the KPL will use an internal thread pool to
-     * execute callbacks, but this pool may not have a sufficient number of
-     * threads if a large number is desired.
-     * <p>
-     * Another option would be to hand the result off to a different component
-     * for processing and keep the callback routine fast.
-     *
-     * @param stream
-     *            Stream to put to.
-     * @param partitionKey
-     *            Partition key. Length must be at least one, and at most 256
-     *            (inclusive).
-     * @param explicitHashKey
-     *            The hash value used to explicitly determine the shard the data
-     *            record is assigned to by overriding the partition key hash.
-     *            Must be a valid string representation of a positive integer
-     *            with value between 0 and <code>2^128 - 1</code> (inclusive).
-     * @param data
-     *            Binary data of the record. Maximum size 1MiB.
-     *
-     * @param schema
-     *            Defines structure and format of a data record.
-     * @param streamARN
-     *            ARN of the stream, e.g., arn:aws:kinesis:us-east-2:123456789012:stream/mystream
-     * @return A future for the result of the put.
-     * @throws IllegalArgumentException
-     *             if input does not meet stated constraints
-     * @throws DaemonException
-     *             if the child process is dead
-     * @see ListenableFuture
-     * @see UserRecordResult
-     * @see KinesisProducerConfiguration#setRecordTtl(long)
-     * @see UserRecordFailedException
-     */
-    @Override
-    public ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data, String streamARN, Schema schema) {
         if (stream == null) {
             throw new IllegalArgumentException("Stream name cannot be null");
         }
@@ -885,9 +616,6 @@ public class KinesisProducer implements IKinesisProducer {
                 .setData(data != null ? ByteString.copyFrom(data) : ByteString.EMPTY);
         if (b != null) {
             pr.setExplicitHashKey(b.toString(10));
-        }
-        if(streamARN != null) {
-            pr.setStreamArn(streamARN);
         }
         
         Message m = Message.newBuilder()
