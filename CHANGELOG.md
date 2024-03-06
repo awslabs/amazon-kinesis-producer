@@ -1,7 +1,10 @@
 ## Changelog
 
 ## 0.15.10
-* [#554](https://github.com/awslabs/amazon-kinesis-producer/pull/554) Fix bug for addUserRecord
+* [#560](https://github.com/awslabs/amazon-kinesis-producer/pull/560)Reverting CAA related changes
+  * Revert all the changes related to CAA- reverting streamArn after this update customers will not be able to use it until there is a new release with appropriate fixes.
+* [#526](https://github.com/awslabs/amazon-kinesis-producer/pull/526) Drop dependency on jaxb for converting binary arrays to hex
+* [1.1.18](https://github.com/awslabs/amazon-kinesis-producer/commit/3de737329f85e837c5992c57642f35d461ecfb8a)Update GSR dependency - To address CVE vulnerability
 
 ## 0.15.9
 * [#552](https://github.com/awslabs/amazon-kinesis-producer/pull/552) Add StreamARN parameter to support CAA
