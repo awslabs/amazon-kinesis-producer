@@ -76,7 +76,6 @@ public class UserRecord {
         this.data = data;
         this.schema = schema;
     }
-
     public UserRecord(String streamName, String partitionKey, String explicitHashKey, ByteBuffer data, String streamARN, Schema schema) {
         this.streamName = streamName;
         this.partitionKey = partitionKey;
