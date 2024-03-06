@@ -69,13 +69,6 @@ public class UserRecord {
         this.data = data;
     }
 
-    public UserRecord(String streamName, String partitionKey, String explicitHashKey, ByteBuffer data, Schema schema) {
-        this.streamName = streamName;
-        this.partitionKey = partitionKey;
-        this.explicitHashKey = explicitHashKey;
-        this.data = data;
-        this.schema = schema;
-    }
     public UserRecord(String streamName, String partitionKey, String explicitHashKey, ByteBuffer data, String streamARN, Schema schema) {
         this.streamName = streamName;
         this.partitionKey = partitionKey;
