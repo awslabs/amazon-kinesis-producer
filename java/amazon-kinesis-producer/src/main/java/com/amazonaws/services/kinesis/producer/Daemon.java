@@ -27,7 +27,6 @@ import org.apache.commons.lang.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -582,6 +581,6 @@ public class Daemon {
     }
     
     private static String protobufToHex(com.google.protobuf.Message msg) {
-        return DatatypeConverter.printHexBinary(msg.toByteArray());
+        return BinaryToHexConverter.convert(msg.toByteArray());
     }
 }
