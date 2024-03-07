@@ -1,7 +1,7 @@
 ## Changelog
 
 ## 0.15.10
-* [#560 ](https://github.com/awslabs/amazon-kinesis-producer/pull/560) Reverting CAA related changes
+* [#560 ](https://github.com/awslabs/amazon-kinesis-producer/pull/560)
   * Reverting to remove a bug with using Stream ARN. Please stay tuned for a future release before using Stream ARN
 * [#526](https://github.com/awslabs/amazon-kinesis-producer/pull/526) Drop dependency on jaxb for converting binary arrays to hex
 * [1.1.18](https://github.com/awslabs/amazon-kinesis-producer/commit/3de737329f85e837c5992c57642f35d461ecfb8a)Update GSR dependency - To address CVE vulnerability
