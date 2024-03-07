@@ -24,8 +24,6 @@ import com.amazonaws.services.kinesis.producer.protobuf.Messages.PutRecord;
 import com.amazonaws.services.schemaregistry.common.Schema;
 import com.amazonaws.services.schemaregistry.serializers.GlueSchemaRegistrySerializer;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.SettableFuture;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.protobuf.ByteString;
 import lombok.AllArgsConstructor;
@@ -48,16 +46,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 /**
@@ -117,7 +106,7 @@ public class KinesisProducer implements IKinesisProducer {
     @Value
     private static class SettableFutureTracker {
         @NonNull
-        private SettableFuture<?> future;
+        private CompletableFuture<?> future;
         @NonNull
         private Instant timestamp;
         @NonNull
@@ -174,8 +163,8 @@ public class KinesisProducer implements IKinesisProducer {
                     } else {
                         // clear the future here as well since the native core has exhausted its retries.
                         SettableFutureTracker futureTracker = getFuture(m);
-                        SettableFuture<?> f = futureTracker.getFuture();
-                        f.setException(new UnexpectedMessageException("Unexpected message type from child process"));
+                        CompletableFuture<?> f = futureTracker.getFuture();
+                        f.completeExceptionally(new UnexpectedMessageException("Unexpected message type from child process"));
                         log.error(String.format("Unexpected message type with case %s from child process with message"
                                         + " id %s. Removing the submitted future from processing queue.",
                                 m.getActualMessageCase(), m.getSourceId()));
@@ -197,7 +186,7 @@ public class KinesisProducer implements IKinesisProducer {
                 callbackCompletionExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        entry.getValue().getFuture().setException(t);
+                        entry.getValue().getFuture().completeExceptionally(t);
                     }
                 });
             }
@@ -231,25 +220,25 @@ public class KinesisProducer implements IKinesisProducer {
          */
         private void onPutRecordResult(Message msg) {
             SettableFutureTracker futureTracker = getFuture(msg);
-            SettableFuture<UserRecordResult> f = (SettableFuture<UserRecordResult>) futureTracker.getFuture();
+            CompletableFuture<UserRecordResult> f = (CompletableFuture<UserRecordResult>) futureTracker.getFuture();
             UserRecordResult result = UserRecordResult.fromProtobufMessage(msg.getPutRecordResult());
             if (result.isSuccessful()) {
-                f.set(result);
+                f.complete(result);
             } else {
-                f.setException(new UserRecordFailedException(result));
+                f.completeExceptionally(new UserRecordFailedException(result));
             }
         }
         
         private void onMetricsResponse(Message msg) {
             SettableFutureTracker futureTracker = getFuture(msg);
-            SettableFuture<List<Metric>> f = (SettableFuture<List<Metric>>) futureTracker.getFuture();
+            CompletableFuture<List<Metric>> f = (CompletableFuture<List<Metric>>) futureTracker.getFuture();
             List<Metric> userMetrics = new ArrayList<>();
             MetricsResponse res = msg.getMetricsResponse();
             for (Messages.Metric metric : res.getMetricsList()) {
                 userMetrics.add(new Metric(metric));
             }
             
-            f.set(userMetrics);
+            f.complete(userMetrics);
         }
         
         private SettableFutureTracker getFuture(Message msg) {
@@ -350,7 +339,7 @@ public class KinesisProducer implements IKinesisProducer {
     }
     
     /**
-     * Put a record asynchronously. A {@link ListenableFuture} is returned that
+     * Put a record asynchronously. A {@link CompletableFuture} is returned that
      * can be used to retrieve the result, either by polling or by registering a
      * callback.
      * 
@@ -368,7 +357,7 @@ public class KinesisProducer implements IKinesisProducer {
      * To add a listener to the future:
      * <p>
      * <code>
-     * ListenableFuture&lt;PutRecordResult&gt; f = myKinesisProducer.addUserRecord(...);
+     * CompletableFuture&lt;PutRecordResult&gt; f = myKinesisProducer.addUserRecord(...);
      * com.google.common.util.concurrent.Futures.addCallback(f, callback, executor);
      * </code>
      * <p>
@@ -401,18 +390,18 @@ public class KinesisProducer implements IKinesisProducer {
      *             if input does not meet stated constraints
      * @throws DaemonException
      *             if the child process is dead
-     * @see ListenableFuture
+     * @see CompletableFuture
      * @see UserRecordResult
      * @see KinesisProducerConfiguration#setRecordTtl(long)
      * @see UserRecordFailedException
      */
     @Override
-    public ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, ByteBuffer data) {
+    public CompletableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, ByteBuffer data) {
         return addUserRecord(stream, partitionKey, null, data);
     }
 
     /**
-     * Put a record asynchronously. A {@link ListenableFuture} is returned that
+     * Put a record asynchronously. A {@link CompletableFuture} is returned that
      * can be used to retrieve the result, either by polling or by registering a
      * callback.
      *
@@ -430,7 +419,7 @@ public class KinesisProducer implements IKinesisProducer {
      * To add a listener to the future:
      * <p>
      * <code>
-     * ListenableFuture&lt;PutRecordResult&gt; f = myKinesisProducer.addUserRecord(...);
+     * CompletableFuture&lt;PutRecordResult&gt; f = myKinesisProducer.addUserRecord(...);
      * com.google.common.util.concurrent.Futures.addCallback(f, callback, executor);
      * </code>
      * <p>
@@ -458,18 +447,18 @@ public class KinesisProducer implements IKinesisProducer {
      *             if input does not meet stated constraints
      * @throws DaemonException
      *             if the child process is dead
-     * @see ListenableFuture
+     * @see CompletableFuture
      * @see UserRecordResult
      * @see KinesisProducerConfiguration#setRecordTtl(long)
      * @see UserRecordFailedException
      */
     @Override
-    public ListenableFuture<UserRecordResult> addUserRecord(UserRecord userRecord) {
+    public CompletableFuture<UserRecordResult> addUserRecord(UserRecord userRecord) {
         return addUserRecord(userRecord.getStreamName(), userRecord.getPartitionKey(), userRecord.getExplicitHashKey(), userRecord.getData(), userRecord.getSchema());
     }
 
     /**
-     * Put a record asynchronously. A {@link ListenableFuture} is returned that
+     * Put a record asynchronously. A {@link CompletableFuture} is returned that
      * can be used to retrieve the result, either by polling or by registering a
      * callback.
      * 
@@ -487,7 +476,7 @@ public class KinesisProducer implements IKinesisProducer {
      * To add a listener to the future:
      * <p>
      * <code>
-     * ListenableFuture&lt;PutRecordResult&gt; f = myKinesisProducer.addUserRecord(...);
+     * CompletableFuture&lt;PutRecordResult&gt; f = myKinesisProducer.addUserRecord(...);
      * com.google.common.util.concurrent.Futures.addCallback(f, callback, executor);
      * </code>
      * <p>
@@ -525,18 +514,18 @@ public class KinesisProducer implements IKinesisProducer {
      *             if input does not meet stated constraints
      * @throws DaemonException
      *             if the child process is dead
-     * @see ListenableFuture
+     * @see CompletableFuture
      * @see UserRecordResult
      * @see KinesisProducerConfiguration#setRecordTtl(long)
      * @see UserRecordFailedException
      */
     @Override
-    public ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data) {
+    public CompletableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data) {
         return addUserRecord(stream, partitionKey, explicitHashKey, data, null);
     }
 
     @Override
-    public ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data, Schema schema) {
+    public CompletableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data, Schema schema) {
         if (stream == null) {
             throw new IllegalArgumentException("Stream name cannot be null");
         }
@@ -600,7 +589,7 @@ public class KinesisProducer implements IKinesisProducer {
         }
         
         long id = messageNumber.getAndIncrement();
-        SettableFuture<UserRecordResult> f = SettableFuture.create();
+        CompletableFuture<UserRecordResult> f = new CompletableFuture<>();
         FutureTask<String> task = null;
         if(config.getUserRecordTimeoutInMillis() > 0) {
             task = new FutureTask(new FutureTimeoutRunnableTask(id), "TimedOut");
@@ -635,9 +624,9 @@ public class KinesisProducer implements IKinesisProducer {
         public void run() {
             SettableFutureTracker futureTracker = getFutureTracker(id);
             totalFutureTimeouts.getAndIncrement();
-            SettableFuture<?> f = futureTracker.getFuture();
+            CompletableFuture<?> f = futureTracker.getFuture();
             String message = "Message id " + id + " timeout out. Removing the submitted future from processing queue.";
-            f.setException(new FutureTimedOutException(message));
+            f.completeExceptionally(new FutureTimedOutException(message));
             log.error(message);
         }
     }
@@ -725,7 +714,7 @@ public class KinesisProducer implements IKinesisProducer {
         }
         
         long id = messageNumber.getAndIncrement();
-        SettableFuture<List<Metric>> f = SettableFuture.create();
+        CompletableFuture<List<Metric>> f = new CompletableFuture<>();
         FutureTask<String> task = null;
         if(config.getUserRecordTimeoutInMillis() > 0) {
             task = new FutureTask(new FutureTimeoutRunnableTask(id), "TimedOut");

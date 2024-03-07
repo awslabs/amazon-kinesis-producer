@@ -16,11 +16,13 @@
 package com.amazonaws.services.kinesis.producer.sample;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiConsumer;
 
+import com.google.common.collect.Iterables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,10 +32,6 @@ import com.amazonaws.services.kinesis.producer.KinesisProducer;
 import com.amazonaws.services.kinesis.producer.Metric;
 import com.amazonaws.services.kinesis.producer.UserRecordFailedException;
 import com.amazonaws.services.kinesis.producer.UserRecordResult;
-import com.google.common.collect.Iterables;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * If you haven't looked at {@link SampleProducer}, do so first.
@@ -77,9 +75,17 @@ public class MetricsAwareSampleProducer {
         final KinesisProducer kinesisProducer = new KinesisProducer(config);
         
         // Result handler
-        final FutureCallback<UserRecordResult> callback = new FutureCallback<UserRecordResult>() {
+        final BiConsumer<UserRecordResult, Throwable> callback = new BiConsumer<UserRecordResult, Throwable>() {
             @Override
-            public void onFailure(Throwable t) {
+            public void accept(UserRecordResult userRecordResult, Throwable throwable) {
+                if(userRecordResult != null) {
+                    onSuccess(userRecordResult);
+                } else {
+                    onFailure(throwable);
+                }
+            }
+
+            void onFailure(Throwable t) {
                 if (t instanceof UserRecordFailedException) {
                     Attempt last = Iterables.getLast(
                             ((UserRecordFailedException) t).getResult().getAttempts());
@@ -91,8 +97,7 @@ public class MetricsAwareSampleProducer {
                 System.exit(1);
             }
 
-            @Override
-            public void onSuccess(UserRecordResult result) {
+            void onSuccess(UserRecordResult result) {
                 completed.getAndIncrement();
             }
         };
@@ -159,9 +164,9 @@ public class MetricsAwareSampleProducer {
             if (sequenceNumber.get() < totalRecordsToPut) {
                 if (kinesisProducer.getOutstandingRecordsCount() < outstandingLimit) {
                     ByteBuffer data = Utils.generateData(sequenceNumber.incrementAndGet(), dataSize);
-                    ListenableFuture<UserRecordResult> f = kinesisProducer.addUserRecord(SampleProducerConfig.STREAM_NAME_DEFAULT,
+                    CompletableFuture<UserRecordResult> f = kinesisProducer.addUserRecord(SampleProducerConfig.STREAM_NAME_DEFAULT,
                             timetstamp, data);
-                    Futures.addCallback(f, callback, Executors.newSingleThreadExecutor());
+                    f.whenCompleteAsync(callback, Executors.newSingleThreadExecutor());
                 } else {
                     Thread.sleep(1);
                 }
