@@ -25,6 +25,8 @@
 
 namespace {
 
+using uint128_t = boost::multiprecision::uint128_t;
+
 const std::string kStreamName = "myStream";
 const std::string kStreamARN = "arn:aws:kinesis:us-east-2:123456789012:stream/myStream";
 
@@ -82,24 +84,29 @@ class Wrapper {
       std::list<Aws::Kinesis::Model::ListShardsOutcome> outcomes_list_shards,
           int delay = 1500)
       : num_req_received_(0) {
+    mock_kinesis_client_ = std::make_shared<MockKinesisClient>(
+                outcomes_list_shards,
+                [this] { num_req_received_++; });
     shard_map_ =
         std::make_shared<aws::kinesis::core::ShardMap>(
             std::make_shared<aws::utils::IoServiceExecutor>(1),
-            std::make_shared<MockKinesisClient>(
-                outcomes_list_shards,
-                [this] { num_req_received_++; }),
+            [this](auto& req, auto& handler, auto& context) { mock_kinesis_client_->ListShardsAsync(req, handler, context); },
             kStreamName,
             kStreamARN,
             std::make_shared<aws::metrics::NullMetricsManager>(),
             std::chrono::milliseconds(100),
-            std::chrono::milliseconds(1000));
+            std::chrono::milliseconds(1000),
+            std::chrono::milliseconds(100));
 
     aws::utils::sleep_for(std::chrono::milliseconds(delay));
   }
 
   boost::optional<uint64_t> shard_id(const char* key) {
-    return shard_map_->shard_id(
-        boost::multiprecision::uint128_t(std::string(key)));
+    return shard_map_->shard_id(uint128_t(std::string(key)));
+  }
+
+  boost::optional<std::pair<uint128_t, uint128_t>> hashrange(const uint64_t shard_id) {
+    return shard_map_->hashrange(shard_id);
   }
 
   size_t num_req_received() const {
@@ -113,6 +120,7 @@ class Wrapper {
  private:
   size_t num_req_received_;
   std::shared_ptr<aws::kinesis::core::ShardMap> shard_map_;
+  std::shared_ptr<MockKinesisClient> mock_kinesis_client_;
 };
 
 
@@ -152,7 +160,6 @@ BOOST_AUTO_TEST_SUITE(ShardMap)
 
 BOOST_AUTO_TEST_CASE(Basic) {
   std::list<Aws::Kinesis::Model::ListShardsOutcome> outcomes_list_shards;
-
   outcomes_list_shards.push_back(
         success_outcome<Aws::Kinesis::Model::ListShardsResult,Aws::Kinesis::Model::ListShardsOutcome>(R"XXXX({
       "Shards": [
@@ -192,6 +199,8 @@ BOOST_AUTO_TEST_CASE(Basic) {
   })XXXX"));
 
   Wrapper wrapper(outcomes_list_shards);
+
+  aws::utils::sleep_for(std::chrono::milliseconds(1500));
 
   BOOST_CHECK_EQUAL(
       *wrapper.shard_id("170141183460469231731687303715884105728"),
@@ -298,18 +307,15 @@ BOOST_AUTO_TEST_CASE(ClosedShards) {
   BOOST_CHECK_EQUAL(
       *wrapper.shard_id("170141183460469231731687303715884105728"),
       4);
-  BOOST_CHECK_EQUAL(
-      *wrapper.shard_id("270141183460469231731687303715884105728"),
-      5);
-  BOOST_CHECK_EQUAL(
-      *wrapper.shard_id("340282366920938463463374607431768211455"),
-      5);
+  // both child and parent could be used as the predicted shard during reshard. 
+  int shard_id_value = *wrapper.shard_id("270141183460469231731687303715884105728");
+  BOOST_CHECK(shard_id_value == 1 || shard_id_value == 5);  
+  shard_id_value = *wrapper.shard_id("340282366920938463463374607431768211455");
+  BOOST_CHECK(shard_id_value == 1 || shard_id_value == 5);  
   BOOST_CHECK_EQUAL(
       wrapper.num_req_received(),
       1);
 }
-
-
 
 BOOST_AUTO_TEST_CASE(PaginatedResults) {
   std::list<Aws::Kinesis::Model::ListShardsOutcome> outcomes_list_shards;
@@ -400,12 +406,10 @@ BOOST_AUTO_TEST_CASE(PaginatedResults) {
   BOOST_CHECK_EQUAL(
       *wrapper.shard_id("170141183460469231731687303715884105728"),
       4);
-  BOOST_CHECK_EQUAL(
-      *wrapper.shard_id("270141183460469231731687303715884105728"),
-      5);
-  BOOST_CHECK_EQUAL(
-      *wrapper.shard_id("340282366920938463463374607431768211455"),
-      5);
+  int shard_id_value = *wrapper.shard_id("270141183460469231731687303715884105728");
+  BOOST_CHECK(shard_id_value == 1 || shard_id_value == 5);  
+  shard_id_value = *wrapper.shard_id("340282366920938463463374607431768211455");
+  BOOST_CHECK(shard_id_value == 1 || shard_id_value == 5);  
 
   BOOST_CHECK_EQUAL(
       wrapper.num_req_received(),
@@ -575,12 +579,10 @@ BOOST_AUTO_TEST_CASE(RetryWithFailureInTheMiddle) {
   BOOST_CHECK_EQUAL(
       *wrapper.shard_id("170141183460469231731687303715884105728"),
       4);
-  BOOST_CHECK_EQUAL(
-      *wrapper.shard_id("270141183460469231731687303715884105728"),
-      5);
-  BOOST_CHECK_EQUAL(
-      *wrapper.shard_id("340282366920938463463374607431768211455"),
-      5);
+  int shard_id_value = *wrapper.shard_id("270141183460469231731687303715884105728");
+  BOOST_CHECK(shard_id_value == 1 || shard_id_value == 5);  
+  shard_id_value = *wrapper.shard_id("340282366920938463463374607431768211455");
+  BOOST_CHECK(shard_id_value == 1 || shard_id_value == 5);  
 
   BOOST_CHECK_EQUAL(
       wrapper.num_req_received(),
@@ -913,7 +915,87 @@ BOOST_AUTO_TEST_CASE(InvalidateWithShard) {
       2);
 }
 
+BOOST_AUTO_TEST_CASE(ClosedParentShardsAreRemovedAfterSomeTime) {
+  std::list<Aws::Kinesis::Model::ListShardsOutcome> outcomes_list_shards;
+  outcomes_list_shards.push_back(
+        success_outcome<Aws::Kinesis::Model::ListShardsResult,Aws::Kinesis::Model::ListShardsOutcome>(R"XXXX({
+      "Shards": [
+        {
+          "HashKeyRange": {
+            "EndingHashKey": "340282366920938463463374607431768211455",
+            "StartingHashKey": "170141183460469231731687303715884105728"
+          },
+          "ShardId": "shardId-000000000001",
+          "SequenceNumberRange": {
+            "StartingSequenceNumber": "49549167410945534708633744510750617797212193316405248018"
+          }
+        },
+        {
+          "HashKeyRange": {
+            "EndingHashKey": "85070591730234615865843651857942052862",
+            "StartingHashKey": "0"
+          },
+          "ShardId": "shardId-000000000002",
+          "ParentShardId": "shardId-000000000000",
+          "SequenceNumberRange": {
+            "StartingSequenceNumber": "49549169978943246555030591128013184047489460388642160674"
+          }
+        }
+      ]
+  })XXXX"));
 
+  
+  outcomes_list_shards.push_back(
+        success_outcome<Aws::Kinesis::Model::ListShardsResult,Aws::Kinesis::Model::ListShardsOutcome>(R"XXXX({
+      "Shards": [
+        {
+          "HashKeyRange": {
+            "EndingHashKey": "85070591730234615865843651857942052862",
+            "StartingHashKey": "0"
+          },
+          "ShardId": "shardId-000000000006",
+          "ParentShardId": "shardId-000000000000",
+          "SequenceNumberRange": {
+            "StartingSequenceNumber": "49549169978943246555030591128013184047489460388642160674"
+          }
+        },
+        {
+          "HashKeyRange": {
+            "EndingHashKey": "170141183460469231731687303715884105727",
+            "StartingHashKey": "85070591730234615865843651857942052863"
+          },
+          "ShardId": "shardId-000000000007",
+          "ParentShardId": "shardId-000000000000",
+          "SequenceNumberRange": {
+            "StartingSequenceNumber": "49549169978965547300229121751154719765762108750148141106"
+          }
+        }
+      ]
+  })XXXX"));
+  Wrapper wrapper(outcomes_list_shards);
+
+  BOOST_CHECK(!wrapper.hashrange(6));
+  auto hashrange = *wrapper.hashrange(1);
+  BOOST_CHECK_EQUAL(hashrange.second, uint128_t("340282366920938463463374607431768211455"));
+  BOOST_CHECK_EQUAL(hashrange.first, uint128_t("170141183460469231731687303715884105728"));
+
+  // invalidate the shardmap.
+  wrapper.invalidate(std::chrono::steady_clock::now(), boost::optional<uint64_t>(1));
+  // the first two shards are closed shards. They are expected to be cleaned up after calling invalidate after some time.
+  BOOST_CHECK(wrapper.hashrange(1));
+  BOOST_CHECK(wrapper.hashrange(2));
+  // sleep to let clean up to kick off
+  aws::utils::sleep_for(std::chrono::milliseconds(200));
+
+  BOOST_CHECK(!wrapper.hashrange(1));
+  BOOST_CHECK(!wrapper.hashrange(2));
+  BOOST_CHECK(wrapper.hashrange(6));
+  BOOST_CHECK(wrapper.hashrange(7));
+
+  BOOST_CHECK_EQUAL(
+      wrapper.num_req_received(),
+      2);
+}
 
 
 BOOST_AUTO_TEST_SUITE_END()

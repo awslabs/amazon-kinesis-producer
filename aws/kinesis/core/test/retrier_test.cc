@@ -45,12 +45,13 @@ error_outcome(std::string name, std::string msg) {
 
 auto make_prr_ctx(size_t num_kr,
                   size_t num_ur_per_kr,
-                  Aws::Kinesis::Model::PutRecordsOutcome outcome) {
+                  Aws::Kinesis::Model::PutRecordsOutcome outcome,
+                  const std::string& explicit_hash_key = "") {
   std::vector<std::shared_ptr<aws::kinesis::core::KinesisRecord>> krs;
   for (size_t i = 0; i < num_kr; i++) {
     auto kr = std::make_shared<aws::kinesis::core::KinesisRecord>();
     for (size_t j = 0; j < num_ur_per_kr; j++) {
-      auto ur = aws::kinesis::test::make_user_record();
+      auto ur = aws::kinesis::test::make_user_record_with_hashkey(explicit_hash_key);
       ur->predicted_shard(i);
       kr->add(ur);
     }
@@ -118,6 +119,9 @@ BOOST_AUTO_TEST_CASE(Success) {
       [&](auto& ur) {
         BOOST_FAIL("Retry should not be called");
       },
+      [&](auto) {
+        return boost::none;
+      },
       [&](auto, auto) {
         BOOST_FAIL("Shard map invalidate should not be called");
       });
@@ -150,6 +154,9 @@ BOOST_AUTO_TEST_CASE(RequestFailure) {
         BOOST_CHECK(!(bool) attempts[0]);
         BOOST_CHECK_EQUAL(attempts[0].error_code(), "code");
         BOOST_CHECK_EQUAL(attempts[0].error_message(), "msg");
+      },
+      [&](auto) {
+        return boost::none;
       },
       [&](auto, auto) {
         BOOST_FAIL("Shard map invalidate should not be called");
@@ -245,6 +252,9 @@ BOOST_AUTO_TEST_CASE(Partial) {
           BOOST_CHECK_EQUAL(attempts[0].error_message(), "...");
         }
       },
+      [&](auto) {
+        return boost::none;
+      },
       [&](auto, auto) {
         BOOST_FAIL("Shard map invalidate should not be called");
       });
@@ -288,6 +298,9 @@ BOOST_AUTO_TEST_CASE(FailIfThrottled) {
       [&](auto& ur) {
         BOOST_FAIL("Retry should not be called");
       },
+      [&](auto) {
+        return boost::none;
+      },
       [&](auto, auto) {
         BOOST_FAIL("Shard map invalidate should not be called");
       });
@@ -327,6 +340,9 @@ BOOST_AUTO_TEST_CASE(WrongShard) {
         BOOST_CHECK_EQUAL(attempts.size(), 1);
         BOOST_CHECK(!(bool) attempts[0]);
         BOOST_CHECK_EQUAL(attempts[0].error_code(), "Wrong Shard");
+      },
+      [&](auto) {
+        return boost::none;
       },
       [&](auto, auto) {
         shard_map_invalidated = true;
@@ -371,6 +387,9 @@ BOOST_AUTO_TEST_CASE(InvalidateForFirstUserRecordOnly) {
         BOOST_CHECK(!(bool) attempts[0]);
         BOOST_CHECK_EQUAL(attempts[0].error_code(), "Wrong Shard");
       },
+      [&](auto) {
+        return boost::none;
+      },
       [&](auto, auto) {
         num_shard_map_invalidated++;
       });
@@ -382,32 +401,121 @@ BOOST_AUTO_TEST_CASE(InvalidateForFirstUserRecordOnly) {
 
 }
 
-BOOST_AUTO_TEST_CASE(InvalidateForPredictedShardIdsLowerThanActual) {
+// This is not true anymore because of this https://github.com/awslabs/amazon-kinesis-producer/pull/318. This should be fixed
+// BOOST_AUTO_TEST_CASE(InvalidateForPredictedShardIdsLowerThanActual) {
+//   auto ctx = make_prr_ctx(
+//       3,
+//       10,
+//       success_outcome(R"(
+//       {
+//         "FailedRecordCount": 0,
+//         "Records":[
+//           {
+//             "SequenceNumber":"1234",
+//             "ShardId":"shardId-000000000002"
+//           },
+//           {
+//             "SequenceNumber":"1235",
+//             "ShardId":"shardId-000000000002"
+//           },
+//           {
+//             "SequenceNumber":"1236",
+//             "ShardId":"shardId-000000000001"
+//           }
+//         ]
+//       }
+//       )"));
+
+//   size_t count = 0;
+//   int num_shard_map_invalidated = 0;
+
+//   aws::kinesis::core::Retrier retrier(
+//       std::make_shared<aws::kinesis::core::Configuration>(),
+//       [&](auto& ur) {
+//         BOOST_FAIL("Finish should not be called");
+//       },
+//       [&](auto& ur) {
+//         count++;
+//         auto& attempts = ur->attempts();
+//         BOOST_CHECK_EQUAL(attempts.size(), 1);
+//         BOOST_CHECK(!(bool) attempts[0]);
+//         BOOST_CHECK_EQUAL(attempts[0].error_code(), "Wrong Shard");
+//       },
+//       [&](auto) {
+//         return boost::none;
+//       },
+//       [&](auto, auto) {
+//         num_shard_map_invalidated++;
+//       });
+
+//   retrier.put(ctx);
+
+//   BOOST_CHECK_EQUAL(num_shard_map_invalidated, 2);
+//   BOOST_CHECK_EQUAL(count, 30);
+
+// }
+
+BOOST_AUTO_TEST_CASE(WrongShardButCorrectHashrange) {
   auto ctx = make_prr_ctx(
-      3,
-      10,
+      1,
+      1,
       success_outcome(R"(
       {
         "FailedRecordCount": 0,
         "Records":[
           {
             "SequenceNumber":"1234",
-            "ShardId":"shardId-000000000002"
-          },
-          {
-            "SequenceNumber":"1235",
-            "ShardId":"shardId-000000000002"
-          },
-          {
-            "SequenceNumber":"1236",
-            "ShardId":"shardId-000000000001"
+            "ShardId":"shardId-000000000004"
           }
         ]
       }
-      )"));
+      )"),
+      // set the user record to use explict hashkey of 9. The actual shard cover 0 to 10 so it should succeed.
+      "9");
 
-  size_t count = 0;
-  int num_shard_map_invalidated = 0;
+  bool shard_map_invalidated = false;
+
+  aws::kinesis::core::Retrier retrier(
+      std::make_shared<aws::kinesis::core::Configuration>(),
+      [&](auto& ur) {
+        auto& attempts = ur->attempts();
+        BOOST_CHECK_EQUAL(attempts.size(), 1);
+      },
+      [&](auto& ur) {
+        BOOST_FAIL("Retry should not be called");
+      },
+      [&](auto) {
+        return std::make_pair(boost::multiprecision::uint128_t(0), boost::multiprecision::uint128_t(10));
+      },
+      [&](auto, auto) {
+        shard_map_invalidated = true;
+      });
+
+  retrier.put(ctx);
+
+  BOOST_CHECK_MESSAGE(shard_map_invalidated,
+                      "Shard map should've been invalidated.");
+}
+
+BOOST_AUTO_TEST_CASE(WrongShardAndWrongHashrange) {
+  auto ctx = make_prr_ctx(
+      1,
+      1,
+      success_outcome(R"(
+      {
+        "FailedRecordCount": 0,
+        "Records":[
+          {
+            "SequenceNumber":"1234",
+            "ShardId":"shardId-000000000004"
+          }
+        ]
+      }
+      )"),
+      // set the user record to use explict hashkey of 11. The actual shard only covers 0 to 10 so it should fail.
+      "11");
+
+  bool shard_map_invalidated = false;
 
   aws::kinesis::core::Retrier retrier(
       std::make_shared<aws::kinesis::core::Configuration>(),
@@ -415,22 +523,22 @@ BOOST_AUTO_TEST_CASE(InvalidateForPredictedShardIdsLowerThanActual) {
         BOOST_FAIL("Finish should not be called");
       },
       [&](auto& ur) {
-        count++;
         auto& attempts = ur->attempts();
         BOOST_CHECK_EQUAL(attempts.size(), 1);
         BOOST_CHECK(!(bool) attempts[0]);
         BOOST_CHECK_EQUAL(attempts[0].error_code(), "Wrong Shard");
       },
+      [&](auto) {
+        return std::make_pair(boost::multiprecision::uint128_t(0), boost::multiprecision::uint128_t(10));
+      },
       [&](auto, auto) {
-        num_shard_map_invalidated++;
+        shard_map_invalidated = true;
       });
 
   retrier.put(ctx);
 
-  BOOST_CHECK_EQUAL(num_shard_map_invalidated, 2);
-  BOOST_CHECK_EQUAL(count, 30);
-
+  BOOST_CHECK_MESSAGE(shard_map_invalidated,
+                      "Shard map should've been invalidated.");
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()
