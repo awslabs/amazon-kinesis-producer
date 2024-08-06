@@ -43,6 +43,16 @@ make_user_record(const std::string& partition_key,
   return r;
 }
 
+std::shared_ptr<aws::kinesis::core::UserRecord> make_user_record_with_hashkey(const std::string& explicit_hash_key) {
+  return make_user_record(
+      "abcd",
+      "1234",
+      explicit_hash_key,
+      100000,
+      "myStream",
+      0);
+}
+
 Fifo::Fifo() {
   auto ts = std::chrono::steady_clock::now().time_since_epoch().count();
 #if !BOOST_OS_WINDOWS

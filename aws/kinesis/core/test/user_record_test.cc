@@ -105,8 +105,9 @@ BOOST_AUTO_TEST_CASE(BasicConversion) {
 BOOST_AUTO_TEST_CASE(HashKeyFromPartitionKey) {
   auto m = make_put_record();
   aws::kinesis::core::UserRecord ur(m);
-  BOOST_CHECK_EQUAL(uint128_to_hex(ur.hash_key()),
-                    "E2FC714C4727EE9395F324CD2E7F331F");
+  auto hashkey = uint128_to_hex(ur.hash_key());
+  std::transform(hashkey.begin(), hashkey.end(), hashkey.begin(), ::toupper);
+  BOOST_CHECK_EQUAL(hashkey, "E2FC714C4727EE9395F324CD2E7F331F");
 }
 
 BOOST_AUTO_TEST_CASE(ExplicitHashKey) {
