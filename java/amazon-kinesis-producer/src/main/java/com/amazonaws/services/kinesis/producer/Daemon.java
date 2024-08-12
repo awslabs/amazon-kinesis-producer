@@ -20,6 +20,7 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSSessionCredentials;
 import com.amazonaws.services.kinesis.producer.protobuf.Messages;
 import com.amazonaws.services.kinesis.producer.protobuf.Messages.Message;
+import com.amazonaws.services.kinesis.producer.ThreadingModel;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.protobuf.ByteString;
 import org.apache.commons.lang.StringUtils;
@@ -73,9 +74,7 @@ public class Daemon {
     private BlockingQueue<Message> outgoingMessages = new LinkedBlockingQueue<>();
     private BlockingQueue<Message> incomingMessages = new LinkedBlockingQueue<>();
 
-    private ExecutorService executor = Executors
-            .newCachedThreadPool(new ThreadFactoryBuilder().setDaemon(true).setNameFormat("kpl-daemon-%04d").build());
-    
+
     private Process process = null;
     private LogInputStreamReader stdOutReader;
     private LogInputStreamReader stdErrReader;
@@ -95,6 +94,7 @@ public class Daemon {
     private final String workingDir;
     private final KinesisProducerConfiguration config;
     private final Map<String, String> environmentVariables;
+    private final ExecutorService executor;
     
     /**
      * Starts up the child process, connects to it, and beings sending and
@@ -120,7 +120,7 @@ public class Daemon {
         
         lenBuf.order(ByteOrder.BIG_ENDIAN);
         rcvBuf.order(ByteOrder.BIG_ENDIAN);
-        
+        initializeThreadPool();
         executor.execute(new Runnable() {
             @Override
             public void run() {
@@ -132,6 +132,20 @@ public class Daemon {
                 }
             }
         });
+    }
+
+     /**
+     * Initiallize thread pool using
+     * predefined settings.
+     */
+    private initializeThreadPool() {
+        if(config.getThreadingModel() == ThreadingModel.POOLED) { 
+            executor = Executors
+                .newFixedThreadPool(config.getThreadPoolSize(), new ThreadFactoryBuilder().setDaemon(true).setNameFormat("kpl-daemon-%04d").build());
+        } else {
+            executor = Executors
+                .newCachedThreadPool(new ThreadFactoryBuilder().setDaemon(true).setNameFormat("kpl-daemon-%04d").build()); 
+        }
     }
     
     /**
