@@ -200,18 +200,18 @@ bool Retrier::succeed_if_correct_shard(const std::shared_ptr<UserRecord>& ur,
                                        const boost::optional<std::pair<uint128_t, uint128_t>>& hashrange_actual_shard) {
   const uint64_t actual_shard = ShardMap::shard_id_from_str(shard_id);
   if (ur->predicted_shard() && *ur->predicted_shard() != actual_shard) {
-    // retry if shard is not found or hashrange of the user record doesn't fit into the actual shard's hashrange
-    if (!hashrange_actual_shard || !((*hashrange_actual_shard).first <= ur->hash_key() && 
-        (*hashrange_actual_shard).second >= ur->hash_key())) {
-        // invalidate because this is a new shard or shard felt outside of actual shards hashrange.
-        invalidate_cache(ur, start, actual_shard, should_invalidate_on_incorrect_shard);
+    // retry if shard is not found or hash key of the user record doesn't fit into the actual shard's hashrange
+    if (!hashrange_actual_shard || 
+        !((*hashrange_actual_shard).first <= ur->hash_key() && (*hashrange_actual_shard).second >= ur->hash_key())) {
+      // invalidate because this is a new shard or shard felt outside of actual shards hashrange.
+      invalidate_cache(ur, start, actual_shard, should_invalidate_on_incorrect_shard);
 
-        retry_not_expired(ur,
-                          start,
-                          end,
-                          "Wrong Shard",
-                          "Record " + std::to_string(ur->source_id()) + " did not end up in expected shard.");
-        return false;
+      retry_not_expired(ur,
+                        start,
+                        end,
+                        "Wrong Shard",
+                        "Record " + std::to_string(ur->source_id()) + " did not end up in expected shard.");
+      return false;
     } 
     // child shard is numbered higher than the ancestor. if we landed on a child shard it means the parent shard can
     // be removed now from the in-memory map. This will help the shardmap to converge
@@ -231,14 +231,14 @@ bool Retrier::succeed_if_correct_shard(const std::shared_ptr<UserRecord>& ur,
 void Retrier::invalidate_cache(const std::shared_ptr<UserRecord>& ur,
                                const TimePoint start,
                                const uint64_t& actual_shard,
-                               bool should_invalidate_on_incorrect_shard) {
- if (should_invalidate_on_incorrect_shard) {
-      LOG(warning) << "Record " << ur->source_id() << " went to shard " << actual_shard << " instead of the "
-                   << "predicted shard " << *ur->predicted_shard() << "; this "
-                   << "usually means the sharp map has changed.";   
+                               const bool should_invalidate_on_incorrect_shard) {
+  if (should_invalidate_on_incorrect_shard) {
+    LOG(warning) << "Record " << ur->source_id() << " went to shard " << actual_shard << " instead of the "
+                  << "predicted shard " << *ur->predicted_shard() << "; this "
+                  << "usually means the sharp map has changed.";   
 
-      shard_map_invalidate_cb_(start, ur->predicted_shard());
-    }
+    shard_map_invalidate_cb_(start, ur->predicted_shard());
+  }
 }
 
 void Retrier::finish_user_record(const std::shared_ptr<UserRecord>& ur,

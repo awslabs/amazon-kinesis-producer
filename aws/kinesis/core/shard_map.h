@@ -53,7 +53,7 @@ class ShardMap : boost::noncopyable {
            std::chrono::milliseconds closed_shard_ttl = kClosedShardTtl);
 
   virtual boost::optional<uint64_t> shard_id(const uint128_t& hash_key);
-  boost::optional<std::pair<ShardMap::uint128_t, ShardMap::uint128_t>> hashrange(const uint64_t& shard_id);
+  boost::optional<std::pair<uint128_t, uint128_t>> hashrange(const uint64_t& shard_id);
 
   void invalidate(const TimePoint& seen_at, const boost::optional<uint64_t> predicted_shard);
 

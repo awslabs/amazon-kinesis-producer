@@ -83,30 +83,29 @@ class Wrapper {
   Wrapper(
       std::list<Aws::Kinesis::Model::ListShardsOutcome> outcomes_list_shards,
           int delay = 1500)
-      : num_req_received_(0) {
-    mock_kinesis_client_ = std::make_shared<MockKinesisClient>(
+      : num_req_received_(0),
+    mock_kinesis_client_(
                 outcomes_list_shards,
-                [this] { num_req_received_++; });
-    shard_map_ =
-        std::make_shared<aws::kinesis::core::ShardMap>(
+                [this] { num_req_received_++; }),
+    shard_map_(
             std::make_shared<aws::utils::IoServiceExecutor>(1),
-            [this](auto& req, auto& handler, auto& context) { mock_kinesis_client_->ListShardsAsync(req, handler, context); },
+            [this](auto& req, auto& handler, auto& context) { mock_kinesis_client_.ListShardsAsync(req, handler, context); },
             kStreamName,
             kStreamARN,
             std::make_shared<aws::metrics::NullMetricsManager>(),
             std::chrono::milliseconds(100),
             std::chrono::milliseconds(1000),
-            std::chrono::milliseconds(100));
+            std::chrono::milliseconds(100)) {
 
     aws::utils::sleep_for(std::chrono::milliseconds(delay));
   }
 
   boost::optional<uint64_t> shard_id(const char* key) {
-    return shard_map_->shard_id(uint128_t(std::string(key)));
+    return shard_map_.shard_id(uint128_t(std::string(key)));
   }
 
   boost::optional<std::pair<uint128_t, uint128_t>> hashrange(const uint64_t shard_id) {
-    return shard_map_->hashrange(shard_id);
+    return shard_map_.hashrange(shard_id);
   }
 
   size_t num_req_received() const {
@@ -114,13 +113,13 @@ class Wrapper {
   }
 
   void invalidate(std::chrono::steady_clock::time_point tp, boost::optional<uint64_t> shard_id) {
-    shard_map_->invalidate(tp, shard_id);
+    shard_map_.invalidate(tp, shard_id);
   }
 
  private:
   size_t num_req_received_;
-  std::shared_ptr<aws::kinesis::core::ShardMap> shard_map_;
-  std::shared_ptr<MockKinesisClient> mock_kinesis_client_;
+  MockKinesisClient mock_kinesis_client_;
+  aws::kinesis::core::ShardMap shard_map_;
 };
 
 

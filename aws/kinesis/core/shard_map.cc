@@ -28,8 +28,7 @@ const std::chrono::milliseconds ShardMap::kClosedShardTtl{60000};
 
 ShardMap::ShardMap(
     std::shared_ptr<aws::utils::Executor> executor,
-    // std::shared_ptr<Aws::Kinesis::KinesisClient> kinesis_client,
-    ListShardsCaller list_shards_caller,
+    ListShardsCallBack list_shards_callback,
     std::string stream,
     std::string stream_arn,
     std::shared_ptr<aws::metrics::MetricsManager> metrics_manager,
@@ -204,23 +203,29 @@ void ShardMap::sort_all_open_shards() {
 
 void ShardMap::cleanup() {
   while (true) {
-    std::this_thread::sleep_for(closed_shard_ttl_ / 2); 
-    auto now = std::chrono::steady_clock::now();   
-    // readlock on the main mutex and the state_ check ensures that we are not runing list shards so it's safe to
-    // clean up the map.
-    ReadLock lock(mutex_);
-    // if it's been a while since the last shardmap update, we can remove the unused closed shards.
-    if (updated_at_ + closed_shard_ttl_ < now && state_ == READY) {
-      if (open_shards_.size() != shard_id_to_shard_hashkey_cache_.size()) {
-        WriteLock lock(shard_cache_mutex_);
-        for (auto it = shard_id_to_shard_hashkey_cache_.begin(); it != shard_id_to_shard_hashkey_cache_.end();) {
-          if (open_shards_.count(it->first) == 0) {
-            it = shard_id_to_shard_hashkey_cache_.erase(it);
-          } else {
-            ++it;
+    try {
+      std::this_thread::sleep_for(closed_shard_ttl_ / 2); 
+      const auto now = std::chrono::steady_clock::now();   
+      // readlock on the main mutex and the state_ check ensures that we are not runing list shards so it's safe to
+      // clean up the map.
+      ReadLock lock(mutex_);
+      // if it's been a while since the last shardmap update, we can remove the unused closed shards.
+      if (updated_at_ + closed_shard_ttl_ < now && state_ == READY) {
+        if (open_shards_.size() != shard_id_to_shard_hashkey_cache_.size()) {
+          WriteLock lock(shard_cache_mutex_);
+          for (auto it = shard_id_to_shard_hashkey_cache_.begin(); it != shard_id_to_shard_hashkey_cache_.end();) {
+            if (open_shards_.count(it->first) == 0) {
+              it = shard_id_to_shard_hashkey_cache_.erase(it);
+            } else {
+              ++it;
+            }
           }
-        }
-      } 
+        } 
+      }
+    } catch (const std::exception &e) {
+      LOG(error) << "Exception occurred while cleaning up shardmap cache : " << e.what();
+    } catch (...) {
+      LOG(error) << "Unknown exception while cleaning up shardmap cache.";
     }
   }
 }
