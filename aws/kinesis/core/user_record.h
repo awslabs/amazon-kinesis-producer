@@ -78,6 +78,10 @@ class UserRecord : public aws::utils::TimeSensitive {
     predicted_shard_ = sid;
   }
 
+  void reset_predicted_shard() noexcept {
+    predicted_shard_ = boost::none;
+  }
+
   std::string hash_key_decimal_str() const noexcept {
     std::stringstream ss;
     ss << hash_key_;

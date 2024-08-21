@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include <thread>
 #include <aws/kinesis/core/shard_map.h>
 
 #include <aws/kinesis/model/ListShardsRequest.h>
@@ -23,25 +24,30 @@ namespace core {
 
 const std::chrono::milliseconds ShardMap::kMinBackoff{1000};
 const std::chrono::milliseconds ShardMap::kMaxBackoff{30000};
+const std::chrono::milliseconds ShardMap::kClosedShardTtl{60000};
 
 ShardMap::ShardMap(
     std::shared_ptr<aws::utils::Executor> executor,
-    std::shared_ptr<Aws::Kinesis::KinesisClient> kinesis_client,
+    ListShardsCallBack list_shards_callback,
     std::string stream,
     std::string stream_arn,
     std::shared_ptr<aws::metrics::MetricsManager> metrics_manager,
     std::chrono::milliseconds min_backoff,
-    std::chrono::milliseconds max_backoff)
+    std::chrono::milliseconds max_backoff,
+    std::chrono::milliseconds closed_shard_ttl)
     : executor_(std::move(executor)),
-      kinesis_client_(std::move(kinesis_client)),
       stream_(std::move(stream)),
       stream_arn_(std::move(stream_arn)),
       metrics_manager_(std::move(metrics_manager)),
       state_(INVALID),
       min_backoff_(min_backoff),
       max_backoff_(max_backoff),
-      backoff_(min_backoff_) {
+      closed_shard_ttl_(closed_shard_ttl),
+      backoff_(min_backoff_),
+      list_shards_callback_(list_shards_callback) {
   update();
+  std::thread cleanup_thread_(&ShardMap::cleanup, this);
+  cleanup_thread_.detach();
 }
 
 boost::optional<uint64_t> ShardMap::shard_id(const uint128_t& hash_key) {
@@ -65,13 +71,21 @@ boost::optional<uint64_t> ShardMap::shard_id(const uint128_t& hash_key) {
   return boost::none;
 }
 
+boost::optional<std::pair<ShardMap::uint128_t, ShardMap::uint128_t>> ShardMap::hashrange(const uint64_t& shard_id) {
+  ReadLock lock(shard_cache_mutex_);
+  const auto& it = shard_id_to_shard_hashkey_cache_.find(shard_id);
+  if (it != shard_id_to_shard_hashkey_cache_.end()) {
+      return it->second;
+  }
+  return boost::none;
+}
 
 
 void ShardMap::invalidate(const TimePoint& seen_at, const boost::optional<uint64_t> predicted_shard) {
   WriteLock lock(mutex_);
   
   if (seen_at > updated_at_ && state_ == READY) {
-    if (!predicted_shard || std::binary_search(open_shard_ids_.begin(), open_shard_ids_.end(), *predicted_shard)) {
+    if (!predicted_shard || open_shards_.count(*predicted_shard)) {
       std::chrono::duration<double, std::milli> fp_ms = seen_at - updated_at_;
       LOG(info) << "Deciding to update shard map for \"" << stream_ 
                 <<"\" with a gap between seen_at and updated_at_ of " << fp_ms.count() << " ms " << "predicted shard: " << predicted_shard;
@@ -110,13 +124,12 @@ void ShardMap::list_shards(const Aws::String& next_token) {
     shardFilter.SetType(Aws::Kinesis::Model::ShardFilterType::AT_LATEST);
     req.SetShardFilter(shardFilter);
   }
-
-  kinesis_client_->ListShardsAsync(
-      req,
-      [this](auto /*client*/, auto& /*req*/, auto& outcome, auto& /*ctx*/) {
-        this->list_shards_callback(outcome);
-      },
-      std::shared_ptr<const Aws::Client::AsyncCallerContext>());
+  list_shards_callback_(
+    req,
+    [this](auto /*client*/, auto& /*req*/, auto& outcome, auto& /*ctx*/) {
+      this->list_shards_callback(outcome);
+    },
+    std::shared_ptr<const Aws::Client::AsyncCallerContext>());
 }
 
 void ShardMap::list_shards_callback(
@@ -126,16 +139,21 @@ void ShardMap::list_shards_callback(
     update_fail(e.GetExceptionName(), e.GetMessage());
     return;
   }
-
   auto& shards = outcome.GetResult().GetShards();  
-  for (auto& shard : shards) {
-    // We use shard filter for server end to filter out closed shards
-    store_open_shard(shard_id_from_str(shard.GetShardId()), 
-      uint128_t(shard.GetHashKeyRange().GetEndingHashKey()));
-  }
 
+  {
+    WriteLock lock(shard_cache_mutex_);
+    for (auto& shard : shards) {
+      const auto& range = shard.GetHashKeyRange();
+      const auto& hashkey_start = uint128_t(range.GetStartingHashKey());
+      const auto& hashkey_end = uint128_t(range.GetEndingHashKey());
+      const auto& shard_id = shard_id_from_str(shard.GetShardId());
+      end_hash_key_to_shard_id_.push_back({hashkey_end, shard_id});
+      open_shards_.insert({shard_id, shard});      
+      shard_id_to_shard_hashkey_cache_.insert({shard_id, {hashkey_start, hashkey_end}});
+    }
+  }
   backoff_ = min_backoff_;
-  
   auto& next_token = outcome.GetResult().GetNextToken();
   if (!next_token.empty()) {
     list_shards(next_token);
@@ -147,7 +165,6 @@ void ShardMap::list_shards_callback(
   WriteLock lock(mutex_);
   state_ = READY;
   updated_at_ = std::chrono::steady_clock::now();
-
   LOG(info) << "Successfully updated shard map for stream \""
             << stream_ << (stream_arn_.empty() ? "\"" : "\" (arn: \"" + stream_arn_ + "\"). Found ")
             << end_hash_key_to_shard_id_.size() << " shards";
@@ -174,24 +191,44 @@ void ShardMap::update_fail(const std::string &code, const std::string &msg) {
   backoff_ = std::min(backoff_ * 3 / 2, max_backoff_);
 }
 
-
 void ShardMap::clear_all_stored_shards() {
   end_hash_key_to_shard_id_.clear();
-  open_shard_ids_.clear();
-}
-
-void ShardMap::store_open_shard(const uint64_t shard_id, const uint128_t end_hash_key) {
-  end_hash_key_to_shard_id_.push_back(
-      std::make_pair(end_hash_key, shard_id));
-  open_shard_ids_.push_back(shard_id);
+  open_shards_.clear();
 }
 
 void ShardMap::sort_all_open_shards() {
   std::sort(end_hash_key_to_shard_id_.begin(),
           end_hash_key_to_shard_id_.end());
-  std::sort(open_shard_ids_.begin(), open_shard_ids_.end());
 }
 
+void ShardMap::cleanup() {
+  while (true) {
+    try {
+      std::this_thread::sleep_for(closed_shard_ttl_ / 2); 
+      const auto now = std::chrono::steady_clock::now();   
+      // readlock on the main mutex and the state_ check ensures that we are not runing list shards so it's safe to
+      // clean up the map.
+      ReadLock lock(mutex_);
+      // if it's been a while since the last shardmap update, we can remove the unused closed shards.
+      if (updated_at_ + closed_shard_ttl_ < now && state_ == READY) {
+        if (open_shards_.size() != shard_id_to_shard_hashkey_cache_.size()) {
+          WriteLock lock(shard_cache_mutex_);
+          for (auto it = shard_id_to_shard_hashkey_cache_.begin(); it != shard_id_to_shard_hashkey_cache_.end();) {
+            if (open_shards_.count(it->first) == 0) {
+              it = shard_id_to_shard_hashkey_cache_.erase(it);
+            } else {
+              ++it;
+            }
+          }
+        } 
+      }
+    } catch (const std::exception &e) {
+      LOG(error) << "Exception occurred while cleaning up shardmap cache : " << e.what();
+    } catch (...) {
+      LOG(error) << "Unknown exception while cleaning up shardmap cache.";
+    }
+  }
+}
 
 } //namespace core
 } //namespace kinesis

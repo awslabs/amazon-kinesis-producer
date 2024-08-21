@@ -29,6 +29,7 @@
 #include <aws/kinesis/core/put_records_context.h>
 #include <aws/kinesis/core/retrier.h>
 #include <aws/kinesis/KinesisClient.h>
+#include <aws/kinesis/model/ListShardsRequest.h>
 #include <aws/metrics/metrics_manager.h>
 #include <aws/utils/processing_statistics_logger.h>
 #include <aws/sts/STSClient.h>
@@ -69,7 +70,7 @@ class Pipeline : boost::noncopyable {
         shard_map_(
             std::make_shared<ShardMap>(
                 executor_,
-                kinesis_client_,
+                [this](auto& req, auto& handler, auto& context) { kinesis_client_->ListShardsAsync(req, handler, context); },
                 stream_,
                 stream_arn_,
                 metrics_manager_)),
@@ -99,6 +100,7 @@ class Pipeline : boost::noncopyable {
                 config_,
                 [this](auto& ur) { this->finish_user_record(ur); },
                 [this](auto& ur) { this->aggregator_put(ur); },
+                [this](auto& actual_shard) { return shard_map_->hashrange(actual_shard); },
                 [this](auto& tp, auto predicted_shard) { shard_map_->invalidate(tp, predicted_shard); },
                 [this](auto& code, auto& msg) {
                   limiter_->add_error(code, msg);

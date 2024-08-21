@@ -107,13 +107,15 @@ Retrier::handle_put_records_result(std::shared_ptr<PutRecordsContext> prc) {
         //So either all user records in a kinesis record landed on the correct shard
         //or none did. So we can invalidate just once per kinesis record.
         bool should_invalidate_on_incorrect_shard = true;
-        for (auto& ur : kr->items()) {
+        auto hashrange_actual_shard = shard_map_hashrange_cb_(ShardMap::shard_id_from_str(put_result.GetShardId()));
+        for (auto& ur : kr->items()) {  
           should_invalidate_on_incorrect_shard &= succeed_if_correct_shard(ur,
                                    start,
                                    end,
                                    put_result.GetShardId(),
                                    put_result.GetSequenceNumber(),
-                                   should_invalidate_on_incorrect_shard);
+                                   should_invalidate_on_incorrect_shard,
+                                   hashrange_actual_shard);
         }
       } else {
         auto& err_code = put_result.GetErrorCode();
@@ -155,7 +157,7 @@ void Retrier::retry_not_expired(const std::shared_ptr<UserRecord>& ur,
          std::chrono::steady_clock::now(),
          std::chrono::steady_clock::now(),
          "Expired",
-         "Record has reached expiration");
+         "Record " + std::to_string(ur->source_id()) +" has reached expiration");
   } else {
     // TimeSensitive automatically sets the deadline to the expiration if
     // the given deadline is later than the expiration.
@@ -192,36 +194,50 @@ void Retrier::fail(const std::shared_ptr<UserRecord>& ur,
 bool Retrier::succeed_if_correct_shard(const std::shared_ptr<UserRecord>& ur,
                                        TimePoint start,
                                        TimePoint end,
-                                       const std::string& shard_id,
+                                       const std::string& shard_id,                                     
                                        const std::string& sequence_number,
-                                       const bool should_invalidate_on_incorrect_shard) {
+                                       const bool should_invalidate_on_incorrect_shard,
+                                       const boost::optional<std::pair<uint128_t, uint128_t>>& hashrange_actual_shard) {
   const uint64_t actual_shard = ShardMap::shard_id_from_str(shard_id);
-  if (ur->predicted_shard() &&
-      *ur->predicted_shard() != actual_shard) {
-    //We should call invalidate only if:
-    // 1. If we are told to invalidate on incorrect shard.
-    if (should_invalidate_on_incorrect_shard) {
-      LOG(warning) << "Record went to shard " << shard_id << " instead of the "
-                   << "predicted shard " << *ur->predicted_shard() << "; this "
-                   << "usually means the sharp map has changed.";    
+  if (ur->predicted_shard() && *ur->predicted_shard() != actual_shard) {
+    // retry if shard is not found or hash key of the user record doesn't fit into the actual shard's hashrange
+    if (!hashrange_actual_shard || 
+        !((*hashrange_actual_shard).first <= ur->hash_key() && (*hashrange_actual_shard).second >= ur->hash_key())) {
+      // invalidate because this is a new shard or shard felt outside of actual shards hashrange.
+      invalidate_cache(ur, start, actual_shard, should_invalidate_on_incorrect_shard);
 
-      shard_map_invalidate_cb_(start, ur->predicted_shard());
+      retry_not_expired(ur,
+                        start,
+                        end,
+                        "Wrong Shard",
+                        "Record " + std::to_string(ur->source_id()) + " did not end up in expected shard.");
+      return false;
+    } 
+    // child shard is numbered higher than the ancestor. if we landed on a child shard it means the parent shard can
+    // be removed now from the in-memory map. This will help the shardmap to converge
+    else if (*ur->predicted_shard() < actual_shard) {
+      invalidate_cache(ur, start, actual_shard, should_invalidate_on_incorrect_shard);
     }
+  }
+  finish_user_record(
+      ur,
+      Attempt()
+          .set_start(start)
+          .set_end(end)
+          .set_result(shard_id, sequence_number));
+  return true;
+}
 
-    retry_not_expired(ur,
-                      start,
-                      end,
-                      "Wrong Shard",
-                      "Record did not end up in expected shard.");
-    return false;
-  } else {
-    finish_user_record(
-        ur,
-        Attempt()
-            .set_start(start)
-            .set_end(end)
-            .set_result(shard_id, sequence_number));
-    return true;
+void Retrier::invalidate_cache(const std::shared_ptr<UserRecord>& ur,
+                               const TimePoint start,
+                               const uint64_t& actual_shard,
+                               const bool should_invalidate_on_incorrect_shard) {
+  if (should_invalidate_on_incorrect_shard) {
+    LOG(warning) << "Record " << ur->source_id() << " went to shard " << actual_shard << " instead of the "
+                  << "predicted shard " << *ur->predicted_shard() << "; this "
+                  << "usually means the sharp map has changed.";   
+
+    shard_map_invalidate_cb_(start, ur->predicted_shard());
   }
 }
 

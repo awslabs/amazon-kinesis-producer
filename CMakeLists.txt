@@ -19,6 +19,7 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
 endif(CMAKE_BUILD_TYPE MATCHES Debug)
 
 if(APPLE)
+    add_compile_options("-Wno-enum-constexpr-conversion")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmacosx-version-min=10.13 -framework Foundation -framework SystemConfiguration")
 endif()
 
