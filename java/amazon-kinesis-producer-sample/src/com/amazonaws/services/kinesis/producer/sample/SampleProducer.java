@@ -16,25 +16,18 @@
 package com.amazonaws.services.kinesis.producer.sample;
 
 import java.nio.ByteBuffer;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiConsumer;
 
 import com.amazonaws.services.kinesis.producer.UnexpectedMessageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.kinesis.producer.Attempt;
-import com.amazonaws.services.kinesis.producer.KinesisProducerConfiguration;
 import com.amazonaws.services.kinesis.producer.KinesisProducer;
 import com.amazonaws.services.kinesis.producer.UserRecordFailedException;
 import com.amazonaws.services.kinesis.producer.UserRecordResult;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * The Kinesis Producer Library (KPL) excels at handling large numbers of small
@@ -94,9 +87,18 @@ public class SampleProducer {
         final AtomicLong completed = new AtomicLong(0);
         
         // KinesisProducer.addUserRecord is asynchronous. A callback can be used to receive the results.
-        final FutureCallback<UserRecordResult> callback = new FutureCallback<UserRecordResult>() {
+        final BiConsumer<UserRecordResult, Throwable> callback = new BiConsumer<UserRecordResult, Throwable>() {
+
             @Override
-            public void onFailure(Throwable t) {
+            public void accept(UserRecordResult userRecordResult, Throwable throwable) {
+                   if(userRecordResult != null) {
+                       onSuccess(userRecordResult);
+                   } else {
+                       onFailure(throwable);
+                   }
+            }
+
+            void onFailure(Throwable t) {
                 // If we see any failures, we will log them.
                 if (t instanceof UserRecordFailedException) {
                     int attempts = ((UserRecordFailedException) t).getResult().getAttempts().size()-1;
@@ -119,8 +121,7 @@ public class SampleProducer {
                 log.error("Exception during put", t);
             }
 
-            @Override
-            public void onSuccess(UserRecordResult result) {
+            void onSuccess(UserRecordResult result) {
                 completed.getAndIncrement();
             }
         };
@@ -133,9 +134,9 @@ public class SampleProducer {
             public void run() {
                 ByteBuffer data = Utils.generateData(sequenceNumber.get(), config.getDataSize());
                 // TIMESTAMP is our partition key
-                ListenableFuture<UserRecordResult> f =
+                CompletableFuture<UserRecordResult> f =
                         producer.addUserRecord(config.getStreamName(), TIMESTAMP, Utils.randomExplicitHashKey(), data);
-                Futures.addCallback(f, callback, callbackThreadPool);
+                f.whenCompleteAsync(callback, callbackThreadPool);
             }
         };
         

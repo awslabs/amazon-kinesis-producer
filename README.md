@@ -27,9 +27,9 @@ ClickEvent event = inputQueue.take();
         }
         recordsPut.getAndIncrement();
 
-        ListenableFuture<UserRecordResult> f =
+        CompletableFuture<UserRecordResult> f =
                 kpl.addUserRecord(STREAM_NAME, partitionKey, data);
-        Futures.addCallback(f, new FutureCallback<UserRecordResult>() {
+        f.whenCompleteAsync(f, new BiConusmer<UserRecordResult, Throwable>() {
           ...
           ...
 ````

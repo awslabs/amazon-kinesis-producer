@@ -2,19 +2,19 @@ package com.amazonaws.services.kinesis.producer;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.amazonaws.services.schemaregistry.common.Schema;
 
 
 public interface IKinesisProducer {
-    ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, ByteBuffer data);
+    CompletableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, ByteBuffer data);
 
-    ListenableFuture<UserRecordResult> addUserRecord(UserRecord userRecord);
+    CompletableFuture<UserRecordResult> addUserRecord(UserRecord userRecord);
 
-    ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data);
+    CompletableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data);
 
-    ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data, Schema schema);
+    CompletableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data, Schema schema);
 
     int getOutstandingRecordsCount();
 
