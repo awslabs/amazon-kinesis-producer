@@ -65,6 +65,10 @@ If you have further questions [please open a GitHub Issue](https://github.com/aw
 This is a restatement of the [notice published](https://docs.aws.amazon.com/streams/latest/dev/kinesis-kpl-upgrades.html) in the [Amazon Kinesis Data Streams Developer Guide][kinesis-developer-guide]
 
 ## Release Notes
+## 0.15.11
+* [#576](https://github.com/awslabs/amazon-kinesis-producer/pull/576) Improve retry logic during stream scaling
+* [#571](https://github.com/awslabs/amazon-kinesis-producer/pull/571) Upgrade ch.qos.logback:logback-classic from 1.3.0 to 1.3.12
+
 ## 0.15.10
 * [#560 ](https://github.com/awslabs/amazon-kinesis-producer/pull/560) Reverting to remove a bug with using Stream ARN. Please stay tuned for a future release before using Stream ARN.
 * [#526](https://github.com/awslabs/amazon-kinesis-producer/pull/526) Drop dependency on jaxb for converting binary arrays to hex
