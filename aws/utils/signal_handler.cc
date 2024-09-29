@@ -33,7 +33,7 @@ void write_signal_description(int signal) {
         WRITE_NUM_CHECKED(signal, "Negative Signal")
     } else {
         if (signal_message_sizes[signal]) {
-            write(STDERR_FILENO, sys_siglist[signal], signal_message_sizes[signal]);
+            write(STDERR_FILENO, strsignal(signal), signal_message_sizes[signal]);
         } else {
             WRITE_MESSAGE("Signal had NULL message.")
         }
@@ -114,8 +114,9 @@ namespace aws {
             aws::utils::backtrace::initialize(exe);
             signal_message_sizes[0] = 0;
             for (int i = 1; i < NSIG; ++i) {
-                if (sys_siglist[i]) {
-                    signal_message_sizes[i] = strlen(sys_siglist[i]);
+                const auto signal = strsignal(i);
+                if (signal) {
+                    signal_message_sizes[i] = strlen(signal);
                 }
             }
             sigset_t mask;
