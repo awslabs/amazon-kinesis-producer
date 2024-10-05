@@ -672,10 +672,11 @@ public class KinesisProducer implements IKinesisProducer {
      */
     @Override
     public long getOldestRecordTimeInMillis() {
-        if (oldestFutureTrackerHeap.isEmpty()) {
+        SettableFutureTracker oldestFuture = oldestFutureTrackerHeap.peek();
+        if (oldestFuture == null) {
             return 0;
         }
-        return Instant.now().toEpochMilli() - oldestFutureTrackerHeap.peek().getTimestamp().toEpochMilli();
+        return Instant.now().toEpochMilli() - oldestFuture.getTimestamp().toEpochMilli();
     }
 
     /**
