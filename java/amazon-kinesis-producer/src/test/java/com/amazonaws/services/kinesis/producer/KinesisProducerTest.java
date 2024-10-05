@@ -290,4 +290,16 @@ public class KinesisProducerTest {
         }
         return new KinesisProducer(cfg);
     }
+
+    @Test
+    public void getOldestRecordTimeInMillisShouldReturn0WhenNoFuturesInHeap() {
+        // Given that there are no futures in the heap,
+        IKinesisProducer candidate = getProducer(null, null);
+
+        // When we call getOldestRecordTimeInMillis,
+        long actual = candidate.getOldestRecordTimeInMillis();
+
+        // Then we expect it to return 0.
+        assertEquals(0L, actual);
+    }
 }
