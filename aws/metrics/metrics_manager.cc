@@ -32,6 +32,12 @@ std::shared_ptr<Metric> MetricsFinderBuilder::find() {
   return manager_.get_metric(mf_);
 }
 
+bool is_blank(const std::string& str) {
+  return std::all_of(str.begin(), str.end(), [](const unsigned char c) {
+    return std::isblank(c);
+  });
+}
+
 Aws::CloudWatch::Model::MetricDatum
 to_sdk_metric_datum(const std::shared_ptr<Metric> m, int numBuckets) {
   auto& a = m->accumulator();
@@ -47,7 +53,7 @@ to_sdk_metric_datum(const std::shared_ptr<Metric> m, int numBuckets) {
   for (auto& p : m->all_dimensions()) {
     if (p.first == "MetricName") {
       d.SetMetricName(p.second);
-    } else {
+    } else if (!is_blank(p.second)) {
       Aws::CloudWatch::Model::Dimension dim;
       dim.SetName(p.first);
       dim.SetValue(p.second);
