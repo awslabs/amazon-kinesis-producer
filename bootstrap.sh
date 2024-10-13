@@ -118,35 +118,35 @@ function conf {
 }
 
 # OpenSSL
-if [ ! -d "openssl-${OPENSSL_VERSION}" ]; then
+# if [ ! -d "openssl-${OPENSSL_VERSION}" ]; then
 
-  _curl "$LIB_OPENSSL" >openssl.tgz
-  tar xf openssl.tgz
-  rm openssl.tgz
+#   _curl "$LIB_OPENSSL" >openssl.tgz
+#   tar xf openssl.tgz
+#   rm openssl.tgz
 
-  cd openssl-${OPENSSL_VERSION}
-  OPTS="threads no-shared no-idea no-camellia no-seed no-bf no-cast no-rc2 no-rc5 no-md2 no-mdc2 no-ssl2 no-ssl3 no-capieng no-dso"
+#   cd openssl-${OPENSSL_VERSION}
+#   OPTS="threads no-shared no-idea no-camellia no-seed no-bf no-cast no-rc2 no-rc5 no-md2 no-mdc2 no-ssl2 no-ssl3 no-capieng no-dso"
 
-  if [[ $(uname) == 'Darwin' ]]; then
-    OPTS="$OPTS darwin64-x86_64-cc enable-ec_nistp_64_gcc_128"
-    silence ./Configure $OPTS --prefix="$INSTALL_DIR"
-  elif [[ $(uname) == MINGW* ]]; then
-    silence ./Configure mingw64 $OPTS --prefix="$INSTALL_DIR"
-    find ./ -name Makefile | while read f; do
-      echo >>"$f"
-      echo "%.o: %.c" >>"$f"
-      echo -e '\t$(COMPILE.c) $(OUTPUT_OPTION) $<;' >>$f
-    done
-  else
-    silence ./config $OPTS --prefix="$INSTALL_DIR"
-  fi
+#   if [[ $(uname) == 'Darwin' ]]; then
+#     OPTS="$OPTS darwin64-x86_64-cc enable-ec_nistp_64_gcc_128"
+#     silence ./Configure $OPTS --prefix="$INSTALL_DIR"
+#   elif [[ $(uname) == MINGW* ]]; then
+#     silence ./Configure mingw64 $OPTS --prefix="$INSTALL_DIR"
+#     find ./ -name Makefile | while read f; do
+#       echo >>"$f"
+#       echo "%.o: %.c" >>"$f"
+#       echo -e '\t$(COMPILE.c) $(OUTPUT_OPTION) $<;' >>$f
+#     done
+#   else
+#     silence ./config $OPTS --prefix="$INSTALL_DIR"
+#   fi
 
-  silence make depend
-  silence make # don't use -j, doesn't work half the time
-  silence make install
+#   silence make depend
+#   silence make # don't use -j, doesn't work half the time
+#   silence make install
 
-  cd ..
-fi
+#   cd ..
+# fi
 
 # Boost C++ Libraries
 if [ ! -d "boost_${BOOST_VERSION_UNDERSCORED}" ]; then
@@ -227,7 +227,7 @@ if [ ! -d "curl-${CURL_VERSION}" ]; then
     sed -Ei .bak 's/#define HAVE_CLOCK_GETTIME_MONOTONIC 1//' lib/curl_config.h
   else
     silence conf --disable-shared --disable-ldap --disable-ldaps --without-libidn2 \
-      --enable-threaded-resolver --disable-debug --without-libssh2 --without-ca-bundle --with-ssl="${INSTALL_DIR}" --without-libidn
+      --enable-threaded-resolver --disable-debug --without-libssh2 --without-ca-bundle --with-ssl --without-libidn
   fi
 
   silence make -j
@@ -272,7 +272,7 @@ cd ..
 
 # Build the native kinesis producer
 $CMAKE -DCMAKE_PREFIX_PATH="$INSTALL_DIR" -DCMAKE_BUILD_TYPE=RelWithDebInfo .
-make -j8
+make -j4
 
 #copy native producer to a location that the java producer can package it
 NATIVE_BINARY_DIR=java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/$RELEASE_TYPE/
