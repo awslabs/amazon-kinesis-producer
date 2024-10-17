@@ -65,6 +65,18 @@ If you have further questions [please open a GitHub Issue](https://github.com/aw
 This is a restatement of the [notice published](https://docs.aws.amazon.com/streams/latest/dev/kinesis-kpl-upgrades.html) in the [Amazon Kinesis Data Streams Developer Guide][kinesis-developer-guide]
 
 ## Release Notes
+## 0.15.12
+* [#593](https://github.com/awslabs/amazon-kinesis-producer/pull/593) Replace all usage of sys_siglist with strsignal as sys_siglist is deprecated
+* [#594](https://github.com/awslabs/amazon-kinesis-producer/pull/594) Check if dimension.value is blank before using it in metrics manager
+* [#596](https://github.com/awslabs/amazon-kinesis-producer/pull/596) Update getOldestRecordTimeMillis to avoid potential NullPointerException
+* [#600](https://github.com/awslabs/amazon-kinesis-producer/pull/600) Fix build issue after cpp sdk upgrade
+* [#597](https://github.com/awslabs/amazon-kinesis-producer/pull/597) Bump cpp sdk from 1.11.62 to 1.11.420 and java sdk from 1.12.772 to 1.12.773
+* [#570](https://github.com/awslabs/amazon-kinesis-producer/pull/570) Bump commons-lang from 2.6 to 3.14.0
+* [#598](https://github.com/awslabs/amazon-kinesis-producer/pull/598) Bump commons-io:commons-io from 2.13.0 to 2.17.0 in /java/amazon-kinesis-producer to address CVE vulnerability
+* [#589](https://github.com/awslabs/amazon-kinesis-producer/pull/589) Bump com.google.protobuf:protobuf-java from 3.21.12 to 3.25.5 in /java/amazon-kinesis-producer to address CVE vulnerability
+* [#579](https://github.com/awslabs/amazon-kinesis-producer/pull/579) Bump com.google.guava:guava from 31.1-jre to 33.3.0-jre in /java/amazon-kinesis-producer to address CVE vulnerability
+* [#588](https://github.com/awslabs/amazon-kinesis-producer/pull/588) Bump com.amazonaws:aws-java-sdk-core from 1.12.382 to 1.12.772 in /java/amazon-kinesis-producer and java/amazon-kinesis-producer-sample
+
 ## 0.15.11
 * [#576](https://github.com/awslabs/amazon-kinesis-producer/pull/576) Improve retry logic during stream scaling
 * [#571](https://github.com/awslabs/amazon-kinesis-producer/pull/571) Upgrade ch.qos.logback:logback-classic from 1.3.0 to 1.3.12
