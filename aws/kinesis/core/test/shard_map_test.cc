@@ -55,10 +55,9 @@ class MockKinesisClient : public Aws::Kinesis::KinesisClient {
         executor_(std::make_shared<aws::utils::IoServiceExecutor>(1)) {}
   
   virtual void ListShardsAsync(
-      const Aws::Kinesis::Model::ListShardsRequest& request,
       const Aws::Kinesis::ListShardsResponseReceivedHandler& handler,
-      const std::shared_ptr<const Aws::Client::AsyncCallerContext>& context
-          = nullptr) const {
+      const std::shared_ptr<const Aws::Client::AsyncCallerContext>& context = nullptr,
+      const Aws::Kinesis::Model::ListShardsRequest& request = {}) const {
     executor_->schedule([=] {
     
       if (outcomes_list_shards_.size() == 0) {
@@ -89,7 +88,7 @@ class Wrapper {
                 [this] { num_req_received_++; }),
     shard_map_(
             std::make_shared<aws::utils::IoServiceExecutor>(1),
-            [this](auto& req, auto& handler, auto& context) { mock_kinesis_client_.ListShardsAsync(req, handler, context); },
+            [this](auto& req, auto& handler, auto& context) { mock_kinesis_client_.ListShardsAsync(handler, context, req); },
             kStreamName,
             kStreamARN,
             std::make_shared<aws::metrics::NullMetricsManager>(),
