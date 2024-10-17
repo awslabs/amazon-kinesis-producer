@@ -147,6 +147,11 @@ public:
     va_end(args);
   }
 
+  // cpp sdk made this virtual so needed to have a dummy implementation for it for build to pass
+  virtual void vaLog(LogLevel logLevel, const char* tag, const char* formatStr, va_list args) override {
+    return;
+  }
+
   virtual void LogStream(LogLevel logLevel, const char* tag, const Aws::OStringStream &messageStream) override {
     LogToBoost(logLevel, tag, messageStream.str());
   }
