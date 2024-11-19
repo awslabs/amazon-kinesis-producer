@@ -32,7 +32,7 @@ import static org.junit.Assert.assertNotNull;
 public class KinesisProducerConfigurationTest {
     @SuppressWarnings("unused")
     private static final Logger log = LoggerFactory.getLogger(KinesisProducerConfigurationTest.class);
-
+    
     private static String writeFile(String contents) {
         try {
             File f = File.createTempFile(UUID.randomUUID().toString(), "");
@@ -43,7 +43,7 @@ public class KinesisProducerConfigurationTest {
             throw new RuntimeException(e);
         }
     }
-
+    
     private static String writeFile(Properties p) {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -54,7 +54,7 @@ public class KinesisProducerConfigurationTest {
             throw new RuntimeException(e);
         }
     }
-
+    
     @Test
     public void loadString() {
         Properties p = new Properties();
@@ -63,7 +63,7 @@ public class KinesisProducerConfigurationTest {
         KinesisProducerConfiguration cfg = KinesisProducerConfiguration.fromPropertiesFile(writeFile(p));
         assertEquals(v, cfg.getMetricsNamespace());
     }
-
+    
     @Test
     public void loadLong() {
         KinesisProducerConfiguration defaultConfig = new KinesisProducerConfiguration();
@@ -73,7 +73,7 @@ public class KinesisProducerConfigurationTest {
         KinesisProducerConfiguration cfg = KinesisProducerConfiguration.fromPropertiesFile(writeFile(p));
         assertEquals(v, cfg.getConnectTimeout());
     }
-
+    
     @Test
     public void loadBoolean() {
         KinesisProducerConfiguration defaultConfig = new KinesisProducerConfiguration();
@@ -82,6 +82,16 @@ public class KinesisProducerConfigurationTest {
         p.setProperty("VerifyCertificate", Boolean.toString(v));
         KinesisProducerConfiguration cfg = KinesisProducerConfiguration.fromPropertiesFile(writeFile(p));
         assertEquals(v, cfg.isVerifyCertificate());
+    }
+
+    @Test
+    public void loadCamelCaseProperty() {
+        KinesisProducerConfiguration defaultConfig = new KinesisProducerConfiguration();
+        Properties p = new Properties();
+        long v = defaultConfig.getConnectTimeout() + 1;
+        p.setProperty("connectTimeOut", Long.toString(v));
+        KinesisProducerConfiguration cfg = KinesisProducerConfiguration.fromPropertiesFile(writeFile(p));
+        assertEquals(v, cfg.getConnectTimeout());
     }
 
     @Test
