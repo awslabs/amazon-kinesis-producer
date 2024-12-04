@@ -1,5 +1,6 @@
 package com.amazonaws.services.kinesis.producer.sample;
 
+import com.amazonaws.auth.profile.internal.securitytoken.STSProfileCredentialsServiceProvider;
 import com.amazonaws.services.kinesis.producer.KinesisProducerConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -280,7 +281,6 @@ public class SampleProducerConfig {
         // Note that if you do pass a Configuration instance, mutating that
         // instance after initializing KinesisProducer has no effect. We do not
         // support dynamic re-configuration at the moment.
-
         return config;
     }
 }

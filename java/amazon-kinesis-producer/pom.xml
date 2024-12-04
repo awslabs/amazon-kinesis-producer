@@ -18,6 +18,7 @@
 
     <properties>
         <protobuf-java-version>4.29.0</protobuf-java-version>
+        <aws-java-sdk-v2-version>2.29.24</aws-java-sdk-v2-version>
     </properties>
 
     <build>
@@ -59,6 +60,7 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- This is used for resolving os.detected.classifier used in maven-protobuf plugin -->
             <plugin>
                 <groupId>kr.motd.maven</groupId>
                 <artifactId>os-maven-plugin</artifactId>
@@ -72,6 +74,7 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- Allow generating protobuf classes automatically -->
             <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
@@ -97,7 +100,12 @@
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>auth</artifactId>
-            <version>2.29.24</version>
+            <version>${aws-java-sdk-v2-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>sts</artifactId>
+            <version>${aws-java-sdk-v2-version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -127,7 +135,7 @@
         <dependency>
             <groupId>software.amazon.glue</groupId>
             <artifactId>schema-registry-serde</artifactId>
-            <version>1.1.18</version>
+            <version>1.1.22</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.amazonaws</groupId>
@@ -164,6 +172,18 @@
             <artifactId>lombok</artifactId>
             <version>1.18.24</version>
             <scope>provided</scope>
+        </dependency>
+        <!-- The jackson libraries are not directly used in KPL but to
+        bring the version current for the transitive dependencies -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.18.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.18.2</version>
         </dependency>
     </dependencies>
 
