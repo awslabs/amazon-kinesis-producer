@@ -15,9 +15,6 @@
 
 package com.amazonaws.services.kinesis.producer;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.AWSSessionCredentials;
 import com.amazonaws.services.kinesis.producer.protobuf.Messages;
 import com.amazonaws.services.kinesis.producer.protobuf.Messages.Message;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -26,6 +23,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 
 import java.io.File;
 import java.io.IOException;
@@ -431,7 +431,7 @@ public class Daemon {
                 inPipe.getAbsolutePath(), "-c", protobufToHex(config.toProtobufMessage()), "-k",
                 protobufToHex(makeSetCredentialsMessage(config.getCredentialsProvider(), false)), "-t"));
 
-        AWSCredentialsProvider metricsCreds = config.getMetricsCredentialsProvider();
+        AwsCredentialsProvider metricsCreds = config.getMetricsCredentialsProvider();
         if (metricsCreds == null) {
             metricsCreds = config.getCredentialsProvider();
         }
@@ -492,7 +492,7 @@ public class Daemon {
     
     private void updateCredentials() throws InterruptedException {
         outgoingMessages.put(makeSetCredentialsMessage(config.getCredentialsProvider(), false));
-        AWSCredentialsProvider metricsCreds = config.getMetricsCredentialsProvider();
+        AwsCredentialsProvider metricsCreds = config.getMetricsCredentialsProvider();
         if (metricsCreds == null) {
             metricsCreds = config.getCredentialsProvider();
         }
@@ -559,14 +559,14 @@ public class Daemon {
         return UUID.randomUUID().toString().substring(0, 8);
     }
 
-    private static Messages.Message makeSetCredentialsMessage(AWSCredentialsProvider provider, boolean forMetrics) {
-        AWSCredentials creds = provider.getCredentials();
+    private static Messages.Message makeSetCredentialsMessage(AwsCredentialsProvider provider, boolean forMetrics) {
+        AwsCredentials creds = provider.resolveCredentials();
         
         Messages.Credentials.Builder cb = Messages.Credentials.newBuilder()
-                .setAkid(creds.getAWSAccessKeyId())
-                .setSecretKey(creds.getAWSSecretKey());
-        if (creds instanceof AWSSessionCredentials) {
-            cb.setToken(((AWSSessionCredentials) creds).getSessionToken());
+                .setAkid(creds.accessKeyId())
+                .setSecretKey(creds.secretAccessKey());
+        if (creds instanceof AwsSessionCredentials) {
+            cb.setToken(((AwsSessionCredentials) creds).sessionToken());
         }
    
         Messages.SetCredentials setCreds = Messages.SetCredentials.newBuilder()

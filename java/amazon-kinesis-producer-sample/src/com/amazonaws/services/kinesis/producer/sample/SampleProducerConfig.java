@@ -1,9 +1,9 @@
 package com.amazonaws.services.kinesis.producer.sample;
 
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.kinesis.producer.KinesisProducerConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -227,7 +227,7 @@ public class SampleProducerConfig {
         // similar to the AWS SDK. DefaultAWSCredentialsProviderChain is used
         // by default, so this configuration can be omitted if that is all
         // that is needed.
-        config.setCredentialsProvider(new DefaultAWSCredentialsProviderChain());
+        config.setCredentialsProvider(DefaultCredentialsProvider.create());
 
         // The maxConnections parameter can be used to control the degree of
         // parallelism when making HTTP requests. We're going to use only 1 here
