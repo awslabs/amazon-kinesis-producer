@@ -265,7 +265,6 @@ public class SampleProducerConfig {
         config.setAggregationMaxCount(this.getAggregationMaxCount());
         config.setAggregationMaxSize(this.getAggregationMaxSize());
         config.setUserRecordTimeoutInMillis(this.getRequestTimeoutInMillis());
-        config.setLogLevel("trace");
 
         // If you have built the native binary yourself, you can point the Java
         // wrapper to it with the NativeExecutable option. If you want to pass
