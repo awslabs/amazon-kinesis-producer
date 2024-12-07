@@ -309,7 +309,23 @@ public class KinesisProducerConfiguration {
     public String getCaCertPath() {
         return caCertPath;
     }
-    
+
+    /**
+     * TODO: confirm format of file - should it be just the file name?
+     * Use a provided cacert file
+     */
+    public KinesisProducerConfiguration setCaCertFile(String val) {
+        caCertFile = val;
+        return this;
+    }
+
+    /**
+     * Return the provided ca file
+     */
+    public String getCaCertFile() {
+        return caCertFile;
+    }
+
     protected Configuration.Builder additionalConfigsToProtobuf(Configuration.Builder builder) {
         return builder.addAllAdditionalMetricDims(additionalDims);
     }
@@ -373,6 +389,7 @@ public class KinesisProducerConfiguration {
     private ThreadingModel threadingModel = ThreadingModel.PER_REQUEST;
     private int threadPoolSize = 0;
     private String caCertPath = "";
+    private String caCertFile = "";
     private String glueSchemaRegistryPropertiesFilePath = "";
     private long userRecordTimeoutInMillis = 0;
 

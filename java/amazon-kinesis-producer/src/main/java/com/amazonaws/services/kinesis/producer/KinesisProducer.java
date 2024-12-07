@@ -295,6 +295,7 @@ public class KinesisProducer implements IKinesisProducer {
     public KinesisProducer(KinesisProducerConfiguration config) {
         this.config = config;
         String caPath = config.getCaCertPath();
+        String caFile = config.getCaCertFile();
         String caDirectory = extractBinaries();
         // Override the CA cert path if provided by the user config
         if(!StringUtils.isEmpty(caPath)) {
@@ -306,6 +307,7 @@ public class KinesisProducer implements IKinesisProducer {
                 .put("LD_LIBRARY_PATH", pathToLibDir)
                 .put("DYLD_LIBRARY_PATH", pathToLibDir)
                 .put("CA_DIR", caDirectory)
+                .put("CA_FILE", caFile)
                 .build();
 
         // We set the policy for the executor service to remove queued tasks if they are cancelled to relieve

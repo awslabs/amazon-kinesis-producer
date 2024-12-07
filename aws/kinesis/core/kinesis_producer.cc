@@ -105,7 +105,9 @@ std::shared_ptr<Aws::Utils::Threading::Executor> sdk_client_executor;
 Aws::Client::ClientConfiguration
 make_sdk_client_cfg(const aws::kinesis::core::Configuration& kpl_cfg,
                     const std::string& region,
-                    const std::string& ca_path, int retryCount) {
+                    const std::string& ca_path,
+                    const std::string& ca_file,
+                    int retryCount) {
   Aws::Client::ClientConfiguration cfg;
   cfg.userAgent = user_agent();
   LOG(info) << "Using Region: " << region;
@@ -137,6 +139,7 @@ make_sdk_client_cfg(const aws::kinesis::core::Configuration& kpl_cfg,
   cfg.executor = sdk_client_executor;
   cfg.verifySSL = kpl_cfg.verify_certificate();
   cfg.caPath = ca_path;
+  cfg.caFile = ca_file
   return cfg;
 }
 
@@ -177,8 +180,8 @@ void KinesisProducer::create_metrics_manager() {
           std::chrono::milliseconds(config_->metrics_upload_delay()));
 }
 
-void KinesisProducer::create_kinesis_client(const std::string& ca_path) {
-  auto cfg = make_sdk_client_cfg(*config_, region_, ca_path, 0);
+void KinesisProducer::create_kinesis_client(const std::string& ca_path, const std::string& ca_file) {
+  auto cfg = make_sdk_client_cfg(*config_, region_, ca_path, ca_file, 0);
   if (config_->kinesis_endpoint().size() > 0) {
     cfg.endpointOverride = config_->kinesis_endpoint() + ":" +
         std::to_string(config_->kinesis_port());
@@ -192,8 +195,8 @@ void KinesisProducer::create_kinesis_client(const std::string& ca_path) {
       cfg);
 }
 
-void KinesisProducer::create_cw_client(const std::string& ca_path) {
-  auto cfg = make_sdk_client_cfg(*config_, region_, ca_path, 2);
+void KinesisProducer::create_cw_client(const std::string& ca_path, const std::string& ca_file) {
+  auto cfg = make_sdk_client_cfg(*config_, region_, ca_path, ca_file, 2);
   if (config_->cloudwatch_endpoint().size() > 0) {
     cfg.endpointOverride = config_->cloudwatch_endpoint() + ":" +
         std::to_string(config_->cloudwatch_port());
@@ -207,8 +210,8 @@ void KinesisProducer::create_cw_client(const std::string& ca_path) {
       cfg);
 }
 
-void KinesisProducer::create_sts_client(const std::string& ca_path) {
-  auto cfg = make_sdk_client_cfg(*config_, region_, ca_path, 2);
+void KinesisProducer::create_sts_client(const std::string& ca_path, const std::string& ca_file) {
+  auto cfg = make_sdk_client_cfg(*config_, region_, ca_path, ca_file, 2);
   if (config_->sts_endpoint().size() > 0) {
     cfg.endpointOverride = config_->sts_endpoint() + ":" +
                            std::to_string(config_->sts_port());
