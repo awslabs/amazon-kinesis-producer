@@ -65,7 +65,6 @@ struct option long_opts[]{
         {"log-level",              required_argument, NULL, 'l'},
         {"enable-stack-trace",     no_argument,       NULL, 't'},
         {"ca-path",                required_argument, NULL, 'a'},
-        {"ca-file",                required_argument, NULL, 'f'},
         {NULL,                     0,                 NULL,  0}
 };
 
@@ -120,7 +119,6 @@ void usage(const std::string program_name, const std::string& message) {
     option_description("-l", "--log-level", "Controls the level of detail emitted from the producer.  Valid: ['trace', 'debug', 'info', 'warn', 'error', 'fatal']");
     option_description("-t", "--enable-stack-trace", "Will dump a stack trace and abort if certain memory errors are triggered");
     option_description("-a", "--ca-path", "Location of the CA root certificate that the producer will use for TLS connections.");
-    option_description("-f", "--ca-file", "File of the CA root certificate that the producer will use for TLS connections.");
     exit(1);
 }
 
@@ -152,9 +150,6 @@ void process_options(int argc, char* const* argv) {
         break;
     case 'a':
         options.ca_path = std::string(optarg);
-        break;
-    case 'f':
-        options.ca_file = std::string(optarg);
         break;
     default:
         usage(argv[0], "Unknown option: " + std::string(argv[optind]));
@@ -358,16 +353,12 @@ std::string get_ca_path() {
 
 std::string get_ca_file() {
   std::string f = "";
-  if (!options.ca_file.empty()) {
-    f = options.ca_file;
-  } else {
-    auto v = std::getenv("CA_FILE");
+  auto v = std::getenv("CA_FILE");
 
-    if (v) {
-      f = v;
-    }
+  if (v) {
+    f = v;
+    LOG(info) << "Setting CA file to " << f;
   }
-  LOG(info) << "Setting CA file to " << f;
   return f;
 }
 
