@@ -139,7 +139,7 @@ make_sdk_client_cfg(const aws::kinesis::core::Configuration& kpl_cfg,
   cfg.executor = sdk_client_executor;
   cfg.verifySSL = kpl_cfg.verify_certificate();
   cfg.caPath = ca_path;
-  cfg.caFile = ca_file
+  cfg.caFile = ca_file;
   return cfg;
 }
 

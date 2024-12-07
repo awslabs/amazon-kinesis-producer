@@ -357,7 +357,7 @@ std::string get_ca_path() {
 
 
 std::string get_ca_file() {
-  std::string f = ".";
+  std::string f = "";
   if (!options.ca_file.empty()) {
     f = options.ca_file;
   } else {
