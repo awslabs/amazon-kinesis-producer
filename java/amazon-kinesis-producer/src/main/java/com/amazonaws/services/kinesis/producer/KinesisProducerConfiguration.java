@@ -311,7 +311,6 @@ public class KinesisProducerConfiguration {
     }
 
     /**
-     * TODO: confirm format of file - should it be just the file name?
      * Use a provided cacert file
      */
     public KinesisProducerConfiguration setCaCertFile(String val) {
