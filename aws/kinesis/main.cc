@@ -50,6 +50,7 @@ struct {
   std::string kinesis_credentials;
   std::string cloudwatch_credentials;
   std::string ca_path;
+  std::string ca_file;
   int enable_stack_trace = 0;
   Aws::Utils::Logging::LogLevel aws_log_level = Aws::Utils::Logging::LogLevel::Warn;
   boost::log::trivial::severity_level boost_log_level = boost::log::trivial::warning;
@@ -349,6 +350,19 @@ std::string get_ca_path() {
   return p;
 }
 
+
+std::string get_ca_file() {
+  std::string f = "";
+  auto v = std::getenv("CA_FILE");
+
+  if (v) {
+    f = v;
+    LOG(info) << "Setting CA file to " << f;
+  }
+  return f;
+}
+
+
 } // namespace
 
 
@@ -380,6 +394,7 @@ int main(int argc, char* const* argv) {
       auto creds_providers = get_creds_providers();
       auto ipc_manager = get_ipc_manager(options.output_pipe, options.input_pipe);
       auto ca_path = get_ca_path();
+      auto ca_file = get_ca_file();
       LOG(info) << "Starting up main producer";
 
       aws::kinesis::core::KinesisProducer kp(
@@ -389,7 +404,8 @@ int main(int argc, char* const* argv) {
           creds_providers.first,
           creds_providers.second,
           executor,
-          ca_path);
+          ca_path,
+          ca_file);
 
       LOG(info) << "Entering join";
 
