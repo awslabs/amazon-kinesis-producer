@@ -65,6 +65,7 @@ struct option long_opts[]{
         {"log-level",              required_argument, NULL, 'l'},
         {"enable-stack-trace",     no_argument,       NULL, 't'},
         {"ca-path",                required_argument, NULL, 'a'},
+        {"ca-file",                required_argument, NULL, 'f'},
         {NULL,                     0,                 NULL,  0}
 };
 
@@ -119,6 +120,7 @@ void usage(const std::string program_name, const std::string& message) {
     option_description("-l", "--log-level", "Controls the level of detail emitted from the producer.  Valid: ['trace', 'debug', 'info', 'warn', 'error', 'fatal']");
     option_description("-t", "--enable-stack-trace", "Will dump a stack trace and abort if certain memory errors are triggered");
     option_description("-a", "--ca-path", "Location of the CA root certificate that the producer will use for TLS connections.");
+    option_description("-f", "--ca-file", "File of the CA root certificate that the producer will use for TLS connections.");
     exit(1);
 }
 
