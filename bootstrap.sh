@@ -60,7 +60,7 @@ RELEASE_TYPE=$(find_release_type)
 }
 
 if [ "$1" == "clang" ] || [ "$(uname)" == 'Darwin' ]; then
-  export MACOSX_DEPLOYMENT_TARGET='10.13'
+  export MACOSX_DEPLOYMENT_TARGET='10.15'
   export MACOSX_MIN_COMPILER_OPT="-mmacosx-version-min=${MACOSX_DEPLOYMENT_TARGET}"
   export CC=$(which clang)
   export CXX=$(which clang++)
