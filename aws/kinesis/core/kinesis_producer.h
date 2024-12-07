@@ -64,7 +64,6 @@ class KinesisProducer : boost::noncopyable {
     message_drainer_.join();
   }
 
-
   void join() {
     executor_->join();
   }
