@@ -105,7 +105,8 @@ int main(int argc, char** argv) {
       creds_provider,
       creds_provider,
       executor,
-      ".");
+      ".",
+      "");
       /*std::make_shared<aws::auth::BasicAwsCredentialsProvider>(
           "AKIAAAAAAAAAAAAAAAAA",
           "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));*/
