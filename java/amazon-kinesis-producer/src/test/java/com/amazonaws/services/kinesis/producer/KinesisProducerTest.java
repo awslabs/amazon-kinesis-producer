@@ -15,22 +15,20 @@
 
 package com.amazonaws.services.kinesis.producer;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.internal.StaticCredentialsProvider;
 import com.amazonaws.services.schemaregistry.common.Schema;
-import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.Header;
-import org.mockserver.model.XmlBody;
 import org.mockserver.socket.PortFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.services.glue.model.DataFormat;
 
 import java.nio.ByteBuffer;
@@ -62,21 +60,17 @@ public class KinesisProducerTest {
     private ClientAndServer mockServer;
     private ClientAndServer stsMockServer;
 
-    private static class RotatingAwsCredentialsProvider implements AWSCredentialsProvider {
-        private final List<AWSCredentials> creds;
+    private static class RotatingAwsCredentialsProvider implements AwsCredentialsProvider {
+        private final List<AwsCredentials> creds;
         private final AtomicInteger idx = new AtomicInteger(0);
 
-        public RotatingAwsCredentialsProvider(List<AWSCredentials> creds) {
+        public RotatingAwsCredentialsProvider(List<AwsCredentials> creds) {
             this.creds = creds;
         }
 
         @Override
-        public AWSCredentials getCredentials() {
+        public AwsCredentials resolveCredentials() {
             return creds.get(idx.getAndIncrement() % creds.size());
-        }
-
-        @Override
-        public void refresh() {
         }
     }
 
@@ -131,10 +125,12 @@ public class KinesisProducerTest {
         final String AKID_B = "AKIABBBBBBBBBBBBBBBB";
 
         final KinesisProducer kp = getProducer(
-                new StaticCredentialsProvider(
-                        new BasicAWSCredentials(AKID_A, StringUtils.repeat("a", 40))),
-                new StaticCredentialsProvider(
-                        new BasicAWSCredentials(AKID_B, StringUtils.repeat("b", 40))));
+                StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(AKID_A, StringUtils.repeat("a", 40))),
+                StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(AKID_B, StringUtils.repeat("b", 40)))
+        );
+
 
         final long start = System.nanoTime();
         while (System.nanoTime() - start < 500 * 1000000) {
@@ -180,10 +176,11 @@ public class KinesisProducerTest {
         final String AKID_D = "AKIDDDDDDDDDDDDDDDDD";
 
         final KinesisProducer kp = getProducer(
-                new RotatingAwsCredentialsProvider(ImmutableList.<AWSCredentials>of(
-                        new BasicAWSCredentials(AKID_C, StringUtils.repeat("c", 40)),
-                        new BasicAWSCredentials(AKID_D, StringUtils.repeat("d", 40)))),
-                null);
+                StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(AKID_C, StringUtils.repeat("c", 40))),
+                StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(AKID_D, StringUtils.repeat("d", 40)))
+        );
 
         final long start = System.nanoTime();
         while (System.nanoTime() - start < 500 * 1000000) {
@@ -266,7 +263,7 @@ public class KinesisProducerTest {
         }
     }
 
-    private KinesisProducer getProducer(AWSCredentialsProvider provider, AWSCredentialsProvider metrics_creds_provider) {
+    private KinesisProducer getProducer(AwsCredentialsProvider provider, AwsCredentialsProvider metrics_creds_provider) {
         final KinesisProducerConfiguration cfg = new KinesisProducerConfiguration()
                 .setKinesisEndpoint("localhost")
                 .setKinesisPort(port)
