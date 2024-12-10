@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.amazonaws</groupId>
     <artifactId>amazon-kinesis-producer</artifactId>
-    <version>0.15.13</version>
+    <version>1.0.0</version>
     <name>Amazon Kinesis Producer Library</name>
 
     <scm>
@@ -15,6 +15,11 @@
     </description>
 
     <url>https://aws.amazon.com/kinesis</url>
+
+    <properties>
+        <protobuf-java-version>4.29.0</protobuf-java-version>
+        <aws-java-sdk-v2-version>2.29.24</aws-java-sdk-v2-version>
+    </properties>
 
     <build>
         <plugins>
@@ -55,14 +60,53 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- This is used for resolving os.detected.classifier used in maven-protobuf plugin -->
+            <plugin>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.6.2</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>detect</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Allow generating protobuf classes automatically -->
+            <plugin>
+                <groupId>org.xolstice.maven.plugins</groupId>
+                <artifactId>protobuf-maven-plugin</artifactId>
+                <version>0.6.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>test-compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <!-- Custom location for .proto files -->
+                    <protoSourceRoot>${project.basedir}/../../aws/kinesis/protobuf</protoSourceRoot>
+                    <protocArtifact>com.google.protobuf:protoc:${protobuf-java-version}:exe:${os.detected.classifier}</protocArtifact>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
-    <properties>
-        <aws-sdk-core-version>1.12.773</aws-sdk-core-version>
-    </properties>
-
     <dependencies>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>auth</artifactId>
+            <version>${aws-java-sdk-v2-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>sts</artifactId>
+            <version>${aws-java-sdk-v2-version}</version>
+        </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -76,7 +120,7 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <version>3.25.5</version>
+            <version>${protobuf-java-version}</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -89,14 +133,15 @@
             <version>3.14.0</version>
         </dependency>
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-core</artifactId>
-            <version>${aws-sdk-core-version}</version>
-        </dependency>
-        <dependency>
             <groupId>software.amazon.glue</groupId>
             <artifactId>schema-registry-serde</artifactId>
-            <version>1.1.18</version>
+            <version>1.1.22</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.amazonaws</groupId>
+                    <artifactId>aws-java-sdk-sts</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -127,6 +172,18 @@
             <artifactId>lombok</artifactId>
             <version>1.18.24</version>
             <scope>provided</scope>
+        </dependency>
+        <!-- The jackson libraries are not directly used in KPL but to
+        bring the version current for the transitive dependencies -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.18.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.18.2</version>
         </dependency>
     </dependencies>
 
