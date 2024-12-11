@@ -41,11 +41,11 @@ mvn clean package
 Then run the producer to put some data into a stream called ``kpltest`` in ``us-west-2`` for ``100 seconds``:
 
 ```
-mvn exec:java -Dexec.mainClass="com.amazonaws.services.kinesis.producer.sample.SampleProducer" -Dexec.args="kpltest us-west-2 100"
+mvn exec:java -Dexec.mainClass="software.amazon.kinesis.producer.sample.SampleProducer" -Dexec.args="kpltest us-west-2 100"
 ```
 
 Finally run the consumer to retrieve the data from a stream called ``kpltest`` in ``us-west-2``:
 
 ```
-mvn exec:java -Dexec.mainClass="com.amazonaws.services.kinesis.producer.sample.SampleConsumer" -Dexec.args="kpltest us-west-2"
+mvn exec:java -Dexec.mainClass="software.amazon.kinesis.producer.sample.SampleConsumer" -Dexec.args="kpltest us-west-2"
 ```
