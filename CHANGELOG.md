@@ -1,5 +1,17 @@
 ## Changelog
 
+## 1.0.0
+* [#614](https://github.com/awslabs/amazon-kinesis-producer/pull/614) Upgrade to AWS SDK for Java 2.x
+  * Upgrade protobuf-java to 4.29.0
+  * Upgrade schema-registry-serde to 1.1.22
+  * Upgrade jackson-core to 2.18.2
+  * Upgrade jackson-databind to 2.18.2
+* [#611](https://github.com/awslabs/amazon-kinesis-producer/pull/611) Make certificate authority file configurable in KinesisProducerConfiguration
+* [#615](https://github.com/awslabs/amazon-kinesis-producer/pull/615) Refactor groupId to software.amazon.kinesis
+* [#616](https://github.com/awslabs/amazon-kinesis-producer/pull/616) Auto generate protobuf files in C++
+* [#484](https://github.com/awslabs/amazon-kinesis-producer/pull/484) Upgrade maven-compiler-plugin to 3.11.0
+* [#607](https://github.com/awslabs/amazon-kinesis-producer/pull/607) Upgrade hibernate-validator to 6.2.0.Final
+
 ## 0.15.12
 * [#593](https://github.com/awslabs/amazon-kinesis-producer/pull/593) Replace all usage of sys_siglist with strsignal as sys_siglist is deprecated
 * [#594](https://github.com/awslabs/amazon-kinesis-producer/pull/594) Check if dimension.value is blank before using it in metrics manager
