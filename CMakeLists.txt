@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.5)
 project(amazon_kinesis_producer)
 include(CheckCCompilerFlag)
 
-
 set(THIRD_PARTY_LIB_DIR "${amazon_kinesis_producer_SOURCE_DIR}/third_party/lib")
 
 if(CMAKE_COMPILER_IS_GNUCXX)
@@ -26,6 +25,12 @@ endif()
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXE_LINKER_FLAGS "-L${THIRD_PARTY_LIB_DIR} ${ADDL_LINK_CONFIG}")
+
+# Add .proto files
+set(PROTO_FILES
+    aws/kinesis/protobuf/config.proto
+    aws/kinesis/protobuf/messages.proto
+)
 
 set(SOURCE_FILES
         aws/auth/mutable_static_creds_provider.h
@@ -52,12 +57,6 @@ set(SOURCE_FILES
         aws/kinesis/core/shard_map.h
         aws/kinesis/core/user_record.cc
         aws/kinesis/core/user_record.h
-        aws/kinesis/protobuf/config.pb.cc
-        aws/kinesis/protobuf/config.pb.h
-        aws/kinesis/protobuf/config.proto
-        aws/kinesis/protobuf/messages.pb.cc
-        aws/kinesis/protobuf/messages.pb.h
-        aws/kinesis/protobuf/messages.proto
         aws/metrics/accumulator.h
         aws/metrics/metric.h
         aws/metrics/metrics_constants.cc
@@ -212,9 +211,33 @@ set(STATIC_LIBS
         boost_filesystem
         boost_chrono)
 
+find_package(Protobuf REQUIRED)
 find_package(Threads)
 find_package(ZLIB)
 find_package(AWSSDK REQUIRED COMPONENTS kinesis monitoring sts)
+
+# Specify the output directory for generated protobuf files
+set(PROTO_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/aws/kinesis/protobuf/)
+
+# Specify where the proto files are for dependencies between proto files
+set(SRC_PROTO_DIR ${CMAKE_CURRENT_BINARY_DIR}/aws/kinesis/protobuf/)
+
+# Generate the proto files manually and put them in the protobuf directory
+foreach(proto ${PROTO_FILES})
+    get_filename_component(proto_name ${proto} NAME_WE)
+    list(APPEND PROTO_GENERATED_SRCS "${PROTO_OUTPUT_DIR}/${proto_name}.pb.cc")
+    list(APPEND PROTO_GENERATED_HDRS "${PROTO_OUTPUT_DIR}/${proto_name}.pb.h")
+    add_custom_command(
+        OUTPUT "${PROTO_OUTPUT_DIR}/${proto_name}.pb.cc"
+               "${PROTO_OUTPUT_DIR}/${proto_name}.pb.h"
+        COMMAND ${Protobuf_PROTOC_EXECUTABLE}
+        ARGS --cpp_out=${PROTO_OUTPUT_DIR}
+             -I ${SRC_PROTO_DIR}
+             ${CMAKE_CURRENT_SOURCE_DIR}/${proto}
+        DEPENDS ${proto}
+        COMMENT "Generating C++ protocol buffer files from ${proto}"
+    )
+endforeach()
 
 add_library(LibCrypto STATIC IMPORTED)
 set_property(TARGET LibCrypto PROPERTY IMPORTED_LOCATION ${THIRD_PARTY_LIB_DIR}/libcrypto.a)
@@ -235,14 +258,14 @@ add_library(LibProto STATIC IMPORTED)
 set_property(TARGET LibProto PROPERTY IMPORTED_LOCATION ${THIRD_PARTY_LIB_DIR}/libprotobuf.a)
 set_property(TARGET LibProto PROPERTY IMPORTED_LINK_INTERFACE_LIBRARIES LibZ)
 
-add_executable(kinesis_producer ${SOURCE_FILES} ${LOGGING_TRIGGERS} aws/kinesis/main.cc)
+add_executable(kinesis_producer ${SOURCE_FILES} ${LOGGING_TRIGGERS} aws/kinesis/main.cc ${PROTO_GENERATED_SRCS} ${PROTO_GENERATED_HDRS})
 target_include_directories(kinesis_producer SYSTEM PUBLIC ${THIRD_PARTY_INCLUDE})
 target_link_libraries(kinesis_producer ${CMAKE_THREAD_LIBS_INIT} LibProto ${AWSSDK_LINK_LIBRARIES} ${LIBBACKTRACE_LIBRARIES} ${STATIC_LIBS} ${UUID_LIBRARIES} LibSsl LibCurl)
 
-add_executable(test_driver ${SOURCE_FILES} ${LOGGING_TRIGGERS} aws/kinesis/test_driver.cc)
+add_executable(test_driver ${SOURCE_FILES} ${LOGGING_TRIGGERS} aws/kinesis/test_driver.cc ${PROTO_GENERATED_SRCS} ${PROTO_GENERATED_HDRS})
 target_include_directories(test_driver SYSTEM PUBLIC ${THIRD_PARTY_INCLUDE})
 target_link_libraries(test_driver ${CMAKE_THREAD_LIBS_INIT} LibProto ${AWSSDK_LINK_LIBRARIES} ${LIBBACKTRACE_LIBRARIES} ${STATIC_LIBS} ${UUID_LIBRARIES} LibSsl LibCurl)
 
-add_executable(tests ${SOURCE_FILES} ${TESTS_SOURCE} ${LOGGING_TRIGGERS} aws/kinesis/test/test.cc)
+add_executable(tests ${SOURCE_FILES} ${TESTS_SOURCE} ${LOGGING_TRIGGERS} aws/kinesis/test/test.cc ${PROTO_GENERATED_SRCS} ${PROTO_GENERATED_HDRS})
 target_include_directories(tests SYSTEM PUBLIC ${THIRD_PARTY_INCLUDE})
 target_link_libraries(tests ${CMAKE_THREAD_LIBS_INIT} LibProto ${AWSSDK_LINK_LIBRARIES} ${LIBBACKTRACE_LIBRARIES} ${STATIC_LIBS} boost_unit_test_framework ${UUID_LIBRARIES} LibSsl LibCurl)
