@@ -1,6 +1,4 @@
 # Kinesis Producer Library
-[![Build Status](https://travis-ci.com/awslabs/amazon-kinesis-producer.svg?branch=master)](https://travis-ci.com/awslabs/amazon-kinesis-producer)
-
 
 ## Introduction
 
@@ -37,7 +35,7 @@ ClickEvent event = inputQueue.take();
 _Sample above is provided as an example implementation. Please take your application and use cases into consideration before applying logic_
 
 ## Recommended Upgrade for All Users of 0.15.0 - 0.15.6 Amazon Kinesis Producer
-⚠️ It's highly recommended for users of version 0.15.0 - 0.15.6 of the Amazon Kinesis Producer to upgrade to version 0.15.7 . A bug has been identified in versions prior from 0.15.0 - 0.15.6 is causing memory leak issue.
+⚠️ It's highly recommended for users of version 0.15.0 - 0.15.6 of the Amazon Kinesis Producer to upgrade to version [0.15.7 or later](https://central.sonatype.com/search?q=a%3Aamazon-kinesis-producer&smo=true). We recommend you to use the latest version of KPL. A bug has been identified in versions prior from 0.15.0 - 0.15.6 is causing memory leak issue.
 
 ℹ️ Amazon Kinesis Producer versions prior to 0.15.0 are not impacted.
 
@@ -50,21 +48,35 @@ The KPL is an application for ingesting data to your Kinesis Data Streams. As yo
 
 _We recommend performing sufficient testing before applying these changes to production, as every customer has different usage patterns_
 
-## Required KPL Update – v0.15.0
+## Required KPL Update – Changes in v0.15.0
 KPL 0.15.0 now incorporates StreamARN in the Kinesis requests, such as PutRecords and ListShards, to take advantage of Kinesis Data Streams (KDS) enhanced availability as the result of service cellularization. Version 0.15.0 adds STS as the new dependency; by using STS, customers can benefit from StreamARN without modifying any code.
 
-## Required KPL Update – v0.14.0
-KPL 0.14.0 now uses ListShards API, making it easier for your Kinesis Producer applications to scale. Kinesis Data Streams (KDS) enables you to scale your stream capacity without any changes to producers and consumers. After a scaling event, producer applications need to discover the new shard map. Version 0.14.0 replaces the DescribeStream with the ListShards API for shard discovery. ListShards API supports 100TPS per stream compared to DescribeStream that supports 10TPS per account. For an account with 10 streams using KPL v0.14.0 will provide you a 100X higher call rate for shard discovery, eliminating the need for a DescribeStream API limit increase for scaling. You can find more information on the [ListShards API ](https://docs.aws.amazon.com/kinesis/latest/APIReference/API_ListShards.html) in the Kinesis Data Streams documentation.
+## Required KPL Update – Changes in v0.14.0
+KPL 0.14.0 now uses ListShards API, making it easier for your Kinesis Producer applications to scale. Kinesis Data Streams (KDS) enables you to scale your stream capacity without any changes to producers and consumers. After a scaling event, producer applications need to discover the new shard map. Version 0.14.0 replaces the DescribeStream with the ListShards API for shard discovery. ListShards API supports 100 TPS per stream compared to DescribeStream that supports 10 TPS per account. For an account with 10 streams using KPL v0.14.0 will provide you a 100X higher call rate for shard discovery, eliminating the need for a DescribeStream API limit increase for scaling. You can find more information on the [ListShards API ](https://docs.aws.amazon.com/kinesis/latest/APIReference/API_ListShards.html) in the Kinesis Data Streams documentation.
 
 
 ## Required Upgrade
-Starting on February 9, 2018 Amazon Kinesis Data Streams will begin transitioning to certificates issued by [Amazon Trust Services (ATS)](https://www.amazontrust.com/).  To continue using the Kinesis Producer Library (KPL) you must upgrade the KPL to version [0.12.6](http://search.maven.org/#artifactdetails|com.amazonaws|amazon-kinesis-producer|0.12.6|jar) or [later](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22com.amazonaws%22%20AND%20a%3A%22amazon-kinesis-producer%22).
+Starting on February 9, 2018 Amazon Kinesis Data Streams will begin transitioning to certificates issued by [Amazon Trust Services (ATS)](https://www.amazontrust.com/).  To continue using the Kinesis Producer Library (KPL) you must upgrade the KPL to version [0.12.6 or later](https://central.sonatype.com/search?q=a%3Aamazon-kinesis-producer&smo=true). We recommend you to use the latest version of KPL.
 
 If you have further questions [please open a GitHub Issue](https://github.com/awslabs/amazon-kinesis-producer/issues), or [create a case with the AWS Support Center](https://console.aws.amazon.com/support/v1#/case/create).
 
 This is a restatement of the [notice published](https://docs.aws.amazon.com/streams/latest/dev/kinesis-kpl-upgrades.html) in the [Amazon Kinesis Data Streams Developer Guide][kinesis-developer-guide]
 
 ## Release Notes
+
+## 1.0.0
+Check [this AWS Kinesis Data Streams Developer Guide](https://docs.aws.amazon.com/streams/latest/dev/kpl-migration-1x.html) to migrate to KPL 1.0.0 from previous KPL verions.
+* [#614](https://github.com/awslabs/amazon-kinesis-producer/pull/614) Upgrade to AWS SDK for Java 2.x
+    * Upgrade protobuf-java to 4.29.0
+    * Upgrade schema-registry-serde to 1.1.22
+    * Upgrade jackson-core to 2.18.2
+    * Upgrade jackson-databind to 2.18.2
+* [#611](https://github.com/awslabs/amazon-kinesis-producer/pull/611) Make certificate authority file configurable in KinesisProducerConfiguration
+* [#615](https://github.com/awslabs/amazon-kinesis-producer/pull/615) Refactor groupId to software.amazon.kinesis
+* [#616](https://github.com/awslabs/amazon-kinesis-producer/pull/616) Auto generate protobuf files in C++
+* [#484](https://github.com/awslabs/amazon-kinesis-producer/pull/484) Upgrade maven-compiler-plugin to 3.11.0
+* [#607](https://github.com/awslabs/amazon-kinesis-producer/pull/607) Upgrade hibernate-validator to 6.2.0.Final
+
 ## 0.15.12
 * [#593](https://github.com/awslabs/amazon-kinesis-producer/pull/593) Replace all usage of sys_siglist with strsignal as sys_siglist is deprecated
 * [#594](https://github.com/awslabs/amazon-kinesis-producer/pull/594) Check if dimension.value is blank before using it in metrics manager
@@ -168,7 +180,7 @@ This is a restatement of the [notice published](https://docs.aws.amazon.com/stre
 * [PR #331](https://github.com/awslabs/amazon-kinesis-producer/pull/331) Fixed a typo in README.md
 * [PR #363](https://github.com/awslabs/amazon-kinesis-producer/pull/363) Upgrading hibernate-validator to 6.0.20.Final
 * [PR #365](https://github.com/awslabs/amazon-kinesis-producer/pull/365) Upgrading logback-classic to 1.2.0
-* [PR #367](https://github.com/awslabs/amazon-kinesis-producer/pull/367) Upgrading Glue Schema Registry to 1.1.1  
+* [PR #367](https://github.com/awslabs/amazon-kinesis-producer/pull/367) Upgrading Glue Schema Registry to 1.1.1
 
 ### 0.14.7
 * [PR #350](https://github.com/awslabs/amazon-kinesis-producer/pull/350/files) Upgrading Guava to 29.0-jre
@@ -177,7 +189,7 @@ This is a restatement of the [notice published](https://docs.aws.amazon.com/stre
 * [PR #356](https://github.com/awslabs/amazon-kinesis-producer/pull/356) Fixing build issues in Travis CI
 
 ### 0.14.6
-* [PR #341] Updating Java SDK version in KPL to 1.11.960. 
+* [PR #341] Updating Java SDK version in KPL to 1.11.960.
 
 ### 0.14.5
 * [PR #339] Fixing KPL not emmiting Kinesis PutRecords call context metrics.
