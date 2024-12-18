@@ -15,10 +15,9 @@
 
 #include "backtrace.h"
 #include <aws/utils/writer_methods.h>
-#include <execinfo.h>
 #include <unistd.h>
 
-#ifdef NULL_STACKTRACE
+#ifdef NULL_BACKTRACE
 
 namespace aws {
 namespace utils {
@@ -36,4 +35,4 @@ void stack_trace_for_signal(int skip, bool /*signaled*/) {
 }
 }
 
-#endif // NULL_STACKTRACE
+#endif // NULL_BACKTRACE
