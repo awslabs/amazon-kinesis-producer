@@ -174,6 +174,14 @@ public class SampleProducer {
         //
         // Records are also automatically flushed by the KPL after a while based
         // on the time limit set with Configuration.setRecordMaxBufferedTime()
+        //
+        // Note: DO NOT trigger the flushSync() method to every time you write
+        // data to Kinesis Data Streams. Doing so can add substantial extra
+        // latency, around 500ms per write. The flushSync() operation is designed
+        // for shutdown scenarios to make sure that all buffered records are
+        // sent before the KPL application terminates.
+        // See the below link for details.
+        // https://docs.aws.amazon.com/streams/latest/dev/troubleshooting-producers.html#misuse-tag
         log.info("Waiting for remaining puts to finish...");
         producer.flushSync();
         log.info("All records complete.");
