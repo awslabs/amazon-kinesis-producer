@@ -135,7 +135,7 @@
         <dependency>
             <groupId>software.amazon.glue</groupId>
             <artifactId>schema-registry-serde</artifactId>
-            <version>1.1.22</version>
+            <version>1.1.23</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.amazonaws</groupId>
