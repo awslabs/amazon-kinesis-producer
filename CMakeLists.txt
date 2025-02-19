@@ -3,6 +3,7 @@ project(amazon_kinesis_producer)
 include(CheckCCompilerFlag)
 
 set(THIRD_PARTY_LIB_DIR "${amazon_kinesis_producer_SOURCE_DIR}/third_party/lib")
+set(THIRD_PARTY_LIB64_DIR "${amazon_kinesis_producer_SOURCE_DIR}/third_party/lib64")
 
 if(CMAKE_COMPILER_IS_GNUCXX)
     set(ADDL_LINK_CONFIG "-static-libstdc++")
@@ -240,11 +241,11 @@ foreach(proto ${PROTO_FILES})
 endforeach()
 
 add_library(LibCrypto STATIC IMPORTED)
-set_property(TARGET LibCrypto PROPERTY IMPORTED_LOCATION ${THIRD_PARTY_LIB_DIR}/libcrypto.a)
+set_property(TARGET LibCrypto PROPERTY IMPORTED_LOCATION ${THIRD_PARTY_LIB64_DIR}/libcrypto.a)
 set_property(TARGET LibCrypto PROPERTY IMPORTED_LINK_INTERFACE_LIBRARIES ${LIBDL_LIBRARIES})
 
 add_library(LibSsl STATIC IMPORTED)
-set_property(TARGET LibSsl PROPERTY IMPORTED_LOCATION ${THIRD_PARTY_LIB_DIR}/libssl.a)
+set_property(TARGET LibSsl PROPERTY IMPORTED_LOCATION ${THIRD_PARTY_LIB64_DIR}/libssl.a)
 set_property(TARGET LibSsl PROPERTY IMPORTED_LINK_INTERFACE_LIBRARIES LibCrypto)
 
 add_library(LibZ STATIC IMPORTED)
