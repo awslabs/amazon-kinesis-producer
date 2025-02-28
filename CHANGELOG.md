@@ -1,5 +1,14 @@
 ## Changelog
 
+## 1.0.1
+* [#627](https://github.com/awslabs/amazon-kinesis-producer/pull/627) Upgrade dependency versions to fix vulnerabilities
+  * Upgrade curl to 8.12.0
+  * Upgrade openssl to 3.4.0
+  * Upgrade zlib to 1.3.1
+  * Upgrade schema-registry-serde to 1.1.23
+* [#623](https://github.com/awslabs/amazon-kinesis-producer/pull/623) Update SampleProducer.java with guidance on calling flushSync()
+* [#619](https://github.com/awslabs/amazon-kinesis-producer/pull/619) Update README.md with guidance on recommended upgrade
+
 ## 1.0.0
 * [#614](https://github.com/awslabs/amazon-kinesis-producer/pull/614) Upgrade to AWS SDK for Java 2.x
   * Upgrade protobuf-java to 4.29.0
