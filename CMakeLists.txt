@@ -3,7 +3,6 @@ project(amazon_kinesis_producer)
 include(CheckCCompilerFlag)
 
 set(THIRD_PARTY_LIB_DIR "${amazon_kinesis_producer_SOURCE_DIR}/third_party/lib")
-set(THIRD_PARTY_LIB64_DIR "${amazon_kinesis_producer_SOURCE_DIR}/third_party/lib64")
 
 if(CMAKE_COMPILER_IS_GNUCXX)
     set(ADDL_LINK_CONFIG "-static-libstdc++")
@@ -217,6 +216,12 @@ find_package(Threads)
 find_package(ZLIB)
 find_package(AWSSDK REQUIRED COMPONENTS kinesis monitoring sts)
 
+find_library(LIBCRYPTO_LIBRARIES NAMES libcrypto.a)
+find_library(LIBSSL_LIBRARIES NAMES libssl.a)
+find_library(LIBZ_LIBRARIES NAMES libz.a)
+find_library(LIBCURL_LIBRARIES NAMES libcurl.a)
+find_library(LIBPROTO_LIBRARIES NAMES libprotobuf.a)
+
 # Specify the output directory for generated protobuf files
 set(PROTO_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/aws/kinesis/protobuf/)
 
@@ -241,22 +246,22 @@ foreach(proto ${PROTO_FILES})
 endforeach()
 
 add_library(LibCrypto STATIC IMPORTED)
-set_property(TARGET LibCrypto PROPERTY IMPORTED_LOCATION ${THIRD_PARTY_LIB64_DIR}/libcrypto.a)
+set_property(TARGET LibCrypto PROPERTY IMPORTED_LOCATION ${LIBCRYPTO_LIBRARIES})
 set_property(TARGET LibCrypto PROPERTY IMPORTED_LINK_INTERFACE_LIBRARIES ${LIBDL_LIBRARIES})
 
 add_library(LibSsl STATIC IMPORTED)
-set_property(TARGET LibSsl PROPERTY IMPORTED_LOCATION ${THIRD_PARTY_LIB64_DIR}/libssl.a)
+set_property(TARGET LibSsl PROPERTY IMPORTED_LOCATION ${LIBSSL_LIBRARIES})
 set_property(TARGET LibSsl PROPERTY IMPORTED_LINK_INTERFACE_LIBRARIES LibCrypto)
 
 add_library(LibZ STATIC IMPORTED)
-set_property(TARGET LibZ PROPERTY IMPORTED_LOCATION ${THIRD_PARTY_LIB_DIR}/libz.a)
+set_property(TARGET LibZ PROPERTY IMPORTED_LOCATION ${LIBZ_LIBRARIES})
 
 add_library(LibCurl STATIC IMPORTED)
-set_property(TARGET LibCurl PROPERTY IMPORTED_LOCATION ${THIRD_PARTY_LIB_DIR}/libcurl.a)
+set_property(TARGET LibCurl PROPERTY IMPORTED_LOCATION ${LIBCURL_LIBRARIES})
 set_property(TARGET LibCurl PROPERTY IMPORTED_LINK_INTERFACE_LIBRARIES ${CMAKE_THREAD_LIBS_INIT} ${LIBRT_LIBRARIES} ${LIBDL_LIBRARIES} LibSsl LibZ)
 
 add_library(LibProto STATIC IMPORTED)
-set_property(TARGET LibProto PROPERTY IMPORTED_LOCATION ${THIRD_PARTY_LIB_DIR}/libprotobuf.a)
+set_property(TARGET LibProto PROPERTY IMPORTED_LOCATION ${LIBPROTO_LIBRARIES})
 set_property(TARGET LibProto PROPERTY IMPORTED_LINK_INTERFACE_LIBRARIES LibZ)
 
 add_executable(kinesis_producer ${SOURCE_FILES} ${LOGGING_TRIGGERS} aws/kinesis/main.cc ${PROTO_GENERATED_SRCS} ${PROTO_GENERATED_HDRS})
