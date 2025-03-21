@@ -1,5 +1,13 @@
 # Kinesis Producer Library
 
+>[!Important]
+> ### Amazon Kinesis Producer Library (KPL) 0.x will reach end-of-support on January 30, 2026
+> Amazon Kinesis Producer Library (KPL) 0.x will reach end-of-support on January 30, 2026. Accordingly, the version will enter maintenance mode on April 17, 2025. During maintenance mode, AWS will provide updates only for critical bug fixes and security issues. Major versions in maintenance mode will not receive updates for new features or feature enhancements. If you’re using KPL 0.x, we recommend migrating to the latest version. When migrating from KPL 0.x to 1.x, you can upgrade your current KPL application without any change in your data processing logic. For details about the end-of-support notice and required actions, see the following links:
+> 
+> * [AWS Blog: Announcing end-of-support for Amazon Kinesis Client Library 1.x and Amazon Kinesis Producer Library 0.x effective January 30, 2026](https://aws.amazon.com/blogs/big-data/announcing-end-of-support-for-amazon-kinesis-client-library-1-x-and-amazon-kinesis-producer-library-0-x-effective-january-30-2026/)
+> * [Kinesis documentation: KPL version lifecycle policy](https://docs.aws.amazon.com/streams/latest/dev/kpl-version-lifecycle-policy.html)
+> * [Kinesis documentation: Migrate from KPL 0.x to KPL 1.x](https://docs.aws.amazon.com/streams/latest/dev/kpl-migration-1x.html)
+
 ## Introduction
 
 The Amazon Kinesis Producer Library (KPL) performs many tasks common to creating efficient and reliable producers for [Amazon Kinesis][amazon-kinesis]. By using the KPL, customers do not need to develop the same logic every time they create a new application for data ingestion.
