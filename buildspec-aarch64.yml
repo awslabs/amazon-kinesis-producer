@@ -43,13 +43,12 @@ phases:
       - echo "################################################################################"
       - echo "Starting build phase for Linux/arm64"
       - echo "################################################################################"
-      - aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 056543101242.dkr.ecr.us-west-2.amazonaws.com
       - echo "Getting Docker image for AL2/Arm64 build of KPL..."
       - docker pull public.ecr.aws/amazonlinux/amazonlinux:2
       - ls
       - df -h
       - echo "Building KPL in current directory in the Container..."
-      - docker run --rm -m 15g --privileged -v $(pwd):/kpl public.ecr.aws/amazonlinux/amazonlinux:2 /bin/bash -c "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY && export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID && export MAVEN_DOWNLOAD_LINK=$MAVEN_DOWNLOAD_LINK && export MAVEN_VERSION=$MAVEN_VERSION && cd /kpl && ls && yum install -y -q sudo cmake3 gcc gcc-c++ make file tar gzip which perl git libuuid libuuid-devel zlib zlib-devel zlib-static wget && sudo amazon-linux-extras enable corretto8 && sudo yum install -y java-1.8.0-amazon-corretto-devel && export JAVA_HOME=/usr/lib/jvm/java-1.8.0-amazon-corretto.aarch64 && java -version && echo \"Install Maven from $MAVEN_DOWNLOAD_LINK...\" && mkdir -p /usr/local/maven && wget $MAVEN_DOWNLOAD_LINK && tar xvf apache-maven-$MAVEN_VERSION-bin.tar.gz -C /usr/local/maven --strip-components=1 && ln -s /usr/local/maven/bin/mvn /usr/bin/mvn && echo \"Maven has been installed with $(mvn --version)\" && cd /kpl && ls && ./bootstrap.sh"
+      - docker run --rm --privileged -v $(pwd):/kpl public.ecr.aws/amazonlinux/amazonlinux:2 /bin/bash -c "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY && export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID && export MAVEN_DOWNLOAD_LINK=$MAVEN_DOWNLOAD_LINK && export MAVEN_VERSION=$MAVEN_VERSION && cd /kpl && ls && yum install -y -q sudo cmake3 gcc gcc-c++ make file tar gzip which perl git libuuid libuuid-devel zlib zlib-devel zlib-static wget perl-core && sudo amazon-linux-extras enable corretto8 && sudo yum install -y java-1.8.0-amazon-corretto-devel && export JAVA_HOME=/usr/lib/jvm/java-1.8.0-amazon-corretto.aarch64 && java -version && echo \"Install Maven from $MAVEN_DOWNLOAD_LINK...\" && mkdir -p /usr/local/maven && wget $MAVEN_DOWNLOAD_LINK && tar xvf apache-maven-$MAVEN_VERSION-bin.tar.gz -C /usr/local/maven --strip-components=1 && ln -s /usr/local/maven/bin/mvn /usr/bin/mvn && echo \"Maven has been installed with $(mvn --version)\" && cd /kpl && ls && ./bootstrap.sh"
       - cd java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/$CODEBUILD_OS_NAME-`uname -m`
       - ls
       - sudo zip kinesis-producer.zip kinesis_producer
