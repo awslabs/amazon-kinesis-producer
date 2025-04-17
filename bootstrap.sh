@@ -125,20 +125,20 @@ if [ ! -d "openssl-${OPENSSL_VERSION}" ]; then
   rm openssl.tgz
 
   cd openssl-${OPENSSL_VERSION}
-  OPTS="threads no-shared no-idea no-camellia no-seed no-bf no-cast no-rc2 no-rc5 no-md2 no-mdc2 no-ssl2 no-ssl3 no-capieng no-dso"
+  OPTS="threads no-shared no-idea no-camellia no-seed no-bf no-cast no-rc2 no-rc5 no-md2 no-mdc2 no-ssl2 no-ssl3 no-capieng no-dso --prefix=$INSTALL_DIR --libdir=lib"
 
   if [[ $(uname) == 'Darwin' ]]; then
     OPTS="$OPTS darwin64-x86_64-cc enable-ec_nistp_64_gcc_128"
-    silence ./Configure $OPTS --prefix="$INSTALL_DIR"
+    silence ./Configure $OPTS
   elif [[ $(uname) == MINGW* ]]; then
-    silence ./Configure mingw64 $OPTS --prefix="$INSTALL_DIR"
+    silence ./Configure mingw64 $OPTS
     find ./ -name Makefile | while read f; do
       echo >>"$f"
       echo "%.o: %.c" >>"$f"
       echo -e '\t$(COMPILE.c) $(OUTPUT_OPTION) $<;' >>$f
     done
   else
-    silence ./config $OPTS --prefix="$INSTALL_DIR"
+    silence ./config $OPTS
   fi
 
   silence make depend

@@ -46,7 +46,7 @@ phases:
       - ls
       - df -h
       - echo "Building KPL in current directory in the Container..."
-      - docker run --rm -m 15g -v $(pwd):/kpl 056543101242.dkr.ecr.us-west-2.amazonaws.com/kinesis-producer-library-builder:latest /bin/bash -c "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY && export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID && cd /kpl && ls && ./bootstrap.sh"
+      - docker run --rm -v $(pwd):/kpl 056543101242.dkr.ecr.us-west-2.amazonaws.com/kinesis-producer-library-builder:latest /bin/bash -c "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY && export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID && cd /kpl && ls && ./bootstrap.sh"
       - cd java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/$CODEBUILD_OS_NAME-`uname -m`
       - ls
       - sudo zip kinesis-producer.zip kinesis_producer
