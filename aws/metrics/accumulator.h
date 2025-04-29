@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates.
+ * Copyright 2025 Amazon.com, Inc. or its affiliates.
  * Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -16,7 +16,6 @@
 #ifndef AWS_METRICS_ACCUMULATOR_H_
 #define AWS_METRICS_ACCUMULATOR_H_
 
-#include <chrono>
 #include <list>
 
 #include <boost/accumulators/accumulators.hpp>
@@ -27,6 +26,7 @@
 #include <boost/accumulators/statistics/sum.hpp>
 #include <boost/accumulators/statistics/count.hpp>
 
+#include <aws/metrics/metrics_header.h>
 #include <aws/utils/logging.h>
 
 #include <aws/mutex.h>
@@ -34,9 +34,6 @@
 // Bucketed time-series accumulator modeled after CloudWatch metrics/statistics.
 namespace aws {
 namespace metrics {
-
-using Clock = std::chrono::steady_clock;
-using TimePoint = Clock::time_point;
 
 namespace detail {
 
@@ -71,7 +68,8 @@ template <typename ValType,
 class AccumulatorList {
  public:
   void operator()(ValType val) {
-    auto tp = TimePoint(buckets_since_epoch());
+    auto tp = current_time();
+    auto checkpoint = upload_checkpoint_;
 
     {
       ReadLock lk(mutex_);
@@ -82,8 +80,7 @@ class AccumulatorList {
     }
 
     WriteLock lk(mutex_);
-    while (!accums_.empty() &&
-           buckets_between(accums_.front().first, tp) > NumBuckets) {
+    while (!accums_.empty() && accums_.front().first < checkpoint) {
       accums_.pop_front();
     }
     if (accums_.empty() || accums_.back().first < tp) {
@@ -100,21 +97,25 @@ class AccumulatorList {
       return 0;
     }
 
-    auto cutoff = TimePoint(buckets_since_epoch() - BucketSize(buckets));
+    auto r = range(buckets);
+    return get<Stat>(r.first, r.second);
+  }
 
+  template <typename Stat>
+  ValType get(TimePoint begin, TimePoint end) {
     ReadLock lk(mutex_);
 
     if (std::is_same<Stat, boost::accumulators::tag::count>::value ||
         std::is_same<Stat, boost::accumulators::tag::sum>::value) {
-      return this->sum<Stat>(cutoff);
+      return this->sum<Stat>(begin, end);
     } else if (std::is_same<Stat, boost::accumulators::tag::mean>::value) {
       return
-          this->sum<boost::accumulators::tag::sum>(cutoff) /
-              this->sum<boost::accumulators::tag::count>(cutoff);
+          this->sum<boost::accumulators::tag::sum>(begin, end) /
+              this->sum<boost::accumulators::tag::count>(begin, end);
     } else {
       return
           boost::accumulators::extract_result<Stat>(
-              combine<OneStatAccum<Stat>, Stat>(cutoff));
+              combine<OneStatAccum<Stat>, Stat>(begin, end));
     }
   }
 
@@ -124,6 +125,18 @@ class AccumulatorList {
       boost::accumulators::accumulator_set<
           ValType,
           boost::accumulators::stats<Stat>>;
+
+  static inline std::pair<TimePoint, TimePoint> range(size_t buckets) {
+    return range(buckets, current_time());
+  }
+
+  static inline std::pair<TimePoint, TimePoint> range(size_t buckets, TimePoint end) {
+    return std::pair<TimePoint, TimePoint>(end - BucketSize(buckets), end);
+  }
+
+  static inline TimePoint current_time() {
+    return TimePoint(buckets_since_epoch());
+  }
 
   static inline BucketSize buckets_since_epoch() {
     return std::chrono::duration_cast<BucketSize>(
@@ -136,10 +149,10 @@ class AccumulatorList {
   }
 
   template <typename CombiningAccumType, typename Stat>
-  CombiningAccumType combine(TimePoint cutoff) {
+  CombiningAccumType combine(TimePoint begin, TimePoint end) {
     CombiningAccumType a;
     for (auto& p : accums_) {
-      if (p.first > cutoff) {
+      if (p.first > begin && p.first <= end) {
         a(p.second.template get<Stat>());
       }
     }
@@ -147,9 +160,9 @@ class AccumulatorList {
   }
 
   template <typename Stat>
-  ValType sum(TimePoint cutoff) {
+  ValType sum(TimePoint begin, TimePoint end) {
     return boost::accumulators::sum(
-        combine<OneStatAccum<boost::accumulators::tag::sum>, Stat>(cutoff));
+        combine<OneStatAccum<boost::accumulators::tag::sum>, Stat>(begin, end));
   }
 
   Mutex mutex_;
@@ -191,6 +204,26 @@ class AccumulatorImpl {
     return get<boost::accumulators::tag::sum>(buckets);
   }
 
+  ValType count(TimePoint begin, TimePoint end) {
+    return get<boost::accumulators::tag::count>(begin, end);
+  }
+
+  ValType mean(TimePoint begin, TimePoint end) {
+    return get<boost::accumulators::tag::mean>(begin, end);
+  }
+
+  ValType min(TimePoint begin, TimePoint end) {
+    return get<boost::accumulators::tag::min>(begin, end);
+  }
+
+  ValType max(TimePoint begin, TimePoint end) {
+    return get<boost::accumulators::tag::max>(begin, end);
+  }
+
+  ValType sum(TimePoint begin, TimePoint end) {
+    return get<boost::accumulators::tag::sum>(begin, end);
+  }
+
   TimePoint start_time() const noexcept {
     return start_time_;
   }
@@ -219,6 +252,11 @@ class AccumulatorImpl {
     } else {
       return overall_.template get<Stat>();
     }
+  }
+
+  template <typename Stat>
+  ValType get(TimePoint begin, TimePoint end) {
+    return accums_.template get<Stat>(begin, end);
   }
 
   detail::AccumulatorList<ValType, Accum, BucketSize, NumBuckets> accums_;
