@@ -26,8 +26,6 @@ using TimePoint = Clock::time_point;
 
 extern TimePoint upload_checkpoint_;
 
-extern int test_global_int_;
-
 } // namespace metrics
 } // namespace aws
 
