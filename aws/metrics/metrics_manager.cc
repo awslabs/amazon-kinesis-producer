@@ -29,8 +29,6 @@ namespace metrics {
 
 TimePoint upload_checkpoint_ = Clock::now();
 
-int test_global_int_ = 1;
-
 namespace detail {
 
 std::shared_ptr<Metric> MetricsFinderBuilder::find() {
