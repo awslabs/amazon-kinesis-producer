@@ -69,7 +69,9 @@ class AccumulatorList {
  public:
   void operator()(ValType val) {
     auto tp = current_time();
-    auto checkpoint = upload_checkpoint_;
+//    auto checkpoint = upload_checkpoint_;
+
+//    LOG(info) << checkpoint.time_since_epoch().count();
 
     {
       ReadLock lk(mutex_);
@@ -79,8 +81,20 @@ class AccumulatorList {
       }
     }
 
-    WriteLock lk(mutex_);
-    while (!accums_.empty() && accums_.front().first < checkpoint) {
+    WriteLock(mutex_);
+
+//    if (!accums_.empty()) {
+//      LOG(info) << checkpoint.time_since_epoch().count();
+//      LOG(info) << accums_.front().first.time_since_epoch().count();
+//    }
+
+//    WriteLock lk(mutex_);
+//    while (!accums_.empty() && accums_.front().first < checkpoint) {
+//      LOG(info) << checkpoint.time_since_epoch().count();
+//      LOG(info) << accums_.front().first.time_since_epoch().count();
+//      LOG(info) << "Rotating!";
+    while (!accums_.empty() && 
+           buckets_between(accums_.front().first, tp) > NumBuckets) {
       accums_.pop_front();
     }
     if (accums_.empty() || accums_.back().first < tp) {
@@ -119,6 +133,13 @@ class AccumulatorList {
     }
   }
 
+  void flush(TimePoint checkpoint) {
+    WriteLock lk(mutex_);
+    while (!accums_.empty() && accums_.front().first < checkpoint) {
+      accums_.pop_front();
+    }
+  }
+
  private:
   template <typename Stat>
   using OneStatAccum =
@@ -151,8 +172,15 @@ class AccumulatorList {
   template <typename CombiningAccumType, typename Stat>
   CombiningAccumType combine(TimePoint begin, TimePoint end) {
     CombiningAccumType a;
+
+//    LOG(info) << "begin and end...";
+//    LOG(info) << begin.time_since_epoch().count();
+//    LOG(info) << end.time_since_epoch().count();
+
     for (auto& p : accums_) {
+//      LOG(info) << p.first.time_since_epoch().count();
       if (p.first > begin && p.first <= end) {
+//        LOG(info) << "Added to temporary accumulator!";
         a(p.second.template get<Stat>());
       }
     }
@@ -161,6 +189,7 @@ class AccumulatorList {
 
   template <typename Stat>
   ValType sum(TimePoint begin, TimePoint end) {
+//    LOG(info) << "Made it to the sum<Stat>(tp, tp) tag of AccumulatorList!";
     return boost::accumulators::sum(
         combine<OneStatAccum<boost::accumulators::tag::sum>, Stat>(begin, end));
   }
@@ -205,6 +234,7 @@ class AccumulatorImpl {
   }
 
   ValType count(TimePoint begin, TimePoint end) {
+    // LOG(info) << "Made it to the count(tp, tp) tag of AccumulatorImpl!";
     return get<boost::accumulators::tag::count>(begin, end);
   }
 
@@ -222,6 +252,10 @@ class AccumulatorImpl {
 
   ValType sum(TimePoint begin, TimePoint end) {
     return get<boost::accumulators::tag::sum>(begin, end);
+  }
+
+  void flush(TimePoint checkpoint) {
+    accums_.flush(checkpoint);
   }
 
   TimePoint start_time() const noexcept {
@@ -256,6 +290,7 @@ class AccumulatorImpl {
 
   template <typename Stat>
   ValType get(TimePoint begin, TimePoint end) {
+    // LOG(info) << "Made it to the get<Stat>(tp, tp) tag of AccumulatorImpl!";
     return accums_.template get<Stat>(begin, end);
   }
 

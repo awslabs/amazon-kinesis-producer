@@ -24,7 +24,7 @@ namespace metrics {
 using Clock = std::chrono::steady_clock;
 using TimePoint = Clock::time_point;
 
-extern TimePoint upload_checkpoint_;
+//extern TimePoint upload_checkpoint_;
 
 } // namespace metrics
 } // namespace aws

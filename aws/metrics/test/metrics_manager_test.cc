@@ -146,6 +146,12 @@ BOOST_AUTO_TEST_CASE(RequestGeneration) {
     m3->put(i);
   }
 
+//  aws::metrics::detail::AccumulatorImpl<double, std::chrono::seconds, 60> a& = m->accumulator();
+
+  auto& a = m->accumulator();
+
+  LOG(info) << a.count();
+
   aws::utils::sleep_for(std::chrono::milliseconds(1500));
   metrics_manager->stop();
   aws::utils::sleep_for(std::chrono::milliseconds(200));

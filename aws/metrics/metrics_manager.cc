@@ -27,7 +27,7 @@
 namespace aws {
 namespace metrics {
 
-TimePoint upload_checkpoint_ = Clock::now();
+//TimePoint upload_checkpoint_;
 
 namespace detail {
 
@@ -97,10 +97,20 @@ void MetricsManager::upload() {
   TimePoint begin = upload_checkpoint_;
   TimePoint end = Clock::now();
 
+//  LOG(info) << begin.time_since_epoch().count();
+//  LOG(info) << end.time_since_epoch().count();
+//  LOG(info) << upload_checkpoint_.time_since_epoch().count();
+
   for (auto& m : metrics_index_.get_all()) {
+//    LOG(info) << m->accumulator().count(begin, end);
     if (constants::filter(m->all_dimensions(), level_, granularity_) &&
-        m->accumulator().count(begin, end) > 0) {
+      m->accumulator().count(begin,end)) {
+//        m->accumulator().count(begin, end) > 0) {
       uploads.push_back(std::move(m));
+//      m->accumulator().flush(end);
+//      LOG(info) << "Found data!";
+
+//      LOG(info) << m->accumulator().count(begin, end);
     }
   }
 
@@ -139,7 +149,8 @@ void MetricsManager::upload() {
       break;
     }
 
-    upload_checkpoint_ = end;
+//    upload_checkpoint_ = end;
+    
   }
 }
 

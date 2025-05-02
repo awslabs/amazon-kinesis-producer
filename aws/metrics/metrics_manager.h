@@ -148,7 +148,7 @@ class MetricsManager {
           std::move(std::get<1>(t)));
     }
 
-    upload_checkpoint_ = Clock::now();
+    upload_checkpoint_ = TimePoint::min();
 
     scheduled_upload_ =
         executor_->schedule(
@@ -204,6 +204,7 @@ class MetricsManager {
   MetricsIndex metrics_index_;
 
   std::shared_ptr<aws::utils::ScheduledCallback> scheduled_upload_;
+  TimePoint upload_checkpoint_;
 };
 
 class NullMetricsManager : public MetricsManager {

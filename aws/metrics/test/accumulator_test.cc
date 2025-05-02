@@ -37,6 +37,68 @@ auto get_start_time() {
 
 BOOST_AUTO_TEST_SUITE(Accumulator)
 
+BOOST_AUTO_TEST_CASE(Cutoff) {
+  const int num_buckets = 30;
+  using Bucket = std::chrono::milliseconds;
+
+  aws::metrics::detail::AccumulatorImpl<double, Bucket, num_buckets> a;
+
+  auto start = aws::metrics::Clock::now();
+
+  a(1);
+
+  BOOST_CHECK_EQUAL(a.count(), 1);
+  BOOST_CHECK_EQUAL(a.count(num_buckets), 1);
+
+  aws::utils::sleep_until(start + Bucket(num_buckets));
+
+  BOOST_CHECK_EQUAL(a.count(), 1);
+  BOOST_CHECK_EQUAL(a.count(num_buckets), 0);
+}
+
+BOOST_AUTO_TEST_CASE(Rotate) {
+  aws::metrics::detail::AccumulatorImpl<double, std::chrono::milliseconds, 30> a;
+
+  auto lookback = 10000;
+
+  a(1);
+
+  BOOST_CHECK_EQUAL(a.count(), 1);
+  BOOST_CHECK_EQUAL(a.count(lookback), 1);
+
+//  auto temp = aws::metrics::upload_checkpoint_;
+
+//  LOG(info) << "Temp!";
+//  LOG(info) << temp.time_since_epoch().count();
+
+//  aws::metrics::upload_checkpoint_ = aws::metrics::TimePoint::max();
+
+//  LOG(info) << "Hello, world!";
+//  LOG(info) << aws::metrics::upload_checkpoint_.time_since_epoch().count();
+
+//  auto now = aws::metrics::Clock::now();
+
+//  LOG(info) << now.time_since_epoch().count();
+
+//  auto checkpoint = aws::metrics::upload_checkpoint_;
+
+//  if (now < checkpoint) {
+//    LOG(info) << "Before!";
+//  }
+
+//  aws::utils::sleep_until(now + std::chrono::milliseconds(1));
+
+  BOOST_CHECK_EQUAL(a.count(), 1);
+  BOOST_CHECK_EQUAL(a.count(lookback), 1);
+
+  a(2);
+
+  BOOST_CHECK_EQUAL(a.count(), 2);
+  BOOST_CHECK_EQUAL(a.count(lookback), 1);
+
+//  aws::metrics::upload_checkpoint_ = temp;
+}
+
 BOOST_AUTO_TEST_CASE(Overall) {
   aws::metrics::detail::AccumulatorImpl<
       double,
