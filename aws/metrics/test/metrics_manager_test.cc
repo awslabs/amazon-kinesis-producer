@@ -55,7 +55,7 @@ class MockCloudWatchClient : public Aws::CloudWatch::CloudWatchClient {
       const Aws::CloudWatch::Model::PutMetricDataRequest& request,
       const Aws::CloudWatch::PutMetricDataResponseReceivedHandler& handler,
       const std::shared_ptr<const Aws::Client::AsyncCallerContext>& context
-          = nullptr) const override {
+          = nullptr) const  {
     push(&requests_, request);
     executor_->submit([=] {
       if (num_failures_ <= 0) {

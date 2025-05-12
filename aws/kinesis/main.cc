@@ -50,9 +50,10 @@ struct {
   std::string kinesis_credentials;
   std::string cloudwatch_credentials;
   std::string ca_path;
+  std::string ca_file;
   int enable_stack_trace = 0;
   Aws::Utils::Logging::LogLevel aws_log_level = Aws::Utils::Logging::LogLevel::Warn;
-  boost::log::trivial::severity_level boost_log_level = boost::log::trivial::info;
+  boost::log::trivial::severity_level boost_log_level = boost::log::trivial::warning;
 } options;
 
 struct option long_opts[]{
@@ -78,6 +79,7 @@ void handle_log_level(std::string input_level) {
     level_mapping["debug"] = std::make_pair(AwsLog::Debug, BoostLog::debug);
     level_mapping["info"] = std::make_pair(AwsLog::Info, BoostLog::info);
     level_mapping["warn"] = std::make_pair(AwsLog::Warn, BoostLog::warning);
+    level_mapping["warning"] = std::make_pair(AwsLog::Warn, BoostLog::warning);  // to fix issue #137
     level_mapping["error"] = std::make_pair(AwsLog::Error, BoostLog::error);
     level_mapping["fatal"] = std::make_pair(AwsLog::Fatal, BoostLog::fatal);
     //
@@ -252,22 +254,21 @@ std::shared_ptr<aws::auth::MutableStaticCredentialsProvider> create_creds(const 
 
 std::string get_region(const aws::kinesis::core::Configuration& config) {
   if (!config.region().empty()) {
-    return config.region();
+    std::string region = config.region();
+    LOG(info) << "Region has been successfully set to " << region << " from user's input configuration";
+    return region;
   }
 
-  Aws::Internal::EC2MetadataClient ec2_md;
-  auto az = ec2_md.GetResource(
-      "/latest/meta-data/placement/availability-zone/");
-  auto regex = std::regex("^([a-z]+-[a-z]+-[0-9])[a-z]$",
-                          std::regex::ECMAScript);
-  std::smatch m;
-  if (std::regex_match(az, m, regex)) {
-    return m.str(1);
+  Aws::Internal::EC2MetadataClient ec2_client;
+  Aws::String region = ec2_client.GetCurrentRegion();
+  if (region.empty()) {
+    LOG(error) << "Could not configure the region. It was not given in the "
+               << "config and we were unable to retrieve it from EC2 metadata.";
+    throw 1;
   }
 
-  LOG(error) << "Could not configure the region. It was not given in the "
-             << "config and we were unable to retrieve it from EC2 metadata.";
-  throw 1;
+  LOG(info) << "Region has been successfully set to " << region << " using EC2 metadata (IMDSV2)";
+  return region;
 }
 
 std::pair<
@@ -349,6 +350,19 @@ std::string get_ca_path() {
   return p;
 }
 
+
+std::string get_ca_file() {
+  std::string f = "";
+  auto v = std::getenv("CA_FILE");
+
+  if (v) {
+    f = v;
+    LOG(info) << "Setting CA file to " << f;
+  }
+  return f;
+}
+
+
 } // namespace
 
 
@@ -361,46 +375,52 @@ int main(int argc, char* const* argv) {
   aws::utils::setup_aws_logging(options.aws_log_level);
   Aws::SDKOptions sdk_options;
   Aws::InitAPI(sdk_options);
-
-  if (options.enable_stack_trace) {
-    aws::utils::setup_stack_trace(argv[0]);
-  }
-
-  try {
-    auto config = get_config(options.configuration);
-
-    if (config->enable_core_dumps()) {
-      set_core_limit();
+  {
+    if (options.enable_stack_trace) {
+      aws::utils::setup_stack_trace(argv[0]);
     }
 
-    aws::utils::set_log_level(config->log_level());
+    try {
+      auto config = get_config(options.configuration);
 
-    auto executor = get_executor();
-    auto region = get_region(*config);
-    auto creds_providers = get_creds_providers();
-    auto ipc_manager = get_ipc_manager(options.output_pipe, options.input_pipe);
-    auto ca_path = get_ca_path();
-    LOG(info) << "Starting up main producer";
+      if (config->enable_core_dumps()) {
+        set_core_limit();
+      }
 
-    aws::kinesis::core::KinesisProducer kp(
-        ipc_manager,
-        region,
-        config,
-        creds_providers.first,
-        creds_providers.second,
-        executor,
-        ca_path);
+      aws::utils::set_log_level(config->log_level());
 
-    LOG(info) << "Entering join";
+      auto executor = get_executor();
+      auto region = get_region(*config);
+      auto creds_providers = get_creds_providers();
+      auto ipc_manager = get_ipc_manager(options.output_pipe, options.input_pipe);
+      auto ca_path = get_ca_path();
+      auto ca_file = get_ca_file();
+      LOG(info) << "Starting up main producer";
 
-    // Never returns
-    kp.join();
-  } catch (const std::exception& e) {
-    LOG(error) << e.what();
-    return 2;
-  } catch (int code) {
-    return code;
+      aws::kinesis::core::KinesisProducer kp(
+          ipc_manager,
+          region,
+          config,
+          creds_providers.first,
+          creds_providers.second,
+          executor,
+          ca_path,
+          ca_file);
+
+      LOG(info) << "Entering join";
+
+      // Never returns
+      kp.join();
+    } catch (const std::exception& e) {
+      LOG(error) << e.what();
+      return 2;
+    } catch (int code) {
+      return code;
+    }
   }
-
+  aws::utils::teardown_aws_logging();
+  Aws::ShutdownAPI(sdk_options);
   return 0;
 }
+
+

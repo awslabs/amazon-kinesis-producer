@@ -5,23 +5,31 @@ set -x
 SILENT="y"
 
 silence() {
-    if [ -n "$SILENT" ]; then
-        "$@" > /dev/null
-    else
-        "$@"
-    fi
+  if [ -n "$SILENT" ]; then
+    "$@" >/dev/null
+  else
+    "$@"
+  fi
 }
 
-LIB_OPENSSL="https://ftp.openssl.org/source/old/1.0.2/openssl-1.0.2u.tar.gz"
-LIB_BOOST="http://sourceforge.net/projects/boost/files/boost/1.76.0/boost_1_76_0.tar.gz"
-LIB_ZLIB="https://zlib.net/fossils/zlib-1.2.11.tar.gz"
-LIB_PROTOBUF="https://github.com/protocolbuffers/protobuf/releases/download/v3.11.4/protobuf-all-3.11.4.tar.gz"
-LIB_CURL="https://curl.haxx.se/download/curl-7.77.0.tar.gz"
-CA_CERT="https://curl.haxx.se/ca/cacert.pem"
+OPENSSL_VERSION="3.4.0"
+BOOST_VERSION="1.76.0"
+BOOST_VERSION_UNDERSCORED="${BOOST_VERSION//\./_}" # convert from 1.76.0 to 1_76_0
+ZLIB_VERSION="1.3.1"
+PROTOBUF_VERSION="3.11.4"
+CURL_VERSION="8.12.0"
+AWS_SDK_CPP_VERSION="1.11.420"
 
+LIB_OPENSSL="https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz"
+LIB_BOOST="https://archives.boost.io/release/${BOOST_VERSION}/source/boost_${BOOST_VERSION_UNDERSCORED}.tar.gz"
+LIB_ZLIB="https://zlib.net/fossils/zlib-${ZLIB_VERSION}.tar.gz"
+LIB_PROTOBUF="https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOBUF_VERSION}/protobuf-all-${PROTOBUF_VERSION}.tar.gz"
+LIB_CURL="https://curl.haxx.se/download/curl-${CURL_VERSION}.tar.gz"
+CA_CERT="https://curl.se/ca/cacert.pem"
 
 INSTALL_DIR=$(pwd)/third_party
-#Cleanup any earlier version of the third party directory and links to it.
+
+# Cleanup any earlier version of the third party directory and links to it.
 rm -f b2
 rm -rf $INSTALL_DIR
 mkdir -p $INSTALL_DIR
@@ -30,30 +38,29 @@ mkdir -p $INSTALL_DIR
 # of the native binary
 function find_release_type() {
   if [[ $OSTYPE == "linux-gnu" ]]; then
-		echo "linux-$(uname -m)"
-		return
-	elif [[ $OSTYPE == darwin* ]]; then
-		echo "osx"
-		return
-	elif [[ $OSTYPE == "msys" ]]; then
-		echo "windows"
-		return
-	fi
+    echo "linux-$(uname -m)"
+    return
+  elif [[ $OSTYPE == darwin* ]]; then
+    echo "osx"
+    return
+  elif [[ $OSTYPE == "msys" ]]; then
+    echo "windows"
+    return
+  fi
 
-	echo "unknown"
+  echo "unknown"
 }
 
-CMAKE=$(which cmake3 &> /dev/null && echo "cmake3 " || echo "cmake")
+CMAKE=$(which cmake3 &>/dev/null && echo "cmake3 " || echo "cmake")
 RELEASE_TYPE=$(find_release_type)
 
 [[ $RELEASE_TYPE == "unknown" ]] && {
-	echo "Could not define release type for $OSTYPE"
-	exit 1
+  echo "Could not define release type for $OSTYPE"
+  exit 1
 }
 
-
-if [ $1 == "clang" ] || [ $(uname) == 'Darwin' ]; then
-  export MACOSX_DEPLOYMENT_TARGET='10.13'
+if [ "$1" == "clang" ] || [ "$(uname)" == 'Darwin' ]; then
+  export MACOSX_DEPLOYMENT_TARGET='10.15'
   export MACOSX_MIN_COMPILER_OPT="-mmacosx-version-min=${MACOSX_DEPLOYMENT_TARGET}"
   export CC=$(which clang)
   export CXX=$(which clang++)
@@ -61,7 +68,7 @@ if [ $1 == "clang" ] || [ $(uname) == 'Darwin' ]; then
   export CFLAGS="${MACOSX_MIN_COMPILER_OPT} "
   export C_INCLUDE_PATH="$INSTALL_DIR/include"
 
-  if [ $(uname) == 'Linux' ]; then
+  if [ "$(uname)" == 'Linux' ]; then
     export LDFLAGS="-L$INSTALL_DIR/lib -nodefaultlibs -lpthread -ldl -lc++ -lc++abi -lm -lc -lgcc_s"
     export LD_LIBRARY_PATH="$INSTALL_DIR/lib:$LD_LIBRARY_PATH"
   else
@@ -89,45 +96,49 @@ function _curl {
 }
 
 cd $INSTALL_DIR
-wget -P $INSTALL_DIR $CA_CERT
+wget --no-check-certificate -P $INSTALL_DIR $CA_CERT
 
 function conf {
   if [[ "$OSTYPE" == "darwin"* ]]; then
     silence ./configure \
-    --prefix="$INSTALL_DIR" \
-    DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH" \
-    LDFLAGS="$LDFLAGS" \
-    CXXFLAGS="$CXXFLAGS" \
-    $@
+      --prefix="$INSTALL_DIR" \
+      DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH" \
+      LDFLAGS="$LDFLAGS" \
+      CXXFLAGS="$CXXFLAGS" \
+      $@
   else
     silence ./configure \
-    --prefix="$INSTALL_DIR" \
-    LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
-    LDFLAGS="$LDFLAGS" \
-    CXXFLAGS="$CXXFLAGS" \
-    C_INCLUDE_PATH="$C_INCLUDE_PATH" \
-    $@
+      --prefix="$INSTALL_DIR" \
+      LD_LIBRARY_PATH="$LD_LIBRARY_PATH" \
+      LDFLAGS="$LDFLAGS" \
+      CXXFLAGS="$CXXFLAGS" \
+      C_INCLUDE_PATH="$C_INCLUDE_PATH" \
+      $@
   fi
 }
 
 # OpenSSL
-if [ ! -d "openssl-1.0.2u" ]; then
-  _curl "$LIB_OPENSSL" > openssl.tgz
+if [ ! -d "openssl-${OPENSSL_VERSION}" ]; then
+
+  _curl "$LIB_OPENSSL" >openssl.tgz
   tar xf openssl.tgz
   rm openssl.tgz
 
-  cd openssl-1.0.2u
-
-  # Have to leave MD4 enabled because curl expects it
-  OPTS="threads no-shared no-idea no-camellia no-seed no-bf no-cast no-rc2 no-rc4 no-rc5 no-md2 no-ripemd no-mdc2 no-ssl2 no-ssl3 no-krb5 no-jpake no-capieng no-dso"
+  cd openssl-${OPENSSL_VERSION}
+  OPTS="threads no-shared no-idea no-camellia no-seed no-bf no-cast no-rc2 no-rc5 no-md2 no-mdc2 no-ssl2 no-ssl3 no-capieng no-dso --prefix=$INSTALL_DIR --libdir=lib"
 
   if [[ $(uname) == 'Darwin' ]]; then
-    silence ./Configure darwin64-x86_64-cc $OPTS --prefix=$INSTALL_DIR
+    OPTS="$OPTS darwin64-x86_64-cc enable-ec_nistp_64_gcc_128"
+    silence ./Configure $OPTS
   elif [[ $(uname) == MINGW* ]]; then
-    silence ./Configure mingw64 $OPTS --prefix=$INSTALL_DIR
-    find ./ -name Makefile | while read f; do echo >> $f; echo "%.o: %.c" >> $f; echo -e '\t$(COMPILE.c) $(OUTPUT_OPTION) $<;' >> $f; done
+    silence ./Configure mingw64 $OPTS
+    find ./ -name Makefile | while read f; do
+      echo >>"$f"
+      echo "%.o: %.c" >>"$f"
+      echo -e '\t$(COMPILE.c) $(OUTPUT_OPTION) $<;' >>$f
+    done
   else
-    silence ./config $OPTS --prefix=$INSTALL_DIR
+    silence ./config $OPTS
   fi
 
   silence make depend
@@ -138,18 +149,18 @@ if [ ! -d "openssl-1.0.2u" ]; then
 fi
 
 # Boost C++ Libraries
-if [ ! -d "boost_1_76_0" ]; then
-  _curl "$LIB_BOOST" > boost.tgz
+if [ ! -d "boost_${BOOST_VERSION_UNDERSCORED}" ]; then
+  _curl "$LIB_BOOST" >boost.tgz
   tar xf boost.tgz
   rm boost.tgz
 
-  cd boost_1_76_0
+  cd boost_${BOOST_VERSION_UNDERSCORED}
 
   LIBS="atomic,chrono,log,system,test,random,regex,thread,filesystem"
   OPTS="-j 8 --build-type=minimal --layout=system --prefix=$INSTALL_DIR link=static threading=multi release install"
 
   if [[ $(uname) == 'Darwin' ]]; then
-    silence ./bootstrap.sh --with-libraries=$LIBS
+    silence ./bootstrap.sh --with-libraries=$LIBS --with-toolset=clang
     silence ./b2 toolset=clang-darwin $OPTS cxxflags="$MACOSX_MIN_COMPILER_OPT"
   elif [[ $(uname) == MINGW* ]]; then
     silence ./bootstrap.sh --with-libraries=$LIBS --with-toolset=mingw
@@ -169,12 +180,12 @@ if [ ! -d "boost_1_76_0" ]; then
 fi
 
 # zlib
-if [ ! -d "zlib-1.2.11" ]; then
-  _curl "$LIB_ZLIB" > zlib.tgz
+if [ ! -d "zlib-${ZLIB_VERSION}" ]; then
+  _curl "$LIB_ZLIB" >zlib.tgz
   tar xf zlib.tgz
   rm zlib.tgz
 
-  cd zlib-1.2.11
+  cd zlib-${ZLIB_VERSION}
   silence ./configure --static --prefix="$INSTALL_DIR"
   silence make -j
   silence make install
@@ -183,12 +194,12 @@ if [ ! -d "zlib-1.2.11" ]; then
 fi
 
 # Google Protocol Buffers
-if [ ! -d "protobuf-3.11.4" ]; then
-  _curl "$LIB_PROTOBUF" > protobuf.tgz
+if [ ! -d "protobuf-${PROTOBUF_VERSION}" ]; then
+  _curl "$LIB_PROTOBUF" >protobuf.tgz
   tar xf protobuf.tgz
   rm protobuf.tgz
 
-  cd protobuf-3.11.4
+  cd protobuf-${PROTOBUF_VERSION}
   silence conf --enable-shared=no
   silence make -j 4
   silence make install
@@ -196,26 +207,29 @@ if [ ! -d "protobuf-3.11.4" ]; then
   cd ..
 fi
 
-
 # libcurl
-if [ ! -d "curl-7.77.0" ]; then
-  _curl "$LIB_CURL" > curl.tgz
+if [ ! -d "curl-${CURL_VERSION}" ]; then
+  _curl "$LIB_CURL" >curl.tgz
   tar xf curl.tgz
   rm curl.tgz
 
+  cd curl-${CURL_VERSION}
 
-  cd curl-7.77.0
-
-  silence conf --disable-shared --disable-ldap --disable-ldaps --without-libidn2 \
-       --enable-threaded-resolver --disable-debug --without-libssh2 --without-ca-bundle --with-ssl="${INSTALL_DIR}" --without-libidn
   if [[ $(uname) == 'Darwin' ]]; then
-    #
+    silence conf --with-openssl --enable-threaded-resolver \
+      --disable-shared --disable-ldap --disable-ldaps --disable-debug \
+      --without-libidn2 --without-libssh2 --without-ca-bundle \
+      --without-brotli --without-nghttp2 --without-librtmp --without-zstd
     # Apply a patch for macOS that should prevent curl from trying to use clock_gettime
     # This is a temporary work around for https://github.com/awslabs/amazon-kinesis-producer/issues/117
     # until dependencies are updated
     #
     sed -Ei .bak 's/#define HAVE_CLOCK_GETTIME_MONOTONIC 1//' lib/curl_config.h
+  else
+    silence conf --disable-shared --disable-ldap --disable-ldaps --without-libidn2 \
+      --enable-threaded-resolver --disable-debug --without-libpsl --without-libssh2 --without-ca-bundle --with-ssl="${INSTALL_DIR}"
   fi
+
   silence make -j
   silence make install
 
@@ -226,7 +240,8 @@ fi
 if [ ! -d "aws-sdk-cpp" ]; then
   git clone https://github.com/awslabs/aws-sdk-cpp.git aws-sdk-cpp
   pushd aws-sdk-cpp
-  git checkout 1.8.30
+  git checkout ${AWS_SDK_CPP_VERSION}
+  git submodule update --init --recursive
   popd
 
   rm -rf aws-sdk-cpp-build
@@ -235,7 +250,7 @@ if [ ! -d "aws-sdk-cpp" ]; then
   cd aws-sdk-cpp-build
 
   silence $CMAKE \
-    -DBUILD_ONLY="kinesis;monitoring" \
+    -DBUILD_ONLY="kinesis;monitoring;sts" \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -DSTATIC_LINKING=1 \
     -DCMAKE_PREFIX_PATH="$INSTALL_DIR" \
@@ -246,7 +261,7 @@ if [ ! -d "aws-sdk-cpp" ]; then
     -DCMAKE_FIND_FRAMEWORK=LAST \
     -DENABLE_TESTING="OFF" \
     ../aws-sdk-cpp
-  silence make -j 4
+  silence make -j8
   silence make install
 
   cd ..
@@ -255,8 +270,8 @@ fi
 
 cd ..
 
-#Build the native kinesis producer
-$CMAKE -DCMAKE_PREFIX_PATH="$INSTALL_DIR" .
+# Build the native kinesis producer
+$CMAKE -DCMAKE_PREFIX_PATH="$INSTALL_DIR" -DCMAKE_BUILD_TYPE=RelWithDebInfo .
 make -j8
 
 #copy native producer to a location that the java producer can package it
@@ -264,12 +279,10 @@ NATIVE_BINARY_DIR=java/amazon-kinesis-producer/src/main/resources/amazon-kinesis
 mkdir -p $NATIVE_BINARY_DIR
 cp kinesis_producer $NATIVE_BINARY_DIR
 
-
 #build the java producer and install it locally
 pushd java/amazon-kinesis-producer
 mvn clean package source:jar javadoc:jar install
 popd
-
 
 set +e
 set +x

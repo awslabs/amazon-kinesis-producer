@@ -1,4 +1,110 @@
 ## Changelog
+
+## 1.0.1
+* [#627](https://github.com/awslabs/amazon-kinesis-producer/pull/627) Upgrade dependency versions to fix vulnerabilities
+  * Upgrade curl to 8.12.0
+  * Upgrade openssl to 3.4.0
+  * Upgrade zlib to 1.3.1
+  * Upgrade schema-registry-serde to 1.1.23
+* [#623](https://github.com/awslabs/amazon-kinesis-producer/pull/623) Update SampleProducer.java with guidance on calling flushSync()
+* [#619](https://github.com/awslabs/amazon-kinesis-producer/pull/619) Update README.md with guidance on recommended upgrade
+
+## 1.0.0
+* [#614](https://github.com/awslabs/amazon-kinesis-producer/pull/614) Upgrade to AWS SDK for Java 2.x
+  * Upgrade protobuf-java to 4.29.0
+  * Upgrade schema-registry-serde to 1.1.22
+  * Upgrade jackson-core to 2.18.2
+  * Upgrade jackson-databind to 2.18.2
+* [#611](https://github.com/awslabs/amazon-kinesis-producer/pull/611) Make certificate authority file configurable in KinesisProducerConfiguration
+* [#615](https://github.com/awslabs/amazon-kinesis-producer/pull/615) Refactor groupId to software.amazon.kinesis
+* [#616](https://github.com/awslabs/amazon-kinesis-producer/pull/616) Auto generate protobuf files in C++
+* [#484](https://github.com/awslabs/amazon-kinesis-producer/pull/484) Upgrade maven-compiler-plugin to 3.11.0
+* [#607](https://github.com/awslabs/amazon-kinesis-producer/pull/607) Upgrade hibernate-validator to 6.2.0.Final
+
+## 0.15.12
+* [#593](https://github.com/awslabs/amazon-kinesis-producer/pull/593) Replace all usage of sys_siglist with strsignal as sys_siglist is deprecated
+* [#594](https://github.com/awslabs/amazon-kinesis-producer/pull/594) Check if dimension.value is blank before using it in metrics manager
+* [#596](https://github.com/awslabs/amazon-kinesis-producer/pull/596) Update getOldestRecordTimeMillis to avoid potential NullPointerException
+* [#600](https://github.com/awslabs/amazon-kinesis-producer/pull/600) Fix build issue after cpp sdk upgrade
+* [#597](https://github.com/awslabs/amazon-kinesis-producer/pull/597) Bump cpp sdk from 1.11.62 to 1.11.420 and java sdk from 1.12.772 to 1.12.773
+* [#570](https://github.com/awslabs/amazon-kinesis-producer/pull/570) Bump commons-lang from 2.6 to 3.14.0
+* [#598](https://github.com/awslabs/amazon-kinesis-producer/pull/598) Bump commons-io:commons-io from 2.13.0 to 2.17.0 in /java/amazon-kinesis-producer to address CVE vulnerability
+* [#589](https://github.com/awslabs/amazon-kinesis-producer/pull/589) Bump com.google.protobuf:protobuf-java from 3.21.12 to 3.25.5 in /java/amazon-kinesis-producer to address CVE vulnerability
+* [#579](https://github.com/awslabs/amazon-kinesis-producer/pull/579) Bump com.google.guava:guava from 31.1-jre to 33.3.0-jre in /java/amazon-kinesis-producer to address CVE vulnerability
+* [#588](https://github.com/awslabs/amazon-kinesis-producer/pull/588) Bump com.amazonaws:aws-java-sdk-core from 1.12.382 to 1.12.772 in /java/amazon-kinesis-producer and java/amazon-kinesis-producer-sample
+
+## 0.15.11
+* [#576](https://github.com/awslabs/amazon-kinesis-producer/pull/576) Improve retry logic during stream scaling
+* [#571](https://github.com/awslabs/amazon-kinesis-producer/pull/571) Upgrade ch.qos.logback:logback-classic from 1.3.0 to 1.3.12
+
+## 0.15.10
+* [#560 ](https://github.com/awslabs/amazon-kinesis-producer/pull/560) Reverting to remove a bug with using Stream ARN. Please stay tuned for a future release before using Stream ARN.
+* [#526](https://github.com/awslabs/amazon-kinesis-producer/pull/526) Drop dependency on jaxb for converting binary arrays to hex
+* [1.1.18](https://github.com/awslabs/amazon-kinesis-producer/commit/3de737329f85e837c5992c57642f35d461ecfb8a)Update GSR dependency - To address CVE vulnerability
+
+## 0.15.9
+* [#552](https://github.com/awslabs/amazon-kinesis-producer/pull/552) Add StreamARN parameter to support CAA
+    * StreamARN parameter can be now be used to benefit from Cross account access for KPL requests.
+
+## 0.15.8
+* [#537](https://github.com/awslabs/amazon-kinesis-producer/pull/537) Update to latest version of Glue Schema Registry library
+ 
+## 0.15.7
+* [#498](https://github.com/awslabs/amazon-kinesis-producer/pull/498) Fix some memory leak cases in legacy code
+  * Upgrade SDK version to avoid s2n_cleanup related memory leak
+  * Fix resource cleanup on KPL end to avoid memory leak
+  
+### 0.15.6
+* [#490](https://github.com/awslabs/amazon-kinesis-producer/pull/490) Updating aws cpp sdk version
+
+### 0.15.5
+* [#482](https://github.com/awslabs/amazon-kinesis-producer/pull/482)  Remove the stream arn parameter when the next token is present
+
+### 0.15.4
+
+### 0.15.3
+* [#478](https://github.com/awslabs/amazon-kinesis-producer/pull/478) Update AWS SDK CPP version
+
+### 0.15.2
+* [#471](https://github.com/awslabs/amazon-kinesis-producer/pull/471) Upgrade Java dependencies
+
+### 0.15.1
+* [#469](https://github.com/awslabs/amazon-kinesis-producer/pull/469) Use AWS CodeBuild to compile C++ binary
+
+### 0.15.0
+* [#465](https://github.com/awslabs/amazon-kinesis-producer/pull/465)
+  * Revert the upgrade of jakarta.xml.bind to be backward-compatible with Java8
+  * Add more logs to verify that IMDSV2 is used correctly for getting region info for KPL running in EC2 instances
+* [#463](https://github.com/awslabs/amazon-kinesis-producer/pull/463)
+  * Use sts to construct stream arn
+  * Exit KPL if STS call fails to avoid dual mode
+  * Deprecate IMDSv1 calls for obtaining EC2 metadata
+* [#444](https://github.com/awslabs/amazon-kinesis-producer/pull/444)
+  *  Update bootstrap.sh to work on three platforms
+
+### 0.14.13 
+* [#440](https://github.com/awslabs/amazon-kinesis-producer/pull/440)
+  * Upgrade the dependencies used in bootstrap + Java dependencies
+  * Correct the log level discrepancy for the warnings
+
+### 0.14.12
+* [#425](https://github.com/awslabs/amazon-kinesis-producer/pull/425) Fix build issues in CI
+* [#424](https://github.com/awslabs/amazon-kinesis-producer/pull/424) Fix build issues in CI
+* [#423](https://github.com/awslabs/amazon-kinesis-producer/pull/423) Upgrade GSR version to 1.1.9
+* [#420](https://github.com/awslabs/amazon-kinesis-producer/pull/420) Fix cpp branch
+* [#419](https://github.com/awslabs/amazon-kinesis-producer/pull/419) Fix aws-cpp branch
+* [#418](https://github.com/awslabs/amazon-kinesis-producer/pull/418) Fix travis build
+* [#416](https://github.com/awslabs/amazon-kinesis-producer/pull/416) Configure dependabot
+* [#415](https://github.com/awslabs/amazon-kinesis-producer/pull/415) Fix travis build
+* [#414](https://github.com/awslabs/amazon-kinesis-producer/pull/414) Fix travis build
+
+### 0.14.11
+* [#409](https://github.com/awslabs/amazon-kinesis-producer/pull/409) Bump protobuf-java from 3.11.4 to 3.16.1 in /java/amazon-kinesis-producer
+* [#408](https://github.com/awslabs/amazon-kinesis-producer/pull/408) Update curl version from 7.77 to 7.81
+* [#395](https://github.com/awslabs/amazon-kinesis-producer/pull/395) Configure dependabot
+* [#391](https://github.com/awslabs/amazon-kinesis-producer/pull/391) Fixing travis build issues
+* [#388](https://github.com/awslabs/amazon-kinesis-producer/pull/388) Fixing build issues due to stale CA certs
+
 ### 0.14.10
 * [#386](https://github.com/awslabs/amazon-kinesis-producer/pull/386) Upgraded Glue schema registry from 1.1.1 to 1.1.5
 * [#384](https://github.com/awslabs/amazon-kinesis-producer/pull/384) Upgraded logback-classic from 1.2.0 to 1.2.6

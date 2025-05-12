@@ -2,7 +2,7 @@ syntax = "proto2";
 import "config.proto";
 
 package aws.kinesis.protobuf;
-option java_package = "com.amazonaws.services.kinesis.producer.protobuf";
+option java_package = "software.amazon.kinesis.producer.protobuf";
 
 message Tag {
   required string key   = 1;

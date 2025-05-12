@@ -64,6 +64,9 @@ class Aggregator : boost::noncopyable {
     }
     if (!shard_id) {
       auto kr = std::make_shared<KinesisRecord>();
+      // during retries, the records can have the predicted shard set from the last run. Clearing out the state here
+      // because retrier expects these records to not have predicted shard so they don't get retried due to this.
+      ur->reset_predicted_shard();
       kr->add(ur);
       return kr;
     } else {

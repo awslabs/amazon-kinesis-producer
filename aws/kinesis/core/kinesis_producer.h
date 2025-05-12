@@ -39,7 +39,8 @@ class KinesisProducer : boost::noncopyable {
       std::shared_ptr<aws::auth::MutableStaticCredentialsProvider>
           cw_creds_provider,
       std::shared_ptr<aws::utils::Executor> executor,
-      std::string ca_path)
+      std::string ca_path,
+      std::string ca_file)
       : region_(std::move(region)),
         config_(std::move(config)),
         kinesis_creds_provider_(std::move(kinesis_creds_provider)),
@@ -50,8 +51,9 @@ class KinesisProducer : boost::noncopyable {
           return this->create_pipeline(stream);
         }),
         shutdown_(false) {
-    create_kinesis_client(ca_path);
-    create_cw_client(ca_path);
+    create_kinesis_client(ca_path, ca_file);
+    create_cw_client(ca_path, ca_file);
+    create_sts_client(ca_path, ca_file);
     create_metrics_manager();
     report_outstanding();
     message_drainer_ = aws::thread([this] { this->drain_messages(); });
@@ -73,9 +75,11 @@ class KinesisProducer : boost::noncopyable {
 
   void create_metrics_manager();
 
-  void create_kinesis_client(const std::string& ca_path);
+  void create_kinesis_client(const std::string& ca_path, const std::string& ca_file);
 
-  void create_cw_client(const std::string& ca_path);
+  void create_cw_client(const std::string& ca_path, const std::string& ca_file);
+
+  void create_sts_client(const std::string& ca_path, const std::string& ca_file);
 
   Pipeline* create_pipeline(const std::string& stream);
 
@@ -103,6 +107,7 @@ class KinesisProducer : boost::noncopyable {
       cw_creds_provider_;
   std::shared_ptr<Aws::Kinesis::KinesisClient> kinesis_client_;
   std::shared_ptr<Aws::CloudWatch::CloudWatchClient> cw_client_;
+  std::shared_ptr<Aws::STS::STSClient> sts_client_;
   std::shared_ptr<aws::utils::Executor> executor_;
 
   std::shared_ptr<IpcManager> ipc_manager_;

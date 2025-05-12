@@ -38,6 +38,8 @@ make_user_record(const std::string& partition_key = "abcd",
                  const std::string& stream = "myStream",
                  uint64_t source_id = 0);
 
+std::shared_ptr<aws::kinesis::core::UserRecord> make_user_record_with_hashkey(const std::string& explicit_hash_key = "");
+
 // Create a pipe with mkfifo, deleting it when the Fifo instance is destroyed
 class Fifo {
  public:

@@ -147,6 +147,11 @@ public:
     va_end(args);
   }
 
+  // cpp sdk made this virtual so needed to have a dummy implementation for it for build to pass
+  virtual void vaLog(LogLevel logLevel, const char* tag, const char* formatStr, va_list args) override {
+    return;
+  }
+
   virtual void LogStream(LogLevel logLevel, const char* tag, const Aws::OStringStream &messageStream) override {
     LogToBoost(logLevel, tag, messageStream.str());
   }
@@ -177,6 +182,10 @@ void setup_aws_logging(Aws::Utils::Logging::LogLevel log_level) {
       Aws::MakeShared<AwsBoostLogInterface>("kpl-sdk-logging", log_level));
 
     LOG(info) << "Set AWS Log Level to " << Aws::Utils::Logging::GetLogLevelName(log_level);
+}
+
+void teardown_aws_logging() {
+    Aws::Utils::Logging::ShutdownAWSLogging();
 }
 
 } //namespace utils

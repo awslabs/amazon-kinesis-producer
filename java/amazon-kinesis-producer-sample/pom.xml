@@ -1,24 +1,24 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.amazonaws</groupId>
+    <groupId>software.amazon.kinesis</groupId>
     <artifactId>amazon-kinesis-producer-sample</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <build>
         <sourceDirectory>src</sourceDirectory>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>3.11.0</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.1</version>
+                <version>3.4.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -28,7 +28,7 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.amazonaws.services.kinesis.producer.sample.SampleProducer</mainClass>
+                                    <mainClass>software.amazon.kinesis.producer.sample.SampleProducer</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
@@ -38,14 +38,12 @@
         </plugins>
     </build>
     <name>KinesisProducerLibrary Sample Application</name>
-    <properties>
-        <aws-java-sdk.version>1.11.960</aws-java-sdk.version>
-    </properties>
+
     <dependencies>
         <dependency>
-            <groupId>com.amazonaws</groupId>
+            <groupId>software.amazon.kinesis</groupId>
             <artifactId>amazon-kinesis-client</artifactId>
-            <version>1.11.2</version>
+            <version>3.0.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.protobuf</groupId>
@@ -54,39 +52,19 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.amazonaws</groupId>
+            <groupId>software.amazon.kinesis</groupId>
             <artifactId>amazon-kinesis-producer</artifactId>
-            <version>0.14.10</version>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>1.7.13</version>
-        </dependency>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-core</artifactId>
-            <version>${aws-java-sdk.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-dynamodb</artifactId>
-            <version>${aws-java-sdk.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-kinesis</artifactId>
-            <version>${aws-java-sdk.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-cloudwatch</artifactId>
-            <version>${aws-java-sdk.version}</version>
+            <version>2.0.0</version>
         </dependency>
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
-            <version>2.0.0.Final</version>
+            <version>2.0.1.Final</version>
         </dependency>
         <dependency>
             <groupId>javax.el</groupId>
@@ -101,7 +79,7 @@
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>6.0.20.Final</version>
+            <version>6.2.0.Final</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate.validator</groupId>

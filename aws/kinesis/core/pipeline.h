@@ -19,6 +19,8 @@
 #include <boost/format.hpp>
 #include <iomanip>
 
+#include <aws/core/utils/ARN.h>
+#include <aws/core/utils/StringUtils.h>
 #include <aws/kinesis/core/aggregator.h>
 #include <aws/kinesis/core/collector.h>
 #include <aws/kinesis/core/configuration.h>
@@ -27,8 +29,15 @@
 #include <aws/kinesis/core/put_records_context.h>
 #include <aws/kinesis/core/retrier.h>
 #include <aws/kinesis/KinesisClient.h>
+#include <aws/kinesis/model/ListShardsRequest.h>
 #include <aws/metrics/metrics_manager.h>
 #include <aws/utils/processing_statistics_logger.h>
+#include <aws/sts/STSClient.h>
+#include <aws/sts/model/GetCallerIdentityRequest.h>
+#include <aws/sts/model/GetCallerIdentityResult.h>
+
+#include <aws/utils/logging.h>
+
 
 namespace aws {
 namespace kinesis {
@@ -46,20 +55,24 @@ class Pipeline : boost::noncopyable {
       std::shared_ptr<aws::utils::Executor> executor,
       std::shared_ptr<Aws::Kinesis::KinesisClient> kinesis_client,
       std::shared_ptr<aws::metrics::MetricsManager> metrics_manager,
+      std::shared_ptr<Aws::STS::STSClient> sts_client,
       Retrier::UserRecordCallback finish_user_record_cb)
       : stream_(std::move(stream)),
         region_(std::move(region)),
+        stream_arn_(std::move(init_stream_arn(sts_client, region_, stream_))),
         config_(std::move(config)),
         stats_logger_(stream_, config_->record_max_buffered_time()),
         executor_(std::move(executor)),
         kinesis_client_(std::move(kinesis_client)),
         metrics_manager_(std::move(metrics_manager)),
+        sts_client_(std::move(sts_client)),
         finish_user_record_cb_(std::move(finish_user_record_cb)),
         shard_map_(
             std::make_shared<ShardMap>(
                 executor_,
-                kinesis_client_,
+                [this](auto& req, auto& handler, auto& context) { kinesis_client_->ListShardsAsync(handler, context, req ); },
                 stream_,
+                stream_arn_,
                 metrics_manager_)),
         aggregator_(
             std::make_shared<Aggregator>(
@@ -87,6 +100,7 @@ class Pipeline : boost::noncopyable {
                 config_,
                 [this](auto& ur) { this->finish_user_record(ur); },
                 [this](auto& ur) { this->aggregator_put(ur); },
+                [this](auto& actual_shard) { return shard_map_->hashrange(actual_shard); },
                 [this](auto& tp, auto predicted_shard) { shard_map_->invalidate(tp, predicted_shard); },
                 [this](auto& code, auto& msg) {
                   limiter_->add_error(code, msg);
@@ -151,7 +165,7 @@ class Pipeline : boost::noncopyable {
   }
 
   void send_put_records_request(const std::shared_ptr<PutRecordsRequest>& prr) {
-    auto prc = std::make_shared<PutRecordsContext>(stream_, prr->items());
+    auto prc = std::make_shared<PutRecordsContext>(stream_, stream_arn_, prr->items());
     prc->set_start(std::chrono::steady_clock::now());
     kinesis_client_->PutRecordsAsync(
         prc->to_sdk_request(),
@@ -190,13 +204,44 @@ class Pipeline : boost::noncopyable {
     });
   }
 
-  std::string stream_;
+  // Retrieve the account ID and partition from the STS service.
+  static std::string init_stream_arn(const std::shared_ptr<Aws::STS::STSClient>& sts_client,
+                                     const std::string &region,
+                                     const std::string &stream_name) {
+    Aws::STS::Model::GetCallerIdentityRequest request;
+    auto outcome = sts_client->GetCallerIdentity(request);
+    if (outcome.IsSuccess()) {
+      auto result = outcome.GetResult();
+      Aws::Utils::ARN sts_arn(result.GetArn());
+
+      // Construct and return the Kinesis stream ARN.
+      std::stringstream arn;
+      arn << "arn:" << sts_arn.GetPartition() << ":kinesis:" << region << ":" << result.GetAccount()
+          << ":stream/" << stream_name;
+
+      auto arn_str = arn.str();
+      LOG(info) << "StreamARN \"" << arn_str << "\" has been successfully configured, "
+                << "and will be used in requests including ListShards and PutRecords";
+      return arn_str;
+    }
+    auto e = outcome.GetError();
+    auto code = e.GetExceptionName();
+    auto msg = e.GetMessage();
+    LOG(error) << "Failed to get StreamARN using STS GetCallerIdentity | Code: " << code
+               << " | Message: " << msg
+               << " | Request was: " << request.SerializePayload();
+    exit(EXIT_FAILURE);
+  }
+
   std::string region_;
+  std::string stream_;
+  std::string stream_arn_;
   std::shared_ptr<Configuration> config_;
   aws::utils::processing_statistics_logger stats_logger_;
   std::shared_ptr<aws::utils::Executor> executor_;
   std::shared_ptr<Aws::Kinesis::KinesisClient> kinesis_client_;
   std::shared_ptr<aws::metrics::MetricsManager> metrics_manager_;
+  std::shared_ptr<Aws::STS::STSClient> sts_client_;
   Retrier::UserRecordCallback finish_user_record_cb_;
 
   std::shared_ptr<ShardMap> shard_map_;

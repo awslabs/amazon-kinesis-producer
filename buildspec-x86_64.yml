@@ -1,0 +1,57 @@
+version: 0.2
+env:
+  variables:
+    CODEBUILD_OS_NAME: "linux"
+
+phases:
+  install:
+    run-as: root
+    runtime-versions:
+      java: corretto8
+    commands:
+      - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
+      - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
+  pre_build:
+    run-as: root
+    commands:
+      - echo "################################################################################"
+      - echo "Installing Dependencies for Linux/x86_64"
+      - echo "################################################################################"
+      - sudo apt update
+      - sudo apt install -y ca-certificates
+      - echo "Install aws cli v2"
+      - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+      - unzip awscliv2.zip
+      - sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+      - export PATH=~/bin:$PATH
+      - echo "Aws cli has been installed successfully"
+      - echo "Assuming the builder role to get credentials for building KPL"
+      - BUILDER_ROLE=$(aws sts assume-role --role-arn arn:aws:iam::056543101242:role/KPLCodeBuildAdminRole --role-session-name kpl-build-session)
+      - export BUILDER_ROLE
+      - export AWS_ACCESS_KEY_ID=$(echo "${BUILDER_ROLE}" | jq -r '.Credentials.AccessKeyId')
+      - export AWS_SECRET_ACCESS_KEY=$(echo "${BUILDER_ROLE}" | jq -r '.Credentials.SecretAccessKey')
+      - export AWS_SESSION_TOKEN=$(echo "${BUILDER_ROLE}" | jq -r '.Credentials.SessionToken')
+      - echo "Pulled the credentials for KPL builders"
+      - echo "################################################################################"
+      - echo "SUCCESS Installed Dependencies for Linux/x86_64"
+      - echo "################################################################################"
+  build:
+    commands:
+      - echo "################################################################################"
+      - echo "Starting build phase for Linux/x86_64"
+      - echo "################################################################################"
+      - aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 056543101242.dkr.ecr.us-west-2.amazonaws.com
+      - echo "Getting Docker image for AL2012 build of KPL..."
+      - docker pull 056543101242.dkr.ecr.us-west-2.amazonaws.com/kinesis-producer-library-builder:latest
+      - ls
+      - df -h
+      - echo "Building KPL in current directory in the Container..."
+      - docker run --rm -v $(pwd):/kpl 056543101242.dkr.ecr.us-west-2.amazonaws.com/kinesis-producer-library-builder:latest /bin/bash -c "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY && export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID && cd /kpl && ls && ./bootstrap.sh"
+      - cd java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/$CODEBUILD_OS_NAME-`uname -m`
+      - ls
+      - sudo zip kinesis-producer.zip kinesis_producer
+      - echo "Uploading build artifacts for KPL built on Linux x86_64..."
+      - aws s3 cp kinesis-producer.zip s3://kpl-build-kinesis-internal/$KPL_VERSION-$HASH/$CODEBUILD_OS_NAME-`uname -m`/kinesis-producer.zip
+      - echo "################################################################################"
+      - echo "SUCCESS Build phase for Linux/x86_64, complete. Check for any errors reported"
+      - echo "################################################################################"
