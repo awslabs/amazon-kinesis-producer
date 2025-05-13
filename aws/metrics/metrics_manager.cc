@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates.
+ * Copyright 2025 Amazon.com, Inc. or its affiliates.
  * Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include <aws/metrics/metrics_header.h>
 #include <aws/metrics/metrics_manager.h>
 
 #include <aws/monitoring/model/Dimension.h>
@@ -39,13 +40,13 @@ bool is_blank(const std::string& str) {
 }
 
 Aws::CloudWatch::Model::MetricDatum
-to_sdk_metric_datum(const std::shared_ptr<Metric> m, int numBuckets) {
+to_sdk_metric_datum(const std::shared_ptr<Metric> m, TimePoint begin, TimePoint end) {
   auto& a = m->accumulator();
   Aws::CloudWatch::Model::StatisticSet ss;
-  ss.SetSum(a.sum(numBuckets));
-  ss.SetMinimum(a.min(numBuckets));
-  ss.SetMaximum(a.max(numBuckets));
-  ss.SetSampleCount(a.count(numBuckets));
+  ss.SetSum(a.sum(begin, end));
+  ss.SetMinimum(a.min(begin, end));
+  ss.SetMaximum(a.max(begin, end));
+  ss.SetSampleCount(a.count(begin, end));
 
   Aws::CloudWatch::Model::MetricDatum d;
   d.SetStatisticValues(std::move(ss));
@@ -88,12 +89,16 @@ bool MetricsManager::MetricsCmp::operator()(std::shared_ptr<Metric>& a,
 
   return false;
 }
+
 void MetricsManager::upload() {
   std::vector<std::shared_ptr<Metric>> uploads;
 
+  TimePoint begin = upload_checkpoint_;
+  TimePoint end = Clock::now() - std::chrono::seconds(1);
+
   for (auto& m : metrics_index_.get_all()) {
     if (constants::filter(m->all_dimensions(), level_, granularity_) &&
-        m->accumulator().count(kNumBuckets) > 0) {
+        m->accumulator().count(begin, end) > 0) {
       uploads.push_back(std::move(m));
     }
   }
@@ -113,7 +118,7 @@ void MetricsManager::upload() {
       Aws::CloudWatch::Model::PutMetricDataRequest req;
       req.SetNamespace(cw_namespace_);
       for (size_t z = j; z < k; z++) {
-        req.AddMetricData(detail::to_sdk_metric_datum(uploads[z], kNumBuckets));
+        req.AddMetricData(detail::to_sdk_metric_datum(uploads[z], begin, end));
       }
       batches.emplace_back(req);
     }
@@ -132,6 +137,12 @@ void MetricsManager::upload() {
       }
       break;
     }
+
+    for (auto& m : uploads) {
+      m->accumulator().flush(end);
+    }
+
+    upload_checkpoint_ = end;
   }
 }
 
