@@ -150,13 +150,22 @@ class MetricsManager {
 
     upload_checkpoint_ = TimePoint::min();
 
+    next_run_ = Clock::now() + upload_frequency_;
+
     scheduled_upload_ =
         executor_->schedule(
-            [this] {
-              scheduled_upload_->reschedule(upload_frequency_);
-              this->upload();
+            [this]() mutable {
+              try {
+                this->upload();
+              } catch (const std::exception& e) {
+                LOG(error) << "Upload failed!" << e.what();
+              } catch (...) {
+                LOG(error) << "Unknown exception during upload!";
+              }
+              next_run_ += upload_frequency_;
+              scheduled_upload_->reschedule(next_run_);
             },
-            upload_frequency_);
+            next_run_);
   }
 
   virtual detail::MetricsFinderBuilder finder() {
@@ -205,6 +214,7 @@ class MetricsManager {
 
   std::shared_ptr<aws::utils::ScheduledCallback> scheduled_upload_;
   TimePoint upload_checkpoint_;
+  TimePoint next_run_;
 };
 
 class NullMetricsManager : public MetricsManager {

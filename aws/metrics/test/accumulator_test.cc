@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates.
+ * Copyright 2025 Amazon.com, Inc. or its affiliates.
  * Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -20,6 +20,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <aws/metrics/accumulator.h>
+#include <aws/metrics/metrics_header.h>
 #include <aws/utils/utils.h>
 #include <aws/utils/logging.h>
 #include <aws/mutex.h>
@@ -197,6 +198,35 @@ BOOST_AUTO_TEST_CASE(WriteThroughput) {
     LOG(info) << "Accumulator tight loop put rate (" << num_threads
               << " threads): " << rate / 1000 << " K per second ";
   }
+}
+
+BOOST_AUTO_TEST_CASE(Flush) {
+  aws::metrics::Accumulator a;
+
+  aws::metrics::TimePoint begin = aws::metrics::TimePoint::min();
+  aws::metrics::TimePoint end = aws::metrics::TimePoint::max();
+
+  for (int i = 1; i <= 5; i++) {
+    a(i);
+  }
+
+  BOOST_CHECK_EQUAL(a.count(begin, end), 5);
+  BOOST_CHECK_EQUAL(a.mean(begin, end), 3);
+  BOOST_CHECK_EQUAL(a.min(begin, end), 1);
+  BOOST_CHECK_EQUAL(a.max(begin, end), 5);
+  BOOST_CHECK_EQUAL(a.sum(begin, end), 15);
+
+  a.flush(aws::metrics::Clock::now());
+
+  for (int i = 6; i <= 10; i++) {
+    a(i);
+  }
+
+  BOOST_CHECK_EQUAL(a.count(begin, end), 5);
+  BOOST_CHECK_EQUAL(a.mean(begin, end), 8);
+  BOOST_CHECK_EQUAL(a.min(begin, end), 6);
+  BOOST_CHECK_EQUAL(a.max(begin, end), 10);
+  BOOST_CHECK_EQUAL(a.sum(begin, end), 40);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -96,6 +96,8 @@ void MetricsManager::upload() {
   TimePoint begin = upload_checkpoint_;
   TimePoint end = Clock::now() - std::chrono::seconds(1);
 
+  upload_checkpoint_ = end;
+
   for (auto& m : metrics_index_.get_all()) {
     if (constants::filter(m->all_dimensions(), level_, granularity_) &&
         m->accumulator().count(begin, end) > 0) {
@@ -137,12 +139,10 @@ void MetricsManager::upload() {
       }
       break;
     }
+  }
 
-    for (auto& m : uploads) {
-      m->accumulator().flush(end);
-    }
-
-    upload_checkpoint_ = end;
+  for (auto& m : uploads) {
+    m->accumulator().flush(end);
   }
 }
 
