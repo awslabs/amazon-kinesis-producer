@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates.
+ * Copyright 2025 Amazon.com, Inc. or its affiliates.
  * Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -25,6 +25,7 @@
 #include <aws/metrics/metric.h>
 #include <aws/metrics/metrics_constants.h>
 #include <aws/metrics/metrics_finder.h>
+#include <aws/metrics/metrics_header.h>
 #include <aws/metrics/metrics_index.h>
 #include <aws/monitoring/CloudWatchClient.h>
 #include <aws/utils/executor.h>
@@ -110,9 +111,9 @@ class MetricsFinderBuilder {
 
 struct UploadContext : public Aws::Client::AsyncCallerContext {
   UploadContext() :
-      created(std::chrono::steady_clock::now()),
+      created(Clock::now()),
       attempts(0) {}
-  std::chrono::steady_clock::time_point created;
+  TimePoint created;
   size_t attempts;
 };
 
@@ -147,13 +148,24 @@ class MetricsManager {
           std::move(std::get<1>(t)));
     }
 
+    upload_checkpoint_ = TimePoint::min();
+
+    next_run_ = Clock::now() + upload_frequency_;
+
     scheduled_upload_ =
         executor_->schedule(
-            [this] {
-              scheduled_upload_->reschedule(upload_frequency_);
-              this->upload();
+            [this]() mutable {
+              try {
+                this->upload();
+              } catch (const std::exception& e) {
+                LOG(error) << "Upload failed!" << e.what();
+              } catch (...) {
+                LOG(error) << "Unknown exception during upload!";
+              }
+              next_run_ += upload_frequency_;
+              scheduled_upload_->reschedule(next_run_);
             },
-            upload_frequency_);
+            next_run_);
   }
 
   virtual detail::MetricsFinderBuilder finder() {
@@ -201,6 +213,8 @@ class MetricsManager {
   MetricsIndex metrics_index_;
 
   std::shared_ptr<aws::utils::ScheduledCallback> scheduled_upload_;
+  TimePoint upload_checkpoint_;
+  TimePoint next_run_;
 };
 
 class NullMetricsManager : public MetricsManager {
