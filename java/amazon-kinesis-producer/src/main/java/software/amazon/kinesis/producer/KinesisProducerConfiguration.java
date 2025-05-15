@@ -389,7 +389,6 @@ public class KinesisProducerConfiguration {
     private String caCertFile = "";
     private String glueSchemaRegistryPropertiesFilePath = "";
     private long userRecordTimeoutInMillis = 0;
-    private boolean enableOldestFutureTracker = true; // default on
 
     /**
      * Enable aggregation. With aggregation, multiple user records are packed into a single
@@ -958,19 +957,6 @@ public class KinesisProducerConfiguration {
      */
     public long getUserRecordTimeoutInMillis() {
         return userRecordTimeoutInMillis;
-    }
-
-    /**
-     * Returns whether tracking of the oldest outstanding future is enabled.
-     *
-     * <p>
-     * When enabled, the KPL will track the oldest outstanding future that hasn't been
-     * completed. This can be useful for monitoring purposes but may have a performance impact.
-     *
-     * @return true if oldest future tracking is enabled, false otherwise
-     */
-    public boolean getEnableOldestFutureTracker() {
-        return enableOldestFutureTracker;
     }
 
     /**
@@ -1683,21 +1669,6 @@ public class KinesisProducerConfiguration {
         }
         this.userRecordTimeoutInMillis = userRecordTimeoutInMillis;
         return this;
-    }
-
-    /**
-     * Sets whether to enable tracking of the oldest outstanding future.
-     *
-     * <p>
-     * When enabled, the KPL will track the oldest outstanding future that hasn't been
-     * completed. This can be useful for monitoring purposes but might have a performance impact.
-     *
-     * @param enableOldestFutureTracker true to enable oldest future tracking, false to disable (default true)
-     * @return this {@link KinesisProducerConfiguration} instance
-     */
-    public KinesisProducerConfiguration setEnableOldestFutureTracker(boolean enableOldestFutureTracker) {
-       this.enableOldestFutureTracker = enableOldestFutureTracker;
-       return this;
     }
 
     protected Message toProtobufMessage() {

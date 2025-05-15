@@ -97,7 +97,7 @@ public class KinesisProducer implements IKinesisProducer {
     private final AtomicLong totalFutureTimeouts = new AtomicLong(0);
     private final GlueSchemaRegistrySerializerInstance glueSchemaRegistrySerializerInstance = new GlueSchemaRegistrySerializerInstance();
     private final Map<Long, SettableFutureTracker> futures = new ConcurrentHashMap<>();
-    private final PriorityBlockingQueue<SettableFutureTracker> oldestFutureTrackerHeap = new PriorityBlockingQueue<>
+    private final PriorityBlockingQueue<SettableFutureTracker> oldestFutureTrackerHeap = new PriorityBlockingQueue
             (10, new SettableFutureTrackerComparator());
     private final ScheduledThreadPoolExecutor futureTimeoutExecutor = new ScheduledThreadPoolExecutor(1,
             new ThreadFactoryBuilder()
@@ -202,9 +202,7 @@ public class KinesisProducer implements IKinesisProducer {
                 });
             }
             futures.clear();
-            if (config.getEnableOldestFutureTracker()) {
-                oldestFutureTrackerHeap.clear();
-            }
+            oldestFutureTrackerHeap.clear();
 
             if (processFailureBehavior == ProcessFailureBehavior.AutoRestart && !destroyed) {
                 log.info("Restarting native producer process.");
@@ -272,9 +270,7 @@ public class KinesisProducer implements IKinesisProducer {
             log.error(message);
             throw new RuntimeException(message);
         }
-        if (config.getEnableOldestFutureTracker()) {
-            oldestFutureTrackerHeap.remove(futureTracker);
-        }
+        oldestFutureTrackerHeap.remove(futureTracker);
         return futureTracker;
     }
     
@@ -298,15 +294,6 @@ public class KinesisProducer implements IKinesisProducer {
      */
     public KinesisProducer(KinesisProducerConfiguration config) {
         this.config = config;
-        env = initEnv();
-        child = new Daemon(pathToExecutable, new MessageHandler(), pathToTmpDir, config, env);
-
-        // We set the policy for the executor service to remove queued tasks if they are cancelled to relieve
-        // unwanted cpu load.
-        futureTimeoutExecutor.setRemoveOnCancelPolicy(true);
-    }
-
-    private Map<String, String> initEnv() {
         String caPath = config.getCaCertPath();
         String caFile = config.getCaCertFile();
         String caDirectory = extractBinaries();
@@ -316,23 +303,18 @@ public class KinesisProducer implements IKinesisProducer {
             caDirectory = caPath;
         }
 
-        Map<String, String> env = new ImmutableMap.Builder<String, String>()
+        env = new ImmutableMap.Builder<String, String>()
                 .put("LD_LIBRARY_PATH", pathToLibDir)
                 .put("DYLD_LIBRARY_PATH", pathToLibDir)
                 .put("CA_DIR", caDirectory)
                 .put("CA_FILE", caFile)
                 .build();
-        return env;
-    }
-
-    KinesisProducer(KinesisProducerConfiguration config, Daemon daemon) {
-        this.config = config;
-        this.child = daemon;
-        this.env = initEnv();
 
         // We set the policy for the executor service to remove queued tasks if they are cancelled to relieve
         // unwanted cpu load.
         futureTimeoutExecutor.setRemoveOnCancelPolicy(true);
+
+        child = new Daemon(pathToExecutable, new MessageHandler(), pathToTmpDir, config, env);
     }
     
     /**
@@ -628,9 +610,7 @@ public class KinesisProducer implements IKinesisProducer {
         }
         SettableFutureTracker futuresTracking = new SettableFutureTracker(f, Instant.now(), Optional.ofNullable(task));
         futures.put(id, futuresTracking);
-        if (config.getEnableOldestFutureTracker()) {
-            oldestFutureTrackerHeap.add(futuresTracking);
-        }
+        oldestFutureTrackerHeap.add(futuresTracking);
         
         PutRecord.Builder pr = PutRecord.newBuilder()
                 .setStreamName(stream)
@@ -690,7 +670,7 @@ public class KinesisProducer implements IKinesisProducer {
      * that have not finished. This returns 0 if there are no pending records in processing state.
      *
      * @return The time in millis since the oldest record is pending to be sent to kinesis endpoint. Returns 0 if
-     * there are no records in processing state or if enableOldestFutureTracker is set to false.
+     * there are no records in processing state.
      */
     @Override
     public long getOldestRecordTimeInMillis() {
