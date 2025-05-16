@@ -1,6 +1,10 @@
 ## Changelog
 
 ## 1.0.1
+* [#638](https://github.com/awslabs/amazon-kinesis-producer/pull/638) Fix race condition that may cause empty metric uploads
+* [#635](https://github.com/awslabs/amazon-kinesis-producer/pull/635) Fix OpenSSL build for upgrade
+* [#632](https://github.com/awslabs/amazon-kinesis-producer/pull/632) Update README.md with KPL 0.x end-of-support notice
+* [#630](https://github.com/awslabs/amazon-kinesis-producer/pull/630) Upgrade org.slf4j:slf4j-api from 2.0.0 to 2.0.17
 * [#627](https://github.com/awslabs/amazon-kinesis-producer/pull/627) Upgrade dependency versions to fix vulnerabilities
   * Upgrade curl to 8.12.0
   * Upgrade openssl to 3.4.0
