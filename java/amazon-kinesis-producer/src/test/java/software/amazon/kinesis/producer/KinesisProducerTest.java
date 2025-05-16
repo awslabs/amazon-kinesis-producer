@@ -140,6 +140,7 @@ public class KinesisProducerTest {
         }
 
         kp.flushSync();
+        Thread.sleep(1000);
         kp.destroy();
 
         Map<String, AtomicInteger> counts = new HashMap<>();
@@ -190,6 +191,7 @@ public class KinesisProducerTest {
         }
 
         kp.flushSync();
+        Thread.sleep(1000);
         kp.destroy();
 
         Map<String, AtomicInteger> counts = new HashMap<String, AtomicInteger>();
