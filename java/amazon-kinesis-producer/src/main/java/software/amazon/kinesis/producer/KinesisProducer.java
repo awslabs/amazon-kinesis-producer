@@ -15,6 +15,7 @@
 
 package software.amazon.kinesis.producer;
 
+import com.google.common.annotations.VisibleForTesting;
 import software.amazon.kinesis.producer.protobuf.Messages;
 import software.amazon.kinesis.producer.protobuf.Messages.Flush;
 import software.amazon.kinesis.producer.protobuf.Messages.Message;
@@ -115,7 +116,7 @@ public class KinesisProducer implements IKinesisProducer {
     }
 
     @Value
-    private static class SettableFutureTracker {
+    static class SettableFutureTracker {
         @NonNull
         private SettableFuture<?> future;
         @NonNull
@@ -756,7 +757,10 @@ public class KinesisProducer implements IKinesisProducer {
         }
         SettableFutureTracker futuresTracking = new SettableFutureTracker(f, Instant.now(), Optional.ofNullable(task));
         futures.put(id, futuresTracking);
-        oldestFutureTrackerHeap.add(futuresTracking);
+
+        if (config.getEnableOldestFutureTracker()) {
+            oldestFutureTrackerHeap.add(futuresTracking);
+        }
         
         child.add(Message.newBuilder()
                 .setId(id)
@@ -987,6 +991,11 @@ public class KinesisProducer implements IKinesisProducer {
                 Thread.sleep(500);
             } catch (InterruptedException e) { }
         }
+    }
+
+    @VisibleForTesting
+    Map<Long, SettableFutureTracker> getFutures() {
+        return futures;
     }
 
     private String extractBinaries() {
