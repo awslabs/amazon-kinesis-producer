@@ -218,7 +218,7 @@ if [ ! -d "curl-${CURL_VERSION}" ]; then
   if [[ $(uname) == 'Darwin' ]]; then
     silence conf --with-openssl --enable-threaded-resolver \
       --disable-shared --disable-ldap --disable-ldaps --disable-debug \
-      --without-libidn2 --without-libssh2 --without-ca-bundle \
+      --without-libpsl without-libidn2 --without-libssh2 --without-ca-bundle \
       --without-brotli --without-nghttp2 --without-librtmp --without-zstd
     # Apply a patch for macOS that should prevent curl from trying to use clock_gettime
     # This is a temporary work around for https://github.com/awslabs/amazon-kinesis-producer/issues/117
