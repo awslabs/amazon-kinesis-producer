@@ -16,6 +16,7 @@
 package software.amazon.kinesis.producer;
 
 import com.amazonaws.services.schemaregistry.common.Schema;
+import com.google.common.util.concurrent.SettableFuture;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -34,6 +35,7 @@ import software.amazon.awssdk.services.glue.model.DataFormat;
 
 import java.io.File;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -42,6 +44,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -378,6 +381,114 @@ public class KinesisProducerTest {
         // then
         assertEquals(0, candidate.getOldestRecordTimeInMillis());
         assertEquals(2, candidate.getOutstandingRecordsCount());
+    }
+
+    @Test
+    public void getOldestRecordTime_ForMetrics_ShouldReturn0_WhenConfigIsDisabled() throws ExecutionException, InterruptedException {
+        // given
+        final KinesisProducerConfiguration cfg = new KinesisProducerConfiguration()
+                .setKinesisEndpoint("localhost")
+                .setKinesisPort(port)
+                .setCloudwatchEndpoint("localhost")
+                .setCloudwatchPort(port)
+                .setStsEndpoint("localhost")
+                .setStsPort(sts_port)
+                .setVerifyCertificate(false)
+                .setAggregationEnabled(false)
+                .setCredentialsRefreshDelay(100)
+                .setRegion("us-west-1")
+                .setRecordTtl(200)
+                .setMetricsUploadDelay(100)
+                .setRecordTtl(100)
+                .setLogLevel("warning")
+                .setEnableOldestFutureTracker(false); // oldest future tracker is disabled
+        Daemon child = Mockito.mock(Daemon.class);
+        KinesisProducer candidate = getProducer(cfg, child, null, null);
+
+        AtomicBoolean noOldestRecordsInHeap = new AtomicBoolean(true);
+        ExecutorService svc = Executors.newSingleThreadExecutor();
+        svc.submit(() -> {
+            while (true) {
+                if (svc.isShutdown()) {
+                    break;
+                }
+                Map<Long, KinesisProducer.SettableFutureTracker> futures = candidate.getFutures();
+                if (!futures.isEmpty()) {
+                    futures.values().stream().forEach(sft -> {
+                        SettableFuture<List<Metric>> f = (SettableFuture<List<Metric>>) sft.getFuture();
+                        f.set(new ArrayList<>());
+                    });
+                }
+                if (candidate.getOldestRecordTimeInMillis() > 0) {
+                    noOldestRecordsInHeap.set(false);
+                }
+            }
+        });
+
+        // when
+        candidate.getMetrics();
+        sleep(2000);
+        candidate.getMetrics();
+
+        // then
+        svc.shutdown();
+        assertEquals(0, candidate.getOldestRecordTimeInMillis());
+        assertEquals(2, candidate.getOutstandingRecordsCount()); // we complete the future, but don't remove it from futures hence we still see records
+        assertTrue(noOldestRecordsInHeap.get());
+    }
+
+    @Test
+    public void getOldestRecordTime_ForMetrics_ShouldNotReturn0_WhenConfigIsEnabled() throws ExecutionException, InterruptedException {
+        // given
+        final KinesisProducerConfiguration cfg = new KinesisProducerConfiguration()
+                .setKinesisEndpoint("localhost")
+                .setKinesisPort(port)
+                .setCloudwatchEndpoint("localhost")
+                .setCloudwatchPort(port)
+                .setStsEndpoint("localhost")
+                .setStsPort(sts_port)
+                .setVerifyCertificate(false)
+                .setAggregationEnabled(false)
+                .setCredentialsRefreshDelay(100)
+                .setRegion("us-west-1")
+                .setRecordTtl(200)
+                .setMetricsUploadDelay(100)
+                .setRecordTtl(100)
+                .setLogLevel("warning")
+                .setEnableOldestFutureTracker(true); // oldest future tracker is enabled
+        Daemon child = Mockito.mock(Daemon.class);
+        KinesisProducer candidate = getProducer(cfg, child, null, null);
+
+        AtomicBoolean oldestRecordsInHeap = new AtomicBoolean(false);
+        ExecutorService svc = Executors.newSingleThreadExecutor();
+        svc.submit(() -> {
+            while (true) {
+                if (svc.isShutdown()) {
+                    break;
+                }
+                Map<Long, KinesisProducer.SettableFutureTracker> futures = candidate.getFutures();
+                if (!futures.isEmpty()) {
+                    futures.values().stream().forEach(sft -> {
+                        SettableFuture<List<Metric>> f = (SettableFuture<List<Metric>>) sft.getFuture();
+                        f.set(new ArrayList<>());
+                    });
+                }
+                if (candidate.getOldestRecordTimeInMillis() > 0) {
+                    oldestRecordsInHeap.set(true);
+                }
+            }
+        });
+
+        // when
+        candidate.getMetrics();
+        sleep(2000);
+        candidate.getMetrics();
+
+        // then
+        svc.shutdown();
+        assertTrue(candidate.getOldestRecordTimeInMillis() > 0);
+        assertEquals(2, candidate.getOutstandingRecordsCount()); // we complete the future, but don't remove it from futures hence we still see records
+        assertTrue(oldestRecordsInHeap.get());
     }
 
     private void sleep(long millisToSleep) {
