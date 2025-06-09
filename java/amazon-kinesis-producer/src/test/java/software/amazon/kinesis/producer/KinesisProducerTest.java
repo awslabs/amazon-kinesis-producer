@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.Header;
 import org.mockserver.socket.PortFactory;
@@ -31,6 +32,7 @@ import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.services.glue.model.DataFormat;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -265,6 +267,18 @@ public class KinesisProducerTest {
         }
     }
 
+    private KinesisProducer getProducer(KinesisProducerConfiguration cfg, Daemon daemon,
+                                        AwsCredentialsProvider provider,
+                                        AwsCredentialsProvider metrics_creds_provider) {
+        if (provider != null) {
+            cfg.setCredentialsProvider(provider);
+        }
+        if (metrics_creds_provider != null) {
+            cfg.setMetricsCredentialsProvider(metrics_creds_provider);
+        }
+        return new KinesisProducer(cfg, daemon);
+    }
+
     private KinesisProducer getProducer(AwsCredentialsProvider provider, AwsCredentialsProvider metrics_creds_provider) {
         final KinesisProducerConfiguration cfg = new KinesisProducerConfiguration()
                 .setKinesisEndpoint("localhost")
@@ -300,5 +314,77 @@ public class KinesisProducerTest {
 
         // Then we expect it to return 0.
         assertEquals(0L, actual);
+    }
+
+    @Test
+    public void getOldestRecord_ReturnsPendingOldestRecord() {
+        // given
+        final KinesisProducerConfiguration cfg = new KinesisProducerConfiguration()
+                .setKinesisEndpoint("localhost")
+                .setKinesisPort(port)
+                .setCloudwatchEndpoint("localhost")
+                .setCloudwatchPort(port)
+                .setStsEndpoint("localhost")
+                .setStsPort(sts_port)
+                .setVerifyCertificate(false)
+                .setAggregationEnabled(false)
+                .setCredentialsRefreshDelay(100)
+                .setRegion("us-west-1")
+                .setRecordTtl(200)
+                .setMetricsUploadDelay(100)
+                .setRecordTtl(100)
+                .setLogLevel("warning")
+                .setEnableOldestFutureTracker(true); // oldest future tracker is enabled
+        Daemon child = Mockito.mock(Daemon.class);
+        IKinesisProducer candidate = getProducer(cfg, child, null, null);
+
+        // when
+        candidate.addUserRecord("streamName", "partitionKey", ByteBuffer.wrap(new byte[0]));
+        sleep(2000);
+        candidate.addUserRecord("streamName", "partitionKey", ByteBuffer.wrap(new byte[0]));
+
+        // then
+        assertTrue(candidate.getOldestRecordTimeInMillis() > 0);
+        assertEquals(2, candidate.getOutstandingRecordsCount());
+    }
+
+    @Test
+    public void getOldestRecordTime_ShouldReturn0_WhenConfigIsDisabled() {
+        // given
+        final KinesisProducerConfiguration cfg = new KinesisProducerConfiguration()
+                .setKinesisEndpoint("localhost")
+                .setKinesisPort(port)
+                .setCloudwatchEndpoint("localhost")
+                .setCloudwatchPort(port)
+                .setStsEndpoint("localhost")
+                .setStsPort(sts_port)
+                .setVerifyCertificate(false)
+                .setAggregationEnabled(false)
+                .setCredentialsRefreshDelay(100)
+                .setRegion("us-west-1")
+                .setRecordTtl(200)
+                .setMetricsUploadDelay(100)
+                .setRecordTtl(100)
+                .setLogLevel("warning")
+                .setEnableOldestFutureTracker(false); // oldest future tracker is disabled
+        Daemon child = Mockito.mock(Daemon.class);
+        IKinesisProducer candidate = getProducer(cfg, child, null, null);
+
+        // when
+        candidate.addUserRecord("streamName", "partitionKey", ByteBuffer.wrap(new byte[0]));
+        sleep(2000);
+        candidate.addUserRecord("streamName", "partitionKey", ByteBuffer.wrap(new byte[0]));
+
+        // then
+        assertEquals(0, candidate.getOldestRecordTimeInMillis());
+        assertEquals(2, candidate.getOutstandingRecordsCount());
+    }
+
+    private void sleep(long millisToSleep) {
+        try {
+            Thread.sleep(millisToSleep);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
