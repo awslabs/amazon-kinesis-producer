@@ -103,7 +103,7 @@ void MetricsManager::upload() {
   for (auto& m : metrics) {
     if (constants::filter(m->all_dimensions(), level_, granularity_) &&
         m->accumulator().count(begin, end) > 0) {
-      uploads.push_back(std::move(m));
+      uploads.push_back(m);
     }
   }
 
