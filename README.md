@@ -72,6 +72,10 @@ This is a restatement of the [notice published](https://docs.aws.amazon.com/stre
 
 ## Release Notes
 
+## 1.0.2
+* [#637](https://github.com/awslabs/amazon-kinesis-producer/pull/637) Add a feature flag to enable/disable oldest future tracker
+* [#648](https://github.com/awslabs/amazon-kinesis-producer/pull/648) Update metrics manager to flush all metrics to prevent metrics accumulation in memory
+
 ## 1.0.1
 * [#638](https://github.com/awslabs/amazon-kinesis-producer/pull/638) Fix race condition that may cause empty metric uploads
 * [#635](https://github.com/awslabs/amazon-kinesis-producer/pull/635) Fix OpenSSL build for upgrade
