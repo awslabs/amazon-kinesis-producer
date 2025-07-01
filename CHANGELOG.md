@@ -1,5 +1,8 @@
 ## Changelog
 
+## 1.0.3
+* [#653](https://github.com/awslabs/amazon-kinesis-producer/pull/653) Upgrade glue schema-registry-serde from 1.1.23 to 1.1.24
+
 ## 1.0.2
 * [#637](https://github.com/awslabs/amazon-kinesis-producer/pull/637) Add a feature flag to enable/disable oldest future tracker
 * [#648](https://github.com/awslabs/amazon-kinesis-producer/pull/648) Update metrics manager to flush all metrics to prevent metrics accumulation in memory
