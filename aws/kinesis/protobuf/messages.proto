@@ -57,10 +57,14 @@ message Attempt {
 }
 
 message PutRecordResult {
-  repeated Attempt attempts        = 1;
-  required bool    success         = 2;
-  optional string  shard_id        = 3;
-  optional string  sequence_number = 4;
+  repeated Attempt attempts          = 1;
+  required bool    success           = 2;
+  optional string  shard_id          = 3;
+  optional string  sequence_number   = 4;
+  optional string  stream_name       = 5;
+  optional string  partition_key     = 6;
+  optional string  explicit_hash_key = 7;
+  optional bytes   data              = 8;
 }
 
 // *********** Credentials ************

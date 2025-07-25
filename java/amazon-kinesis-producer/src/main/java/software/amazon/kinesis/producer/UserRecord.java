@@ -4,6 +4,9 @@ import com.amazonaws.services.schemaregistry.common.Schema;
 
 import java.nio.ByteBuffer;
 
+import lombok.ToString;
+
+@ToString
 public class UserRecord {
     /**
      * Stream to put to.

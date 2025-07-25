@@ -55,6 +55,13 @@ aws::kinesis::protobuf::Message UserRecord::to_put_record_result() {
   auto prr = m.mutable_put_record_result();
   prr->set_success(false);
 
+  prr->set_stream_name(std::move(stream_));
+  prr->set_partition_key(std::move(partition_key_));
+  if (has_explicit_hash_key_) {
+    prr->set_explicit_hash_key(std::move(hash_key_.str()));
+  }
+  prr->set_data(std::move(data_));
+
   for (size_t i = 0; i < attempts_.size(); i++) {
     auto a = prr->add_attempts();
     auto delay = (i == 0)

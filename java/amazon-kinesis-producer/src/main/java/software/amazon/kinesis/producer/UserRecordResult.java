@@ -35,11 +35,21 @@ public class UserRecordResult {
     private String sequenceNumber;
     private String shardId;
     private boolean successful;
+    private UserRecord userRecord;
     
     public UserRecordResult(List<Attempt> attempts, String sequenceNumber, String shardId, boolean successful) {
         this.attempts = attempts;
         this.sequenceNumber = sequenceNumber;
         this.shardId = shardId;
+        this.successful = successful;
+    }
+
+    public UserRecordResult(List<Attempt> attempts, String sequenceNumber, String shardId, UserRecord userRecord,
+            boolean successful) {
+        this.attempts = attempts;
+        this.sequenceNumber = sequenceNumber;
+        this.shardId = shardId;
+        this.userRecord = userRecord;
         this.successful = successful;
     }
     
@@ -78,6 +88,14 @@ public class UserRecordResult {
     public boolean isSuccessful() {
         return successful;
     }
+
+    /**
+     *
+     * @return The UserRecord that was attempted to be put
+     */
+    public UserRecord getUserRecord() {
+        return userRecord;
+    }
     
     protected static UserRecordResult fromProtobufMessage(Messages.PutRecordResult r) {
         final List<Attempt> attempts = new ArrayList<>(r.getAttemptsCount());
@@ -88,6 +106,8 @@ public class UserRecordResult {
                 new ImmutableList.Builder<Attempt>().addAll(attempts).build(),
                 r.hasSequenceNumber() ? r.getSequenceNumber() : null,
                 r.hasShardId() ? r.getShardId() : null,
+                r.hasData() ? new UserRecord(r.getStreamName(), r.getPartitionKey(), r.getExplicitHashKey(),
+                        r.getData().asReadOnlyByteBuffer()) : null,
                 r.getSuccess());
     }
 }
