@@ -312,7 +312,7 @@ get_ipc_manager(std::string in_file, std::string out_file) {
   return std::make_shared<aws::kinesis::core::IpcManager>(ipc_channel);
 }
 
-void set_core_limit() {
+void set_core_limit(bool enable) {
 #if !BOOST_OS_WINDOWS
   struct rlimit lim;
   int ret = getrlimit(RLIMIT_CORE, &lim);
@@ -321,13 +321,23 @@ void set_core_limit() {
     return;
   }
 
-  rlim_t desired = 128 * 1024 * 1024;
-  rlim_t target = std::max(lim.rlim_cur, std::min(desired, lim.rlim_max));
-  LOG(info) << "Current core file soft limit is " << lim.rlim_cur << "; "
-            << "hard limit is " << lim.rlim_max << "; "
-            << "desired value is " << desired << "; "
-            << "setting soft limit to " << target;
-  lim.rlim_cur = target;
+  if (enable) {
+    rlim_t desired = 128 * 1024 * 1024;
+    rlim_t target = std::max(lim.rlim_cur, std::min(desired, lim.rlim_max));
+    LOG(info) << "Enabling core dumps: "
+              << "Current soft limit is " << lim.rlim_cur << "; "
+              << "hard limit is " << lim.rlim_max << "; "
+              << "desired value is " << desired << "; "
+              << "setting soft limit to " << target;
+    lim.rlim_cur = target;
+  } else {
+    LOG(info) << "Disabling core dumps: "
+              << "Current soft limit is " << lim.rlim_cur << "; "
+              << "hard limit is " << lim.rlim_max << "; "
+              << "setting soft limit to 0";
+    lim.rlim_cur = 0;
+  }
+
   ret = setrlimit(RLIMIT_CORE, &lim);
   if (ret != 0) {
     LOG(error) << "Could not set the core file limit, err code " << ret;
@@ -382,11 +392,10 @@ int main(int argc, char* const* argv) {
 
     try {
       auto config = get_config(options.configuration);
-
-      if (config->enable_core_dumps()) {
-        set_core_limit();
+      auto value = config->enable_core_dumps();
+      if (value) {
+        set_core_limit(*value);
       }
-
       aws::utils::set_log_level(config->log_level());
 
       auto executor = get_executor();
