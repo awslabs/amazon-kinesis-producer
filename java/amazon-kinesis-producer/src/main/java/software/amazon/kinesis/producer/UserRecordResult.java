@@ -26,6 +26,10 @@ import com.google.common.collect.ImmutableList;
  * successful, the shard id and sequence number assigned by the backend are
  * provided. A list of {@link Attempt}s is also provided with details about each
  * attempt made.
+ *
+ * If {@link KinesisProducerConfiguration#setReturnUserRecordInFuture(boolean)} is set to true, this will also contain
+ * the userRecord associated with the future returned from a {@link KinesisProducer#addUserRecord(UserRecord)}
+ * call or any of its overloaded methods.
  * 
  * @author chaodeng
  * @see Attempt
@@ -35,6 +39,12 @@ public class UserRecordResult {
     private String sequenceNumber;
     private String shardId;
     private boolean successful;
+
+    /**
+     * If {@link KinesisProducerConfiguration#setReturnUserRecordInFuture(boolean)} is set to true,
+     * this will contain UserRecord associated with this future. If it is false, this will be null.
+     */
+    private UserRecord userRecord;
     
     public UserRecordResult(List<Attempt> attempts, String sequenceNumber, String shardId, boolean successful) {
         this.attempts = attempts;
@@ -77,6 +87,18 @@ public class UserRecordResult {
      */
     public boolean isSuccessful() {
         return successful;
+    }
+
+    /**
+     *
+     * @return The UserRecord that was attempted to be put
+     */
+    public UserRecord getUserRecord() {
+        return userRecord;
+    }
+
+    protected void setUserRecord(UserRecord userRecord) {
+        this.userRecord = userRecord;
     }
     
     protected static UserRecordResult fromProtobufMessage(Messages.PutRecordResult r) {

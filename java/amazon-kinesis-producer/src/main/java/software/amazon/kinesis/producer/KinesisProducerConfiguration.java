@@ -390,6 +390,7 @@ public class KinesisProducerConfiguration {
     private String glueSchemaRegistryPropertiesFilePath = "";
     private long userRecordTimeoutInMillis = 0;
     private boolean enableOldestFutureTracker = true; // default on
+    private boolean returnUserRecordInFuture = false;
 
     /**
      * Enable aggregation. With aggregation, multiple user records are packed into a single
@@ -976,6 +977,22 @@ public class KinesisProducerConfiguration {
      */
     public boolean getEnableOldestFutureTracker() {
         return enableOldestFutureTracker;
+    }
+
+    /**
+     * Returns whether returning UserRecord in Futures is enabled
+     *
+     * <p>
+     * When enabled, the KPL will retain in memory the UserRecord added by
+     * {@link KinesisProducer#addUserRecord(UserRecord)} or any of its overloaded methods and
+     * pass it to the completed Future. This can be useful when you need to do something on completion
+     * of the future but need to know the specific UserRecord associated to that future. Since this retains the
+     * data in memory for longer, enabling this may increase the memory usage of the KPL.
+     *
+     * @return true if returning UserRecord in Futures is enabled, false otherwise
+     */
+    public boolean getReturnUserRecordInFuture() {
+        return returnUserRecordInFuture;
     }
 
     /**
@@ -1708,6 +1725,24 @@ public class KinesisProducerConfiguration {
     public KinesisProducerConfiguration setEnableOldestFutureTracker(boolean enableOldestFutureTracker) {
        this.enableOldestFutureTracker = enableOldestFutureTracker;
        return this;
+    }
+
+    /**
+     * Sets whether returning UserRecord in Futures is enabled
+     *
+     * <p>
+     * When enabled, the KPL will retain in memory the UserRecord added by
+     * {@link KinesisProducer#addUserRecord(UserRecord)} or any of its overloaded methods and
+     * pass it to the completed Future. This can be useful when you need to do something on completion
+     * of the future but need to know the specific UserRecord associated to that future. Since this retains the
+     * data in memory for longer, enabling this may increase the memory usage of the KPL.
+     *
+     * @param returnUserRecordInFuture true to enable returning UserRecord in Futures, false to disable (default false)
+     * @return this {@link KinesisProducerConfiguration} instance
+     */
+    public KinesisProducerConfiguration setReturnUserRecordInFuture(boolean returnUserRecordInFuture) {
+        this.returnUserRecordInFuture = returnUserRecordInFuture;
+        return this;
     }
 
     protected Message toProtobufMessage() {

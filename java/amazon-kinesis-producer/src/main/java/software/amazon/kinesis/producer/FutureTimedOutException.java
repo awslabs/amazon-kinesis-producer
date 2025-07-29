@@ -15,11 +15,15 @@ package software.amazon.kinesis.producer;
  * limitations under the License.
  */
 
-public class FutureTimedOutException extends Exception {
+/**
+ * The exception thrown when a UserRecord reaches the
+ * {@link KinesisProducerConfiguration#setUserRecordTimeoutInMillis(long)} timeout without being put into Kinesis.
+ */
+public class FutureTimedOutException extends KinesisProducerException {
     private static final long serialVersionUID = 3168271192277927600L;
 
-    public FutureTimedOutException(String message) {
-        super(message);
+    public FutureTimedOutException(String message, UserRecord userRecord) {
+        super(message, userRecord);
     }
 }
 

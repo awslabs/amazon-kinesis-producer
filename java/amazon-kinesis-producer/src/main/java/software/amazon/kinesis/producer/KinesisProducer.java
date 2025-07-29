@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -124,6 +125,9 @@ public class KinesisProducer implements IKinesisProducer {
         @NonNull
         private Optional<FutureTask> timeoutTask;
 
+        @NonNull
+        private Optional<UserRecord> userRecordOptional;
+
         private void cancelTimeoutTaskIfPresent() {
             timeoutTask.ifPresent(t -> t.cancel(false));
         }
@@ -156,7 +160,6 @@ public class KinesisProducer implements IKinesisProducer {
     private String pathToExecutable;
     private String pathToLibDir;
     private String pathToTmpDir;
-    
     private volatile Daemon child;
     private volatile long lastChild = System.nanoTime();
     private volatile boolean destroyed = false;
@@ -176,7 +179,9 @@ public class KinesisProducer implements IKinesisProducer {
                         // clear the future here as well since the native core has exhausted its retries.
                         SettableFutureTracker futureTracker = getFuture(m);
                         SettableFuture<?> f = futureTracker.getFuture();
-                        f.setException(new UnexpectedMessageException("Unexpected message type from child process"));
+
+                        f.setException(new UnexpectedMessageException("Unexpected message type from child process",
+                                futureTracker.getUserRecordOptional().orElse(null)));
                         log.error(String.format("Unexpected message type with case %s from child process with message"
                                         + " id %s. Removing the submitted future from processing queue.",
                                 m.getActualMessageCase(), m.getSourceId()));
@@ -198,7 +203,8 @@ public class KinesisProducer implements IKinesisProducer {
                 callbackCompletionExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        entry.getValue().getFuture().setException(t);
+                        entry.getValue().getFuture().setException(
+                                new KinesisProducerException(t, entry.getValue().getUserRecordOptional().orElse(null)));
                     }
                 });
             }
@@ -236,10 +242,11 @@ public class KinesisProducer implements IKinesisProducer {
             SettableFutureTracker futureTracker = getFuture(msg);
             SettableFuture<UserRecordResult> f = (SettableFuture<UserRecordResult>) futureTracker.getFuture();
             UserRecordResult result = UserRecordResult.fromProtobufMessage(msg.getPutRecordResult());
+            result.setUserRecord(futureTracker.getUserRecordOptional().orElse(null));
             if (result.isSuccessful()) {
                 f.set(result);
             } else {
-                f.setException(new UserRecordFailedException(result));
+                f.setException(new UserRecordFailedException(result, futureTracker.getUserRecordOptional().orElse(null)));
             }
         }
         
@@ -563,26 +570,25 @@ public class KinesisProducer implements IKinesisProducer {
         }
         
         stream = stream.trim();
-        
+
         if (stream.length() == 0) {
             throw new IllegalArgumentException("Stream name cannot be empty");
         }
-        
+
         if (partitionKey == null) {
             throw new IllegalArgumentException("partitionKey cannot be null");
         }
-        
         if (partitionKey.length() < 1 || partitionKey.length() > 256) {
             throw new IllegalArgumentException(
                     "Invalid partition key. Length must be at least 1 and at most 256, got " + partitionKey.length());
         }
-        
+
         try {
             partitionKey.getBytes("UTF-8");
         } catch (Exception e) {
             throw new IllegalArgumentException("Partition key must be valid UTF-8");
         }
-        
+
         BigInteger b = null;
         if (explicitHashKey != null) {
             explicitHashKey = explicitHashKey.trim();
@@ -619,7 +625,7 @@ public class KinesisProducer implements IKinesisProducer {
             throw new IllegalArgumentException(
                     "Data must be less than or equal to 1MB in size, got " + data.remaining() + " bytes");
         }
-        
+
         long id = messageNumber.getAndIncrement();
         SettableFuture<UserRecordResult> f = SettableFuture.create();
         FutureTask<String> task = null;
@@ -627,12 +633,19 @@ public class KinesisProducer implements IKinesisProducer {
             task = new FutureTask(new FutureTimeoutRunnableTask(id), "TimedOut");
             futureTimeoutExecutor.schedule(task, config.getUserRecordTimeoutInMillis(), TimeUnit.MILLISECONDS);
         }
-        SettableFutureTracker futuresTracking = new SettableFutureTracker(f, Instant.now(), Optional.ofNullable(task));
+        Optional<UserRecord> userRecordOptional;
+        if (config.getReturnUserRecordInFuture()) {
+            ByteBuffer deepCopyOfData = data != null ? ByteString.copyFrom(data.duplicate()).asReadOnlyByteBuffer() : null;
+            userRecordOptional = Optional.of(new UserRecord(stream, partitionKey, explicitHashKey, deepCopyOfData, schema));
+        } else {
+            userRecordOptional = Optional.empty();
+        }
+        SettableFutureTracker futuresTracking = new SettableFutureTracker(f, Instant.now(), Optional.ofNullable(task),
+                userRecordOptional);
         futures.put(id, futuresTracking);
         if (config.getEnableOldestFutureTracker()) {
             oldestFutureTrackerHeap.add(futuresTracking);
         }
-        
         PutRecord.Builder pr = PutRecord.newBuilder()
                 .setStreamName(stream)
                 .setPartitionKey(partitionKey)
@@ -640,13 +653,12 @@ public class KinesisProducer implements IKinesisProducer {
         if (b != null) {
             pr.setExplicitHashKey(b.toString(10));
         }
-        
+
         Message m = Message.newBuilder()
                 .setId(id)
                 .setPutRecord(pr.build())
                 .build();
-        child.add(m);
-        
+        addMessageToChild(m);
         return f;
     }
 
@@ -660,7 +672,7 @@ public class KinesisProducer implements IKinesisProducer {
             totalFutureTimeouts.getAndIncrement();
             SettableFuture<?> f = futureTracker.getFuture();
             String message = "Message id " + id + " timeout out. Removing the submitted future from processing queue.";
-            f.setException(new FutureTimedOutException(message));
+            f.setException(new FutureTimedOutException(message, futureTracker.getUserRecordOptional().orElse(null)));
             log.error(message);
         }
     }
@@ -755,14 +767,13 @@ public class KinesisProducer implements IKinesisProducer {
             task = new FutureTask(new FutureTimeoutRunnableTask(id), "TimedOut");
             futureTimeoutExecutor.schedule(task, config.getUserRecordTimeoutInMillis(), TimeUnit.MILLISECONDS);
         }
-        SettableFutureTracker futuresTracking = new SettableFutureTracker(f, Instant.now(), Optional.ofNullable(task));
+        SettableFutureTracker futuresTracking = new SettableFutureTracker(f, Instant.now(), Optional.ofNullable(task), Optional.empty());
         futures.put(id, futuresTracking);
 
         if (config.getEnableOldestFutureTracker()) {
             oldestFutureTrackerHeap.add(futuresTracking);
         }
-        
-        child.add(Message.newBuilder()
+        addMessageToChild(Message.newBuilder()
                 .setId(id)
                 .setMetricsRequest(mrb.build())
                 .build());
@@ -940,7 +951,7 @@ public class KinesisProducer implements IKinesisProducer {
                 .setId(messageNumber.getAndIncrement())
                 .setFlush(f.build())
                 .build();
-        child.add(m);
+        addMessageToChild(m);
     }
 
     /**
@@ -996,6 +1007,16 @@ public class KinesisProducer implements IKinesisProducer {
     @VisibleForTesting
     Map<Long, SettableFutureTracker> getFutures() {
         return futures;
+    }
+
+    @VisibleForTesting
+    Daemon getChild() {
+        return child;
+    }
+
+    @VisibleForTesting
+    void addMessageToChild(Message m) {
+        child.add(m);
     }
 
     private String extractBinaries() {
