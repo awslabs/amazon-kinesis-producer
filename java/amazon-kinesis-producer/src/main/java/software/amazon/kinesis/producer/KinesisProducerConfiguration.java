@@ -358,7 +358,7 @@ public class KinesisProducerConfiguration {
     private long collectionMaxSize = 5242880L;
     private long connectTimeout = 6000L;
     private long credentialsRefreshDelay = 5000L;
-    private boolean enableCoreDumps = false;
+    private Boolean enableCoreDumps = null;
     private boolean failIfThrottled = false;
     private String kinesisEndpoint = "";
     private long kinesisPort = 443L;
@@ -530,16 +530,21 @@ public class KinesisProducerConfiguration {
      * If set to true, the KPL native process will attempt to raise its own core file size soft
      * limit to 128MB, or the hard limit, whichever is lower. If the soft limit is already at or
      * above the target amount, it is not changed.
-     * 
+     * <p>
+     * If set to false, the core file size soft limit is explicitly set to 0 to disable core dumps.
+     * <p>
+     * If unset, the process leaves the core file size limit unchanged, using the system or
+     * environment default.
+     *
      * <p>
      * Note that even if the limit is successfully raised (or already sufficient), it does not
      * guarantee that core files will be written on a crash, since that is dependent on operation
      * system settings that's beyond the control of individual processes.
-     * 
-     * <p><b>Default</b>: false
+     *
+     * <p><b>Default</b>: unset
      */
     public boolean isEnableCoreDumps() {
-      return enableCoreDumps;
+      return enableCoreDumps != null ? enableCoreDumps : false;
     }
 
     /**
@@ -1140,12 +1145,17 @@ public class KinesisProducerConfiguration {
 
     /**
      * This has no effect on Windows.
-     * 
+     *
      * <p>
      * If set to true, the KPL native process will attempt to raise its own core file size soft
      * limit to 128MB, or the hard limit, whichever is lower. If the soft limit is already at or
      * above the target amount, it is not changed.
-     * 
+     * <p>
+     * If set to false, the core file size soft limit is explicitly set to 0 to disable core dumps.
+     * <p>
+     * If unset, the process leaves the core file size limit unchanged, using the system or
+     * environment default.
+     *
      * <p>
      * Note that even if the limit is successfully raised (or already sufficient), it does not
      * guarantee that core files will be written on a crash, since that is dependent on operation
@@ -1711,7 +1721,6 @@ public class KinesisProducerConfiguration {
                 .setCollectionMaxCount(collectionMaxCount)
                 .setCollectionMaxSize(collectionMaxSize)
                 .setConnectTimeout(connectTimeout)
-                .setEnableCoreDumps(enableCoreDumps)
                 .setFailIfThrottled(failIfThrottled)
                 .setKinesisEndpoint(kinesisEndpoint)
                 .setKinesisPort(kinesisPort)
@@ -1739,7 +1748,9 @@ public class KinesisProducerConfiguration {
         if (threadPoolSize > 0) {
             builder = builder.setThreadPoolSize(threadPoolSize);
         }
-
+        if (enableCoreDumps != null) {
+            builder = builder.setEnableCoreDumps(enableCoreDumps);
+        }
         Configuration c = this.additionalConfigsToProtobuf(builder).build();
         return Message.newBuilder().setConfiguration(c).setId(0).build();
     }
