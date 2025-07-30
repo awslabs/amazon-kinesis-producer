@@ -16,8 +16,10 @@
 #ifndef AWS_UTILS_IO_SERVICE_EXECUTOR_H_
 #define AWS_UTILS_IO_SERVICE_EXECUTOR_H_
 
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/post.hpp>
 #include <boost/asio/steady_timer.hpp>
+#include <boost/asio/executor_work_guard.hpp>
 
 #include <aws/mutex.h>
 #include <aws/utils/executor.h>
@@ -31,11 +33,11 @@ class SteadyTimerScheduledCallback : boost::noncopyable,
                                      public ScheduledCallback {
  public:
   SteadyTimerScheduledCallback(Executor::Func f,
-                               boost::asio::io_service& io_svc,
+                               boost::asio::io_context& io_ctx,
                                TimePoint at)
       : completed_(false),
         f_(std::move(f)),
-        timer_(io_svc) {
+        timer_(io_ctx) {
     reschedule(at);
   }
 
@@ -60,7 +62,7 @@ class SteadyTimerScheduledCallback : boost::noncopyable,
   }
 
   TimePoint expiration() override {
-    return timer_.expires_at();
+    return timer_.expiry();
   }
 
  private:
@@ -73,20 +75,20 @@ class IoServiceExecutor : boost::noncopyable,
                           public Executor {
  public:
   IoServiceExecutor(size_t num_threads)
-      : io_service_(std::make_shared<boost::asio::io_service>()),
-        w_(*io_service_),
+      : io_context_(std::make_shared<boost::asio::io_context>()),
+        work_guard_(boost::asio::make_work_guard(*io_context_)),
         clean_up_cb_(
             [this] { this->clean_up(); },
-            *io_service_,
+            *io_context_,
             Clock::now() + std::chrono::seconds(1)) {
     for (size_t i = 0; i < num_threads; i++) {
-      threads_.emplace_back([this] { io_service_->run(); });
+      threads_.emplace_back([this] { io_context_->run(); });
     }
   }
 
   ~IoServiceExecutor() {
-    w_.~work();
-    io_service_->stop();
+    work_guard_.reset();
+    io_context_->stop();
     for (auto& t : threads_) {
       t.join();
     }
@@ -94,7 +96,7 @@ class IoServiceExecutor : boost::noncopyable,
   }
 
   void submit(Func f) override {
-    io_service_->post(std::move(f));
+    boost::asio::post(*io_context_, std::move(f));
   };
 
   std::shared_ptr<ScheduledCallback> schedule(Func f,
@@ -102,18 +104,18 @@ class IoServiceExecutor : boost::noncopyable,
     auto cb =
       std::make_shared<SteadyTimerScheduledCallback>(
           std::move(f),
-          *io_service_,
+          *io_context_,
           at);
     callbacks_clq_.put(cb);
     return cb;
   };
 
-  const std::shared_ptr<boost::asio::io_service>& io_service() {
-    return io_service_;
+  const std::shared_ptr<boost::asio::io_context>& io_context() {
+    return io_context_;
   }
 
-  operator boost::asio::io_service&() {
-    return *io_service_;
+  operator boost::asio::io_context&() {
+    return *io_context_;
   }
 
   size_t num_threads() const noexcept override {
@@ -121,7 +123,7 @@ class IoServiceExecutor : boost::noncopyable,
   }
 
   void join() override {
-    io_service_->run();
+    io_context_->run();
   }
 
  private:
@@ -152,8 +154,8 @@ class IoServiceExecutor : boost::noncopyable,
     clean_up_cb_.reschedule(Clock::now() + std::chrono::seconds(1));
   }
 
-  std::shared_ptr<boost::asio::io_service> io_service_;
-  boost::asio::io_service::work w_;
+  std::shared_ptr<boost::asio::io_context> io_context_;
+  boost::asio::executor_work_guard<boost::asio::io_context::executor_type> work_guard_;
   std::vector<aws::thread> threads_;
   std::list<CbPtr> callbacks_;
   aws::utils::SpinLock clean_up_mutex_;
