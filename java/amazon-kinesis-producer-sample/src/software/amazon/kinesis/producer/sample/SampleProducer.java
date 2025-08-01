@@ -128,10 +128,6 @@ public class SampleProducer {
             @Override
             public void onSuccess(UserRecordResult result) {
                 completed.getAndIncrement();
-
-                UserRecord userRecord = result.getUserRecord();
-                log.info(String.format("Successfully put UserRecord %s with data %s", userRecord,
-                        StandardCharsets.UTF_8.decode(userRecord.getData()).toString()));
             }
         };
         

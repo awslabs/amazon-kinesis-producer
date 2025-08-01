@@ -214,8 +214,8 @@ public class SampleProducerConfig {
         KinesisProducerConfiguration config = new KinesisProducerConfiguration();
 
         // Stores the UserRecord associated with an addUserRecord call in the future. The UserRecord
-        // will be returned in the exception or UserRecordResult.
-        config.setReturnUserRecordInFuture(true);
+        // will be returned in the exception.
+        config.setReturnUserRecordOnFailure(true);
 
         // You can also load config from file. A sample properties file is
         // included in the project folder.
