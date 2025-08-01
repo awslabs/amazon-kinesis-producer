@@ -124,8 +124,6 @@ public class KinesisProducer implements IKinesisProducer {
         private Instant timestamp;
         @NonNull
         private Optional<FutureTask> timeoutTask;
-
-        @NonNull
         private UserRecord userRecord;
 
         private void cancelTimeoutTaskIfPresent() {
