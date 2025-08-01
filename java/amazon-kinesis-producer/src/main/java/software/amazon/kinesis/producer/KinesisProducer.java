@@ -42,7 +42,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -240,7 +239,6 @@ public class KinesisProducer implements IKinesisProducer {
             SettableFutureTracker futureTracker = getFuture(msg);
             SettableFuture<UserRecordResult> f = (SettableFuture<UserRecordResult>) futureTracker.getFuture();
             UserRecordResult result = UserRecordResult.fromProtobufMessage(msg.getPutRecordResult());
-            result.setUserRecord(futureTracker.getUserRecord());
             if (result.isSuccessful()) {
                 f.set(result);
             } else {
@@ -632,7 +630,7 @@ public class KinesisProducer implements IKinesisProducer {
             futureTimeoutExecutor.schedule(task, config.getUserRecordTimeoutInMillis(), TimeUnit.MILLISECONDS);
         }
         UserRecord userRecord = null;
-        if (config.getReturnUserRecordInFuture()) {
+        if (config.getReturnUserRecordOnFailure()) {
             ByteBuffer deepCopyOfData = data != null ? ByteString.copyFrom(data.duplicate()).asReadOnlyByteBuffer() : null;
             userRecord = new UserRecord(stream, partitionKey, explicitHashKey, deepCopyOfData, schema);
         }

@@ -390,7 +390,7 @@ public class KinesisProducerConfiguration {
     private String glueSchemaRegistryPropertiesFilePath = "";
     private long userRecordTimeoutInMillis = 0;
     private boolean enableOldestFutureTracker = true; // default on
-    private boolean returnUserRecordInFuture = false;
+    private boolean returnUserRecordOnFailure = false;
 
     /**
      * Enable aggregation. With aggregation, multiple user records are packed into a single
@@ -991,8 +991,8 @@ public class KinesisProducerConfiguration {
      *
      * @return true if returning UserRecord in Futures is enabled, false otherwise
      */
-    public boolean getReturnUserRecordInFuture() {
-        return returnUserRecordInFuture;
+    public boolean getReturnUserRecordOnFailure() {
+        return returnUserRecordOnFailure;
     }
 
     /**
@@ -1728,21 +1728,21 @@ public class KinesisProducerConfiguration {
     }
 
     /**
-     * Sets whether returning UserRecord in Futures is enabled
+     * Sets whether returning UserRecord in Futures which complete exceptionally is enabled
      *
      * <p>
      * When enabled, the KPL will retain in memory the UserRecord added by
-     * {@link KinesisProducer#addUserRecord(UserRecord)} or any of its overloaded methods and
-     * pass it to the completed Future. This can be useful when you need to do something on completion
-     * of the future but need to know the specific UserRecord associated to that future. Since this retains the
-     * data until the record passes through the C++ layer until the Future is resolved by the Java layer,
-     * enabling this may increase the memory usage of the KPL.
+     * {@link KinesisProducer#addUserRecord(UserRecord)} or any of its overloaded methods and pass it to the completed
+     * Future if the Future throws an exception. This can be useful when you need to do something when the Future
+     * throws an exception but need to know the specific UserRecord associated to that future. Since this retains the
+     * data until the record passes through the C++ layer until the Future is completed by the Java layer
+     * (either normally or exceptionally), enabling this may increase the memory usage of the KPL.
      *
-     * @param returnUserRecordInFuture true to enable returning UserRecord in Futures, false to disable (default false)
+     * @param returnUserRecordOnFailure true to enable returning UserRecord in Futures, false to disable (default false)
      * @return this {@link KinesisProducerConfiguration} instance
      */
-    public KinesisProducerConfiguration setReturnUserRecordInFuture(boolean returnUserRecordInFuture) {
-        this.returnUserRecordInFuture = returnUserRecordInFuture;
+    public KinesisProducerConfiguration setReturnUserRecordOnFailure(boolean returnUserRecordOnFailure) {
+        this.returnUserRecordOnFailure = returnUserRecordOnFailure;
         return this;
     }
 

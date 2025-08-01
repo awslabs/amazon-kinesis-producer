@@ -18,7 +18,7 @@ package software.amazon.kinesis.producer;
 import lombok.Getter;
 /**
  * This is the wrapper exception thrown and returned to callbacks in onFailure. If
- * {@link KinesisProducerConfiguration#setReturnUserRecordInFuture(boolean)} is set to true, this will contain
+ * {@link KinesisProducerConfiguration#setReturnUserRecordOnFailure(boolean)} is set to true, this will contain
  * the userRecord associated with the future returned from a {@link KinesisProducer#addUserRecord(UserRecord)}
  * call or any of its overloaded methods.
  */
@@ -26,7 +26,7 @@ public class KinesisProducerException extends Exception {
     private static final long serialVersionUID = 3168271192277927600L;
 
     /**
-     * If {@link KinesisProducerConfiguration#setReturnUserRecordInFuture(boolean)} is set to true,
+     * If {@link KinesisProducerConfiguration#setReturnUserRecordOnFailure(boolean)} is set to true,
      * this will contain UserRecord associated with this future. If it is false, this will be null.
      */
     @Getter

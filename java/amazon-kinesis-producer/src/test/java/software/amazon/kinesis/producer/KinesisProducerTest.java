@@ -511,12 +511,12 @@ public class KinesisProducerTest {
     }
 
     @Test
-    public void addUserRecordReturnsRecordOnSuccess() throws UnsupportedEncodingException,
+    public void addUserRecordDoesNotReturnsRecordOnFailureWhenDisabled() throws UnsupportedEncodingException,
             InterruptedException, ExecutionException, TimeoutException {
 
         // given
         final KinesisProducerConfiguration cfg = buildBasicConfiguration()
-                .setReturnUserRecordInFuture(true);
+                .setReturnUserRecordOnFailure(true);
         final String streamName = "streamName";
         final String partitionKey = "partitionKey";
         final String stringToEncode = "Unit test sample data";
@@ -528,62 +528,23 @@ public class KinesisProducerTest {
         ByteBuffer data = ByteBuffer.wrap(stringToEncode.getBytes("UTF-8"));
         ListenableFuture<UserRecordResult> f = producerSpy.addUserRecord(streamName, partitionKey, data);
 
-        // Mock a message received from Daemon
-        PutRecordResult prr = PutRecordResult.newBuilder()
-                .setSuccess(true)
-                .setShardId("shard-1")
-                .setSequenceNumber("123")
-                .build();
-        Message m = Message.newBuilder()
-                .setId(new Random().nextLong())
-                .setSourceId(1L) // first message is always 1
-                .setPutRecordResult(prr)
-                .build();
-        producerSpy.getChild().getHandler().onMessage(m);
+        // Mock an error thrown from Daemon
+        producerSpy.getChild().getHandler().onError(new DaemonException("Mocked exception."));
 
         // then
-        UserRecordResult userRecordResult = f.get(5, TimeUnit.SECONDS);
-        UserRecord userRecord = userRecordResult.getUserRecord();
-        assertEquals(streamName, userRecord.getStreamName());
-        assertEquals(partitionKey, userRecord.getPartitionKey());
-        assertEquals(stringToEncode, StandardCharsets.UTF_8.decode(userRecord.getData())
-                .toString());
-    }
-
-    @Test
-    public void addUserRecordDoesNotReturnsRecordOnSuccessWhenDisabled() throws UnsupportedEncodingException,
-            InterruptedException, ExecutionException, TimeoutException {
-
-        // given
-        final KinesisProducerConfiguration cfg = buildBasicConfiguration();
-        final String streamName = "streamName";
-        final String partitionKey = "partitionKey";
-        final String stringToEncode = "Unit test sample data";
-        final KinesisProducer producerSpy = spy(new KinesisProducer(cfg));
-
-        // when
-        // skip sending the message to daemon so that we can test receiving the message
-        doNothing().when(producerSpy).addMessageToChild(any());
-        ByteBuffer data = ByteBuffer.wrap(stringToEncode.getBytes("UTF-8"));
-        ListenableFuture<UserRecordResult> f = producerSpy.addUserRecord(streamName, partitionKey, data);
-
-        // Mock a message received from Daemon
-        PutRecordResult prr = PutRecordResult.newBuilder()
-                .setSuccess(true)
-                .setShardId("shard-1")
-                .setSequenceNumber("123")
-                .build();
-        Message m = Message.newBuilder()
-                .setId(new Random().nextLong())
-                .setSourceId(1L) // first message is always 1
-                .setPutRecordResult(prr)
-                .build();
-        producerSpy.getChild().getHandler().onMessage(m);
-
-        // then
-        UserRecordResult userRecordResult = f.get(5, TimeUnit.SECONDS);
-        UserRecord userRecord = userRecordResult.getUserRecord();
-        assertNull(streamName, userRecord);
+        try {
+            f.get(5, TimeUnit.SECONDS);
+            fail("Expected an exception");
+        } catch (TimeoutException e) {
+            fail("Future timed out unexpectedly");
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof KinesisProducerException) {
+                UserRecord userRecord = ((KinesisProducerException) e.getCause()).getUserRecord();
+                assertNull(userRecord);
+            } else {
+                fail(String.format("Got unexpected exception: {}", e));
+            }
+        }
     }
 
     @Test
@@ -591,7 +552,7 @@ public class KinesisProducerTest {
 
         // given
         final KinesisProducerConfiguration cfg = buildBasicConfiguration()
-                .setReturnUserRecordInFuture(true);
+                .setReturnUserRecordOnFailure(true);
         final String streamName = "streamName";
         final String partitionKey = "partitionKey";
         final String stringToEncode = "Unit test sample data";
@@ -630,7 +591,7 @@ public class KinesisProducerTest {
 
         // given
         final KinesisProducerConfiguration cfg = buildBasicConfiguration()
-                .setReturnUserRecordInFuture(true);
+                .setReturnUserRecordOnFailure(true);
         final String streamName = "streamName";
         final String partitionKey = "partitionKey";
         final String stringToEncode = "Unit test sample data";
@@ -679,7 +640,7 @@ public class KinesisProducerTest {
 
         // given
         final KinesisProducerConfiguration cfg = buildBasicConfiguration()
-                .setReturnUserRecordInFuture(true)
+                .setReturnUserRecordOnFailure(true)
                 .setUserRecordTimeoutInMillis(1000); // make it timeout
         final String streamName = "streamName";
         final String partitionKey = "partitionKey";
@@ -718,7 +679,7 @@ public class KinesisProducerTest {
 
         // given
         final KinesisProducerConfiguration cfg = buildBasicConfiguration()
-                .setReturnUserRecordInFuture(true);
+                .setReturnUserRecordOnFailure(true);
         final String streamName = "streamName";
         final String partitionKey = "partitionKey";
         final String stringToEncode = "Unit test sample data";
