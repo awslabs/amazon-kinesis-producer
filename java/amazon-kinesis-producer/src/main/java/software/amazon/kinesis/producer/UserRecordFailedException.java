@@ -15,17 +15,12 @@
 
 package software.amazon.kinesis.producer;
 
-/**
- * The exception thrown when the max attempts to put a UserRecord into Kinesis is exhausted and the result is not
- * successful.
- */
-public class UserRecordFailedException extends KinesisProducerException {
+public class UserRecordFailedException extends Exception {
     private static final long serialVersionUID = 3168271192277927600L;
 
     private UserRecordResult result;
     
-    public UserRecordFailedException(UserRecordResult result, UserRecord userRecord) {
-        super(userRecord);
+    public UserRecordFailedException(UserRecordResult result) {
         this.result = result;
     }
 

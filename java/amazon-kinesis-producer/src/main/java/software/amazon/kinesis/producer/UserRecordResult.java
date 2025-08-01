@@ -78,7 +78,7 @@ public class UserRecordResult {
     public boolean isSuccessful() {
         return successful;
     }
-
+    
     protected static UserRecordResult fromProtobufMessage(Messages.PutRecordResult r) {
         final List<Attempt> attempts = new ArrayList<>(r.getAttemptsCount());
         for (Messages.Attempt a : r.getAttemptsList()) {

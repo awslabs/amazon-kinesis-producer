@@ -15,19 +15,11 @@
 
 package software.amazon.kinesis.producer;
 
-/**
- * The exception thrown when an unexpected message is read from the native layer.
- */
-public class UnexpectedMessageException extends KinesisProducerException {
+public class UnexpectedMessageException extends Exception {
     private static final long serialVersionUID = 3168271192277927600L;
 
     public UnexpectedMessageException(String message) {
         super(message);
     }
-
-    public UnexpectedMessageException(String message, UserRecord userRecord) {
-        super(message, userRecord);
-    }
-
 }
 
