@@ -1735,7 +1735,8 @@ public class KinesisProducerConfiguration {
      * {@link KinesisProducer#addUserRecord(UserRecord)} or any of its overloaded methods and
      * pass it to the completed Future. This can be useful when you need to do something on completion
      * of the future but need to know the specific UserRecord associated to that future. Since this retains the
-     * data in memory for longer, enabling this may increase the memory usage of the KPL.
+     * data until the record passes through the C++ layer until the Future is resolved by the Java layer,
+     * enabling this may increase the memory usage of the KPL.
      *
      * @param returnUserRecordInFuture true to enable returning UserRecord in Futures, false to disable (default false)
      * @return this {@link KinesisProducerConfiguration} instance

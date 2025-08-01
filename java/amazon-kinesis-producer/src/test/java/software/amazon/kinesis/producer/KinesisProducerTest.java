@@ -511,7 +511,8 @@ public class KinesisProducerTest {
     }
 
     @Test
-    public void addUserRecordReturnsRecordOnSuccess() throws UnsupportedEncodingException, InterruptedException {
+    public void addUserRecordReturnsRecordOnSuccess() throws UnsupportedEncodingException,
+            InterruptedException, ExecutionException, TimeoutException {
 
         // given
         final KinesisProducerConfiguration cfg = buildBasicConfiguration()
@@ -541,20 +542,17 @@ public class KinesisProducerTest {
         producerSpy.getChild().getHandler().onMessage(m);
 
         // then
-        try {
-            UserRecordResult userRecordResult = f.get(5, TimeUnit.SECONDS);
-            UserRecord userRecord = userRecordResult.getUserRecord();
-            assertEquals(streamName, userRecord.getStreamName());
-            assertEquals(partitionKey, userRecord.getPartitionKey());
-            assertEquals(stringToEncode, StandardCharsets.UTF_8.decode(userRecord.getData())
-                    .toString());
-        } catch (Exception e) {
-            fail(String.format("Did not expect an exception: {}", e));
-        }
+        UserRecordResult userRecordResult = f.get(5, TimeUnit.SECONDS);
+        UserRecord userRecord = userRecordResult.getUserRecord();
+        assertEquals(streamName, userRecord.getStreamName());
+        assertEquals(partitionKey, userRecord.getPartitionKey());
+        assertEquals(stringToEncode, StandardCharsets.UTF_8.decode(userRecord.getData())
+                .toString());
     }
 
     @Test
-    public void addUserRecordDoesNotReturnsRecordOnSuccessWhenDisabled() throws UnsupportedEncodingException, InterruptedException {
+    public void addUserRecordDoesNotReturnsRecordOnSuccessWhenDisabled() throws UnsupportedEncodingException,
+            InterruptedException, ExecutionException, TimeoutException {
 
         // given
         final KinesisProducerConfiguration cfg = buildBasicConfiguration();
@@ -583,13 +581,9 @@ public class KinesisProducerTest {
         producerSpy.getChild().getHandler().onMessage(m);
 
         // then
-        try {
-            UserRecordResult userRecordResult = f.get(5, TimeUnit.SECONDS);
-            UserRecord userRecord = userRecordResult.getUserRecord();
-            assertNull(streamName, userRecord);
-        } catch (Exception e) {
-            fail(String.format("Did not expect an exception: {}", e));
-        }
+        UserRecordResult userRecordResult = f.get(5, TimeUnit.SECONDS);
+        UserRecord userRecord = userRecordResult.getUserRecord();
+        assertNull(streamName, userRecord);
     }
 
     @Test
@@ -626,7 +620,7 @@ public class KinesisProducerTest {
                 assertEquals(stringToEncode, StandardCharsets.UTF_8.decode(userRecord.getData())
                         .toString());
             } else {
-                fail("Got unexpected exception");
+                fail(String.format("Got unexpected exception: {}", e));
             }
         }
     }
@@ -675,7 +669,7 @@ public class KinesisProducerTest {
                 assertEquals(stringToEncode, StandardCharsets.UTF_8.decode(userRecord.getData())
                         .toString());
             } else {
-                fail("Got unexpected exception");
+                fail(String.format("Got unexpected exception: {}", e));
             }
         }
     }
@@ -714,7 +708,7 @@ public class KinesisProducerTest {
                 assertEquals(stringToEncode, StandardCharsets.UTF_8.decode(userRecord.getData())
                         .toString());
             } else {
-                fail("Got unexpected exception");
+                fail(String.format("Got unexpected exception: {}", e));
             }
         }
     }
@@ -761,7 +755,7 @@ public class KinesisProducerTest {
                 assertEquals(partitionKey, userRecord.getPartitionKey());
                 assertEquals(stringToEncode, StandardCharsets.UTF_8.decode(userRecord.getData()).toString());
             } else {
-                fail("Got unexpected exception");
+                fail(String.format("Got unexpected exception: {}", e));
             }
         }
     }

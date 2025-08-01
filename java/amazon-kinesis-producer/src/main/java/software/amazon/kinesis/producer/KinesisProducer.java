@@ -126,7 +126,7 @@ public class KinesisProducer implements IKinesisProducer {
         private Optional<FutureTask> timeoutTask;
 
         @NonNull
-        private Optional<UserRecord> userRecordOptional;
+        private UserRecord userRecord;
 
         private void cancelTimeoutTaskIfPresent() {
             timeoutTask.ifPresent(t -> t.cancel(false));
@@ -181,7 +181,7 @@ public class KinesisProducer implements IKinesisProducer {
                         SettableFuture<?> f = futureTracker.getFuture();
 
                         f.setException(new UnexpectedMessageException("Unexpected message type from child process",
-                                futureTracker.getUserRecordOptional().orElse(null)));
+                                futureTracker.getUserRecord()));
                         log.error(String.format("Unexpected message type with case %s from child process with message"
                                         + " id %s. Removing the submitted future from processing queue.",
                                 m.getActualMessageCase(), m.getSourceId()));
@@ -204,7 +204,7 @@ public class KinesisProducer implements IKinesisProducer {
                     @Override
                     public void run() {
                         entry.getValue().getFuture().setException(
-                                new KinesisProducerException(t, entry.getValue().getUserRecordOptional().orElse(null)));
+                                new KinesisProducerException(t, entry.getValue().getUserRecord()));
                     }
                 });
             }
@@ -242,11 +242,11 @@ public class KinesisProducer implements IKinesisProducer {
             SettableFutureTracker futureTracker = getFuture(msg);
             SettableFuture<UserRecordResult> f = (SettableFuture<UserRecordResult>) futureTracker.getFuture();
             UserRecordResult result = UserRecordResult.fromProtobufMessage(msg.getPutRecordResult());
-            result.setUserRecord(futureTracker.getUserRecordOptional().orElse(null));
+            result.setUserRecord(futureTracker.getUserRecord());
             if (result.isSuccessful()) {
                 f.set(result);
             } else {
-                f.setException(new UserRecordFailedException(result, futureTracker.getUserRecordOptional().orElse(null)));
+                f.setException(new UserRecordFailedException(result, futureTracker.getUserRecord()));
             }
         }
         
@@ -633,15 +633,13 @@ public class KinesisProducer implements IKinesisProducer {
             task = new FutureTask(new FutureTimeoutRunnableTask(id), "TimedOut");
             futureTimeoutExecutor.schedule(task, config.getUserRecordTimeoutInMillis(), TimeUnit.MILLISECONDS);
         }
-        Optional<UserRecord> userRecordOptional;
+        UserRecord userRecord = null;
         if (config.getReturnUserRecordInFuture()) {
             ByteBuffer deepCopyOfData = data != null ? ByteString.copyFrom(data.duplicate()).asReadOnlyByteBuffer() : null;
-            userRecordOptional = Optional.of(new UserRecord(stream, partitionKey, explicitHashKey, deepCopyOfData, schema));
-        } else {
-            userRecordOptional = Optional.empty();
+            userRecord = new UserRecord(stream, partitionKey, explicitHashKey, deepCopyOfData, schema);
         }
         SettableFutureTracker futuresTracking = new SettableFutureTracker(f, Instant.now(), Optional.ofNullable(task),
-                userRecordOptional);
+                userRecord);
         futures.put(id, futuresTracking);
         if (config.getEnableOldestFutureTracker()) {
             oldestFutureTrackerHeap.add(futuresTracking);
@@ -672,7 +670,7 @@ public class KinesisProducer implements IKinesisProducer {
             totalFutureTimeouts.getAndIncrement();
             SettableFuture<?> f = futureTracker.getFuture();
             String message = "Message id " + id + " timeout out. Removing the submitted future from processing queue.";
-            f.setException(new FutureTimedOutException(message, futureTracker.getUserRecordOptional().orElse(null)));
+            f.setException(new FutureTimedOutException(message, futureTracker.getUserRecord()));
             log.error(message);
         }
     }
@@ -767,7 +765,7 @@ public class KinesisProducer implements IKinesisProducer {
             task = new FutureTask(new FutureTimeoutRunnableTask(id), "TimedOut");
             futureTimeoutExecutor.schedule(task, config.getUserRecordTimeoutInMillis(), TimeUnit.MILLISECONDS);
         }
-        SettableFutureTracker futuresTracking = new SettableFutureTracker(f, Instant.now(), Optional.ofNullable(task), Optional.empty());
+        SettableFutureTracker futuresTracking = new SettableFutureTracker(f, Instant.now(), Optional.ofNullable(task), null);
         futures.put(id, futuresTracking);
 
         if (config.getEnableOldestFutureTracker()) {

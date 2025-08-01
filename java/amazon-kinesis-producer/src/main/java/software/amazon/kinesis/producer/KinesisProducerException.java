@@ -15,6 +15,7 @@
 
 package software.amazon.kinesis.producer;
 
+import lombok.Getter;
 /**
  * This is the wrapper exception thrown and returned to callbacks in onFailure. If
  * {@link KinesisProducerConfiguration#setReturnUserRecordInFuture(boolean)} is set to true, this will contain
@@ -28,7 +29,8 @@ public class KinesisProducerException extends Exception {
      * If {@link KinesisProducerConfiguration#setReturnUserRecordInFuture(boolean)} is set to true,
      * this will contain UserRecord associated with this future. If it is false, this will be null.
      */
-    private UserRecord userRecord;
+    @Getter
+    private final UserRecord userRecord;
 
     public KinesisProducerException(Throwable cause, UserRecord userRecord) {
         super(cause);
@@ -42,14 +44,11 @@ public class KinesisProducerException extends Exception {
 
     public KinesisProducerException(String message) {
         super(message);
+        this.userRecord = null;
     }
 
     public KinesisProducerException(UserRecord userRecord) {
         this.userRecord = userRecord;
-    }
-
-    public UserRecord getUserRecord() {
-        return userRecord;
     }
 
 }
