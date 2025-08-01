@@ -16,6 +16,7 @@
 package software.amazon.kinesis.producer.sample;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
@@ -28,6 +29,8 @@ import org.slf4j.LoggerFactory;
 
 import software.amazon.kinesis.producer.Attempt;
 import software.amazon.kinesis.producer.KinesisProducer;
+import software.amazon.kinesis.producer.UserRecord;
+import software.amazon.kinesis.producer.KinesisProducerException;
 import software.amazon.kinesis.producer.UserRecordFailedException;
 import software.amazon.kinesis.producer.UserRecordResult;
 import com.google.common.util.concurrent.FutureCallback;
@@ -96,23 +99,28 @@ public class SampleProducer {
             @Override
             public void onFailure(Throwable t) {
                 // If we see any failures, we will log them.
-                if (t instanceof UserRecordFailedException) {
-                    int attempts = ((UserRecordFailedException) t).getResult().getAttempts().size()-1;
-                    Attempt last = ((UserRecordFailedException) t).getResult().getAttempts().get(attempts);
-                    if(attempts > 1) {
-                        Attempt previous = ((UserRecordFailedException) t).getResult().getAttempts().get(attempts - 1);
-                        log.error(String.format(
-                                "Record failed to put - %s : %s. Previous failure - %s : %s",
-                                last.getErrorCode(), last.getErrorMessage(), previous.getErrorCode(), previous.getErrorMessage()));
-                    }else{
-                        log.error(String.format(
-                                "Record failed to put - %s : %s.",
-                                last.getErrorCode(), last.getErrorMessage()));
-                    }
+                if (t instanceof KinesisProducerException) {
+                    UserRecord userRecord = ((KinesisProducerException) t).getUserRecord();
+                    String data = StandardCharsets.UTF_8.decode(userRecord.getData()).toString();
+                    if (t instanceof UserRecordFailedException) {
+                        int attempts = ((UserRecordFailedException) t).getResult().getAttempts().size()-1;
+                        Attempt last = ((UserRecordFailedException) t).getResult().getAttempts().get(attempts);
+                        if(attempts > 1) {
+                            Attempt previous = ((UserRecordFailedException) t).getResult().getAttempts().get(attempts - 1);
+                            log.error(String.format(
+                                    "UserRecord %s with data %s failed to put - %s : %s. Previous failure - %s : %s",
+                                    userRecord, data, last.getErrorCode(), last.getErrorMessage(), previous.getErrorCode(),
+                                    previous.getErrorMessage()));
+                        } else{
+                            log.error(String.format(
+                                    "UserRecord %s with data %s failed to put - %s : %s.",
+                                    userRecord, data, last.getErrorCode(), last.getErrorMessage()));
+                        }
 
-                } else if (t instanceof UnexpectedMessageException) {
-                    log.error("Record failed to put due to unexpected message received from native layer",
-                            t);
+                    } else {
+                        log.error(String.format("UserRecord %s with data %s failed to put with unexpected error: ",
+                                userRecord, data), t);
+                    }
                 }
                 log.error("Exception during put", t);
             }
