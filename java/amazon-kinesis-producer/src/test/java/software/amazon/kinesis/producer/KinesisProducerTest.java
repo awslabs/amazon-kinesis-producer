@@ -515,8 +515,7 @@ public class KinesisProducerTest {
             InterruptedException, ExecutionException, TimeoutException {
 
         // given
-        final KinesisProducerConfiguration cfg = buildBasicConfiguration()
-                .setReturnUserRecordOnFailure(true);
+        final KinesisProducerConfiguration cfg = buildBasicConfiguration();
         final String streamName = "streamName";
         final String partitionKey = "partitionKey";
         final String stringToEncode = "Unit test sample data";
