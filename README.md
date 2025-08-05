@@ -72,6 +72,12 @@ This is a restatement of the [notice published](https://docs.aws.amazon.com/stre
 
 ## Release Notes
 
+## 1.0.4
+* [#660](https://github.com/awslabs/amazon-kinesis-producer/pull/660) Upgrade C++ dependencies to latest
+* [#659](https://github.com/awslabs/amazon-kinesis-producer/pull/659) Add ability for users to fetch the UserRecord in onFailure
+* [#657](https://github.com/awslabs/amazon-kinesis-producer/pull/657) Allow coredumps to be disabled based on user preference
+* [#655](https://github.com/awslabs/amazon-kinesis-producer/pull/655) Upgrade org.apache.commons:commons-lang3 from 3.14.0 to 3.18.0
+
 ## 1.0.3
 * [#653](https://github.com/awslabs/amazon-kinesis-producer/pull/653) Upgrade glue schema-registry-serde from 1.1.23 to 1.1.24
 
