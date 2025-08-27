@@ -30,9 +30,9 @@ CA_CERT="https://curl.se/ca/cacert.pem"
 INSTALL_DIR=$(pwd)/third_party
 
 # Cleanup any earlier version of the third party directory and links to it.
-#rm -f b2
-#rm -rf $INSTALL_DIR
-#mkdir -p $INSTALL_DIR
+rm -f b2
+rm -rf $INSTALL_DIR
+mkdir -p $INSTALL_DIR
 
 #Figure out the release type from os. The release type will be used to determine the final storage location
 # of the native binary
