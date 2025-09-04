@@ -29,6 +29,10 @@ public class UserRecordFailedException extends KinesisProducerException {
         this.result = result;
     }
 
+    public UserRecordFailedException(UserRecordResult result) {
+        this(result, null);
+    }
+
     public UserRecordResult getResult() {
         return result;
     }
