@@ -205,6 +205,7 @@ bool Retrier::succeed_if_correct_shard(const std::shared_ptr<UserRecord>& ur,
         !((*hashrange_actual_shard).first <= ur->hash_key() && (*hashrange_actual_shard).second >= ur->hash_key())) {
       // invalidate because this is a new shard or shard felt outside of actual shards hashrange.
       invalidate_cache(ur, start, actual_shard, should_invalidate_on_incorrect_shard);
+      // no need to retry if aggregation is disabled because the record was sent as a single record
       if (config_->aggregation_enabled()) {
         retry_not_expired(ur,
                           start,

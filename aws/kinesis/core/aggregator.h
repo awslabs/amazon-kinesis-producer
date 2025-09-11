@@ -56,14 +56,17 @@ class Aggregator : boost::noncopyable {
         reducers_([this](auto) { return this->make_reducer(); }) {}
 
   std::shared_ptr<KinesisRecord> put(const std::shared_ptr<UserRecord>& ur) {
-    // If shard map is not available, or aggregation is disabled, just send the
+    // If shard map is not available, just send the
     // record by itself, and do not attempt to aggrgegate.
     boost::optional<uint64_t> shard_id;
     if (shard_map_) {
       shard_id = shard_map_->shard_id(ur->hash_key());
     }
     if (!shard_id) {
-      return make_single_record(ur, true);
+      // during retries, the records can have the predicted shard set from the last run. Clearing out the state here
+      // because retrier expects these records to not have predicted shard so they don't get retried due to this.
+      ur->reset_predicted_shard();
+      return make_single_record(ur);
     }
 
     // We have a shard prediction.
@@ -72,8 +75,7 @@ class Aggregator : boost::noncopyable {
     // If aggregation is disabled, send an individual KinesisRecord but KEEP the
     // predicted_shard so the Limiter can enforce per-shard rate limiting.
     if (!config_->aggregation_enabled()) {
-      // Individual record with predicted_shard preserved so Limiter can apply.
-      return make_single_record(ur, false);
+      return make_single_record(ur);
     }
 
     // Otherwise, aggregate per-shard.
@@ -97,14 +99,8 @@ class Aggregator : boost::noncopyable {
     );
   }
 
-  // Helper to create a single-item KinesisRecord. When clear_predicted is true,
-  // we clear any stale predicted_shard on the UserRecord before adding it.
-  std::shared_ptr<KinesisRecord> make_single_record(const std::shared_ptr<UserRecord>& ur, bool clear_predicted) {
-    // during retries, the records can have the predicted shard set from the last run. Clearing out the state here
-    // because retrier expects these records to not have predicted shard so they don't get retried due to this.
-    if (clear_predicted) {
-      ur->reset_predicted_shard();
-    }
+  // Helper to create a single-item KinesisRecord. 
+  std::shared_ptr<KinesisRecord> make_single_record(const std::shared_ptr<UserRecord>& ur) {
     auto kr = std::make_shared<KinesisRecord>();
     kr->add(ur);
     return kr;
