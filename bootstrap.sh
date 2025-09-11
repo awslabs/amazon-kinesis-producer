@@ -40,6 +40,9 @@ function find_release_type() {
   if [[ $OSTYPE == "linux-gnu" ]]; then
     echo "linux-$(uname -m)"
     return
+  elif [[ $OSTYPE == "linux-musl" ]]; then
+    echo "linux-musl-$(uname -m)"
+    return
   elif [[ $OSTYPE == darwin* ]]; then
     echo "osx"
     return
