@@ -429,26 +429,6 @@ class Configuration : private boost::noncopyable {
       return proxy_password_;
   }
 
-  // Use a custom Sts endpoint.
-  //
-  // Note this does not accept protocols or paths, only host names or ip
-  // addresses. There is no way to disable TLS. The KPL always connects with
-  // TLS.
-  //
-  // Expected pattern: ^([A-Za-z0-9-\\.]+)?$
-  const std::string& sts_endpoint() const noexcept {
-    return sts_endpoint_;
-  }
-
-  // Server port to connect to for STS.
-  //
-  // Default: 443
-  // Minimum: 1
-  // Maximum (inclusive): 65535
-  size_t sts_port() const noexcept {
-    return sts_port_;
-  }
-
   /// Indicates whether the SDK clients should use a thread pool or not
   /// \return true if the client should use a thread pool, false otherwise
   bool use_thread_pool() const noexcept {
@@ -1042,43 +1022,6 @@ class Configuration : private boost::noncopyable {
       return *this;
   }
 
-  // Use a custom STS endpoint.
-  //
-  // Note this does not accept protocols or paths, only host names or ip
-  // addresses. There is no way to disable TLS. The KPL always connects with
-  // TLS.
-  //
-  // Expected pattern: ^([A-Za-z0-9-\\.]+)?$
-  Configuration& sts_endpoint(std::string val) {
-    static std::regex pattern(
-            "^([A-Za-z0-9-\\.]+)?$",
-            std::regex::ECMAScript | std::regex::optimize);
-    if (!std::regex_match(val, pattern)) {
-      std::string err;
-      err += "sts_endpoint must match the pattern ^([A-Za-z0-9-\\.]+)?$, got ";
-      err += val;
-      throw std::runtime_error(err);
-    }
-    sts_endpoint_ = val;
-    return *this;
-  }
-
-  // Server port to connect to for STS.
-  //
-  // Default: 443
-  // Minimum: 1
-  // Maximum (inclusive): 65535
-  Configuration& sts_port(size_t val) {
-    if (val < 1ull || val > 65535ull) {
-      std::string err;
-      err += "sts_port must be between 1 and 65535, got ";
-      err += std::to_string(val);
-      throw std::runtime_error(err);
-    }
-    sts_port_ = val;
-    return *this;
-  }
-
   /// Enables or disable the use of a thread pool for the SDK Client.
   /// Default: false
   /// \param val whether or not to use a thread pool
@@ -1150,8 +1093,6 @@ class Configuration : private boost::noncopyable {
     proxy_port(c.proxy_port());
     proxy_user_name(c.proxy_user_name());
     proxy_password(c.proxy_password());
-    sts_endpoint(c.sts_endpoint());
-    sts_port(c.sts_port());
 
     if (c.thread_config() == ::aws::kinesis::protobuf::Configuration_ThreadConfig::Configuration_ThreadConfig_POOLED) {
       use_thread_pool(true);
@@ -1198,8 +1139,6 @@ class Configuration : private boost::noncopyable {
   size_t proxy_port_ = 443;
   std::string proxy_user_name_ = "";
   std::string proxy_password_ = "";
-  std::string sts_endpoint_ = "";
-  size_t sts_port_ = 443;
 
   bool use_thread_pool_ = true;
   uint32_t thread_pool_size_ = 64;

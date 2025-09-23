@@ -250,7 +250,7 @@ if [ ! -d "aws-sdk-cpp" ]; then
   cd aws-sdk-cpp-build
 
   silence $CMAKE \
-    -DBUILD_ONLY="kinesis;monitoring;sts" \
+    -DBUILD_ONLY="kinesis;monitoring" \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -DSTATIC_LINKING=1 \
     -DCMAKE_PREFIX_PATH="$INSTALL_DIR" \
