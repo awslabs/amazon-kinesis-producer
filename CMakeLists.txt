@@ -214,7 +214,7 @@ set(STATIC_LIBS
 find_package(Protobuf REQUIRED)
 find_package(Threads)
 find_package(ZLIB)
-find_package(AWSSDK REQUIRED COMPONENTS kinesis monitoring sts)
+find_package(AWSSDK REQUIRED COMPONENTS kinesis monitoring)
 
 # Specify the output directory for generated protobuf files
 set(PROTO_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/aws/kinesis/protobuf/)

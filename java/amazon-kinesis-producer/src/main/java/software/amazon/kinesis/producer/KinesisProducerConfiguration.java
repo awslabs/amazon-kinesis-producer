@@ -900,6 +900,7 @@ public class KinesisProducerConfiguration {
     }
 
     /**
+     * This code does not do anything. It's kept for backward compatibility.
      * Get a custom STS endpoint.
      *
      * <p>
@@ -913,6 +914,7 @@ public class KinesisProducerConfiguration {
     }
 
     /**
+     * This code does not do anything. It's kept for backward compatibility.
      * Server port to connect to for STS.
      *
      * <p><b>Default</b>: 443
@@ -1609,6 +1611,8 @@ public class KinesisProducerConfiguration {
     }
 
     /**
+     * This code does not do anything. It's kept for backward compatibility.
+     *
      * Use a custom STS endpoint.
      *
      * <p>
@@ -1626,6 +1630,8 @@ public class KinesisProducerConfiguration {
     }
 
     /**
+     * This code does not do anything. It's kept for backward compatibility.
+     *
      * Server port to connect to for STS.
      *
      * <p><b>Default</b>: 443
@@ -1777,8 +1783,6 @@ public class KinesisProducerConfiguration {
                 .setProxyPort(proxyPort)
                 .setProxyUserName(proxyUserName)
                 .setProxyPassword(proxyPassword)
-                .setStsEndpoint(stsEndpoint)
-                .setStsPort(stsPort)
                 .setThreadConfig(threadingModel.threadConfig);
         //@formatter:on
         if (threadPoolSize > 0) {

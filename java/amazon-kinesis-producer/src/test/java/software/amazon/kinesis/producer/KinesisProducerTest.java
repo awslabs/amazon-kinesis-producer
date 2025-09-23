@@ -78,7 +78,6 @@ public class KinesisProducerTest {
     private static final int port = PortFactory.findFreePort();
     private static final int sts_port = PortFactory.findFreePort();
     private ClientAndServer mockServer;
-    private ClientAndServer stsMockServer;
 
     private static class RotatingAwsCredentialsProvider implements AwsCredentialsProvider {
         private final List<AwsCredentials> creds;
@@ -104,39 +103,11 @@ public class KinesisProducerTest {
                         .withStatusCode(403)
                         .withBody("{\"status\":\"Expected error\",\"message\":\"test\"}")
         );
-
-        stsMockServer = startClientAndServer(sts_port);
-        stsMockServer.when(
-                request()
-                        .withMethod("POST")
-        ).respond(
-                response()
-                        .withStatusCode(200)
-                        .withBody(
-                                // https://docs.aws.amazon.com/STS/latest/APIReference/API_GetCallerIdentity.html
-                                "<?xml version=\"1.0\" ?>\n" +
-                                        "<GetCallerIdentityResponse xmlns=\"https://sts.amazonaws.com/doc/2011-06-15/\">\n" +
-                                        "  <GetCallerIdentityResult>\n" +
-                                        "  <Arn>arn:aws:iam::123456789012:user/Alice</Arn>\n" +
-                                        "  <UserId>AIDACKCEVSQ6C2EXAMPLE</UserId>\n" +
-                                        "  <Account>123456789012</Account>\n" +
-                                        "  </GetCallerIdentityResult>\n" +
-                                        "  <ResponseMetadata>\n" +
-                                        "    <RequestId>01234567-89ab-cdef-0123-456789abcdef</RequestId>\n" +
-                                        "  </ResponseMetadata>\n" +
-                                        // This trailing \0 is important for AWSXMLClient to parse this snippet
-                                        "</GetCallerIdentityResponse>\0"
-                        )
-                        .withHeaders(
-                                new Header("Content-Type", "text/xml")
-                        )
-        );
     }
 
     @After
     public void stopServer() {
         mockServer.stop();
-        stsMockServer.stop();
     }
 
     @Test
