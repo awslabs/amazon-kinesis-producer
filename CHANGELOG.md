@@ -1,5 +1,9 @@
 ## Changelog
 
+## 1.0.5
+* [#671](https://github.com/awslabs/amazon-kinesis-producer/pull/671) Removing STS from native code
+* [#666](https://github.com/awslabs/amazon-kinesis-producer/pull/666) Add constructor for UserRecordFailedException for backwards compatibility
+
 ## 1.0.4
 * [#660](https://github.com/awslabs/amazon-kinesis-producer/pull/660) Upgrade C++ dependencies to latest
 * [#659](https://github.com/awslabs/amazon-kinesis-producer/pull/659) Add ability for users to fetch the UserRecord in onFailure
