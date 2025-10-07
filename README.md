@@ -24,7 +24,7 @@ _When deciding the limits of your KPL instance, please consider your MAX record 
 Sample Back-pressure implementation:
 
 ````
-ClickEvent event = inputQueue.take();
+        ClickEvent event = inputQueue.take();
         String partitionKey = event.getSessionId();
         String payload =  event.getPayload();
         ByteBuffer data = ByteBuffer.wrap(payload.getBytes("UTF-8"));
