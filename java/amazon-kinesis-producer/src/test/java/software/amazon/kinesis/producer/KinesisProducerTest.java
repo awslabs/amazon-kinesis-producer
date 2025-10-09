@@ -65,6 +65,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doReturn;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
@@ -697,5 +698,49 @@ public class KinesisProducerTest {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Test
+    public void performHealthCheck_ShouldDestroyChild_WhenGetMetricsTimesOut() throws Exception {
+        final KinesisProducerConfiguration cfg = buildBasicConfiguration();
+        Daemon mockChild = Mockito.mock(Daemon.class);
+        KinesisProducer producer = spy(getProducer(cfg, mockChild, null, null));
+        
+        doNothing().when(producer).addMessageToChild(any());
+        
+        producer.performHealthCheck();
+        
+        Mockito.verify(mockChild).destroy();
+    }
+
+    @Test
+    public void performHealthCheck_ShouldNotDestroyChild_WhenGetMetricsSucceeds()
+            throws ExecutionException, InterruptedException {
+        final KinesisProducerConfiguration cfg = buildBasicConfiguration();
+        Daemon mockChild = Mockito.mock(Daemon.class);
+        KinesisProducer producer = spy(getProducer(cfg, mockChild, null, null));
+
+        // Mock getMetrics to return a successful list immediately
+        doReturn(new ArrayList<>()).when(producer).getMetrics("UserRecordsPut", 1);
+
+        producer.performHealthCheck();
+
+        Mockito.verify(mockChild, Mockito.never()).destroy();
+    }
+
+    @Test
+    public void performHealthCheck_ShouldSkipRestart_WhenWithinBackoffPeriod() throws Exception {
+        final KinesisProducerConfiguration cfg = buildBasicConfiguration();
+        Daemon mockChild = Mockito.mock(Daemon.class);
+        KinesisProducer producer = spy(getProducer(cfg, mockChild, null, null));
+        
+        doNothing().when(producer).addMessageToChild(any());
+        
+        producer.performHealthCheck();
+        Mockito.verify(mockChild, Mockito.times(1)).destroy();
+        
+        // second health check immediately after should be skipped due to backoff
+        producer.performHealthCheck();
+        Mockito.verify(mockChild, Mockito.times(1)).destroy();
     }
 }
