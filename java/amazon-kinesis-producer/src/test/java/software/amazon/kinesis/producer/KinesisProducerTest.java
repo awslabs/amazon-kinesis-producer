@@ -42,6 +42,7 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.services.glue.model.DataFormat;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -701,15 +702,20 @@ public class KinesisProducerTest {
     }
 
     @Test
-    public void performHealthCheck_ShouldDestroyChild_WhenGetMetricsTimesOut() throws Exception {
+    public void performHealthCheck_ShouldDestroyChild_WhenGetMetricsTimesOut()
+            throws NoSuchFieldException, IllegalAccessException {
         final KinesisProducerConfiguration cfg = buildBasicConfiguration();
         Daemon mockChild = Mockito.mock(Daemon.class);
         KinesisProducer producer = spy(getProducer(cfg, mockChild, null, null));
-        
+        // Set lastChild so we are outside the backoff window
+        Field lastChildField = KinesisProducer.class.getDeclaredField("lastChild");
+        lastChildField.setAccessible(true);
+        lastChildField.setLong(producer,0);
+
         doNothing().when(producer).addMessageToChild(any());
-        
+
         producer.performHealthCheck();
-        
+
         Mockito.verify(mockChild).destroy();
     }
 
@@ -729,18 +735,17 @@ public class KinesisProducerTest {
     }
 
     @Test
-    public void performHealthCheck_ShouldSkipRestart_WhenWithinBackoffPeriod() throws Exception {
+    public void performHealthCheck_ShouldNotDestroyChild_WhenWithinBackoffPeriod() {
         final KinesisProducerConfiguration cfg = buildBasicConfiguration();
         Daemon mockChild = Mockito.mock(Daemon.class);
+        // Daemon startup time initialized on producer startup
         KinesisProducer producer = spy(getProducer(cfg, mockChild, null, null));
-        
+
         doNothing().when(producer).addMessageToChild(any());
-        
+
         producer.performHealthCheck();
-        Mockito.verify(mockChild, Mockito.times(1)).destroy();
-        
-        // second health check immediately after should be skipped due to backoff
-        producer.performHealthCheck();
-        Mockito.verify(mockChild, Mockito.times(1)).destroy();
+
+        // Does not restart daemon when within backoff period of previous daemon startup
+        Mockito.verify(mockChild, Mockito.never()).destroy();
     }
 }

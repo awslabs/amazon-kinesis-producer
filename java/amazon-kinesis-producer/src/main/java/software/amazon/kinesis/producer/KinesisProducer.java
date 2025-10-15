@@ -177,7 +177,6 @@ public class KinesisProducer implements IKinesisProducer {
     private static final long DAEMON_RESTART_BASE_BACKOFF_MS = 30000;
     private static final int DAEMON_RESTART_MAX_ATTEMPTS = 3;
     
-    private volatile long lastDaemonRestart = 0;
     private final AtomicInteger consecutiveRestartAttempts = new AtomicInteger(0);
 
     private class MessageHandler implements Daemon.MessageHandler {
@@ -230,6 +229,7 @@ public class KinesisProducer implements IKinesisProducer {
 
             if (processFailureBehavior == ProcessFailureBehavior.AutoRestart && !destroyed) {
                 log.info("Restarting native producer process.");
+                lastChild = System.nanoTime();
                 child = new Daemon(pathToExecutable, new MessageHandler(), pathToTmpDir, config, env);
             } else {
                 // Only restart child if it's not an irrecoverable error, and if
@@ -412,16 +412,18 @@ public class KinesisProducer implements IKinesisProducer {
             log.debug("Daemon health check succeeded");
             consecutiveRestartAttempts.set(0);
         } catch (Exception e) {
-            long timeSinceLastRestart = System.currentTimeMillis() - lastDaemonRestart;
+            if (consecutiveRestartAttempts.get() >= DAEMON_RESTART_MAX_ATTEMPTS) {
+                log.warn("Daemon health check failed. Max restarts reached ({}). Skipping daemon restart.", DAEMON_RESTART_MAX_ATTEMPTS);
+                return;
+            }
+            long timeSinceLastRestart = (System.nanoTime() - lastChild) / 1_000_000;
             long backoffTime = DAEMON_RESTART_BASE_BACKOFF_MS * (1L << Math.min(consecutiveRestartAttempts.get(), DAEMON_RESTART_MAX_ATTEMPTS));
-            
             if (timeSinceLastRestart < backoffTime) {
                 log.warn("Daemon health check failed, but skipping restart due to exponential backoff. Time since last restart: {}ms, required: {}ms", 
                     timeSinceLastRestart, backoffTime);
                 return;
             }
             log.error("Daemon health check failed - restarting daemon (attempt {})", consecutiveRestartAttempts.get() + 1, e);
-            lastDaemonRestart = System.currentTimeMillis();
             consecutiveRestartAttempts.incrementAndGet();
             child.destroy();
         }
