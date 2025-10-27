@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates.
+ * Copyright 2025 Amazon.com, Inc. or its affiliates.
  * Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -33,7 +33,7 @@ namespace aws {
 namespace kinesis {
 namespace core {
 
-static constexpr const size_t kMaxMessageSize = 2 * 1024 * 1024;
+static constexpr const size_t kMaxMessageSize = 11 * 1024 * 1024;
 
 namespace detail {
 
