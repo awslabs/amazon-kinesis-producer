@@ -1,5 +1,9 @@
 ## Changelog
 
+## 1.0.6
+* [#677](https://github.com/awslabs/amazon-kinesis-producer/pull/677) Adds support for record sizes up to 10MiB
+* [#676](https://github.com/awslabs/amazon-kinesis-producer/pull/676) Upgrade openssl, curl, aws-sdk-cpp
+
 ## 1.0.5
 * [#671](https://github.com/awslabs/amazon-kinesis-producer/pull/671) Removing STS from native code
 * [#666](https://github.com/awslabs/amazon-kinesis-producer/pull/666) Add constructor for UserRecordFailedException for backwards compatibility
