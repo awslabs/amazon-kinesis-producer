@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates.
+ * Copyright 2025 Amazon.com, Inc. or its affiliates.
  * Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -62,13 +62,13 @@ class Configuration : private boost::noncopyable {
   // time records spend buffering, look into record_max_buffered_time instead.
   //
   // If a record has more data by itself than this limit, it will bypass the
-  // aggregator. Note the backend enforces a limit of 50KB on record size. If
-  // you set this beyond 50KB, oversize records will be rejected at the
+  // aggregator. Note the backend enforces a limit of 10MB on record size. If
+  // you set this beyond 10MB, oversize records will be rejected at the
   // backend.
   //
   // Default: 51200
   // Minimum: 64
-  // Maximum (inclusive): 1048576
+  // Maximum (inclusive): 10485760
   size_t aggregation_max_size() const noexcept {
     return aggregation_max_size_;
   }
@@ -481,17 +481,17 @@ class Configuration : private boost::noncopyable {
   // time records spend buffering, look into record_max_buffered_time instead.
   //
   // If a record has more data by itself than this limit, it will bypass the
-  // aggregator. Note the backend enforces a limit of 50KB on record size. If
-  // you set this beyond 50KB, oversize records will be rejected at the
+  // aggregator. Note the backend enforces a limit of 10MB on record size. If
+  // you set this beyond 10MB, oversize records will be rejected at the
   // backend.
   //
   // Default: 51200
   // Minimum: 64
-  // Maximum (inclusive): 1048576
+  // Maximum (inclusive): 10485760
   Configuration& aggregation_max_size(size_t val) {
-    if (val < 64ull || val > 1048576ull) {
+    if (val < 64ull || val > 10485760ull) {
       std::string err;
-      err += "aggregation_max_size must be between 64 and 1048576, got ";
+      err += "aggregation_max_size must be between 64 and 10485760, got ";
       err += std::to_string(val);
       throw std::runtime_error(err);
     }

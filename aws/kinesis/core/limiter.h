@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates.
+ * Copyright 2025 Amazon.com, Inc. or its affiliates.
  * Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -48,13 +48,14 @@ class ShardLimiter : boost::noncopyable {
 
   static const constexpr uint64_t kRecordsPerSecLimit = 1000;
   static const constexpr uint64_t kBytesPerSecLimit = 1024 * 1024;
+  static const constexpr uint64_t kBytesPerRecordLimit = 1024 * 1024 * 10;
 
   ShardLimiter(double token_growth_multiplier = 1.0) {
     token_bucket_.add_token_stream(
           kRecordsPerSecLimit,
           token_growth_multiplier * kRecordsPerSecLimit);
     token_bucket_.add_token_stream(
-          kBytesPerSecLimit,
+          kBytesPerRecordLimit,
           token_growth_multiplier * kBytesPerSecLimit);
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates.
+ * Copyright 2025 Amazon.com, Inc. or its affiliates.
  * Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -88,7 +88,7 @@ public class Daemon {
     private OutputStream outStream;
 
     private ByteBuffer lenBuf = ByteBuffer.allocate(4);
-    private ByteBuffer rcvBuf = ByteBuffer.allocate(8 * 1024 * 1024);
+    private ByteBuffer rcvBuf = ByteBuffer.allocate(12 * 1024 * 1024);
     
     private final String pathToExecutable;
     private final MessageHandler handler;

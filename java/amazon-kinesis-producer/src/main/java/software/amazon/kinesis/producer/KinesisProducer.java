@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates.
+ * Copyright 2025 Amazon.com, Inc. or its affiliates.
  * Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -617,9 +617,9 @@ public class KinesisProducer implements IKinesisProducer {
             data = ByteBuffer.wrap(encodedBytes);
         }
 
-        if (data != null && data.remaining() > 1024 * 1024) {
+        if (data != null && data.remaining() > 1024 * 1024 * 10) {
             throw new IllegalArgumentException(
-                    "Data must be less than or equal to 1MB in size, got " + data.remaining() + " bytes");
+                    "Data must be less than or equal to 10MB in size, got " + data.remaining() + " bytes");
         }
 
         long id = messageNumber.getAndIncrement();

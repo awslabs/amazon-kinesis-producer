@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Amazon.com, Inc. or its affiliates.
+ * Copyright 2025 Amazon.com, Inc. or its affiliates.
  * Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
@@ -430,12 +430,12 @@ public class KinesisProducerConfiguration {
      * 
      * <p>
      * If a record has more data by itself than this limit, it will bypass the aggregator. Note
-     * the backend enforces a limit of 50KB on record size. If you set this beyond 50KB, oversize
+     * the backend enforces a limit of 10MB on record size. If you set this beyond 10MB, oversize
      * records will be rejected at the backend.
      * 
      * <p><b>Default</b>: 51200
      * <p><b>Minimum</b>: 64
-     * <p><b>Maximum (inclusive)</b>: 1048576
+     * <p><b>Maximum (inclusive)</b>: 10485760
      */
     public long getAggregationMaxSize() {
       return aggregationMaxSize;
@@ -1040,16 +1040,16 @@ public class KinesisProducerConfiguration {
      * 
      * <p>
      * If a record has more data by itself than this limit, it will bypass the aggregator. Note
-     * the backend enforces a limit of 50KB on record size. If you set this beyond 50KB, oversize
+     * the backend enforces a limit of 10MB on record size. If you set this beyond 10MB, oversize
      * records will be rejected at the backend.
      * 
      * <p><b>Default</b>: 51200
      * <p><b>Minimum</b>: 64
-     * <p><b>Maximum (inclusive)</b>: 1048576
+     * <p><b>Maximum (inclusive)</b>: 10485760
      */
     public KinesisProducerConfiguration setAggregationMaxSize(long val) {
-        if (val < 64L || val > 1048576L) {
-            throw new IllegalArgumentException("aggregationMaxSize must be between 64 and 1048576, got " + val);
+        if (val < 64L || val > 10485760L) {
+            throw new IllegalArgumentException("aggregationMaxSize must be between 64 and 10485760, got " + val);
         }
         aggregationMaxSize = val;
         return this;
