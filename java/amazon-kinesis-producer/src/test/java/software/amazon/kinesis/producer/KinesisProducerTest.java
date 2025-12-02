@@ -42,6 +42,7 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.services.glue.model.DataFormat;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -65,6 +66,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doReturn;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
@@ -697,5 +699,53 @@ public class KinesisProducerTest {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Test
+    public void performHealthCheck_ShouldDestroyChild_WhenGetMetricsTimesOut()
+            throws NoSuchFieldException, IllegalAccessException {
+        final KinesisProducerConfiguration cfg = buildBasicConfiguration();
+        Daemon mockChild = Mockito.mock(Daemon.class);
+        KinesisProducer producer = spy(getProducer(cfg, mockChild, null, null));
+        // Set lastChild so we are outside the backoff window
+        Field lastChildField = KinesisProducer.class.getDeclaredField("lastChild");
+        lastChildField.setAccessible(true);
+        lastChildField.setLong(producer,0);
+
+        doNothing().when(producer).addMessageToChild(any());
+
+        producer.performHealthCheck();
+
+        Mockito.verify(mockChild).destroy();
+    }
+
+    @Test
+    public void performHealthCheck_ShouldNotDestroyChild_WhenGetMetricsSucceeds()
+            throws ExecutionException, InterruptedException {
+        final KinesisProducerConfiguration cfg = buildBasicConfiguration();
+        Daemon mockChild = Mockito.mock(Daemon.class);
+        KinesisProducer producer = spy(getProducer(cfg, mockChild, null, null));
+
+        // Mock getMetrics to return a successful list immediately
+        doReturn(new ArrayList<>()).when(producer).getMetrics("UserRecordsPut", 1);
+
+        producer.performHealthCheck();
+
+        Mockito.verify(mockChild, Mockito.never()).destroy();
+    }
+
+    @Test
+    public void performHealthCheck_ShouldNotDestroyChild_WhenWithinBackoffPeriod() {
+        final KinesisProducerConfiguration cfg = buildBasicConfiguration();
+        Daemon mockChild = Mockito.mock(Daemon.class);
+        // Daemon startup time initialized on producer startup
+        KinesisProducer producer = spy(getProducer(cfg, mockChild, null, null));
+
+        doNothing().when(producer).addMessageToChild(any());
+
+        producer.performHealthCheck();
+
+        // Does not restart daemon when within backoff period of previous daemon startup
+        Mockito.verify(mockChild, Mockito.never()).destroy();
     }
 }

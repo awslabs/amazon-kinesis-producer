@@ -52,10 +52,14 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -105,6 +109,12 @@ public class KinesisProducer implements IKinesisProducer {
             .setDaemon(true)
             .setNameFormat("kpl-timeout-future-" + CALLBACK_COMPLETION_POOL_NUMBER.getAndIncrement() + "-thread-%d")
             .build());
+    private ScheduledExecutorService healthCheckExecutor = Executors.newSingleThreadScheduledExecutor(
+            new ThreadFactoryBuilder()
+            .setDaemon(true)
+            .setNameFormat("kpl-health-check-%d")
+            .build()
+    );
 
 
     private static class SettableFutureTrackerComparator implements Comparator<SettableFutureTracker>
@@ -162,6 +172,13 @@ public class KinesisProducer implements IKinesisProducer {
     private volatile boolean destroyed = false;
     private ProcessFailureBehavior processFailureBehavior = ProcessFailureBehavior.AutoRestart;
 
+    private static final long DAEMON_HEALTH_CHECK_INTERVAL_MS = 60000;
+    private static final long DAEMON_HEALTH_CHECK_TIMEOUT_MS = 10000;
+    private static final long DAEMON_RESTART_BASE_BACKOFF_MS = 30000;
+    private static final int DAEMON_RESTART_MAX_ATTEMPTS = 3;
+    
+    private final AtomicInteger consecutiveRestartAttempts = new AtomicInteger(0);
+
     private class MessageHandler implements Daemon.MessageHandler {
         @Override
         public void onMessage(final Message m) {
@@ -212,6 +229,7 @@ public class KinesisProducer implements IKinesisProducer {
 
             if (processFailureBehavior == ProcessFailureBehavior.AutoRestart && !destroyed) {
                 log.info("Restarting native producer process.");
+                lastChild = System.nanoTime();
                 child = new Daemon(pathToExecutable, new MessageHandler(), pathToTmpDir, config, env);
             } else {
                 // Only restart child if it's not an irrecoverable error, and if
@@ -308,6 +326,7 @@ public class KinesisProducer implements IKinesisProducer {
         // We set the policy for the executor service to remove queued tasks if they are cancelled to relieve
         // unwanted cpu load.
         futureTimeoutExecutor.setRemoveOnCancelPolicy(true);
+        startDaemonHealthCheck();
     }
 
     private Map<String, String> initEnv() {
@@ -337,6 +356,7 @@ public class KinesisProducer implements IKinesisProducer {
         // We set the policy for the executor service to remove queued tasks if they are cancelled to relieve
         // unwanted cpu load.
         futureTimeoutExecutor.setRemoveOnCancelPolicy(true);
+        startDaemonHealthCheck();
     }
     
     /**
@@ -372,7 +392,43 @@ public class KinesisProducer implements IKinesisProducer {
         this.env = null;
         child = new Daemon(inPipe, outPipe, new MessageHandler());
     }
-    
+
+    private void startDaemonHealthCheck() {
+        healthCheckExecutor.scheduleAtFixedRate(
+                this::performHealthCheck,
+                DAEMON_HEALTH_CHECK_INTERVAL_MS,
+                DAEMON_HEALTH_CHECK_INTERVAL_MS,
+                TimeUnit.MILLISECONDS
+        );
+    }
+
+    @VisibleForTesting
+    void performHealthCheck() {
+        try {
+            log.debug("Performing daemon health check");
+            Future<?> healthCheck = ForkJoinPool.commonPool()
+                .submit(() -> getMetrics("UserRecordsPut", 1));
+            healthCheck.get(DAEMON_HEALTH_CHECK_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            log.debug("Daemon health check succeeded");
+            consecutiveRestartAttempts.set(0);
+        } catch (Exception e) {
+            if (consecutiveRestartAttempts.get() >= DAEMON_RESTART_MAX_ATTEMPTS) {
+                log.warn("Daemon health check failed. Max restarts reached ({}). Skipping daemon restart.", DAEMON_RESTART_MAX_ATTEMPTS);
+                return;
+            }
+            long timeSinceLastRestart = (System.nanoTime() - lastChild) / 1_000_000;
+            long backoffTime = DAEMON_RESTART_BASE_BACKOFF_MS * (1L << Math.min(consecutiveRestartAttempts.get(), DAEMON_RESTART_MAX_ATTEMPTS));
+            if (timeSinceLastRestart < backoffTime) {
+                log.warn("Daemon health check failed, but skipping restart due to exponential backoff. Time since last restart: {}ms, required: {}ms", 
+                    timeSinceLastRestart, backoffTime);
+                return;
+            }
+            log.error("Daemon health check failed - restarting daemon (attempt {})", consecutiveRestartAttempts.get() + 1, e);
+            consecutiveRestartAttempts.incrementAndGet();
+            child.destroy();
+        }
+    }
+
     /**
      * Put a record asynchronously. A {@link ListenableFuture} is returned that
      * can be used to retrieve the result, either by polling or by registering a
