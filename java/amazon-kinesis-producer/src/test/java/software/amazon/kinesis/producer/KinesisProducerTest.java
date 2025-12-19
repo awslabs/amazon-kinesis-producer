@@ -15,13 +15,10 @@
 
 package software.amazon.kinesis.producer;
 
-import software.amazon.kinesis.producer.protobuf.Messages.Attempt;
 import software.amazon.kinesis.producer.protobuf.Messages.Message;
 import software.amazon.kinesis.producer.protobuf.Messages.PutRecord;
 import software.amazon.kinesis.producer.protobuf.Messages.PutRecordResult;
 import com.amazonaws.services.schemaregistry.common.Schema;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.protobuf.ByteString;
@@ -31,7 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockserver.integration.ClientAndServer;
-import org.mockserver.model.Header;
 import org.mockserver.socket.PortFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +39,7 @@ import software.amazon.awssdk.services.glue.model.DataFormat;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -702,50 +699,76 @@ public class KinesisProducerTest {
     }
 
     @Test
-    public void performHealthCheck_ShouldDestroyChild_WhenGetMetricsTimesOut()
-            throws NoSuchFieldException, IllegalAccessException {
-        final KinesisProducerConfiguration cfg = buildBasicConfiguration();
+    public void checkSilenceAndRestart_SilentDaemon_TriggersRestart() throws Exception {
+        KinesisProducerConfiguration cfg = buildBasicConfiguration();
         Daemon mockChild = Mockito.mock(Daemon.class);
-        KinesisProducer producer = spy(getProducer(cfg, mockChild, null, null));
-        // Set lastChild so we are outside the backoff window
-        Field lastChildField = KinesisProducer.class.getDeclaredField("lastChild");
-        lastChildField.setAccessible(true);
-        lastChildField.setLong(producer,0);
+        KinesisProducer producer = getProducer(cfg, mockChild, null, null);
 
-        doNothing().when(producer).addMessageToChild(any());
-
-        producer.performHealthCheck();
+        runHealthCheckCondition(producer, 80_000, 0);
 
         Mockito.verify(mockChild).destroy();
     }
 
     @Test
-    public void performHealthCheck_ShouldNotDestroyChild_WhenGetMetricsSucceeds()
-            throws ExecutionException, InterruptedException {
-        final KinesisProducerConfiguration cfg = buildBasicConfiguration();
+    public void checkSilenceAndRestart_RecentMessage_NoRestart() throws Exception {
+        KinesisProducerConfiguration cfg = buildBasicConfiguration();
         Daemon mockChild = Mockito.mock(Daemon.class);
-        KinesisProducer producer = spy(getProducer(cfg, mockChild, null, null));
-
-        // Mock getMetrics to return a successful list immediately
-        doReturn(new ArrayList<>()).when(producer).getMetrics("UserRecordsPut", 1);
-
-        producer.performHealthCheck();
+        KinesisProducer producer = getProducer(cfg, mockChild, null, null);
+        
+        // Set recent message time
+        runHealthCheckCondition(producer, 5_000, 0);
 
         Mockito.verify(mockChild, Mockito.never()).destroy();
     }
 
     @Test
-    public void performHealthCheck_ShouldNotDestroyChild_WhenWithinBackoffPeriod() {
-        final KinesisProducerConfiguration cfg = buildBasicConfiguration();
+    public void checkSilenceAndRestart_MaxAttemptsReached_NoRestart() throws Exception {
+        KinesisProducerConfiguration cfg = buildBasicConfiguration();
         Daemon mockChild = Mockito.mock(Daemon.class);
-        // Daemon startup time initialized on producer startup
-        KinesisProducer producer = spy(getProducer(cfg, mockChild, null, null));
+        KinesisProducer producer = getProducer(cfg, mockChild, null, null);
+        
+        // Set max attempts reached
+        runHealthCheckCondition(producer, 80_000, 3);
 
-        doNothing().when(producer).addMessageToChild(any());
-
-        producer.performHealthCheck();
-
-        // Does not restart daemon when within backoff period of previous daemon startup
         Mockito.verify(mockChild, Mockito.never()).destroy();
     }
+
+    @Test
+    public void checkSilenceAndRestart_MessageWithinBackoffPeriod_NoRestart() throws Exception {
+        KinesisProducerConfiguration cfg = buildBasicConfiguration();
+        Daemon mockChild = Mockito.mock(Daemon.class);
+        KinesisProducer producer = getProducer(cfg, mockChild, null, null);
+
+        runHealthCheckCondition(producer, 35_000, 1);
+
+        Mockito.verify(mockChild, Mockito.never()).destroy();
+    }
+
+    @Test
+    public void checkSilenceAndRestart_MessageOutsideBackoffPeriod_Restart() throws Exception {
+        KinesisProducerConfiguration cfg = buildBasicConfiguration();
+        Daemon mockChild = Mockito.mock(Daemon.class);
+        KinesisProducer producer = getProducer(cfg, mockChild, null, null);
+
+        runHealthCheckCondition(producer, 80_000, 1);
+
+        Mockito.verify(mockChild).destroy();
+    }
+
+    private static void runHealthCheckCondition(
+            KinesisProducer producer, long lastMessageMs, int restartAttempted) throws Exception {
+        Field messageField = KinesisProducer.class.getDeclaredField("lastMessageReceivedMs");
+        messageField.setAccessible(true);
+        messageField.set(producer, System.currentTimeMillis() - lastMessageMs);
+
+        Field attemptsField = KinesisProducer.class.getDeclaredField("consecutiveRestartAttempts");
+        attemptsField.setAccessible(true);
+        ((AtomicInteger) attemptsField.get(producer)).set(restartAttempted);
+
+        // execute the health check method
+        Method checkSilenceMethod = KinesisProducer.class.getDeclaredMethod("performHealthCheck");
+        checkSilenceMethod.setAccessible(true);
+        checkSilenceMethod.invoke(producer);
+    }
+
 }
