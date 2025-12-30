@@ -391,6 +391,8 @@ public class KinesisProducerConfiguration {
     private long userRecordTimeoutInMillis = 0;
     private boolean enableOldestFutureTracker = true; // default on
     private boolean returnUserRecordOnFailure = false;
+    private boolean enableDaemonHealthCheck = false;
+    private long daemonHealthCheckTimeoutMs = 30000;
 
     /**
      * Enable aggregation. With aggregation, multiple user records are packed into a single
@@ -995,6 +997,33 @@ public class KinesisProducerConfiguration {
      */
     public boolean getReturnUserRecordOnFailure() {
         return returnUserRecordOnFailure;
+    }
+
+    /**
+     * Returns whether daemon health check is enabled.
+     *
+     * <p>
+     * When enabled, the KPL will perform periodic health checks on the native daemon process
+     * to monitor daemon responsiveness and trigger daemon restart if needed. When the daemon
+     * is restarted, all in-flight futures will be canceled and returned as failed.
+     *
+     * @return true if daemon health check is enabled, false otherwise
+     */
+    public boolean getEnableDaemonHealthCheck() {
+        return enableDaemonHealthCheck;
+    }
+
+    /**
+     * Returns the daemon health check timeout in milliseconds.
+     *
+     * <p>
+     * This is the approximate time allowed between daemon responses before considering
+     * the daemon as potentially stuck or dead and triggering a restart.
+     *
+     * @return daemon health check timeout in milliseconds
+     */
+    public long getDaemonHealthCheckTimeoutMs() {
+        return daemonHealthCheckTimeoutMs;
     }
 
     /**
@@ -1749,6 +1778,41 @@ public class KinesisProducerConfiguration {
      */
     public KinesisProducerConfiguration setReturnUserRecordOnFailure(boolean returnUserRecordOnFailure) {
         this.returnUserRecordOnFailure = returnUserRecordOnFailure;
+        return this;
+    }
+
+    /**
+     * Sets whether daemon health check is enabled.
+     *
+     * <p>
+     * When enabled, the KPL will perform periodic health checks on the native daemon process
+     * to monitor daemon responsiveness and trigger daemon restart if needed. When the daemon
+     * is restarted, all in-flight futures will be canceled and returned as failed.
+     *
+     * @param enableDaemonHealthCheck true to enable daemon health check, false to disable (default false)
+     * @return this {@link KinesisProducerConfiguration} instance
+     */
+    public KinesisProducerConfiguration setEnableDaemonHealthCheck(boolean enableDaemonHealthCheck) {
+        this.enableDaemonHealthCheck = enableDaemonHealthCheck;
+        return this;
+    }
+
+    /**
+     * Sets the daemon health check timeout in milliseconds.
+     *
+     * <p>
+     * This is the approximate time allowed between daemon responses before considering
+     * the daemon as potentially stuck or dead and triggering a restart.
+     *
+     * @param daemonHealthCheckTimeoutMs timeout in milliseconds (minimum 5000)
+     * @return this {@link KinesisProducerConfiguration} instance
+     * @throws IllegalArgumentException if timeout is less than 5000ms
+     */
+    public KinesisProducerConfiguration setDaemonHealthCheckTimeoutMs(long daemonHealthCheckTimeoutMs) {
+        if (daemonHealthCheckTimeoutMs < 5000) {
+            throw new IllegalArgumentException("daemonHealthCheckTimeoutMs must be at least 5000ms, got " + daemonHealthCheckTimeoutMs);
+        }
+        this.daemonHealthCheckTimeoutMs = daemonHealthCheckTimeoutMs;
         return this;
     }
 

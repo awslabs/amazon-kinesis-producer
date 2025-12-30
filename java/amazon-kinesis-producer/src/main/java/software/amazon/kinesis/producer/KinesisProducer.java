@@ -53,7 +53,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -109,7 +108,7 @@ public class KinesisProducer implements IKinesisProducer {
             .setDaemon(true)
             .setNameFormat("kpl-timeout-future-" + CALLBACK_COMPLETION_POOL_NUMBER.getAndIncrement() + "-thread-%d")
             .build());
-    private ScheduledExecutorService healthCheckExecutor = Executors.newSingleThreadScheduledExecutor(
+    private final ScheduledExecutorService healthCheckExecutor = Executors.newSingleThreadScheduledExecutor(
             new ThreadFactoryBuilder()
             .setDaemon(true)
             .setNameFormat("kpl-health-check-%d")
@@ -172,12 +171,11 @@ public class KinesisProducer implements IKinesisProducer {
     private volatile boolean destroyed = false;
     private ProcessFailureBehavior processFailureBehavior = ProcessFailureBehavior.AutoRestart;
 
-    private static final long DAEMON_HEALTH_CHECK_INTERVAL_MS = 60000;
-    private static final long DAEMON_HEALTH_CHECK_TIMEOUT_MS = 10000;
-    private static final long DAEMON_RESTART_BASE_BACKOFF_MS = 30000;
+    private static final long DAEMON_RESTART_BASE_BACKOFF_MS = 10000;
     private static final int DAEMON_RESTART_MAX_ATTEMPTS = 3;
-    
+
     private final AtomicInteger consecutiveRestartAttempts = new AtomicInteger(0);
+    private volatile long lastMessageReceivedMs = System.currentTimeMillis();
 
     private class MessageHandler implements Daemon.MessageHandler {
         @Override
@@ -185,6 +183,7 @@ public class KinesisProducer implements IKinesisProducer {
             callbackCompletionExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
+                    lastMessageReceivedMs = System.currentTimeMillis();
                     if (m.hasPutRecordResult()) {
                         onPutRecordResult(m);
                     } else if (m.hasMetricsResponse()) {
@@ -319,14 +318,7 @@ public class KinesisProducer implements IKinesisProducer {
      * @see KinesisProducerConfiguration
      */
     public KinesisProducer(KinesisProducerConfiguration config) {
-        this.config = config;
-        env = initEnv();
-        child = new Daemon(pathToExecutable, new MessageHandler(), pathToTmpDir, config, env);
-
-        // We set the policy for the executor service to remove queued tasks if they are cancelled to relieve
-        // unwanted cpu load.
-        futureTimeoutExecutor.setRemoveOnCancelPolicy(true);
-        startDaemonHealthCheck();
+        this(config, null);
     }
 
     private Map<String, String> initEnv() {
@@ -350,8 +342,12 @@ public class KinesisProducer implements IKinesisProducer {
 
     KinesisProducer(KinesisProducerConfiguration config, Daemon daemon) {
         this.config = config;
-        this.child = daemon;
         this.env = initEnv();
+        if (daemon == null) {
+            this.child = new Daemon(pathToExecutable, new MessageHandler(), pathToTmpDir, config, env);
+        } else {
+            this.child = daemon;
+        }
 
         // We set the policy for the executor service to remove queued tasks if they are cancelled to relieve
         // unwanted cpu load.
@@ -393,39 +389,73 @@ public class KinesisProducer implements IKinesisProducer {
         child = new Daemon(inPipe, outPipe, new MessageHandler());
     }
 
+    /**
+     * Health check monitors daemon activity by sending periodic pings via getMetrics calls.
+     * When the daemon responds, it updates lastMessageReceivedMs indicating the child is alive.
+     * If no response is received for X seconds, the daemon is considered stuck/dead and restarted.
+     */
     private void startDaemonHealthCheck() {
-        healthCheckExecutor.scheduleAtFixedRate(
-                this::performHealthCheck,
-                DAEMON_HEALTH_CHECK_INTERVAL_MS,
-                DAEMON_HEALTH_CHECK_INTERVAL_MS,
-                TimeUnit.MILLISECONDS
-        );
+        if (config.getEnableDaemonHealthCheck()) {
+            lastMessageReceivedMs = System.currentTimeMillis();
+            healthCheckExecutor.scheduleAtFixedRate(
+                    this::performHealthCheck,
+                    0,
+                    // this needs to be smaller than daemonHealthCheckTimeoutMs
+                    // so we get a few pings through before checking child status
+                    config.getDaemonHealthCheckTimeoutMs() / 4,
+                    TimeUnit.MILLISECONDS
+            );
+
+        }
     }
 
-    @VisibleForTesting
-    void performHealthCheck() {
+    private void sendPing() {
         try {
-            log.debug("Performing daemon health check");
-            Future<?> healthCheck = ForkJoinPool.commonPool()
-                .submit(() -> getMetrics("UserRecordsPut", 1));
-            healthCheck.get(DAEMON_HEALTH_CHECK_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-            log.debug("Daemon health check succeeded");
-            consecutiveRestartAttempts.set(0);
+            log.debug("Sending daemon ping");
+            getMetrics("UserRecordsPut", 1, true);
         } catch (Exception e) {
-            if (consecutiveRestartAttempts.get() >= DAEMON_RESTART_MAX_ATTEMPTS) {
-                log.warn("Daemon health check failed. Max restarts reached ({}). Skipping daemon restart.", DAEMON_RESTART_MAX_ATTEMPTS);
-                return;
-            }
-            long timeSinceLastRestart = (System.nanoTime() - lastChild) / 1_000_000;
-            long backoffTime = DAEMON_RESTART_BASE_BACKOFF_MS * (1L << Math.min(consecutiveRestartAttempts.get(), DAEMON_RESTART_MAX_ATTEMPTS));
-            if (timeSinceLastRestart < backoffTime) {
-                log.warn("Daemon health check failed, but skipping restart due to exponential backoff. Time since last restart: {}ms, required: {}ms", 
-                    timeSinceLastRestart, backoffTime);
-                return;
-            }
-            log.error("Daemon health check failed - restarting daemon (attempt {})", consecutiveRestartAttempts.get() + 1, e);
-            consecutiveRestartAttempts.incrementAndGet();
+            log.debug("Daemon ping failed (ignoring)", e);
+        }
+    }
+
+    private void performHealthCheck() {
+        if (destroyed) {
+            return;
+        }
+
+        sendPing();
+
+        long timeSinceLastMessageMs = System.currentTimeMillis() - lastMessageReceivedMs;
+
+        // add some backoff if restarts are consecutive. 0 -> 10 -> 20 -> 40s
+        long backoffTimeMs = consecutiveRestartAttempts.get() == 0 ? 0 :
+                DAEMON_RESTART_BASE_BACKOFF_MS *
+                        (1L << Math.min(consecutiveRestartAttempts.get() - 1, DAEMON_RESTART_MAX_ATTEMPTS - 1));
+        long healthCheckTimeoutMs = config.getDaemonHealthCheckTimeoutMs() + backoffTimeMs;
+        if (timeSinceLastMessageMs <= healthCheckTimeoutMs) {
+            log.debug("Daemon is healthy. Last message received was {}ms ago and health check timeout is {}ms",
+                    timeSinceLastMessageMs, healthCheckTimeoutMs);
+            consecutiveRestartAttempts.set(0);
+            return;
+        }
+
+        // circuit breaker. it prevents restarts if there are too many consecutive restarts
+        if (consecutiveRestartAttempts.get() >= DAEMON_RESTART_MAX_ATTEMPTS) {
+            log.warn("Daemon silent for {}ms but max restarts reached ({}). Skipping restart.",
+                    timeSinceLastMessageMs, DAEMON_RESTART_MAX_ATTEMPTS);
+            return;
+        }
+
+        log.error("Daemon silent for {}ms and health check timeout is {}ms - restarting daemon (attempt {})",
+                timeSinceLastMessageMs, healthCheckTimeoutMs, consecutiveRestartAttempts.get() + 1);
+        consecutiveRestartAttempts.incrementAndGet();
+        try {
             child.destroy();
+        } catch (Exception e) {
+            log.debug("checkSilenceAndRestart failed (ignoring)", e);
+        } finally {
+            // reset
+            lastMessageReceivedMs = System.currentTimeMillis();
         }
     }
 
@@ -802,6 +832,10 @@ public class KinesisProducer implements IKinesisProducer {
      */
     @Override
     public List<Metric> getMetrics(String metricName, int windowSeconds) throws InterruptedException, ExecutionException {
+        return getMetrics(metricName, windowSeconds, false).get();
+    }
+
+    private Future<List<Metric>> getMetrics(String metricName, int windowSeconds, boolean isHealthCheck) {
         MetricsRequest.Builder mrb = MetricsRequest.newBuilder();
         if (metricName != null) {
             mrb.setName(metricName);
@@ -809,28 +843,27 @@ public class KinesisProducer implements IKinesisProducer {
         if (windowSeconds > 0) {
             mrb.setSeconds(windowSeconds);
         }
-        
         long id = messageNumber.getAndIncrement();
         SettableFuture<List<Metric>> f = SettableFuture.create();
         FutureTask<String> task = null;
-        if(config.getUserRecordTimeoutInMillis() > 0) {
+        if (config.getUserRecordTimeoutInMillis() > 0 && !isHealthCheck) {
             task = new FutureTask(new FutureTimeoutRunnableTask(id), "TimedOut");
             futureTimeoutExecutor.schedule(task, config.getUserRecordTimeoutInMillis(), TimeUnit.MILLISECONDS);
         }
         SettableFutureTracker futuresTracking = new SettableFutureTracker(f, Instant.now(), Optional.ofNullable(task), null);
         futures.put(id, futuresTracking);
 
-        if (config.getEnableOldestFutureTracker()) {
+        if (config.getEnableOldestFutureTracker() && !isHealthCheck) {
             oldestFutureTrackerHeap.add(futuresTracking);
         }
         addMessageToChild(Message.newBuilder()
                 .setId(id)
                 .setMetricsRequest(mrb.build())
                 .build());
-        
-        return f.get();
+
+        return f;
     }
-    
+
     /**
      * Get metrics from the KPL.
      * 
@@ -971,6 +1004,9 @@ public class KinesisProducer implements IKinesisProducer {
     public void destroy() {
         destroyed = true;
         this.callbackCompletionExecutor.shutdownNow();
+        if (config.getEnableDaemonHealthCheck()) {
+            healthCheckExecutor.shutdownNow();
+        }
         child.destroy();
     }
 
