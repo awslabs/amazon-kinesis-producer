@@ -64,6 +64,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
@@ -478,6 +479,27 @@ public class KinesisProducerTest {
         assertTrue(candidate.getOldestRecordTimeInMillis() > 0);
         assertEquals(2, candidate.getOutstandingRecordsCount()); // we complete the future, but don't remove it from futures hence we still see records
         assertTrue(oldestRecordsInHeap.get());
+    }
+
+    @Test
+    public void ensureFutureClearedWhenAddMessageThrows() throws Exception {
+
+        final KinesisProducerConfiguration cfg = buildBasicConfiguration();
+        final String streamName = "streamName";
+        final String partitionKey = "partitionKey";
+        final String stringToEncode = "Unit test sample data";
+        final KinesisProducer producerSpy = spy(new KinesisProducer(cfg));
+
+        doThrow(new DaemonException("Mocked exception.")).when(producerSpy).addMessageToChild(any());
+        ByteBuffer data = ByteBuffer.wrap(stringToEncode.getBytes("UTF-8"));
+
+        try {
+            producerSpy.addUserRecord(streamName, partitionKey, data);
+        } catch (DaemonException e) {
+            assertTrue(producerSpy.getFutures().isEmpty());
+            return;
+        }
+        fail("can't reach here");
     }
 
     @Test

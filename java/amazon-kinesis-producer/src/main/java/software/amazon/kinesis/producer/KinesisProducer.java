@@ -274,14 +274,18 @@ public class KinesisProducer implements IKinesisProducer {
             
             f.set(userMetrics);
         }
-        
+
         private SettableFutureTracker getFuture(Message msg) {
-            long id = msg.getSourceId();
-            SettableFutureTracker futureTracker = getFutureTracker(id);
-            // Cancel the future timeout task if present to relieve memory from the ScheduledThreadPoolExecutor
-            futureTracker.cancelTimeoutTaskIfPresent();
-            return  futureTracker;
+            // this one uses msg.getSourceId not msg.getId
+            return getAndRemoveFutureForId(msg.getSourceId());
         }
+    }
+
+    private SettableFutureTracker getAndRemoveFutureForId(long id) {
+        SettableFutureTracker futureTracker = getFutureTracker(id);
+        // Cancel the future timeout task if present to relieve memory from the ScheduledThreadPoolExecutor
+        futureTracker.cancelTimeoutTaskIfPresent();
+        return futureTracker;
     }
 
     private SettableFutureTracker getFutureTracker(long id) {
@@ -738,7 +742,12 @@ public class KinesisProducer implements IKinesisProducer {
                 .setId(id)
                 .setPutRecord(pr.build())
                 .build();
-        addMessageToChild(m);
+        try {
+            addMessageToChild(m);
+        } catch (DaemonException e) {
+            getAndRemoveFutureForId(id);
+            throw e;
+        }
         return f;
     }
 
@@ -856,11 +865,17 @@ public class KinesisProducer implements IKinesisProducer {
         if (config.getEnableOldestFutureTracker() && !isHealthCheck) {
             oldestFutureTrackerHeap.add(futuresTracking);
         }
-        addMessageToChild(Message.newBuilder()
+
+        final Message m = Message.newBuilder()
                 .setId(id)
                 .setMetricsRequest(mrb.build())
-                .build());
-
+                .build();
+        try {
+            addMessageToChild(m);
+        } catch (DaemonException e) {
+            getAndRemoveFutureForId(id);
+            throw e;
+        }
         return f;
     }
 
