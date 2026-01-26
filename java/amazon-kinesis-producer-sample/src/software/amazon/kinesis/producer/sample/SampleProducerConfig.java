@@ -46,12 +46,12 @@ public class SampleProducerConfig {
     /**
      * Change this to your stream name.
      */
-    public static final String STREAM_NAME_DEFAULT = "test";
+    public static final String STREAM_NAME_DEFAULT = "test-stream";
 
     /**
      * Change this to the region you are using.
      */
-    public static final String REGION_DEFAULT = "us-west-1";
+    public static final String REGION_DEFAULT = "us-west-2";
 
     @NotBlank(message = "KPL Sample region should not be null or blank" )
     private final String region;
@@ -227,6 +227,10 @@ public class SampleProducerConfig {
         // configuration; the KPL will retrieve it from EC2 metadata.
         config.setRegion(this.getRegion());
 
+        // Custom endpoint override for testing
+        // config.setKinesisEndpoint("kinesis-hailstoneperf-pdx.pdx.proxy.amazon.com");
+        // config.setVerifyCertificate(false);
+
         // You can pass credentials programmatically through the configuration,
         // similar to the AWS SDK. DefaultAWSCredentialsProviderChain is used
         // by default, so this configuration can be omitted if that is all
@@ -284,6 +288,28 @@ public class SampleProducerConfig {
         // Note that if you do pass a Configuration instance, mutating that
         // instance after initializing KinesisProducer has no effect. We do not
         // support dynamic re-configuration at the moment.
+
+        // Test stream ID feature - Option 4 (Hybrid)
+        // Uncomment ONE scenario at a time to test
+
+        // SCENARIO 1: Manual StreamId only (current behavior)
+        config.setEnableStreamIdFetch(true);
+        System.out.println("TEST SCENARIO 2: Auto-fetch only");
+        System.out.println("  - Manual StreamId: " + config.getStreamIdMap());
+        System.out.println("  - Auto-fetch enabled: " + config.isEnableStreamIdFetch());
+
+        // SCENARIO 2: Auto-fetch only (no manual StreamId)
+//         config.setEnableStreamIdFetch(true);
+//         System.out.println("TEST SCENARIO 2: Auto-fetch only");
+//         System.out.println("  - Manual StreamId: " + config.getStreamIdMap());
+//         System.out.println("  - Auto-fetch enabled: " + config.isEnableStreamIdFetch());
+
+        // SCENARIO 3: Both enabled (manual should win, no API call)
+//         config.setStreamId(this.getStreamName(), "manual-stream-id-abc123");
+//         config.setEnableStreamIdFetch(true);
+//         System.out.println("TEST SCENARIO 3: Both enabled (manual takes priority)");
+//         System.out.println("  - Manual StreamId: " + config.getStreamIdMap());
+//         System.out.println("  - Auto-fetch enabled: " + config.isEnableStreamIdFetch());
         return config;
     }
 }

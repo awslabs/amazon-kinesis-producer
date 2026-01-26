@@ -404,7 +404,7 @@ int main(int argc, char* const* argv) {
       auto ipc_manager = get_ipc_manager(options.output_pipe, options.input_pipe);
       auto ca_path = get_ca_path();
       auto ca_file = get_ca_file();
-      LOG(info) << "Starting up main producer";
+      LOG(info) << "*** CUSTOM BUILD - PROOF OF CONCEPT TEST ***";
 
       aws::kinesis::core::KinesisProducer kp(
           ipc_manager,

@@ -18,6 +18,7 @@
 
 #include <boost/format.hpp>
 #include <iomanip>
+#include <atomic>
 
 #include <aws/kinesis/core/aggregator.h>
 #include <aws/kinesis/core/collector.h>
@@ -26,6 +27,7 @@
 #include <aws/kinesis/core/limiter.h>
 #include <aws/kinesis/core/put_records_context.h>
 #include <aws/kinesis/core/retrier.h>
+#include <aws/kinesis/core/stream_id_resolver.h>
 #include <aws/kinesis/KinesisClient.h>
 #include <aws/kinesis/model/ListShardsRequest.h>
 #include <aws/metrics/metrics_manager.h>
@@ -54,6 +56,8 @@ class Pipeline : boost::noncopyable {
       : stream_(std::move(stream)),
         region_(std::move(region)),
         stream_arn_(""),
+        stream_id_(""),  // Initialize empty, fetch lazily
+        stream_id_fetched_(false),
         config_(std::move(config)),
         stats_logger_(stream_, config_->record_max_buffered_time()),
         executor_(std::move(executor)),
@@ -66,6 +70,7 @@ class Pipeline : boost::noncopyable {
                 [this](auto& req, auto& handler, auto& context) { kinesis_client_->ListShardsAsync(handler, context, req ); },
                 stream_,
                 stream_arn_,
+                stream_id_,
                 metrics_manager_)),
         aggregator_(
             std::make_shared<Aggregator>(
@@ -124,6 +129,16 @@ class Pipeline : boost::noncopyable {
     return outstanding_user_records_;
   }
 
+  // Fetch StreamId once on first call (thread-safe)
+  // Checks manual map first, then auto-fetches if enabled
+  void fetch_stream_id() {
+    if (stream_id_fetched_.load()) {
+      return;
+    }
+    stream_id_ = resolve_stream_id(stream_, config_, kinesis_client_);
+    stream_id_fetched_.store(true);
+  }
+
  private:
 
   void aggregator_put(const std::shared_ptr<UserRecord>& ur) {
@@ -158,7 +173,8 @@ class Pipeline : boost::noncopyable {
   }
 
   void send_put_records_request(const std::shared_ptr<PutRecordsRequest>& prr) {
-    auto prc = std::make_shared<PutRecordsContext>(stream_, stream_arn_, prr->items());
+    fetch_stream_id();  // Fetch StreamId if not already done
+    auto prc = std::make_shared<PutRecordsContext>(stream_, stream_arn_, stream_id_, prr->items());
     prc->set_start(std::chrono::steady_clock::now());
     kinesis_client_->PutRecordsAsync(
         prc->to_sdk_request(),
@@ -200,6 +216,8 @@ class Pipeline : boost::noncopyable {
   std::string region_;
   std::string stream_;
   std::string stream_arn_;
+  std::string stream_id_;
+  std::atomic<bool> stream_id_fetched_;
   std::shared_ptr<Configuration> config_;
   aws::utils::processing_statistics_logger stats_logger_;
   std::shared_ptr<aws::utils::Executor> executor_;

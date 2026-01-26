@@ -29,7 +29,9 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
@@ -44,6 +46,7 @@ public class KinesisProducerConfiguration {
     private AwsCredentialsProvider metricsCredentialsProvider = null;
     private AwsCredentialsProvider glueSchemaRegistryCredentialsProvider = DefaultCredentialsProvider.create();
     private GlueSchemaRegistryConfiguration glueSchemaRegistryConfiguration = null;
+    private Map<String, String> streamIdMap = new HashMap<>();
 
     /**
      * Add an additional, custom dimension to the metrics emitted by the KPL.
@@ -393,6 +396,7 @@ public class KinesisProducerConfiguration {
     private boolean returnUserRecordOnFailure = false;
     private boolean enableDaemonHealthCheck = false;
     private long daemonHealthCheckTimeoutMs = 30000;
+    private boolean enableStreamIdFetch = false;
 
     /**
      * Enable aggregation. With aggregation, multiple user records are packed into a single
@@ -997,6 +1001,32 @@ public class KinesisProducerConfiguration {
      */
     public boolean getReturnUserRecordOnFailure() {
         return returnUserRecordOnFailure;
+    }
+
+    /**
+     * Enable automatic fetching of StreamId via DescribeStreamSummary API.
+     *
+     * <p>
+     * When enabled, KPL will automatically call DescribeStreamSummary during Pipeline
+     * creation to fetch the StreamId for each stream. If a StreamId is manually provided
+     * via setStreamId(), the manual value takes precedence and no API call is made.
+     *
+     * <p>
+     * Requires kinesis:DescribeStreamSummary IAM permission when enabled.
+     *
+     * <p><b>Default</b>: false
+     */
+    public boolean isEnableStreamIdFetch() {
+        return enableStreamIdFetch;
+    }
+
+    /**
+     * Gets the map of stream names to stream IDs.
+     *
+     * @return a map containing stream name to stream ID mappings
+     */
+    public Map<String, String> getStreamIdMap() {
+        return streamIdMap;
     }
 
     /**
@@ -1816,6 +1846,43 @@ public class KinesisProducerConfiguration {
         return this;
     }
 
+    /**
+     * Enable automatic fetching of StreamId via DescribeStreamSummary API.
+     *
+     * <p>
+     * When enabled, KPL will automatically call DescribeStreamSummary during Pipeline
+     * creation to fetch the StreamId for each stream. If a StreamId is manually provided
+     * via setStreamId(), the manual value takes precedence and no API call is made.
+     *
+     * <p>
+     * Requires kinesis:DescribeStreamSummary IAM permission when enabled.
+     *
+     * <p><b>Default</b>: false
+     */
+    public KinesisProducerConfiguration setEnableStreamIdFetch(boolean val) {
+        enableStreamIdFetch = val;
+        return this;
+    }
+
+    /**
+     * Sets the stream ID for a given stream name.
+     *
+     * <p>
+     * Stream IDs are used for stream-based routing in Kinesis Data Streams.
+     * This is an optional configuration. If not set, requests will be made without stream ID.
+     *
+     * <p>
+     * This method can be called multiple times to configure stream IDs for different streams.
+     *
+     * @param streamName the name of the Kinesis stream
+     * @param streamId the stream ID to use for this stream
+     * @return this {@link KinesisProducerConfiguration} instance for method chaining
+     */
+    public KinesisProducerConfiguration setStreamId(String streamName, String streamId) {
+        streamIdMap.put(streamName, streamId);
+        return this;
+    }
+
     protected Message toProtobufMessage() {
         Configuration.Builder builder = Configuration.newBuilder()
                 //@formatter:off
@@ -1855,6 +1922,12 @@ public class KinesisProducerConfiguration {
         if (enableCoreDumps != null) {
             builder = builder.setEnableCoreDumps(enableCoreDumps);
         }
+        
+        // Debug: Log stream ID map before sending to C++
+        log.info("DEBUG: Sending streamIdMap to C++: " + streamIdMap);
+        builder.setEnableStreamIdFetch(enableStreamIdFetch);
+        builder.putAllStreamIdMap(streamIdMap);
+        
         Configuration c = this.additionalConfigsToProtobuf(builder).build();
         return Message.newBuilder().setConfiguration(c).setId(0).build();
     }

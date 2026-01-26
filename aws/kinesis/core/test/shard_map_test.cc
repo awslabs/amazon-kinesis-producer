@@ -91,6 +91,7 @@ class Wrapper {
             [this](auto& req, auto& handler, auto& context) { mock_kinesis_client_.ListShardsAsync(handler, context, req); },
             kStreamName,
             kStreamARN,
+            "",  // stream_id (empty for test)
             std::make_shared<aws::metrics::NullMetricsManager>(),
             std::chrono::milliseconds(100),
             std::chrono::milliseconds(1000),

@@ -47,4 +47,6 @@ message Configuration {
   }
   optional ThreadConfig thread_config = 30 [default = PER_REQUEST];
   optional uint32 thread_pool_size = 31 [default = 64];
+  map<string, string> stream_id_map = 32;
+  optional bool enable_stream_id_fetch = 33 [default = false];
 }
