@@ -237,36 +237,36 @@ if [ ! -d "curl-${CURL_VERSION}" ]; then
 fi
 
 # AWS C++ SDK
-# if [ ! -d "aws-sdk-cpp" ]; then
-#   git clone https://github.com/awslabs/aws-sdk-cpp.git aws-sdk-cpp
-#   pushd aws-sdk-cpp
-#   git checkout ${AWS_SDK_CPP_VERSION}
-#   git submodule update --init --recursive
-#   popd
+if [ ! -d "aws-sdk-cpp" ]; then
+  git clone https://github.com/awslabs/aws-sdk-cpp.git aws-sdk-cpp
+  pushd aws-sdk-cpp
+  git checkout ${AWS_SDK_CPP_VERSION}
+  git submodule update --init --recursive
+  popd
 
-#   rm -rf aws-sdk-cpp-build
-#   mkdir aws-sdk-cpp-build
+  rm -rf aws-sdk-cpp-build
+  mkdir aws-sdk-cpp-build
 
-#   cd aws-sdk-cpp-build
+  cd aws-sdk-cpp-build
 
-#   silence $CMAKE \
-#     -DBUILD_ONLY="kinesis;monitoring" \
-#     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-#     -DSTATIC_LINKING=1 \
-#     -DCMAKE_PREFIX_PATH="$INSTALL_DIR" \
-#     -DCMAKE_C_COMPILER="$CC" \
-#     -DCMAKE_CXX_COMPILER="$CXX" \
-#     -DCMAKE_CXX_FLAGS="$CXXFLAGS" \
-#     -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR" \
-#     -DCMAKE_FIND_FRAMEWORK=LAST \
-#     -DENABLE_TESTING="OFF" \
-#     ../aws-sdk-cpp
-#   silence make -j8
-#   silence make install
+  silence $CMAKE \
+    -DBUILD_ONLY="kinesis;monitoring" \
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+    -DSTATIC_LINKING=1 \
+    -DCMAKE_PREFIX_PATH="$INSTALL_DIR" \
+    -DCMAKE_C_COMPILER="$CC" \
+    -DCMAKE_CXX_COMPILER="$CXX" \
+    -DCMAKE_CXX_FLAGS="$CXXFLAGS" \
+    -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR" \
+    -DCMAKE_FIND_FRAMEWORK=LAST \
+    -DENABLE_TESTING="OFF" \
+    ../aws-sdk-cpp
+  silence make -j8
+  silence make install
 
-#   cd ..
+  cd ..
 
-# fi
+fi
 
 cd ..
 

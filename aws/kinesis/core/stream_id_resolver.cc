@@ -57,7 +57,7 @@ std::string resolve_stream_id(
       
       // TODO: Use GetStreamId() when available in AWS SDK
       // For now, using StreamARN as placeholder
-      std::string stream_id = summary.GetStreamId();
+      std::string stream_id = summary.GetStreamARN();
       LOG(info) << "Resolve stream id Auto-fetching StreamId for stream: " << stream_id;
       if (!stream_id.empty()) {
         LOG(info) << "Successfully fetched StreamId: " << stream_id;
