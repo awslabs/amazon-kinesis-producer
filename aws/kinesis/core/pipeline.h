@@ -19,6 +19,7 @@
 #include <boost/format.hpp>
 #include <iomanip>
 #include <atomic>
+#include <mutex>
 
 #include <aws/kinesis/core/aggregator.h>
 #include <aws/kinesis/core/collector.h>
@@ -27,11 +28,12 @@
 #include <aws/kinesis/core/limiter.h>
 #include <aws/kinesis/core/put_records_context.h>
 #include <aws/kinesis/core/retrier.h>
-#include <aws/kinesis/core/stream_id_resolver.h>
 #include <aws/kinesis/KinesisClient.h>
+#include <aws/kinesis/model/DescribeStreamSummaryRequest.h>
 #include <aws/kinesis/model/ListShardsRequest.h>
 #include <aws/metrics/metrics_manager.h>
 #include <aws/utils/processing_statistics_logger.h>
+#include <aws/utils/logging.h>
 
 #include <aws/utils/logging.h>
 
@@ -113,6 +115,12 @@ class Pipeline : boost::noncopyable {
         outstanding_user_records_(0) {}
 
   void put(const std::shared_ptr<UserRecord>& ur) {
+    // TEST: Call DescribeStreamSummary on first record
+    static std::once_flag test_flag;
+    std::call_once(test_flag, [this]() {
+      test_describe_stream_summary();
+    });
+    
     outstanding_user_records_++;
     user_records_rcvd_metric_->put(1);
     aggregator_put(ur);
@@ -130,13 +138,60 @@ class Pipeline : boost::noncopyable {
   }
 
   // Fetch StreamId once on first call (thread-safe)
-  // Checks manual map first, then auto-fetches if enabled
   void fetch_stream_id() {
     if (stream_id_fetched_.load()) {
       return;
     }
-    stream_id_ = resolve_stream_id(stream_, config_, kinesis_client_);
+    stream_id_ = config_->get_stream_id(stream_);
+    if (!stream_id_.empty()) {
+      LOG(info) << "Using StreamId for stream: " << stream_ 
+                << ", stream_id: " << stream_id_;
+    }
     stream_id_fetched_.store(true);
+  }
+
+  // TEST METHOD: Call DescribeStreamSummary to verify endpoint connectivity
+  void test_describe_stream_summary() {
+    LOG(info) << "TEST: Calling DescribeStreamSummary for stream: " << stream_;
+    
+    const int max_retries = 3;
+    int backoff_ms = 1000;
+    
+    for (int attempt = 0; attempt < max_retries; attempt++) {
+      if (attempt > 0) {
+        LOG(info) << "TEST: Retry attempt " << (attempt + 1) << " after " << backoff_ms << "ms";
+        std::this_thread::sleep_for(std::chrono::milliseconds(backoff_ms));
+      }
+      
+      Aws::Kinesis::Model::DescribeStreamSummaryRequest request;
+      request.SetStreamName(stream_);
+      
+      auto outcome = kinesis_client_->DescribeStreamSummary(request);
+      
+      if (outcome.IsSuccess()) {
+        const auto& summary = outcome.GetResult().GetStreamDescriptionSummary();
+        LOG(info) << "TEST SUCCESS: DescribeStreamSummary succeeded";
+        LOG(info) << "  Stream Name: " << summary.GetStreamName();
+        LOG(info) << "  Stream ARN: " << summary.GetStreamARN();
+        LOG(info) << "  Stream ID: " << summary.GetStreamId();
+        LOG(info) << "  Stream Status: " << Aws::Kinesis::Model::StreamStatusMapper::GetNameForStreamStatus(summary.GetStreamStatus());
+        LOG(info) << "  Open Shard Count: " << summary.GetOpenShardCount();
+        return;
+      } else {
+        auto error = outcome.GetError();
+        LOG(error) << "TEST FAILED: DescribeStreamSummary failed (attempt " << (attempt + 1) << "/" << max_retries << ")";
+        LOG(error) << "  Error Type: " << error.GetExceptionName();
+        LOG(error) << "  Error Message: " << error.GetMessage();
+        LOG(error) << "  HTTP Response Code: " << static_cast<int>(error.GetResponseCode());
+        
+        if (error.GetExceptionName() == "LimitExceededException" && attempt < max_retries - 1) {
+          backoff_ms *= 2;
+          continue;
+        }
+        break;
+      }
+    }
+    LOG(error) << "TEST: All retry attempts exhausted";
   }
 
  private:

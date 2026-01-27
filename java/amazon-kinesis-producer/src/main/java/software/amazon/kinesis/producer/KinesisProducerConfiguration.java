@@ -396,7 +396,6 @@ public class KinesisProducerConfiguration {
     private boolean returnUserRecordOnFailure = false;
     private boolean enableDaemonHealthCheck = false;
     private long daemonHealthCheckTimeoutMs = 30000;
-    private boolean enableStreamIdFetch = false;
 
     /**
      * Enable aggregation. With aggregation, multiple user records are packed into a single
@@ -1001,23 +1000,6 @@ public class KinesisProducerConfiguration {
      */
     public boolean getReturnUserRecordOnFailure() {
         return returnUserRecordOnFailure;
-    }
-
-    /**
-     * Enable automatic fetching of StreamId via DescribeStreamSummary API.
-     *
-     * <p>
-     * When enabled, KPL will automatically call DescribeStreamSummary during Pipeline
-     * creation to fetch the StreamId for each stream. If a StreamId is manually provided
-     * via setStreamId(), the manual value takes precedence and no API call is made.
-     *
-     * <p>
-     * Requires kinesis:DescribeStreamSummary IAM permission when enabled.
-     *
-     * <p><b>Default</b>: false
-     */
-    public boolean isEnableStreamIdFetch() {
-        return enableStreamIdFetch;
     }
 
     /**
@@ -1847,24 +1829,6 @@ public class KinesisProducerConfiguration {
     }
 
     /**
-     * Enable automatic fetching of StreamId via DescribeStreamSummary API.
-     *
-     * <p>
-     * When enabled, KPL will automatically call DescribeStreamSummary during Pipeline
-     * creation to fetch the StreamId for each stream. If a StreamId is manually provided
-     * via setStreamId(), the manual value takes precedence and no API call is made.
-     *
-     * <p>
-     * Requires kinesis:DescribeStreamSummary IAM permission when enabled.
-     *
-     * <p><b>Default</b>: false
-     */
-    public KinesisProducerConfiguration setEnableStreamIdFetch(boolean val) {
-        enableStreamIdFetch = val;
-        return this;
-    }
-
-    /**
      * Sets the stream ID for a given stream name.
      *
      * <p>
@@ -1925,7 +1889,6 @@ public class KinesisProducerConfiguration {
         
         // Debug: Log stream ID map before sending to C++
         log.info("DEBUG: Sending streamIdMap to C++: " + streamIdMap);
-        builder.setEnableStreamIdFetch(enableStreamIdFetch);
         builder.putAllStreamIdMap(streamIdMap);
         
         Configuration c = this.additionalConfigsToProtobuf(builder).build();

@@ -456,11 +456,6 @@ class Configuration : private boost::noncopyable {
     return "";
   }
 
-  // Get whether automatic StreamId fetching is enabled
-  bool enable_stream_id_fetch() const noexcept {
-    return enable_stream_id_fetch_;
-  }
-
   // Enable aggregation. With aggregation, multiple user records are packed
   // into a single KinesisRecord. If disabled, each user record is sent in its
   // own KinesisRecord.
@@ -1133,10 +1128,6 @@ class Configuration : private boost::noncopyable {
                 << ", stream_id: " << entry.second << std::endl;
     }
     std::cout << "DEBUG C++: Total stream_id_map entries: " << stream_id_map_.size() << std::endl;
-
-    // Read enable_stream_id_fetch from protobuf
-    enable_stream_id_fetch_ = c.enable_stream_id_fetch();
-    std::cout << "DEBUG C++: enable_stream_id_fetch = " << enable_stream_id_fetch_ << std::endl;
   }
 
  private:
@@ -1178,7 +1169,6 @@ class Configuration : private boost::noncopyable {
       additional_metrics_dims_;
 
   std::map<std::string, std::string> stream_id_map_;
-  bool enable_stream_id_fetch_ = false;
 };
 
 } //namespace core

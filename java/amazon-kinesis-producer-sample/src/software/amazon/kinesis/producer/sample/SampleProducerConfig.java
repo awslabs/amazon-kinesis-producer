@@ -46,7 +46,7 @@ public class SampleProducerConfig {
     /**
      * Change this to your stream name.
      */
-    public static final String STREAM_NAME_DEFAULT = "test-stream";
+    public static final String STREAM_NAME_DEFAULT = "test-stream-id";
 
     /**
      * Change this to the region you are using.
@@ -289,27 +289,17 @@ public class SampleProducerConfig {
         // instance after initializing KinesisProducer has no effect. We do not
         // support dynamic re-configuration at the moment.
 
-        // Test stream ID feature - Option 4 (Hybrid)
-        // Uncomment ONE scenario at a time to test
+        // Override endpoint for Hailstone perf testing
+        config.setKinesisEndpoint("kinesis-hailstoneperf-pdx.pdx.proxy.amazon.com");
+        config.setVerifyCertificate(false);
+        config.setConnectTimeout(30000);  // Increase timeout to 30s
+        config.setRequestTimeout(30000);  // Increase request timeout
 
-        // SCENARIO 1: Manual StreamId only (current behavior)
-        config.setEnableStreamIdFetch(true);
-        System.out.println("TEST SCENARIO 2: Auto-fetch only");
-        System.out.println("  - Manual StreamId: " + config.getStreamIdMap());
-        System.out.println("  - Auto-fetch enabled: " + config.isEnableStreamIdFetch());
-
-        // SCENARIO 2: Auto-fetch only (no manual StreamId)
-//         config.setEnableStreamIdFetch(true);
-//         System.out.println("TEST SCENARIO 2: Auto-fetch only");
-//         System.out.println("  - Manual StreamId: " + config.getStreamIdMap());
-//         System.out.println("  - Auto-fetch enabled: " + config.isEnableStreamIdFetch());
-
-        // SCENARIO 3: Both enabled (manual should win, no API call)
-//         config.setStreamId(this.getStreamName(), "manual-stream-id-abc123");
-//         config.setEnableStreamIdFetch(true);
-//         System.out.println("TEST SCENARIO 3: Both enabled (manual takes priority)");
-//         System.out.println("  - Manual StreamId: " + config.getStreamIdMap());
-//         System.out.println("  - Auto-fetch enabled: " + config.isEnableStreamIdFetch());
+        // Test stream ID feature - Option 3 (Customer Provided)
+        // Uncomment to manually provide StreamId
+        // config.setStreamId(this.getStreamName(), "your-stream-id-here");
+        // System.out.println("Manual StreamId configured: " + config.getStreamIdMap());
+        
         return config;
     }
 }
