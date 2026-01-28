@@ -22,6 +22,7 @@ import software.amazon.kinesis.producer.protobuf.Messages.Message;
 import software.amazon.kinesis.producer.protobuf.Messages.MetricsRequest;
 import software.amazon.kinesis.producer.protobuf.Messages.MetricsResponse;
 import software.amazon.kinesis.producer.protobuf.Messages.PutRecord;
+import software.amazon.kinesis.producer.protobuf.Messages.StreamMetadata;
 import com.amazonaws.services.schemaregistry.common.Schema;
 import com.amazonaws.services.schemaregistry.serializers.GlueSchemaRegistrySerializer;
 import com.google.common.collect.ImmutableMap;
@@ -101,6 +102,7 @@ public class KinesisProducer implements IKinesisProducer {
     private final AtomicLong totalFutureTimeouts = new AtomicLong(0);
     private final GlueSchemaRegistrySerializerInstance glueSchemaRegistrySerializerInstance = new GlueSchemaRegistrySerializerInstance();
     private final Map<Long, SettableFutureTracker> futures = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, String> streamIdRegistry = new ConcurrentHashMap<>();
     private final PriorityBlockingQueue<SettableFutureTracker> oldestFutureTrackerHeap = new PriorityBlockingQueue<>
             (10, new SettableFutureTrackerComparator());
     private final ScheduledThreadPoolExecutor futureTimeoutExecutor = new ScheduledThreadPoolExecutor(1,
@@ -792,6 +794,58 @@ public class KinesisProducer implements IKinesisProducer {
             return 0;
         }
         return Instant.now().toEpochMilli() - oldestFuture.getTimestamp().toEpochMilli();
+    }
+
+    /**
+     * Registers a stream ID for the specified stream name.
+     * 
+     * <p>
+     * This should be called before adding records to ensure all records
+     * include the stream ID. If called after records have been added,
+     * only subsequent records will include the stream ID.
+     * 
+     * <p>
+     * Can be called multiple times to update the stream ID. If the stream ID
+     * is the same as the existing value, no action is taken.
+     * 
+     * @param streamName the name of the stream
+     * @param streamId the stream ID to associate with this stream
+     * @throws IllegalArgumentException if streamName or streamId is null or empty
+     */
+    @Override
+    public void setStreamId(String streamName, String streamId) {
+        if (streamName == null || streamName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Stream name cannot be null or empty");
+        }
+        if (streamId == null) {
+            throw new IllegalArgumentException("Stream ID cannot be null");
+        }
+        
+        String trimmedStreamName = streamName.trim();
+        
+        // Check if already set to same value
+        String existingStreamId = streamIdRegistry.get(trimmedStreamName);
+        if (streamId.equals(existingStreamId)) {
+            log.debug("StreamId already set for stream: {}", trimmedStreamName);
+            return; // No change, don't send again
+        }
+        log.debug("Setting StreamId for stream: {}, streamId: {}", trimmedStreamName, streamId);
+        
+        // Store in registry
+        streamIdRegistry.put(trimmedStreamName, streamId);
+        
+        // Send metadata to C++ immediately
+        StreamMetadata metadata = StreamMetadata.newBuilder()
+                .setStreamName(trimmedStreamName)
+                .setStreamId(streamId)
+                .build();
+        
+        Message m = Message.newBuilder()
+                .setId(messageNumber.getAndIncrement())
+                .setStreamMetadata(metadata)
+                .build();
+        
+        addMessageToChild(m);
     }
 
     /**

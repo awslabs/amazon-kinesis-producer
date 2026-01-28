@@ -205,7 +205,6 @@ void KinesisProducer::create_cw_client(const std::string& ca_path, const std::st
 }
 
 Pipeline* KinesisProducer::create_pipeline(const std::string& stream) {
-  LOG(info) << "Created pipeline for stream \"" << stream << "\"";
   return new Pipeline(
       region_,
       stream,
@@ -261,6 +260,8 @@ void KinesisProducer::on_ipc_message(std::string&& message) noexcept {
     on_metrics_request(m);
   } else if (m.has_set_credentials()) {
     on_set_credentials(m.set_credentials());
+  } else if (m.has_stream_metadata()) {
+    on_stream_metadata(m.stream_metadata());
   } else {
     LOG(error) << "Received unknown message type";
   }
@@ -281,6 +282,15 @@ void KinesisProducer::on_flush(const aws::kinesis::protobuf::Flush& flush_msg) {
   } else {
     pipelines_.foreach([](auto&, auto pipeline) { pipeline->flush(); });
   }
+}
+
+void KinesisProducer::on_stream_metadata(
+    const aws::kinesis::protobuf::StreamMetadata& metadata) {
+  std::string stream_name = metadata.stream_name();
+  std::string stream_id = metadata.has_stream_id() ? metadata.stream_id() : "";
+  
+  // Get or create pipeline for this stream
+  pipelines_[stream_name].set_stream_id(stream_id);
 }
 
 void KinesisProducer::on_metrics_request(

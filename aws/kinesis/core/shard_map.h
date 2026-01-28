@@ -58,6 +58,10 @@ class ShardMap : boost::noncopyable {
 
   void invalidate(const TimePoint& seen_at, const boost::optional<uint64_t> predicted_shard);
 
+  void set_stream_id(const std::string& stream_id) {
+    stream_id_ = stream_id;
+  }
+
   static uint64_t shard_id_from_str(const std::string& shard_id) {
     auto parts = aws::utils::split_on_first(shard_id, "-");
     return std::stoull(parts.at(1));

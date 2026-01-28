@@ -122,9 +122,12 @@ void ShardMap::list_shards(const Aws::String& next_token) {
   } else {
     req.SetStreamName(stream_);
     if (!stream_arn_.empty()) req.SetStreamARN(stream_arn_);
-    std::cout << "shard map - stream: " << stream_ << ", stream_id: " << stream_id_ << std::endl;
-    // TODO: Uncomment when SDK supports StreamId
-    // if (!stream_id_.empty()) req.SetStreamId(stream_id_);
+    if (!stream_id_.empty()) {
+      req.SetStreamId(stream_id_);
+      LOG(info) << "Using streamId \"" << stream_id_ << "\"";
+    } else {
+      LOG(info) << "empty streamId";
+    }
     Aws::Kinesis::Model::ShardFilter shardFilter;
     shardFilter.SetType(Aws::Kinesis::Model::ShardFilterType::AT_LATEST);
     req.SetShardFilter(shardFilter);

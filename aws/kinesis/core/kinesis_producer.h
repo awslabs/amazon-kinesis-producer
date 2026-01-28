@@ -93,6 +93,9 @@ class KinesisProducer : boost::noncopyable {
   void on_set_credentials(
       const aws::kinesis::protobuf::SetCredentials& set_creds);
 
+  void on_stream_metadata(
+      const aws::kinesis::protobuf::StreamMetadata& metadata);
+
   void report_outstanding();
 
   std::string region_;
