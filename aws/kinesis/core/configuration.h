@@ -445,14 +445,10 @@ class Configuration : private boost::noncopyable {
   // Get the stream ID for a given stream name.
   // Returns empty string if stream ID is not configured for the stream.
   std::string get_stream_id(const std::string& stream_name) const noexcept {
-    std::cout << "DEBUG C++: Looking up stream_id for stream: " << stream_name << std::endl;
-    std::cout << "DEBUG C++: stream_id_map_ size: " << stream_id_map_.size() << std::endl;
     auto it = stream_id_map_.find(stream_name);
     if (it != stream_id_map_.end()) {
-      std::cout << "DEBUG C++: Found stream_id: " << it->second << std::endl;
       return it->second;
     }
-    std::cout << "DEBUG C++: Stream ID not found, returning empty" << std::endl;
     return "";
   }
 
@@ -1124,10 +1120,7 @@ class Configuration : private boost::noncopyable {
     // Read stream_id_map from protobuf
     for (const auto& entry : c.stream_id_map()) {
       stream_id_map_[entry.first] = entry.second;
-      std::cout << "DEBUG C++: Read from protobuf - stream: " << entry.first 
-                << ", stream_id: " << entry.second << std::endl;
     }
-    std::cout << "DEBUG C++: Total stream_id_map entries: " << stream_id_map_.size() << std::endl;
   }
 
  private:

@@ -15,18 +15,25 @@
 
 package software.amazon.kinesis.producer.sample;
 
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
-import software.amazon.kinesis.producer.UnexpectedMessageException;
+import software.amazon.awssdk.http.Protocol;
+import software.amazon.awssdk.http.SdkHttpConfigurationOption;
+import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.kinesis.KinesisAsyncClient;
+import software.amazon.awssdk.services.kinesis.KinesisClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import software.amazon.awssdk.services.kinesis.model.DescribeStreamRequest;
+import software.amazon.awssdk.services.kinesis.model.DescribeStreamSummaryRequest;
+import software.amazon.awssdk.services.kinesis.model.DescribeStreamSummaryResponse;
+import software.amazon.awssdk.utils.AttributeMap;
 import software.amazon.kinesis.producer.Attempt;
 import software.amazon.kinesis.producer.KinesisProducer;
 import software.amazon.kinesis.producer.UserRecord;
@@ -87,6 +94,14 @@ public class SampleProducer {
                 .getRecordsPerSecond())/(1000000.0)));
 
         final KinesisProducer producer = new KinesisProducer(config.transformToKinesisProducerConfiguration());
+        producer.setStreamId(config.getStreamName(), "c3y12tv49h1765571448-2bh");
+        
+        // Small delay to ensure StreamMetadata is processed before first record
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
         
         // The monotonically increasing sequence number we will put in the data of each record
         final AtomicLong sequenceNumber = new AtomicLong(0);
@@ -139,9 +154,9 @@ public class SampleProducer {
             public void run() {
                 ByteBuffer data = Utils.generateData(sequenceNumber.get(), config.getDataSize());
                 // TIMESTAMP is our partition key
-                ListenableFuture<UserRecordResult> f =
-                        producer.addUserRecord(config.getStreamName(), TIMESTAMP, Utils.randomExplicitHashKey(), data);
-                Futures.addCallback(f, callback, callbackThreadPool);
+//                ListenableFuture<UserRecordResult> f =
+//                        producer.addUserRecord(config.getStreamName(), TIMESTAMP, Utils.randomExplicitHashKey(), data);
+//                Futures.addCallback(f, callback, callbackThreadPool);
             }
         };
         
@@ -197,6 +212,21 @@ public class SampleProducer {
         // This kills the child process and shuts down the threads managing it.
         producer.destroy();
         log.info("Finished.");
+    }
+
+    private static String getStreamId(String streamName, String region) {
+//        KinesisAsyncClient kinesisAsyncClient = KinesisAsyncClient.builder()
+//                .region(Region.US_WEST_2)
+//                .endpointOverride(URI.create("https://kinesis-hailstoneperf-pdx.pdx.proxy.amazon.com"))
+//                .httpClient(NettyNioAsyncHttpClient.builder()
+//                        .protocol(Protocol.HTTP2)
+//                        .buildWithDefaults(AttributeMap.builder()
+//                                .put(SdkHttpConfigurationOption.TRUST_ALL_CERTIFICATES, true)
+//                                .build())).build();
+//        DescribeStreamSummaryRequest describeStreamRequest = DescribeStreamSummaryRequest.builder().streamName(streamName).build();
+//        DescribeStreamSummaryResponse describeStreamSummaryResponse = kinesisAsyncClient.describeStreamSummary(describeStreamRequest).get();
+//        describeStreamSummaryResponse.streamDescriptionSummary().streamId
+        return "c3y12tv49h1765571448-2bh";
     }
 
     /**

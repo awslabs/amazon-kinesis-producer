@@ -136,6 +136,10 @@ class Pipeline : boost::noncopyable {
   void set_stream_id(const std::string& stream_id) {
     stream_id_ = stream_id;
     stream_id_fetched_.store(true);
+    
+    std::cout << "Pipeline::set_stream_id called - stream: \"" << stream_ 
+              << "\", stream_id: \"" << stream_id << "\"" << std::endl;
+    
     // Update ShardMap with new streamId
     shard_map_->set_stream_id(stream_id);
     if (!stream_id_.empty()) {

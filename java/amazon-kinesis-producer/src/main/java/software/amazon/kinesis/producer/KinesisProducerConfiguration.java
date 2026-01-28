@@ -46,7 +46,6 @@ public class KinesisProducerConfiguration {
     private AwsCredentialsProvider metricsCredentialsProvider = null;
     private AwsCredentialsProvider glueSchemaRegistryCredentialsProvider = DefaultCredentialsProvider.create();
     private GlueSchemaRegistryConfiguration glueSchemaRegistryConfiguration = null;
-    private Map<String, String> streamIdMap = new HashMap<>();
 
     /**
      * Add an additional, custom dimension to the metrics emitted by the KPL.
@@ -1003,15 +1002,6 @@ public class KinesisProducerConfiguration {
     }
 
     /**
-     * Gets the map of stream names to stream IDs.
-     *
-     * @return a map containing stream name to stream ID mappings
-     */
-    public Map<String, String> getStreamIdMap() {
-        return streamIdMap;
-    }
-
-    /**
      * Returns whether daemon health check is enabled.
      *
      * <p>
@@ -1828,25 +1818,6 @@ public class KinesisProducerConfiguration {
         return this;
     }
 
-    /**
-     * Sets the stream ID for a given stream name.
-     *
-     * <p>
-     * Stream IDs are used for stream-based routing in Kinesis Data Streams.
-     * This is an optional configuration. If not set, requests will be made without stream ID.
-     *
-     * <p>
-     * This method can be called multiple times to configure stream IDs for different streams.
-     *
-     * @param streamName the name of the Kinesis stream
-     * @param streamId the stream ID to use for this stream
-     * @return this {@link KinesisProducerConfiguration} instance for method chaining
-     */
-    public KinesisProducerConfiguration setStreamId(String streamName, String streamId) {
-        streamIdMap.put(streamName, streamId);
-        return this;
-    }
-
     protected Message toProtobufMessage() {
         Configuration.Builder builder = Configuration.newBuilder()
                 //@formatter:off
@@ -1886,10 +1857,6 @@ public class KinesisProducerConfiguration {
         if (enableCoreDumps != null) {
             builder = builder.setEnableCoreDumps(enableCoreDumps);
         }
-        
-        // Debug: Log stream ID map before sending to C++
-        log.info("DEBUG: Sending streamIdMap to C++: " + streamIdMap);
-        builder.putAllStreamIdMap(streamIdMap);
         
         Configuration c = this.additionalConfigsToProtobuf(builder).build();
         return Message.newBuilder().setConfiguration(c).setId(0).build();

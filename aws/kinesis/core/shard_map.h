@@ -59,6 +59,7 @@ class ShardMap : boost::noncopyable {
   void invalidate(const TimePoint& seen_at, const boost::optional<uint64_t> predicted_shard);
 
   void set_stream_id(const std::string& stream_id) {
+    std::cout << "ShardMap::set_stream_id called - stream_id: \"" << stream_id << "\"" << std::endl;
     stream_id_ = stream_id;
   }
 

@@ -289,6 +289,9 @@ void KinesisProducer::on_stream_metadata(
   std::string stream_name = metadata.stream_name();
   std::string stream_id = metadata.has_stream_id() ? metadata.stream_id() : "";
   
+  std::cout << "C++ received StreamMetadata - stream_name: \"" << stream_name 
+            << "\", stream_id: \"" << stream_id << "\"" << std::endl;
+  
   // Get or create pipeline for this stream
   pipelines_[stream_name].set_stream_id(stream_id);
 }

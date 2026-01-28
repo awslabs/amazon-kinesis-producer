@@ -292,8 +292,6 @@ public class SampleProducerConfig {
         // Override endpoint for Hailstone perf testing
         config.setKinesisEndpoint("kinesis-hailstoneperf-pdx.pdx.proxy.amazon.com");
         config.setVerifyCertificate(false);
-        config.setConnectTimeout(30000);  // Increase timeout to 30s
-        config.setRequestTimeout(30000);  // Increase request timeout
 
         // Test stream ID feature - Option 3 (Customer Provided)
         // Uncomment to manually provide StreamId

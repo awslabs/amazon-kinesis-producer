@@ -124,9 +124,9 @@ void ShardMap::list_shards(const Aws::String& next_token) {
     if (!stream_arn_.empty()) req.SetStreamARN(stream_arn_);
     if (!stream_id_.empty()) {
       req.SetStreamId(stream_id_);
-      LOG(info) << "Using streamId \"" << stream_id_ << "\"";
+      LOG(info) << "Shard map - Using streamId \"" << stream_id_ << "\"";
     } else {
-      LOG(info) << "empty streamId";
+      LOG(info) << "Shard map - empty streamId";
     }
     Aws::Kinesis::Model::ShardFilter shardFilter;
     shardFilter.SetType(Aws::Kinesis::Model::ShardFilterType::AT_LATEST);
