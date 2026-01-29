@@ -31,7 +31,7 @@ ShardMap::ShardMap(
     ListShardsCallBack list_shards_callback,
     std::string stream,
     std::string stream_arn,
-    std::string stream_id,
+    StreamIdGetter stream_id_getter,
     std::shared_ptr<aws::metrics::MetricsManager> metrics_manager,
     std::chrono::milliseconds min_backoff,
     std::chrono::milliseconds max_backoff,
@@ -39,7 +39,7 @@ ShardMap::ShardMap(
     : executor_(std::move(executor)),
       stream_(std::move(stream)),
       stream_arn_(std::move(stream_arn)),
-      stream_id_(std::move(stream_id)),
+      stream_id_getter_(std::move(stream_id_getter)),
       metrics_manager_(std::move(metrics_manager)),
       state_(INVALID),
       min_backoff_(min_backoff),
@@ -122,11 +122,11 @@ void ShardMap::list_shards(const Aws::String& next_token) {
   } else {
     req.SetStreamName(stream_);
     if (!stream_arn_.empty()) req.SetStreamARN(stream_arn_);
-    if (!stream_id_.empty()) {
-      req.SetStreamId(stream_id_);
-      LOG(info) << "Shard map - Using streamId \"" << stream_id_ << "\"";
-    } else {
-      LOG(info) << "Shard map - empty streamId";
+    
+    // Fetch streamId from cache
+    std::string stream_id = stream_id_getter_ ? stream_id_getter_(stream_) : "";
+    if (!stream_id.empty()) {
+      req.SetStreamId(stream_id);
     }
     Aws::Kinesis::Model::ShardFilter shardFilter;
     shardFilter.SetType(Aws::Kinesis::Model::ShardFilterType::AT_LATEST);

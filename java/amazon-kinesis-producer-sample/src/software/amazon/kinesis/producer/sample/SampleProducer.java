@@ -154,9 +154,9 @@ public class SampleProducer {
             public void run() {
                 ByteBuffer data = Utils.generateData(sequenceNumber.get(), config.getDataSize());
                 // TIMESTAMP is our partition key
-//                ListenableFuture<UserRecordResult> f =
-//                        producer.addUserRecord(config.getStreamName(), TIMESTAMP, Utils.randomExplicitHashKey(), data);
-//                Futures.addCallback(f, callback, callbackThreadPool);
+                ListenableFuture<UserRecordResult> f =
+                        producer.addUserRecord(config.getStreamName(), TIMESTAMP, Utils.randomExplicitHashKey(), data);
+                Futures.addCallback(f, callback, callbackThreadPool);
             }
         };
         

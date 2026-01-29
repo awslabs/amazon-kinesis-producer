@@ -58,6 +58,7 @@ class MockKinesisClient : public Aws::Kinesis::KinesisClient {
       const Aws::Kinesis::ListShardsResponseReceivedHandler& handler,
       const std::shared_ptr<const Aws::Client::AsyncCallerContext>& context = nullptr,
       const Aws::Kinesis::Model::ListShardsRequest& request = {}) const {
+    last_request_ = request;
     executor_->schedule([=] {
     
       if (outcomes_list_shards_.size() == 0) {
@@ -70,18 +71,23 @@ class MockKinesisClient : public Aws::Kinesis::KinesisClient {
     }, std::chrono::milliseconds(20));
   }
 
+  const Aws::Kinesis::Model::ListShardsRequest& get_last_request() const {
+    return last_request_;
+  }
 
  private:
   std::list<Aws::Kinesis::Model::ListShardsOutcome> outcomes_list_shards_;
   std::function<void ()> callback_list_shards_;
   std::shared_ptr<aws::utils::Executor> executor_;
+  mutable Aws::Kinesis::Model::ListShardsRequest last_request_;
 };
 
 class Wrapper {
  public:
   Wrapper(
       std::list<Aws::Kinesis::Model::ListShardsOutcome> outcomes_list_shards,
-          int delay = 1500)
+      std::function<std::string(const std::string&)> stream_id_getter = [](const std::string&) { return ""; },
+      int delay = 1500)
       : num_req_received_(0),
     mock_kinesis_client_(
                 outcomes_list_shards,
@@ -91,7 +97,7 @@ class Wrapper {
             [this](auto& req, auto& handler, auto& context) { mock_kinesis_client_.ListShardsAsync(handler, context, req); },
             kStreamName,
             kStreamARN,
-            "",  // stream_id (empty for test)
+            stream_id_getter,
             std::make_shared<aws::metrics::NullMetricsManager>(),
             std::chrono::milliseconds(100),
             std::chrono::milliseconds(1000),
@@ -110,6 +116,10 @@ class Wrapper {
 
   size_t num_req_received() const {
     return num_req_received_;
+  }
+
+  const Aws::Kinesis::Model::ListShardsRequest& get_last_request() const {
+    return mock_kinesis_client_.get_last_request();
   }
 
   void invalidate(std::chrono::steady_clock::time_point tp, boost::optional<uint64_t> shard_id) {
@@ -994,6 +1004,30 @@ BOOST_AUTO_TEST_CASE(ClosedParentShardsAreRemovedAfterSomeTime) {
   BOOST_CHECK_EQUAL(
       wrapper.num_req_received(),
       2);
+}
+
+BOOST_AUTO_TEST_CASE(ListShards_WithoutStreamId) {
+  std::list<Aws::Kinesis::Model::ListShardsOutcome> outcomes_list_shards;
+  outcomes_list_shards.push_back(
+        success_outcome<Aws::Kinesis::Model::ListShardsResult,Aws::Kinesis::Model::ListShardsOutcome>(R"XXXX({
+      "Shards": []
+  })XXXX"));
+
+  Wrapper wrapper(outcomes_list_shards);
+  BOOST_CHECK(wrapper.get_last_request().GetStreamId().empty());
+}
+
+BOOST_AUTO_TEST_CASE(ListShards_WithStreamId) {
+  const std::string kTestStreamId = "test-stream-id-12345";
+  
+  std::list<Aws::Kinesis::Model::ListShardsOutcome> outcomes_list_shards;
+  outcomes_list_shards.push_back(
+        success_outcome<Aws::Kinesis::Model::ListShardsResult,Aws::Kinesis::Model::ListShardsOutcome>(R"XXXX({
+      "Shards": []
+  })XXXX"));
+
+  Wrapper wrapper(outcomes_list_shards, [&](const std::string&) { return kTestStreamId; });
+  BOOST_CHECK_EQUAL(wrapper.get_last_request().GetStreamId(), kTestStreamId);
 }
 
 

@@ -46,6 +46,7 @@ class Pipeline : boost::noncopyable {
  public:
   using Configuration = aws::kinesis::core::Configuration;
   using TimePoint = std::chrono::steady_clock::time_point;
+  using StreamIdGetter = std::function<std::string(const std::string&)>;
 
   Pipeline(
       std::string region,
@@ -54,12 +55,13 @@ class Pipeline : boost::noncopyable {
       std::shared_ptr<aws::utils::Executor> executor,
       std::shared_ptr<Aws::Kinesis::KinesisClient> kinesis_client,
       std::shared_ptr<aws::metrics::MetricsManager> metrics_manager,
-      Retrier::UserRecordCallback finish_user_record_cb)
+      Retrier::UserRecordCallback finish_user_record_cb,
+      StreamIdGetter stream_id_getter)
       : stream_(std::move(stream)),
         region_(std::move(region)),
         stream_arn_(""),
-        stream_id_(""),  // Initialize empty, fetch lazily
-        stream_id_fetched_(false),
+        stream_id_(""),  // Will be fetched from streamId cache after initialization
+        stream_id_getter_(std::move(stream_id_getter)),
         config_(std::move(config)),
         stats_logger_(stream_, config_->record_max_buffered_time()),
         executor_(std::move(executor)),
@@ -72,7 +74,7 @@ class Pipeline : boost::noncopyable {
                 [this](auto& req, auto& handler, auto& context) { kinesis_client_->ListShardsAsync(handler, context, req ); },
                 stream_,
                 stream_arn_,
-                stream_id_,
+                stream_id_getter_,
                 metrics_manager_)),
         aggregator_(
             std::make_shared<Aggregator>(
@@ -113,6 +115,13 @@ class Pipeline : boost::noncopyable {
                 .set_stream(stream_)
                 .find()),
         outstanding_user_records_(0) {
+    // Fetch streamId from cache for local use in PutRecords
+    if (stream_id_getter_) {
+      stream_id_ = stream_id_getter_(stream_);
+      if (!stream_id_.empty()) {
+        LOG(info) << "Pipeline initialized with streamId \"" << stream_id_ << "\" for stream \"" << stream_ << "\"";
+      }
+    }
   }
 
   void put(const std::shared_ptr<UserRecord>& ur) {
@@ -135,30 +144,13 @@ class Pipeline : boost::noncopyable {
   // Set stream ID from StreamMetadata message
   void set_stream_id(const std::string& stream_id) {
     stream_id_ = stream_id;
-    stream_id_fetched_.store(true);
     
-    std::cout << "Pipeline::set_stream_id called - stream: \"" << stream_ 
-              << "\", stream_id: \"" << stream_id << "\"" << std::endl;
-    
-    // Update ShardMap with new streamId
-    shard_map_->set_stream_id(stream_id);
     if (!stream_id_.empty()) {
       LOG(debug) << "Set StreamId for stream: " << stream_
                 << ", stream_id: " << stream_id_;
+    } else {
+      LOG(debug) << "Cleared StreamId for stream: " << stream_;
     }
-  }
-
-  // Fetch StreamId once on first call (thread-safe)
-  void fetch_stream_id() {
-    if (stream_id_fetched_.load()) {
-      return;
-    }
-    stream_id_ = config_->get_stream_id(stream_);
-    if (!stream_id_.empty()) {
-      LOG(debug) << "Using StreamId for stream: " << stream_
-                << ", stream_id: " << stream_id_;
-    }
-    stream_id_fetched_.store(true);
   }
 
  private:
@@ -195,7 +187,6 @@ class Pipeline : boost::noncopyable {
   }
 
   void send_put_records_request(const std::shared_ptr<PutRecordsRequest>& prr) {
-    fetch_stream_id();  // Fetch StreamId if not already done
     auto prc = std::make_shared<PutRecordsContext>(stream_, stream_arn_, stream_id_, prr->items());
     prc->set_start(std::chrono::steady_clock::now());
     kinesis_client_->PutRecordsAsync(
@@ -239,7 +230,7 @@ class Pipeline : boost::noncopyable {
   std::string stream_;
   std::string stream_arn_;
   std::string stream_id_;
-  std::atomic<bool> stream_id_fetched_;
+  StreamIdGetter stream_id_getter_;
   std::shared_ptr<Configuration> config_;
   aws::utils::processing_statistics_logger stats_logger_;
   std::shared_ptr<aws::utils::Executor> executor_;

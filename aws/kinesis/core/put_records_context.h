@@ -89,12 +89,7 @@ class PutRecordsContext : public Aws::Client::AsyncCallerContext {
     }
     req.SetStreamName(stream_);
     if (!stream_arn_.empty()) req.SetStreamARN(stream_arn_);
-//    if (!stream_id_.empty()) {
-//      req.SetStreamId(stream_id_);
-//      std::cout << "Put record - Using streamId \"" << stream_id_ << "\""<< std::endl;
-//          } else {
-//            std::cout << "Put record - empty streamId" << std::endl;
-//    }
+    if (!stream_id_.empty()) req.SetStreamId(stream_id_);
     return req;
   }
 

@@ -442,16 +442,6 @@ class Configuration : private boost::noncopyable {
     return thread_pool_size_;
   }
 
-  // Get the stream ID for a given stream name.
-  // Returns empty string if stream ID is not configured for the stream.
-  std::string get_stream_id(const std::string& stream_name) const noexcept {
-    auto it = stream_id_map_.find(stream_name);
-    if (it != stream_id_map_.end()) {
-      return it->second;
-    }
-    return "";
-  }
-
   // Enable aggregation. With aggregation, multiple user records are packed
   // into a single KinesisRecord. If disabled, each user record is sent in its
   // own KinesisRecord.

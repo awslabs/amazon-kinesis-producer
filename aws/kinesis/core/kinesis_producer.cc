@@ -214,6 +214,9 @@ Pipeline* KinesisProducer::create_pipeline(const std::string& stream) {
       metrics_manager_,
       [this](auto& ur) {
         ipc_manager_->put(ur->to_put_record_result().SerializeAsString());
+      },
+      [this](const std::string& stream_name) {
+        return this->get_stream_id(stream_name);
       });
 }
 
@@ -286,14 +289,42 @@ void KinesisProducer::on_flush(const aws::kinesis::protobuf::Flush& flush_msg) {
 
 void KinesisProducer::on_stream_metadata(
     const aws::kinesis::protobuf::StreamMetadata& metadata) {
-  std::string stream_name = metadata.stream_name();
-  std::string stream_id = metadata.has_stream_id() ? metadata.stream_id() : "";
-  
-  std::cout << "C++ received StreamMetadata - stream_name: \"" << stream_name 
-            << "\", stream_id: \"" << stream_id << "\"" << std::endl;
-  
-  // Get or create pipeline for this stream
-  pipelines_[stream_name].set_stream_id(stream_id);
+  try {
+    std::string stream_name = metadata.stream_name();
+    if (stream_name.empty()) {
+      LOG(error) << "Received StreamMetadata with empty stream_name, ignoring";
+      return;
+    }
+    
+    std::string stream_id = metadata.has_stream_id() ? metadata.stream_id() : "";
+    
+    // Store in cache (thread-safe)
+    size_t cache_size = 0;
+    {
+      aws::unique_lock<aws::shared_mutex> lock(stream_id_cache_mutex_);
+      stream_id_cache_[stream_name] = stream_id;
+      cache_size = stream_id_cache_.size();
+    }
+    
+    LOG(info) << "Stored streamId in cache - stream: \"" << stream_name 
+              << "\", streamId: \"" << stream_id << "\", streamId cache size: " << cache_size;
+
+    // Also update existing pipeline if it exists (this may create pipeline)
+    pipelines_[stream_name].set_stream_id(stream_id);
+  } catch (const std::exception& e) {
+    LOG(error) << "Error processing StreamMetadata: " << e.what();
+  }
+}
+
+std::string KinesisProducer::get_stream_id(const std::string& stream_name) const {
+  aws::shared_lock<aws::shared_mutex> lock(stream_id_cache_mutex_);
+  auto it = stream_id_cache_.find(stream_name);
+  if (it != stream_id_cache_.end()) {
+    LOG(debug) << "Cache hit: streamId for stream \"" << stream_name << "\" = \"" << it->second << "\"";
+    return it->second;
+  }
+  LOG(debug) << "Cache miss: no streamId found for stream \"" << stream_name << "\"";
+  return "";
 }
 
 void KinesisProducer::on_metrics_request(

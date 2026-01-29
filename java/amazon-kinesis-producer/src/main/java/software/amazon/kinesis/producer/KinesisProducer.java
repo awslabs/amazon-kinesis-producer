@@ -102,7 +102,6 @@ public class KinesisProducer implements IKinesisProducer {
     private final AtomicLong totalFutureTimeouts = new AtomicLong(0);
     private final GlueSchemaRegistrySerializerInstance glueSchemaRegistrySerializerInstance = new GlueSchemaRegistrySerializerInstance();
     private final Map<Long, SettableFutureTracker> futures = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, String> streamIdRegistry = new ConcurrentHashMap<>();
     private final PriorityBlockingQueue<SettableFutureTracker> oldestFutureTrackerHeap = new PriorityBlockingQueue<>
             (10, new SettableFutureTrackerComparator());
     private final ScheduledThreadPoolExecutor futureTimeoutExecutor = new ScheduledThreadPoolExecutor(1,
@@ -817,27 +816,19 @@ public class KinesisProducer implements IKinesisProducer {
         if (streamName == null || streamName.trim().isEmpty()) {
             throw new IllegalArgumentException("Stream name cannot be null or empty");
         }
-        if (streamId == null) {
-            throw new IllegalArgumentException("Stream ID cannot be null");
+        if (streamId == null || streamId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Stream ID cannot be null or empty");
         }
         
         String trimmedStreamName = streamName.trim();
+        String trimmedStreamId = streamId.trim();
         
-        // Check if already set to same value
-        String existingStreamId = streamIdRegistry.get(trimmedStreamName);
-        if (streamId.equals(existingStreamId)) {
-            log.debug("StreamId already set for stream: {}", trimmedStreamName);
-            return; // No change, don't send again
-        }
-        log.debug("Setting StreamId for stream: {}, streamId: {}", trimmedStreamName, streamId);
+        log.debug("Setting StreamId for stream: {}, streamId: {}", trimmedStreamName, trimmedStreamId);
         
-        // Store in registry
-        streamIdRegistry.put(trimmedStreamName, streamId);
-        
-        // Send metadata to C++ immediately
+        // Send metadata to C++ daemon - it will manage the cache
         StreamMetadata metadata = StreamMetadata.newBuilder()
                 .setStreamName(trimmedStreamName)
-                .setStreamId(streamId)
+                .setStreamId(trimmedStreamId)
                 .build();
         
         Message m = Message.newBuilder()
