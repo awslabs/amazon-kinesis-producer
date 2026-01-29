@@ -1106,6 +1106,7 @@ class Configuration : private boost::noncopyable {
       additional_metrics_dims_.push_back(
           std::make_tuple(ad.key(), ad.value(), ad.granularity()));
     }
+
   }
 
  private:
