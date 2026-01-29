@@ -1106,11 +1106,6 @@ class Configuration : private boost::noncopyable {
       additional_metrics_dims_.push_back(
           std::make_tuple(ad.key(), ad.value(), ad.granularity()));
     }
-
-    // Read stream_id_map from protobuf
-    for (const auto& entry : c.stream_id_map()) {
-      stream_id_map_[entry.first] = entry.second;
-    }
   }
 
  private:
@@ -1150,8 +1145,6 @@ class Configuration : private boost::noncopyable {
 
   std::vector<std::tuple<std::string, std::string, std::string>>
       additional_metrics_dims_;
-
-  std::map<std::string, std::string> stream_id_map_;
 };
 
 } //namespace core
