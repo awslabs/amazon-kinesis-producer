@@ -35,8 +35,6 @@
 #include <aws/utils/processing_statistics_logger.h>
 #include <aws/utils/logging.h>
 
-#include <aws/utils/logging.h>
-
 
 namespace aws {
 namespace kinesis {
@@ -118,9 +116,12 @@ class Pipeline : boost::noncopyable {
 
     if (stream_id_getter_) {
       stream_id_ = stream_id_getter_(stream_);
-      if (!stream_id_.empty()) {
-        LOG(info) << "Pipeline initialized with streamId \"" << stream_id_ << "\" for stream \"" << stream_ << "\"";
-      }
+    }
+    
+    if (!stream_id_.empty()) {
+      LOG(info) << "Created pipeline for stream \"" << stream_ << "\" with streamId \"" << stream_id_ << "\"";
+    } else {
+      LOG(info) << "Created pipeline for stream \"" << stream_ << "\"";
     }
   }
 

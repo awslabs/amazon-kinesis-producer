@@ -306,7 +306,7 @@ void KinesisProducer::on_stream_metadata(
       cache_size = stream_id_cache_.size();
     }
     
-    LOG(info) << "Stored streamId in cache - stream: \"" << stream_name 
+    LOG(debug) << "Stored streamId in cache - stream: \"" << stream_name
               << "\", streamId: \"" << stream_id << "\", streamId cache size: " << cache_size;
 
     // Also update existing pipeline if it exists (this may create pipeline)

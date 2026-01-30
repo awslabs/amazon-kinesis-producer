@@ -799,13 +799,13 @@ public class KinesisProducer implements IKinesisProducer {
      * Registers a stream ID for the specified stream name.
      * 
      * <p>
-     * This should be called before adding records to ensure all records
-     * include the stream ID. If called after records have been added,
-     * only subsequent records will include the stream ID.
+     * The stream ID will be included in all KDS API requests (PutRecords, ListShards)
+     * for this stream. This applies to records that have not yet been sent to KDS,
+     * including records currently buffered for aggregation.
      * 
      * <p>
-     * Can be called multiple times to update the stream ID. If the stream ID
-     * is the same as the existing value, no action is taken.
+     * Best practice: Call this once at startup before adding records.
+     * Can be called multiple times to update the stream ID.
      * 
      * @param streamName the name of the stream
      * @param streamId the stream ID to associate with this stream
