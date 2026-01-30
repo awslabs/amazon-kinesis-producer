@@ -29,9 +29,7 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
@@ -1857,7 +1855,6 @@ public class KinesisProducerConfiguration {
         if (enableCoreDumps != null) {
             builder = builder.setEnableCoreDumps(enableCoreDumps);
         }
-        
         Configuration c = this.additionalConfigsToProtobuf(builder).build();
         return Message.newBuilder().setConfiguration(c).setId(0).build();
     }

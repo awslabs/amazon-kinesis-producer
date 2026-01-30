@@ -251,11 +251,9 @@ set_property(TARGET LibSsl PROPERTY IMPORTED_LINK_INTERFACE_LIBRARIES LibCrypto)
 add_library(LibZ STATIC IMPORTED)
 set_property(TARGET LibZ PROPERTY IMPORTED_LOCATION ${THIRD_PARTY_LIB_DIR}/libz.a)
 
-# Use system curl instead of static library
-find_package(CURL REQUIRED)
-add_library(LibCurl INTERFACE)
-target_link_libraries(LibCurl INTERFACE ${CURL_LIBRARIES})
-target_include_directories(LibCurl INTERFACE ${CURL_INCLUDE_DIRS})
+add_library(LibCurl STATIC IMPORTED)
+set_property(TARGET LibCurl PROPERTY IMPORTED_LOCATION ${THIRD_PARTY_LIB_DIR}/libcurl.a)
+set_property(TARGET LibCurl PROPERTY IMPORTED_LINK_INTERFACE_LIBRARIES ${CMAKE_THREAD_LIBS_INIT} ${LIBRT_LIBRARIES} ${LIBDL_LIBRARIES} LibSsl LibZ)
 
 add_library(LibProto STATIC IMPORTED)
 set_property(TARGET LibProto PROPERTY IMPORTED_LOCATION ${THIRD_PARTY_LIB_DIR}/libprotobuf.a)
@@ -263,7 +261,7 @@ set_property(TARGET LibProto PROPERTY IMPORTED_LINK_INTERFACE_LIBRARIES LibZ)
 
 add_executable(kinesis_producer ${SOURCE_FILES} ${LOGGING_TRIGGERS} aws/kinesis/main.cc ${PROTO_GENERATED_SRCS} ${PROTO_GENERATED_HDRS})
 target_include_directories(kinesis_producer SYSTEM PUBLIC ${THIRD_PARTY_INCLUDE})
-target_link_libraries(kinesis_producer ${CMAKE_THREAD_LIBS_INIT} LibProto ${AWSSDK_LINK_LIBRARIES} ${LIBBACKTRACE_LIBRARIES} ${STATIC_LIBS} ${UUID_LIBRARIES} LibSsl LibCrypto LibCurl)
+target_link_libraries(kinesis_producer ${CMAKE_THREAD_LIBS_INIT} LibProto ${AWSSDK_LINK_LIBRARIES} ${LIBBACKTRACE_LIBRARIES} ${STATIC_LIBS} ${UUID_LIBRARIES} LibSsl LibCurl)
 
 add_executable(test_driver ${SOURCE_FILES} ${LOGGING_TRIGGERS} aws/kinesis/test_driver.cc ${PROTO_GENERATED_SRCS} ${PROTO_GENERATED_HDRS})
 target_include_directories(test_driver SYSTEM PUBLIC ${THIRD_PARTY_INCLUDE})
