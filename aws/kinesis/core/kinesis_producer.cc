@@ -290,13 +290,18 @@ void KinesisProducer::on_flush(const aws::kinesis::protobuf::Flush& flush_msg) {
 void KinesisProducer::on_stream_metadata(
     const aws::kinesis::protobuf::StreamMetadata& metadata) {
   try {
-    std::string stream_name = metadata.stream_name();
-    if (stream_name.empty()) {
+    if (!metadata.has_stream_name() || metadata.stream_name().empty()) {
       LOG(error) << "Received StreamMetadata with empty stream_name, ignoring";
       return;
     }
     
-    std::string stream_id = metadata.has_stream_id() ? metadata.stream_id() : "";
+    if (!metadata.has_stream_id() || metadata.stream_id().empty()) {
+      LOG(error) << "Received StreamMetadata with empty stream_id for stream: \"" << metadata.stream_name() << "\", ignoring";
+      return;
+    }
+    
+    std::string stream_name = metadata.stream_name();
+    std::string stream_id = metadata.stream_id();
     
     // Store in cache (thread-safe)
     size_t cache_size = 0;
