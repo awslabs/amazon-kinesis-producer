@@ -19,7 +19,6 @@
 #include <boost/format.hpp>
 #include <iomanip>
 #include <atomic>
-#include <mutex>
 
 #include <aws/kinesis/core/aggregator.h>
 #include <aws/kinesis/core/collector.h>
