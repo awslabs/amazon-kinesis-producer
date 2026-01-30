@@ -28,10 +28,10 @@
 #include <aws/kinesis/core/put_records_context.h>
 #include <aws/kinesis/core/retrier.h>
 #include <aws/kinesis/KinesisClient.h>
-#include <aws/kinesis/model/DescribeStreamSummaryRequest.h>
 #include <aws/kinesis/model/ListShardsRequest.h>
 #include <aws/metrics/metrics_manager.h>
 #include <aws/utils/processing_statistics_logger.h>
+
 #include <aws/utils/logging.h>
 
 
@@ -113,15 +113,15 @@ class Pipeline : boost::noncopyable {
                 .find()),
         outstanding_user_records_(0) {
 
-    if (stream_id_getter_) {
-      stream_id_ = stream_id_getter_(stream_);
-    }
-    
-    if (!stream_id_.empty()) {
-      LOG(info) << "Created pipeline for stream \"" << stream_ << "\" with streamId \"" << stream_id_ << "\"";
-    } else {
-      LOG(info) << "Created pipeline for stream \"" << stream_ << "\"";
-    }
+        if (stream_id_getter_) {
+          stream_id_ = stream_id_getter_(stream_);
+        }
+
+        if (!stream_id_.empty()) {
+          LOG(info) << "Created pipeline for stream \"" << stream_ << "\" with streamId \"" << stream_id_ << "\"";
+        } else {
+          LOG(info) << "Created pipeline for stream \"" << stream_ << "\"";
+        }
   }
 
   void put(const std::shared_ptr<UserRecord>& ur) {
