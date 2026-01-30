@@ -113,9 +113,7 @@ class KinesisProducer : boost::noncopyable {
   std::shared_ptr<aws::metrics::MetricsManager> metrics_manager_;
 
   aws::utils::ConcurrentHashMap<std::string, Pipeline> pipelines_;
-  
-  // Stream ID cache - stores streamId for each stream
-  // Thread-safe: protected by stream_id_cache_mutex_
+
   std::unordered_map<std::string, std::string> stream_id_cache_;
   mutable aws::shared_mutex stream_id_cache_mutex_;
   
@@ -123,8 +121,7 @@ class KinesisProducer : boost::noncopyable {
   aws::thread message_drainer_;
 
   std::shared_ptr<aws::utils::ScheduledCallback> report_outstanding_;
-  
-  // Get streamId from cache (thread-safe)
+
   std::string get_stream_id(const std::string& stream_name) const;
 };
 

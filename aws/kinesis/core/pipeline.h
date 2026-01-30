@@ -60,7 +60,7 @@ class Pipeline : boost::noncopyable {
       : stream_(std::move(stream)),
         region_(std::move(region)),
         stream_arn_(""),
-        stream_id_(""),  // Will be fetched from streamId cache after initialization
+        stream_id_(""),
         stream_id_getter_(std::move(stream_id_getter)),
         config_(std::move(config)),
         stats_logger_(stream_, config_->record_max_buffered_time()),
@@ -115,7 +115,7 @@ class Pipeline : boost::noncopyable {
                 .set_stream(stream_)
                 .find()),
         outstanding_user_records_(0) {
-    // Fetch streamId from cache for local use in PutRecords
+
     if (stream_id_getter_) {
       stream_id_ = stream_id_getter_(stream_);
       if (!stream_id_.empty()) {
@@ -141,7 +141,6 @@ class Pipeline : boost::noncopyable {
     return outstanding_user_records_;
   }
 
-  // Set stream ID from StreamMetadata message
   void set_stream_id(const std::string& stream_id) {
     stream_id_ = stream_id;
     

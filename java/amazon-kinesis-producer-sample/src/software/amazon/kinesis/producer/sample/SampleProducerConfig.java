@@ -46,12 +46,12 @@ public class SampleProducerConfig {
     /**
      * Change this to your stream name.
      */
-    public static final String STREAM_NAME_DEFAULT = "test-stream-id";
+    public static final String STREAM_NAME_DEFAULT = "test";
 
     /**
      * Change this to the region you are using.
      */
-    public static final String REGION_DEFAULT = "us-west-2";
+    public static final String REGION_DEFAULT = "us-west-1";
 
     @NotBlank(message = "KPL Sample region should not be null or blank" )
     private final String region;
@@ -227,10 +227,6 @@ public class SampleProducerConfig {
         // configuration; the KPL will retrieve it from EC2 metadata.
         config.setRegion(this.getRegion());
 
-        // Custom endpoint override for testing
-        // config.setKinesisEndpoint("kinesis-hailstoneperf-pdx.pdx.proxy.amazon.com");
-        // config.setVerifyCertificate(false);
-
         // You can pass credentials programmatically through the configuration,
         // similar to the AWS SDK. DefaultAWSCredentialsProviderChain is used
         // by default, so this configuration can be omitted if that is all
@@ -288,15 +284,6 @@ public class SampleProducerConfig {
         // Note that if you do pass a Configuration instance, mutating that
         // instance after initializing KinesisProducer has no effect. We do not
         // support dynamic re-configuration at the moment.
-
-        // Override endpoint for Hailstone perf testing
-        config.setKinesisEndpoint("kinesis-hailstoneperf-pdx.pdx.proxy.amazon.com");
-        config.setVerifyCertificate(false);
-
-        // Test stream ID feature - Option 3 (Customer Provided)
-        // Uncomment to manually provide StreamId
-        // config.setStreamId(this.getStreamName(), "your-stream-id-here");
-        // System.out.println("Manual StreamId configured: " + config.getStreamIdMap());
         
         return config;
     }

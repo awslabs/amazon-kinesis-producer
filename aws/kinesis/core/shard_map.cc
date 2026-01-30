@@ -122,8 +122,7 @@ void ShardMap::list_shards(const Aws::String& next_token) {
   } else {
     req.SetStreamName(stream_);
     if (!stream_arn_.empty()) req.SetStreamARN(stream_arn_);
-    
-    // Fetch streamId from cache
+
     std::string stream_id = stream_id_getter_ ? stream_id_getter_(stream_) : "";
     if (!stream_id.empty()) {
       req.SetStreamId(stream_id);
