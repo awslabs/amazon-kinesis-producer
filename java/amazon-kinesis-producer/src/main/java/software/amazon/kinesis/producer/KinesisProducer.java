@@ -16,6 +16,7 @@
 package software.amazon.kinesis.producer;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.lang3.Validate;
 import software.amazon.kinesis.producer.protobuf.Messages;
 import software.amazon.kinesis.producer.protobuf.Messages.Flush;
 import software.amazon.kinesis.producer.protobuf.Messages.Message;
@@ -813,25 +814,21 @@ public class KinesisProducer implements IKinesisProducer {
      */
     @Override
     public void setStreamId(String streamName, String streamId) {
-        if (streamName == null || streamName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Stream name cannot be null or empty");
-        }
-        if (streamId == null || streamId.trim().isEmpty()) {
-            throw new IllegalArgumentException("Stream ID cannot be null or empty");
-        }
+        Validate.notBlank(streamName, "Stream name should not be empty");
+        Validate.notBlank(streamName, "Stream ID should not be empty");
         
-        String trimmedStreamName = streamName.trim();
-        String trimmedStreamId = streamId.trim();
+        final String trimmedStreamName = streamName.trim();
+        final String trimmedStreamId = streamId.trim();
         
         log.debug("Setting StreamId for stream: {}, streamId: {}", trimmedStreamName, trimmedStreamId);
         
         // Send metadata to C++ daemon - it will manage the cache
-        StreamMetadata metadata = StreamMetadata.newBuilder()
+        final StreamMetadata metadata = StreamMetadata.newBuilder()
                 .setStreamName(trimmedStreamName)
                 .setStreamId(trimmedStreamId)
                 .build();
         
-        Message m = Message.newBuilder()
+        final Message m = Message.newBuilder()
                 .setId(messageNumber.getAndIncrement())
                 .setStreamMetadata(metadata)
                 .build();

@@ -143,13 +143,8 @@ class Pipeline : boost::noncopyable {
 
   void set_stream_id(const std::string& stream_id) {
     stream_id_ = stream_id;
-    
-    if (!stream_id_.empty()) {
-      LOG(debug) << "Set StreamId for stream: " << stream_
-                << ", stream_id: " << stream_id_;
-    } else {
-      LOG(debug) << "Cleared StreamId for stream: " << stream_;
-    }
+    LOG(debug) << "Set StreamId for stream: " << stream_
+                    << ", stream_id: " << stream_id_;
   }
 
  private:

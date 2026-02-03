@@ -21,18 +21,18 @@ struct CacheFixture {
     cache["stream2"] = "id2";
     cache["stream3"] = "id3";
 
-    get_stream_id = [this](const std::string& stream_name) {
+    get_stream_id_from_cache = [this](const std::string& stream_name) {
       auto it = cache.find(stream_name);
       return (it != cache.end()) ? it->second : std::string("");
     };
   }
   
   std::unordered_map<std::string, std::string> cache;
-  std::function<std::string(const std::string&)> get_stream_id;
+  std::function<std::string(const std::string&)> get_stream_id_from_cache;
 };
 
 BOOST_FIXTURE_TEST_CASE(CacheHit_RequestHasStreamId, CacheFixture) {
-  std::string stream_id = get_stream_id(kStreamName);
+  std::string stream_id = get_stream_id_from_cache(kStreamName);
 
   std::vector<std::shared_ptr<aws::kinesis::core::KinesisRecord>> items;
   auto context = std::make_shared<aws::kinesis::core::PutRecordsContext>(
@@ -43,7 +43,7 @@ BOOST_FIXTURE_TEST_CASE(CacheHit_RequestHasStreamId, CacheFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(CacheMiss_RequestHasNoStreamId, CacheFixture) {
-  std::string stream_id = get_stream_id("nonexistent-stream");
+  std::string stream_id = get_stream_id_from_cache("nonexistent-stream");
 
   std::vector<std::shared_ptr<aws::kinesis::core::KinesisRecord>> items;
   auto context = std::make_shared<aws::kinesis::core::PutRecordsContext>(
@@ -71,7 +71,7 @@ BOOST_FIXTURE_TEST_CASE(MultipleStreams_CorrectStreamIds, CacheFixture) {
 BOOST_FIXTURE_TEST_CASE(RealFlow_LambdaCallbackRetrievesFromCache, CacheFixture) {
   std::vector<std::shared_ptr<aws::kinesis::core::KinesisRecord>> items;
 
-  std::string stream_id = get_stream_id(kStreamName);
+  std::string stream_id = get_stream_id_from_cache(kStreamName);
 
   BOOST_CHECK_EQUAL(stream_id, kStreamId);
 
@@ -81,7 +81,7 @@ BOOST_FIXTURE_TEST_CASE(RealFlow_LambdaCallbackRetrievesFromCache, CacheFixture)
 
   BOOST_CHECK_EQUAL(request.GetStreamId(), kStreamId);
 
-  std::string missing_id = get_stream_id("nonexistent");
+  std::string missing_id = get_stream_id_from_cache("nonexistent");
   BOOST_CHECK(missing_id.empty());
 }
 

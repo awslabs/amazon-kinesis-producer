@@ -216,7 +216,7 @@ Pipeline* KinesisProducer::create_pipeline(const std::string& stream) {
         ipc_manager_->put(ur->to_put_record_result().SerializeAsString());
       },
       [this](const std::string& stream_name) {
-        return this->get_stream_id(stream_name);
+        return this->get_stream_id_from_cache(stream_name);
       });
 }
 
@@ -321,7 +321,7 @@ void KinesisProducer::on_stream_metadata(
   }
 }
 
-std::string KinesisProducer::get_stream_id(const std::string& stream_name) const {
+std::string KinesisProducer::get_stream_id_from_cache(const std::string& stream_name) const {
   aws::shared_lock<aws::shared_mutex> lock(stream_id_cache_mutex_);
   auto it = stream_id_cache_.find(stream_name);
   if (it != stream_id_cache_.end()) {

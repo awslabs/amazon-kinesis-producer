@@ -122,7 +122,7 @@ class KinesisProducer : boost::noncopyable {
 
   std::shared_ptr<aws::utils::ScheduledCallback> report_outstanding_;
 
-  std::string get_stream_id(const std::string& stream_name) const;
+  std::string get_stream_id_from_cache(const std::string& stream_name) const;
 };
 
 } //namespace core
