@@ -23,6 +23,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import software.amazon.kinesis.producer.KinesisProducerConfiguration;
 import software.amazon.kinesis.producer.UnexpectedMessageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import software.amazon.kinesis.producer.Attempt;
 import software.amazon.kinesis.producer.KinesisProducer;
 import software.amazon.kinesis.producer.UserRecord;
-import software.amazon.kinesis.producer.KinesisProducerException;
 import software.amazon.kinesis.producer.UserRecordFailedException;
 import software.amazon.kinesis.producer.UserRecordResult;
 import com.google.common.util.concurrent.FutureCallback;
@@ -85,8 +85,9 @@ public class SampleProducer {
                 config.getSecondsToRun()));
         log.info(String.format("Will attempt to run the KPL at %f MB/s...",(config.getDataSize() * config
                 .getRecordsPerSecond())/(1000000.0)));
-
-        final KinesisProducer producer = new KinesisProducer(config.transformToKinesisProducerConfiguration());
+        final KinesisProducerConfiguration kinesisProducerConfiguration =
+                config.transformToKinesisProducerConfiguration();
+        final KinesisProducer producer = new KinesisProducer(kinesisProducerConfiguration);
 
         // The monotonically increasing sequence number we will put in the data of each record
         final AtomicLong sequenceNumber = new AtomicLong(0);
@@ -98,31 +99,32 @@ public class SampleProducer {
         final FutureCallback<UserRecordResult> callback = new FutureCallback<UserRecordResult>() {
             @Override
             public void onFailure(Throwable t) {
-                // If we see any failures, we will log them.
-                if (t instanceof KinesisProducerException) {
-                    UserRecord userRecord = ((KinesisProducerException) t).getUserRecord();
-                    String data = StandardCharsets.UTF_8.decode(userRecord.getData()).toString();
-                    if (t instanceof UserRecordFailedException) {
-                        int attempts = ((UserRecordFailedException) t).getResult().getAttempts().size()-1;
-                        Attempt last = ((UserRecordFailedException) t).getResult().getAttempts().get(attempts);
-                        if(attempts > 1) {
-                            Attempt previous = ((UserRecordFailedException) t).getResult().getAttempts().get(attempts - 1);
-                            log.error(String.format(
-                                    "UserRecord %s with data %s failed to put - %s : %s. Previous failure - %s : %s",
-                                    userRecord, data, last.getErrorCode(), last.getErrorMessage(), previous.getErrorCode(),
-                                    previous.getErrorMessage()));
-                        } else{
-                            log.error(String.format(
-                                    "UserRecord %s with data %s failed to put - %s : %s.",
-                                    userRecord, data, last.getErrorCode(), last.getErrorMessage()));
-                        }
+                if (t instanceof UserRecordFailedException) {
+                    final UserRecordFailedException failure = (UserRecordFailedException) t;
+                    final int attempts = failure.getResult().getAttempts().size() - 1;
+                    final Attempt last = failure.getResult().getAttempts().get(attempts);
 
+                    final String errorMsg;
+                    if (attempts > 1) {
+                        final Attempt previous = failure.getResult().getAttempts().get(attempts - 1);
+                        errorMsg = String.format("Record failed to put - %s : %s. Previous failure - %s : %s",
+                                last.getErrorCode(), last.getErrorMessage(), previous.getErrorCode(),
+                                previous.getErrorMessage());
                     } else {
-                        log.error(String.format("UserRecord %s with data %s failed to put with unexpected error: ",
-                                userRecord, data), t);
+                        errorMsg = String.format("Record failed to put - %s : %s.",
+                                last.getErrorCode(), last.getErrorMessage());
                     }
+
+                    if (kinesisProducerConfiguration.getReturnUserRecordOnFailure()) {
+                        final UserRecord userRecord = failure.getUserRecord();
+                        final String data = StandardCharsets.UTF_8.decode(userRecord.getData()).toString();
+                        log.error("UserRecord {} with data {} - {}", userRecord, data, errorMsg);
+                    } else {
+                        log.error(errorMsg);
+                    }
+                } else {
+                    log.error("Exception during put", t);
                 }
-                log.error("Exception during put", t);
             }
 
             @Override
