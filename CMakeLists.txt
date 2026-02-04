@@ -101,6 +101,7 @@ set(TESTS_SOURCE
     aws/kinesis/core/test/reducer_test.cc
     aws/kinesis/core/test/retrier_test.cc
     aws/kinesis/core/test/shard_map_test.cc
+    aws/kinesis/core/test/stream_id_cache_test.cc
     aws/kinesis/core/test/test_utils.cc
     aws/kinesis/core/test/test_utils.h
     aws/kinesis/core/test/user_record_test.cc

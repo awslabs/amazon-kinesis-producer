@@ -93,6 +93,9 @@ class KinesisProducer : boost::noncopyable {
   void on_set_credentials(
       const aws::kinesis::protobuf::SetCredentials& set_creds);
 
+  void on_stream_metadata(
+      const aws::kinesis::protobuf::StreamMetadata& metadata);
+
   void report_outstanding();
 
   std::string region_;
@@ -110,10 +113,16 @@ class KinesisProducer : boost::noncopyable {
   std::shared_ptr<aws::metrics::MetricsManager> metrics_manager_;
 
   aws::utils::ConcurrentHashMap<std::string, Pipeline> pipelines_;
+
+  std::unordered_map<std::string, std::string> stream_id_cache_;
+  mutable aws::shared_mutex stream_id_cache_mutex_;
+  
   bool shutdown_;
   aws::thread message_drainer_;
 
   std::shared_ptr<aws::utils::ScheduledCallback> report_outstanding_;
+
+  std::string get_stream_id_from_cache(const std::string& stream_name) const;
 };
 
 } //namespace core

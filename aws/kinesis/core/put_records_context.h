@@ -35,9 +35,11 @@ class PutRecordsContext : public Aws::Client::AsyncCallerContext {
  public:
   PutRecordsContext(std::string stream,
                     std::string stream_arn,
+                    std::string stream_id,
                     std::vector<std::shared_ptr<KinesisRecord>> records)
       : stream_(std::move(stream)),
         stream_arn_(std::move(stream_arn)),
+        stream_id_(std::move(stream_id)),
         records_(std::move(records)) {}
 
   const std::string& get_stream() const {
@@ -46,6 +48,10 @@ class PutRecordsContext : public Aws::Client::AsyncCallerContext {
 
   const std::string& get_stream_arn() const {
     return stream_arn_;
+  }
+
+  const std::string& get_stream_id() const {
+    return stream_id_;
   }
 
   std::chrono::steady_clock::time_point get_start() const {
@@ -83,6 +89,7 @@ class PutRecordsContext : public Aws::Client::AsyncCallerContext {
     }
     req.SetStreamName(stream_);
     if (!stream_arn_.empty()) req.SetStreamARN(stream_arn_);
+    if (!stream_id_.empty()) req.SetStreamId(stream_id_);
     return req;
   }
 
@@ -104,6 +111,7 @@ class PutRecordsContext : public Aws::Client::AsyncCallerContext {
  private:
   std::string stream_;
   std::string stream_arn_;
+  std::string stream_id_;
   std::chrono::steady_clock::time_point start_;
   std::chrono::steady_clock::time_point end_;
   std::vector<std::shared_ptr<KinesisRecord>> records_;

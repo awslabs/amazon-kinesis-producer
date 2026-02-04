@@ -66,7 +66,7 @@ import com.google.common.util.concurrent.ListenableFuture;
  */
 public class SampleProducer {
     private static final Logger log = LoggerFactory.getLogger(SampleProducer.class);
-    
+
     private static final ScheduledExecutorService EXECUTOR = Executors.newScheduledThreadPool(1);
 
     /**
@@ -91,10 +91,10 @@ public class SampleProducer {
 
         // The monotonically increasing sequence number we will put in the data of each record
         final AtomicLong sequenceNumber = new AtomicLong(0);
-        
+
         // The number of records that have finished (either successfully put, or failed)
         final AtomicLong completed = new AtomicLong(0);
-        
+
         // KinesisProducer.addUserRecord is asynchronous. A callback can be used to receive the results.
         final FutureCallback<UserRecordResult> callback = new FutureCallback<UserRecordResult>() {
             @Override
@@ -132,7 +132,7 @@ public class SampleProducer {
                 completed.getAndIncrement();
             }
         };
-        
+
         final ExecutorService callbackThreadPool = Executors.newCachedThreadPool();
 
         // The lines within run() are the essence of the KPL API.
@@ -146,7 +146,7 @@ public class SampleProducer {
                 Futures.addCallback(f, callback, callbackThreadPool);
             }
         };
-        
+
         // This gives us progress updates
         EXECUTOR.scheduleAtFixedRate(new Runnable() {
             @Override
@@ -163,20 +163,20 @@ public class SampleProducer {
                         ()));
             }
         }, 1, 1, TimeUnit.SECONDS);
-        
+
         // Kick off the puts
         log.info(String.format(
                 "Starting puts... will run for %d seconds at %d records per second", config.getSecondsToRun(),
                 config.getRecordsPerSecond()));
         executeAtTargetRate(EXECUTOR, putOneRecord, sequenceNumber, config.getSecondsToRun(),
                 config.getRecordsPerSecond());
-        
+
         // Wait for puts to finish. After this statement returns, we have
         // finished all calls to putRecord, but the records may still be
         // in-flight. We will additionally wait for all records to actually
         // finish later.
         EXECUTOR.awaitTermination(config.getSecondsToRun() + 1, TimeUnit.SECONDS);
-        
+
         // If you need to shutdown your application, call flushSync() first to
         // send any buffered records. This method will block until all records
         // have finished (either success or fail). There are also asynchronous
@@ -195,7 +195,7 @@ public class SampleProducer {
         log.info("Waiting for remaining puts to finish...");
         producer.flushSync();
         log.info("All records complete.");
-        
+
         // This kills the child process and shuts down the threads managing it.
         producer.destroy();
         log.info("Finished.");

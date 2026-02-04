@@ -41,11 +41,14 @@ class ShardMap : boost::noncopyable {
     const Aws::Kinesis::Model::ListShardsRequest& req, 
     const Aws::Kinesis::ListShardsResponseReceivedHandler& handler, 
     const std::shared_ptr<const Aws::Client::AsyncCallerContext>& context)>;
+  
+  using StreamIdGetter = std::function<std::string(const std::string&)>;
 
   ShardMap(std::shared_ptr<aws::utils::Executor> executor,
            ListShardsCallBack list_shards_callback,
            std::string stream,
            std::string stream_arn,
+           StreamIdGetter stream_id_getter,
            std::shared_ptr<aws::metrics::MetricsManager> metrics_manager
               = std::make_shared<aws::metrics::NullMetricsManager>(),
            std::chrono::milliseconds min_backoff = kMinBackoff,
@@ -99,6 +102,7 @@ class ShardMap : boost::noncopyable {
   std::shared_ptr<aws::utils::Executor> executor_;
   std::string stream_;
   std::string stream_arn_;
+  StreamIdGetter stream_id_getter_;
   std::shared_ptr<aws::metrics::MetricsManager> metrics_manager_;
   State state_;
   std::vector<std::pair<uint128_t, uint64_t>> end_hash_key_to_shard_id_;

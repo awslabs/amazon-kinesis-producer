@@ -18,6 +18,7 @@
 
 #include <boost/format.hpp>
 #include <iomanip>
+#include <atomic>
 
 #include <aws/kinesis/core/aggregator.h>
 #include <aws/kinesis/core/collector.h>
@@ -42,6 +43,7 @@ class Pipeline : boost::noncopyable {
  public:
   using Configuration = aws::kinesis::core::Configuration;
   using TimePoint = std::chrono::steady_clock::time_point;
+  using StreamIdGetter = std::function<std::string(const std::string&)>;
 
   Pipeline(
       std::string region,
@@ -50,10 +52,13 @@ class Pipeline : boost::noncopyable {
       std::shared_ptr<aws::utils::Executor> executor,
       std::shared_ptr<Aws::Kinesis::KinesisClient> kinesis_client,
       std::shared_ptr<aws::metrics::MetricsManager> metrics_manager,
-      Retrier::UserRecordCallback finish_user_record_cb)
+      Retrier::UserRecordCallback finish_user_record_cb,
+      StreamIdGetter stream_id_getter)
       : stream_(std::move(stream)),
         region_(std::move(region)),
         stream_arn_(""),
+        stream_id_(""),
+        stream_id_getter_(std::move(stream_id_getter)),
         config_(std::move(config)),
         stats_logger_(stream_, config_->record_max_buffered_time()),
         executor_(std::move(executor)),
@@ -66,6 +71,7 @@ class Pipeline : boost::noncopyable {
                 [this](auto& req, auto& handler, auto& context) { kinesis_client_->ListShardsAsync(handler, context, req ); },
                 stream_,
                 stream_arn_,
+                stream_id_getter_,
                 metrics_manager_)),
         aggregator_(
             std::make_shared<Aggregator>(
@@ -105,7 +111,18 @@ class Pipeline : boost::noncopyable {
                 .set_name(aws::metrics::constants::Names::UserRecordsReceived)
                 .set_stream(stream_)
                 .find()),
-        outstanding_user_records_(0) {}
+        outstanding_user_records_(0) {
+
+        if (stream_id_getter_) {
+          stream_id_ = stream_id_getter_(stream_);
+        }
+
+        if (!stream_id_.empty()) {
+          LOG(info) << "Created pipeline for stream \"" << stream_ << "\" with streamId \"" << stream_id_ << "\"";
+        } else {
+          LOG(info) << "Created pipeline for stream \"" << stream_ << "\"";
+        }
+  }
 
   void put(const std::shared_ptr<UserRecord>& ur) {
     outstanding_user_records_++;
@@ -122,6 +139,12 @@ class Pipeline : boost::noncopyable {
 
   uint64_t outstanding_user_records() const noexcept {
     return outstanding_user_records_;
+  }
+
+  void set_stream_id(const std::string& stream_id) {
+    stream_id_ = stream_id;
+    LOG(debug) << "Set StreamId for stream: " << stream_
+                    << ", stream_id: " << stream_id_;
   }
 
  private:
@@ -158,7 +181,7 @@ class Pipeline : boost::noncopyable {
   }
 
   void send_put_records_request(const std::shared_ptr<PutRecordsRequest>& prr) {
-    auto prc = std::make_shared<PutRecordsContext>(stream_, stream_arn_, prr->items());
+    auto prc = std::make_shared<PutRecordsContext>(stream_, stream_arn_, stream_id_, prr->items());
     prc->set_start(std::chrono::steady_clock::now());
     kinesis_client_->PutRecordsAsync(
         prc->to_sdk_request(),
@@ -200,6 +223,8 @@ class Pipeline : boost::noncopyable {
   std::string region_;
   std::string stream_;
   std::string stream_arn_;
+  std::string stream_id_;
+  StreamIdGetter stream_id_getter_;
   std::shared_ptr<Configuration> config_;
   aws::utils::processing_statistics_logger stats_logger_;
   std::shared_ptr<aws::utils::Executor> executor_;

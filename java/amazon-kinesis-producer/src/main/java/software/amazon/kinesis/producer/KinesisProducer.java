@@ -16,12 +16,14 @@
 package software.amazon.kinesis.producer;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.lang3.Validate;
 import software.amazon.kinesis.producer.protobuf.Messages;
 import software.amazon.kinesis.producer.protobuf.Messages.Flush;
 import software.amazon.kinesis.producer.protobuf.Messages.Message;
 import software.amazon.kinesis.producer.protobuf.Messages.MetricsRequest;
 import software.amazon.kinesis.producer.protobuf.Messages.MetricsResponse;
 import software.amazon.kinesis.producer.protobuf.Messages.PutRecord;
+import software.amazon.kinesis.producer.protobuf.Messages.StreamMetadata;
 import com.amazonaws.services.schemaregistry.common.Schema;
 import com.amazonaws.services.schemaregistry.serializers.GlueSchemaRegistrySerializer;
 import com.google.common.collect.ImmutableMap;
@@ -792,6 +794,46 @@ public class KinesisProducer implements IKinesisProducer {
             return 0;
         }
         return Instant.now().toEpochMilli() - oldestFuture.getTimestamp().toEpochMilli();
+    }
+
+    /**
+     * Registers a stream ID for the specified stream name.
+     * 
+     * <p>
+     * The stream ID will be included in all KDS API requests (PutRecords, ListShards)
+     * for this stream. This applies to records that have not yet been sent to KDS,
+     * including records currently buffered for aggregation.
+     * 
+     * <p>
+     * Best practice: Call this once at startup before adding records.
+     * Can be called multiple times to update the stream ID.
+     * 
+     * @param streamName the name of the stream
+     * @param streamId the stream ID to associate with this stream
+     * @throws IllegalArgumentException if streamName or streamId is null or empty
+     */
+    @Override
+    public void setStreamId(String streamName, String streamId) {
+        Validate.notBlank(streamName, "Stream name should not be empty");
+        Validate.notBlank(streamName, "Stream ID should not be empty");
+        
+        final String trimmedStreamName = streamName.trim();
+        final String trimmedStreamId = streamId.trim();
+        
+        log.debug("Setting StreamId for stream: {}, streamId: {}", trimmedStreamName, trimmedStreamId);
+        
+        // Send metadata to C++ daemon - it will manage the cache
+        final StreamMetadata metadata = StreamMetadata.newBuilder()
+                .setStreamName(trimmedStreamName)
+                .setStreamId(trimmedStreamId)
+                .build();
+        
+        final Message m = Message.newBuilder()
+                .setId(messageNumber.getAndIncrement())
+                .setStreamMetadata(metadata)
+                .build();
+        
+        addMessageToChild(m);
     }
 
     /**

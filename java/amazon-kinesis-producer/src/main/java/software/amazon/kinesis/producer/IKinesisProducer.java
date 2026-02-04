@@ -22,6 +22,10 @@ public interface IKinesisProducer {
         throw new UnsupportedOperationException("This method is not supported in this IKinesisProducer type");
     }
 
+    default void setStreamId(String streamName, String streamId) {
+        throw new UnsupportedOperationException("This method is not supported in this IKinesisProducer type");
+    }
+
     List<Metric> getMetrics(String metricName, int windowSeconds) throws InterruptedException, ExecutionException;
 
     List<Metric> getMetrics(String metricName) throws InterruptedException, ExecutionException;

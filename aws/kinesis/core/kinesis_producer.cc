@@ -205,7 +205,6 @@ void KinesisProducer::create_cw_client(const std::string& ca_path, const std::st
 }
 
 Pipeline* KinesisProducer::create_pipeline(const std::string& stream) {
-  LOG(info) << "Created pipeline for stream \"" << stream << "\"";
   return new Pipeline(
       region_,
       stream,
@@ -215,6 +214,9 @@ Pipeline* KinesisProducer::create_pipeline(const std::string& stream) {
       metrics_manager_,
       [this](auto& ur) {
         ipc_manager_->put(ur->to_put_record_result().SerializeAsString());
+      },
+      [this](const std::string& stream_name) {
+        return this->get_stream_id_from_cache(stream_name);
       });
 }
 
@@ -261,6 +263,8 @@ void KinesisProducer::on_ipc_message(std::string&& message) noexcept {
     on_metrics_request(m);
   } else if (m.has_set_credentials()) {
     on_set_credentials(m.set_credentials());
+  } else if (m.has_stream_metadata()) {
+    on_stream_metadata(m.stream_metadata());
   } else {
     LOG(error) << "Received unknown message type";
   }
@@ -281,6 +285,51 @@ void KinesisProducer::on_flush(const aws::kinesis::protobuf::Flush& flush_msg) {
   } else {
     pipelines_.foreach([](auto&, auto pipeline) { pipeline->flush(); });
   }
+}
+
+void KinesisProducer::on_stream_metadata(
+    const aws::kinesis::protobuf::StreamMetadata& metadata) {
+  try {
+    if (!metadata.has_stream_name() || metadata.stream_name().empty()) {
+      LOG(error) << "Received StreamMetadata with empty stream_name, ignoring";
+      return;
+    }
+    
+    if (!metadata.has_stream_id() || metadata.stream_id().empty()) {
+      LOG(error) << "Received StreamMetadata with empty stream_id for stream: \"" << metadata.stream_name() << "\", ignoring";
+      return;
+    }
+    
+    std::string stream_name = metadata.stream_name();
+    std::string stream_id = metadata.stream_id();
+    
+    // Store in cache (thread-safe)
+    size_t cache_size = 0;
+    {
+      aws::unique_lock<aws::shared_mutex> lock(stream_id_cache_mutex_);
+      stream_id_cache_[stream_name] = stream_id;
+      cache_size = stream_id_cache_.size();
+    }
+    
+    LOG(debug) << "Stored streamId in cache - stream: \"" << stream_name
+              << "\", streamId: \"" << stream_id << "\", streamId cache size: " << cache_size;
+
+    // Also update existing pipeline if it exists (this may create pipeline)
+    pipelines_[stream_name].set_stream_id(stream_id);
+  } catch (const std::exception& e) {
+    LOG(error) << "Error processing StreamMetadata: " << e.what();
+  }
+}
+
+std::string KinesisProducer::get_stream_id_from_cache(const std::string& stream_name) const {
+  aws::shared_lock<aws::shared_mutex> lock(stream_id_cache_mutex_);
+  auto it = stream_id_cache_.find(stream_name);
+  if (it != stream_id_cache_.end()) {
+    LOG(debug) << "Cache hit: streamId for stream \"" << stream_name << "\" = \"" << it->second << "\"";
+    return it->second;
+  }
+  LOG(debug) << "Cache miss: no streamId found for stream \"" << stream_name << "\"";
+  return "";
 }
 
 void KinesisProducer::on_metrics_request(
