@@ -18,7 +18,7 @@ BOOST_VERSION_UNDERSCORED="${BOOST_VERSION//\./_}" # convert from 1.76.0 to 1_76
 ZLIB_VERSION="1.3.1"
 PROTOBUF_VERSION="21.12"
 CURL_VERSION="8.16.0"
-AWS_SDK_CPP_VERSION="1.11.676"
+AWS_SDK_CPP_VERSION="1.11.741"
 
 LIB_OPENSSL="https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz"
 LIB_BOOST="https://archives.boost.io/release/${BOOST_VERSION}/source/boost_${BOOST_VERSION_UNDERSCORED}.tar.gz"
