@@ -740,8 +740,24 @@ public class KinesisProducer implements IKinesisProducer {
                 .setId(id)
                 .setPutRecord(pr.build())
                 .build();
-        addMessageToChild(m);
+        try {
+            addMessageToChild(m);
+        } catch (DaemonException e) {
+            removeFuture(id);
+            throw e;
+        }
         return f;
+    }
+
+    private void removeFuture(long id) {
+        SettableFutureTracker futureTracker = futures.remove(id);
+        if (futureTracker == null) {
+            return;
+        }
+        if (config.getEnableOldestFutureTracker()) {
+            oldestFutureTrackerHeap.remove(futureTracker);
+        }
+        futureTracker.cancelTimeoutTaskIfPresent();
     }
 
     @AllArgsConstructor
@@ -898,10 +914,16 @@ public class KinesisProducer implements IKinesisProducer {
         if (config.getEnableOldestFutureTracker() && !isHealthCheck) {
             oldestFutureTrackerHeap.add(futuresTracking);
         }
-        addMessageToChild(Message.newBuilder()
-                .setId(id)
-                .setMetricsRequest(mrb.build())
-                .build());
+
+        try {
+            addMessageToChild(Message.newBuilder()
+                    .setId(id)
+                    .setMetricsRequest(mrb.build())
+                    .build());
+        } catch (DaemonException e) {
+            removeFuture(id);
+            throw e;
+        }
 
         return f;
     }

@@ -64,6 +64,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
@@ -753,6 +754,27 @@ public class KinesisProducerTest {
         runHealthCheckCondition(producer, 80_000, 1);
 
         Mockito.verify(mockChild).destroy();
+    }
+
+    @Test
+    public void ensureFutureClearedWhenAddMessageThrows() throws Exception {
+
+        final KinesisProducerConfiguration cfg = buildBasicConfiguration();
+        final String streamName = "streamName";
+        final String partitionKey = "partitionKey";
+        final String stringToEncode = "Unit test sample data";
+        final KinesisProducer producerSpy = spy(new KinesisProducer(cfg));
+
+        doThrow(new DaemonException("Mocked exception.")).when(producerSpy).addMessageToChild(any());
+        ByteBuffer data = ByteBuffer.wrap(stringToEncode.getBytes("UTF-8"));
+
+        try {
+            producerSpy.addUserRecord(streamName, partitionKey, data);
+        } catch (DaemonException e) {
+            assertTrue(producerSpy.getFutures().isEmpty());
+            return;
+        }
+        fail("can't reach here");
     }
 
     private static void runHealthCheckCondition(
