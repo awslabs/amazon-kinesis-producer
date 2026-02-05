@@ -152,6 +152,67 @@ BOOST_AUTO_TEST_CASE(AggregationDisabled) {
   }
 }
 
+// When aggregation is disabled and shard_map is available, Aggregator should
+// preserve predicted_shard on the UserRecord so the Limiter can apply per-shard
+// rate limiting, and emit an unaggregated KinesisRecord containing that UR.
+BOOST_AUTO_TEST_CASE(AggregationDisabled_PreservesPredictedShard) {
+  auto config = std::make_shared<aws::kinesis::core::Configuration>();
+  config->aggregation_enabled(false);
+  auto aggregator = make_aggregator(false, [](auto){}, config);
+
+  for (uint64_t shard_id = 1; shard_id <= 3; ++shard_id) {
+    auto ur =
+        aws::kinesis::test::make_user_record(
+            "pk",
+            std::to_string(::rand()),
+            get_hash_key(shard_id),
+            10000);
+
+    auto kr = aggregator->put(ur);
+    BOOST_REQUIRE(kr);
+
+    // Unaggregated content check still holds.
+    aws::kinesis::test::verify_unaggregated(ur, *kr);
+
+    // Predicted shard must be set and match expected shard.
+    BOOST_REQUIRE(ur->predicted_shard());
+    BOOST_CHECK_EQUAL(*ur->predicted_shard(), shard_id);
+
+    // The KinesisRecord contains the same UR; prediction should be present.
+    BOOST_REQUIRE_EQUAL(kr->size(), 1);
+    BOOST_REQUIRE(kr->items().front()->predicted_shard());
+    BOOST_CHECK_EQUAL(*kr->items().front()->predicted_shard(), shard_id);
+  }
+}
+
+// When aggregation is disabled but shard_map cannot provide a shard id,
+// Aggregator should clear predicted_shard (to avoid stale state) and still emit
+// an unaggregated KinesisRecord.
+BOOST_AUTO_TEST_CASE(AggregationDisabled_UnknownShard_ClearsPrediction) {
+  auto config = std::make_shared<aws::kinesis::core::Configuration>();
+  config->aggregation_enabled(false);
+  // shard_map_down=true simulates inability to compute shard_id
+  auto aggregator = make_aggregator(true, [](auto){}, config);
+
+  auto ur =
+      aws::kinesis::test::make_user_record(
+          "pk",
+          std::to_string(::rand()),
+          std::to_string(::rand()),
+          10000);
+
+  auto kr = aggregator->put(ur);
+  BOOST_REQUIRE(kr);
+
+  // Should be unaggregated
+  aws::kinesis::test::verify_unaggregated(ur, *kr);
+
+  // Prediction should be cleared since shard is unknown
+  BOOST_CHECK(!ur->predicted_shard());
+  BOOST_REQUIRE_EQUAL(kr->size(), 1);
+  BOOST_CHECK(!kr->items().front()->predicted_shard());
+}
+
 BOOST_AUTO_TEST_CASE(Concurrency) {
 
   std::atomic<size_t> count(0);
