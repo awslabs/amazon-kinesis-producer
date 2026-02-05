@@ -3,6 +3,19 @@
 /third_party
 /java/amazon-kinesis-producer/src/main/resources/amazon-kinesis-producer-native-binaries/**/*
 
+# CMake build files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Build output
+kinesis_producer
+test_driver
+tests
+aws-sdk-cpp/
+aws-sdk-cpp-build/
+
 # VS Code
 .vscode/
 
