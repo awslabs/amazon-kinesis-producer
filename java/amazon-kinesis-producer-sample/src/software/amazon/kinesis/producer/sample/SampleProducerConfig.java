@@ -21,7 +21,7 @@ public class SampleProducerConfig {
     /**
      * Change these to try larger or smaller records.
      */
-    private static final int DATA_SIZE_DEFAULT = 1048576 + 128;
+    private static final int DATA_SIZE_DEFAULT = 128;
 
     /**
      * Put records for this number of seconds before exiting.
@@ -287,7 +287,7 @@ public class SampleProducerConfig {
         // environment variables to the executable, you can either use a wrapper
         // shell script, or set them for the Java process, which will then pass
         // them on to the child process.
-        config.setNativeExecutable("../../kinesis_producer");
+        // config.setNativeExecutable("my_directory/kinesis_producer");
 
         // If you end up using the default configuration (a Configuration instance
         // without any calls to set*), you can just leave the config argument
