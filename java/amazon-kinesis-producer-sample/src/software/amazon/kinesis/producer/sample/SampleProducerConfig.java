@@ -21,7 +21,7 @@ public class SampleProducerConfig {
     /**
      * Change these to try larger or smaller records.
      */
-    private static final int DATA_SIZE_DEFAULT = 128;
+    private static final int DATA_SIZE_DEFAULT = 1048576 + 128;
 
     /**
      * Put records for this number of seconds before exiting.
@@ -78,6 +78,8 @@ public class SampleProducerConfig {
     private long aggregationMaxCount;
     @Min(value = 2, message = "KPL Sample aggregationMaxSize should not be less than 2")
     private long aggregationMaxSize;
+    @Positive(message = "KPL Sample maxUserRecordSize should not be less than 1")
+    private long maxUserRecordSize;
     @Min(value = 0, message = "KPL Sample requestTimeoutInMillis should not be less than 0")
     private long requestTimeoutInMillis;
 
@@ -113,6 +115,7 @@ public class SampleProducerConfig {
      * 11. The aggregationEnabled to configure the KPL with, true is the default.
      * 12. The aggregationMaxCount to configure the KPL with, 4294967295 is the default.
      * 13. The aggregationMaxSize to configure the KPL with, 51200 is the default.
+     * 14. The maxUserRecordSize to configure the KPL with, 1048576 is the default.
      */
     public SampleProducerConfig(String[] args) {
         int argIndex = 0;
@@ -129,6 +132,7 @@ public class SampleProducerConfig {
         aggregationEnabled = getBooleanArgIfPresent(args, argIndex++, "true");
         aggregationMaxCount = getLongArgIfPresent(args, argIndex++, "4294967295");
         aggregationMaxSize = getLongArgIfPresent(args, argIndex++, "51200");
+        maxUserRecordSize = getLongArgIfPresent(args, argIndex++, "1048576");
         // Value of 0 for requestTimeoutInMillis means its disabled and this is disabled by default
         requestTimeoutInMillis = getLongArgIfPresent(args, argIndex++, "0");
 
@@ -204,6 +208,10 @@ public class SampleProducerConfig {
         return aggregationMaxSize;
     }
 
+    public long getMaxUserRecordSize() {
+        return maxUserRecordSize;
+    }
+
     public long getRequestTimeoutInMillis() {
         return requestTimeoutInMillis;
     }
@@ -270,12 +278,16 @@ public class SampleProducerConfig {
         config.setAggregationMaxSize(this.getAggregationMaxSize());
         config.setUserRecordTimeoutInMillis(this.getRequestTimeoutInMillis());
 
+        // Configures max user record size limit for the KPL. If an unaggregated 
+        // record is larger than this, KPL will throw IllegalArgumentException.
+        config.setMaxUserRecordSize(this.getMaxUserRecordSize());
+
         // If you have built the native binary yourself, you can point the Java
         // wrapper to it with the NativeExecutable option. If you want to pass
         // environment variables to the executable, you can either use a wrapper
         // shell script, or set them for the Java process, which will then pass
         // them on to the child process.
-        // config.setNativeExecutable("my_directory/kinesis_producer");
+        config.setNativeExecutable("../../kinesis_producer");
 
         // If you end up using the default configuration (a Configuration instance
         // without any calls to set*), you can just leave the config argument

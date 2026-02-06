@@ -364,6 +364,7 @@ public class KinesisProducerConfiguration {
     private long kinesisPort = 443L;
     private String logLevel = "info";
     private long maxConnections = 24L;
+    private long maxUserRecordSize = 1048576L;
     private String metricsGranularity = "shard";
     private String metricsLevel = "detailed";
     private String metricsNamespace = "KinesisProducerLibrary";
@@ -617,6 +618,22 @@ public class KinesisProducerConfiguration {
      */
     public long getMaxConnections() {
       return maxConnections;
+    }
+
+    /**
+     * Maximum number of bytes to pack an unaggregated Kinesis record with.
+     * 
+     * <p>
+     * Recommended to set to stream's max record size limit.
+     *
+     * <p>
+     * 
+     * <p><b>Default</b>: 1048576
+     * <p><b>Minimum</b>: 64
+     * <p><b>Maximum (inclusive)</b>: 10485760
+     */
+    public long getMaxUserRecordSize() {
+      return maxUserRecordSize;
     }
 
     /**
@@ -1303,6 +1320,26 @@ public class KinesisProducerConfiguration {
     }
 
     /**
+     * Maximum number of bytes to pack an unaggregated Kinesis record with.
+     *
+     * <p>
+     * Recommended to set to stream's max record size limit.
+     *
+     * <p>
+     *
+     * <p><b>Default</b>: 1048576
+     * <p><b>Minimum</b>: 64
+     * <p><b>Maximum (inclusive)</b>: 10485760
+     */
+    public KinesisProducerConfiguration setMaxUserRecordSize(long val) {
+        if (val < 64L || val > 10485760L) {
+            throw new IllegalArgumentException("maxUserRecordSize must be between 64 and 10485760, got " + val);
+        }
+        maxUserRecordSize = val;
+        return this;
+    }
+
+    /**
      * Controls the granularity of metrics that are uploaded to CloudWatch. Greater granularity
      * produces more metrics.
      * 
@@ -1832,6 +1869,7 @@ public class KinesisProducerConfiguration {
                 .setKinesisPort(kinesisPort)
                 .setLogLevel(logLevel)
                 .setMaxConnections(maxConnections)
+                .setMaxUserRecordSize(maxUserRecordSize)
                 .setMetricsGranularity(metricsGranularity)
                 .setMetricsLevel(metricsLevel)
                 .setMetricsNamespace(metricsNamespace)
