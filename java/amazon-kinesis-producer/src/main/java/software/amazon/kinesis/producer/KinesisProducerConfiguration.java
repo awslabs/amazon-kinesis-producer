@@ -621,7 +621,7 @@ public class KinesisProducerConfiguration {
     }
 
     /**
-     * Maximum number of bytes to pack an unaggregated Kinesis record with.
+     * Maximum number of bytes to pack an unaggregated user record with.
      * 
      * <p>
      * Recommended to set to stream's max record size limit.
@@ -1320,7 +1320,7 @@ public class KinesisProducerConfiguration {
     }
 
     /**
-     * Maximum number of bytes to pack an unaggregated Kinesis record with.
+     * Maximum number of bytes to pack an unaggregated user record with.
      *
      * <p>
      * Recommended to set to stream's max record size limit.
@@ -1869,7 +1869,6 @@ public class KinesisProducerConfiguration {
                 .setKinesisPort(kinesisPort)
                 .setLogLevel(logLevel)
                 .setMaxConnections(maxConnections)
-                .setMaxUserRecordSize(maxUserRecordSize)
                 .setMetricsGranularity(metricsGranularity)
                 .setMetricsLevel(metricsLevel)
                 .setMetricsNamespace(metricsNamespace)
