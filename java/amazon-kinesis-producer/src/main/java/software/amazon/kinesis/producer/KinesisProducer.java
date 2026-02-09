@@ -705,9 +705,9 @@ public class KinesisProducer implements IKinesisProducer {
             data = ByteBuffer.wrap(encodedBytes);
         }
 
-        if (data != null && data.remaining() > 1024 * 1024 * 10) {
+        if (data != null && data.remaining() > config.getMaxUserRecordSize()) {
             throw new IllegalArgumentException(
-                    "Data must be less than or equal to 10MB in size, got " + data.remaining() + " bytes");
+                    "Data must be less than or equal to " + config.getMaxUserRecordSize() + " bytes in size, got " + data.remaining() + " bytes");
         }
 
         long id = messageNumber.getAndIncrement();
