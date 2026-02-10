@@ -1,5 +1,14 @@
 ## Changelog
 
+## 1.0.7
+* [#674](https://github.com/awslabs/amazon-kinesis-producer/pull/674) Add C++ daemon health check
+* [#681](https://github.com/awslabs/amazon-kinesis-producer/pull/681) Use activity monitoring for health check
+* [#683](https://github.com/awslabs/amazon-kinesis-producer/pull/683) Support setting returnUserRecordOnFailure to false for sample app
+* [#685](https://github.com/awslabs/amazon-kinesis-producer/pull/685) Add support for Stream ID (reserved for future use) to KDS API calls
+* [#686](https://github.com/awslabs/amazon-kinesis-producer/pull/686) Upgrade aws-sdk-cpp
+* [#687](https://github.com/awslabs/amazon-kinesis-producer/pull/687) Clean up future if daemonException is thrown
+* [#688](https://github.com/awslabs/amazon-kinesis-producer/pull/688) Add maxUserRecordSize config for client-side record size check
+
 ## 1.0.6
 * [#677](https://github.com/awslabs/amazon-kinesis-producer/pull/677) Adds support for record sizes up to 10MiB
 * [#676](https://github.com/awslabs/amazon-kinesis-producer/pull/676) Upgrade openssl, curl, aws-sdk-cpp
