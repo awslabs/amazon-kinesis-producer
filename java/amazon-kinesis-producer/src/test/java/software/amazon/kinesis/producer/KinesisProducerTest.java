@@ -793,4 +793,31 @@ public class KinesisProducerTest {
         checkSilenceMethod.invoke(producer);
     }
 
+    private void verifyUnhealthyDaemonMetricEmission(double timeoutMultiplier, boolean shouldEmit) throws Exception {
+        KinesisProducerConfiguration cfg = buildBasicConfiguration();
+        Daemon mockChild = Mockito.mock(Daemon.class);
+        KinesisProducer producer = getProducer(cfg, mockChild, null, null);
+        KinesisProducer producerSpy = spy(producer);
+        doNothing().when(producerSpy).emitUnhealthyDaemonMetric();
+
+        long timeoutMs = new KinesisProducerConfiguration().getDaemonHealthCheckTimeoutMs();
+        runHealthCheckCondition(producerSpy, (long) (timeoutMs * timeoutMultiplier), 0);
+
+        if (shouldEmit) {
+            Mockito.verify(producerSpy).emitUnhealthyDaemonMetric();
+        } else {
+            Mockito.verify(producerSpy, Mockito.never()).emitUnhealthyDaemonMetric();
+        }
+    }
+
+    @Test
+    public void checkSilenceAndRestart_SilentDaemon_EmitsUnhealthyDaemonMetric() throws Exception {
+        verifyUnhealthyDaemonMetricEmission(1.5, true);
+    }
+
+    @Test
+    public void checkSilenceAndRestart_RecentMessage_DoesNotEmitUnhealthyDaemonMetric() throws Exception {
+        verifyUnhealthyDaemonMetricEmission(0.1, false);
+    }
+
 }

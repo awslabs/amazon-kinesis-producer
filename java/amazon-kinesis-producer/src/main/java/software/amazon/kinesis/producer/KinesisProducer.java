@@ -39,10 +39,19 @@ import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
+import software.amazon.awssdk.services.cloudwatch.CloudWatchClientBuilder;
+import software.amazon.awssdk.services.cloudwatch.model.MetricDatum;
+import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest;
+import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -178,6 +187,7 @@ public class KinesisProducer implements IKinesisProducer {
 
     private final AtomicInteger consecutiveRestartAttempts = new AtomicInteger(0);
     private volatile long lastMessageReceivedMs = System.currentTimeMillis();
+    private volatile CloudWatchClient cloudWatchClient;
 
     private class MessageHandler implements Daemon.MessageHandler {
         @Override
@@ -354,6 +364,7 @@ public class KinesisProducer implements IKinesisProducer {
         // We set the policy for the executor service to remove queued tasks if they are cancelled to relieve
         // unwanted cpu load.
         futureTimeoutExecutor.setRemoveOnCancelPolicy(true);
+        initCloudWatchClient();
         startDaemonHealthCheck();
     }
     
@@ -411,6 +422,74 @@ public class KinesisProducer implements IKinesisProducer {
         }
     }
 
+    /**
+     * Initializes the CloudWatch client for emitting metrics from the Java side.
+     * Uses the metrics credentials provider if configured, otherwise falls back to the main credentials provider.
+     */
+    private void initCloudWatchClient() {
+        if (config == null) {
+            return;
+        }
+
+        try {
+            AwsCredentialsProvider credentialsProvider = config.getMetricsCredentialsProvider();
+            if (credentialsProvider == null) {
+                credentialsProvider = config.getCredentialsProvider();
+            }
+
+            CloudWatchClientBuilder builder = CloudWatchClient.builder()
+                    .credentialsProvider(credentialsProvider);
+
+            // Set region
+            String region = config.getRegion();
+            if (!StringUtils.isEmpty(region)) {
+                builder.region(Region.of(region));
+            }
+
+            // Set custom endpoint if configured
+            String endpoint = config.getCloudwatchEndpoint();
+            if (!StringUtils.isEmpty(endpoint)) {
+                long port = config.getCloudwatchPort();
+                String protocol = config.isVerifyCertificate() ? "https" : "http";
+                builder.endpointOverride(URI.create(protocol + "://" + endpoint + ":" + port));
+            }
+
+            this.cloudWatchClient = builder.build();
+        } catch (Exception e) {
+            log.warn("Failed to initialize CloudWatch client for metrics emission", e);
+        }
+    }
+
+    /**
+     * Emits the UnhealthyDaemon metric to CloudWatch when a health check detects an unhealthy daemon
+     * and triggers a restart. This metric is emitted to the same namespace as the C++ daemon metrics.
+     */
+    @VisibleForTesting
+    void emitUnhealthyDaemonMetric() {
+        if (cloudWatchClient == null) {
+            log.debug("CloudWatch client not initialized, skipping UnhealthyDaemon metric emission");
+            return;
+        }
+
+        try {
+            MetricDatum datum = MetricDatum.builder()
+                    .metricName("UnhealthyDaemon")
+                    .value(1.0)
+                    .unit(StandardUnit.COUNT)
+                    .timestamp(Instant.now())
+                    .build();
+
+            PutMetricDataRequest request = PutMetricDataRequest.builder()
+                    .namespace(config.getMetricsNamespace())
+                    .metricData(datum)
+                    .build();
+
+            cloudWatchClient.putMetricData(request);
+        } catch (Exception e) {
+            log.warn("Failed to emit UnhealthyDaemon metric to CloudWatch", e);
+        }
+    }
+
     private void sendPing() {
         try {
             log.debug("Sending daemon ping");
@@ -451,6 +530,7 @@ public class KinesisProducer implements IKinesisProducer {
         log.error("Daemon silent for {}ms and health check timeout is {}ms - restarting daemon (attempt {})",
                 timeSinceLastMessageMs, healthCheckTimeoutMs, consecutiveRestartAttempts.get() + 1);
         consecutiveRestartAttempts.incrementAndGet();
+        emitUnhealthyDaemonMetric();
         try {
             child.destroy();
         } catch (Exception e) {
@@ -1070,6 +1150,13 @@ public class KinesisProducer implements IKinesisProducer {
         this.callbackCompletionExecutor.shutdownNow();
         if (config.getEnableDaemonHealthCheck()) {
             healthCheckExecutor.shutdownNow();
+        }
+        if (cloudWatchClient != null) {
+            try {
+                cloudWatchClient.close();
+            } catch (Exception e) {
+                log.debug("Error closing CloudWatch client", e);
+            }
         }
         child.destroy();
     }
