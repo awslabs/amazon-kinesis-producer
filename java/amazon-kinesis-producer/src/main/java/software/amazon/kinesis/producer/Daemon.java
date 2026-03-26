@@ -208,8 +208,12 @@ public class Daemon {
         return workingDir;
     }
     
-    public int getQueueSize() {
+    public int getOutgoingQueueSize() {
         return outgoingMessages.size();
+    }
+
+    public int getIncomingQueueSize() {
+        return incomingMessages.size();
     }
     
     /**
