@@ -56,23 +56,30 @@ class Aggregator : boost::noncopyable {
         reducers_([this](auto) { return this->make_reducer(); }) {}
 
   std::shared_ptr<KinesisRecord> put(const std::shared_ptr<UserRecord>& ur) {
-    // If shard map is not available, or aggregation is disabled, just send the
+    // If shard map is not available, just send the
     // record by itself, and do not attempt to aggrgegate.
     boost::optional<uint64_t> shard_id;
-    if (config_->aggregation_enabled() && shard_map_) {
+    if (shard_map_) {
       shard_id = shard_map_->shard_id(ur->hash_key());
     }
     if (!shard_id) {
-      auto kr = std::make_shared<KinesisRecord>();
       // during retries, the records can have the predicted shard set from the last run. Clearing out the state here
       // because retrier expects these records to not have predicted shard so they don't get retried due to this.
       ur->reset_predicted_shard();
-      kr->add(ur);
-      return kr;
-    } else {
-      ur->predicted_shard(*shard_id);
-      return reducers_[*shard_id].add(ur);
+      return make_single_record(ur);
     }
+
+    // We have a shard prediction.
+    ur->predicted_shard(*shard_id);
+
+    // If aggregation is disabled, send an individual KinesisRecord but KEEP the
+    // predicted_shard so the Limiter can enforce per-shard rate limiting.
+    if (!config_->aggregation_enabled()) {
+      return make_single_record(ur);
+    }
+
+    // Otherwise, aggregate per-shard.
+    return reducers_[*shard_id].add(ur);
   }
 
   // TODO unit test for this
@@ -90,6 +97,13 @@ class Aggregator : boost::noncopyable {
         config_->aggregation_max_count(),
         flush_stats_
     );
+  }
+
+  // Helper to create a single-item KinesisRecord. 
+  std::shared_ptr<KinesisRecord> make_single_record(const std::shared_ptr<UserRecord>& ur) {
+    auto kr = std::make_shared<KinesisRecord>();
+    kr->add(ur);
+    return kr;
   }
 
   std::shared_ptr<aws::utils::Executor> executor_;
