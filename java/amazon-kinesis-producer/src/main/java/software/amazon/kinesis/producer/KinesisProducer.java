@@ -499,12 +499,37 @@ public class KinesisProducer implements IKinesisProducer {
         }
     }
 
+    /**
+     * Logs the current status of internal queues and pending futures to help diagnose
+     * stuck threads. This information is useful for debugging when the daemon becomes
+     * unresponsive.
+     * 
+     * Queue interpretation:
+     * - High outgoingQueueSize: Send loop or native daemon may be stuck
+     * - High incomingQueueSize: Message handler/callback thread may be stuck
+     * - High outstandingRecords with old age: Native daemon not responding or slow
+     */
+    private void logQueueStatus() {
+        try {
+            int outgoingQueueSize = child.getOutgoingQueueSize();
+            int incomingQueueSize = child.getIncomingQueueSize();
+            int outstandingRecords = futures.size();
+            long oldestRecordAgeMs = getOldestRecordTimeInMillis();
+
+            log.debug("KPL queue status - outgoingQueue: {}, incomingQueue: {}, outstandingRecords: {}, oldestRecordAgeMs: {}",
+                    outgoingQueueSize, incomingQueueSize, outstandingRecords, oldestRecordAgeMs);
+        } catch (Exception e) {
+            log.warn("Failed to log queue status", e);
+        }
+    }
+
     private void performHealthCheck() {
         if (destroyed) {
             return;
         }
 
         sendPing();
+        logQueueStatus();
 
         long timeSinceLastMessageMs = System.currentTimeMillis() - lastMessageReceivedMs;
 
