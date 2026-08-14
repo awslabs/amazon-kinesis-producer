@@ -444,7 +444,16 @@ public class Daemon {
         args.add("-l");
         args.add(config.getLogLevel());
 
-        log.debug("Starting Native Process: {}", StringUtils.join(args, " "));
+        List<String> sanitizedArgs = new ArrayList<>();
+        for (int i = 0; i < args.size(); i++) {
+            if ("-k".equals(args.get(i)) || "-w".equals(args.get(i))) {
+                i++; // skip the value following the key
+            } else {
+                sanitizedArgs.add(args.get(i));
+            }
+        }
+
+        log.debug("Starting Native Process: {}", StringUtils.join(sanitizedArgs, " "));
 
         final ProcessBuilder pb = new ProcessBuilder(args);
         for (Entry<String, String> e : environmentVariables.entrySet()) {
