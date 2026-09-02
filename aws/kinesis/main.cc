@@ -47,8 +47,6 @@ struct {
   std::string input_pipe;
   std::string output_pipe;
   std::string configuration;
-  std::string kinesis_credentials;
-  std::string cloudwatch_credentials;
   std::string ca_path;
   std::string ca_file;
   int enable_stack_trace = 0;
@@ -108,14 +106,12 @@ void option_description(const std::string& short_option, const std::string& long
 }
 
 void usage(const std::string program_name, const std::string& message) {
-    std::cerr << "Usage: " << program_name << "-i <input pipe> -o <output pipe> -c <configuration> -k <kinesis credentials>" << std::endl;
+    std::cerr << "Usage: " << program_name << "-i <input pipe> -o <output pipe> -c <configuration>" << std::endl;
     std::cerr << "\tError: " << message << std::endl;
     std::cerr << "Options:" << std::endl;
     option_description("-i", "--input-pipe", "The pipe used to accept incoming commands, and data objects");
     option_description("-o", "--output-pipe", "The pipe used to write the response back to the owning process");
     option_description("-c", "--configuration", "The initial configuration to start up the producer with", true);
-    option_description("-k", "--kinesis-credentials", "The credentials used to communicate with Amazon Kinesis", true);
-    option_description("-w", "--cloudwatch-credentials", "The credentials used to communicate with Amazon Cloudwatch.  If this isn't present the Kinesis credentials are used", true);
     option_description("-l", "--log-level", "Controls the level of detail emitted from the producer.  Valid: ['trace', 'debug', 'info', 'warn', 'error', 'fatal']");
     option_description("-t", "--enable-stack-trace", "Will dump a stack trace and abort if certain memory errors are triggered");
     option_description("-a", "--ca-path", "Location of the CA root certificate that the producer will use for TLS connections.");
@@ -137,10 +133,7 @@ void process_options(int argc, char* const* argv) {
         options.configuration = std::string(optarg);
         break;
     case 'k':
-        options.kinesis_credentials = std::string(optarg);
-        break;
     case 'w':
-        options.cloudwatch_credentials = std::string(optarg);
         break;
     case 'l':
         handle_log_level(optarg);
@@ -163,9 +156,6 @@ void process_options(int argc, char* const* argv) {
   }
   if (options.configuration.empty()) {
       usage(argv[0], "-c, or --configuration is required.");
-  }
-  if (options.kinesis_credentials.empty()) {
-      usage(argv[0], "-k, or --kinesis-credentials is required.");
   }
 }
 
@@ -227,30 +217,7 @@ std::shared_ptr<aws::kinesis::core::Configuration> get_config(std::string hex) {
   return config;
 }
 
-using CredsCmd = aws::kinesis::protobuf::SetCredentials;
 using CredsProvider = aws::auth::MutableStaticCredentialsProvider;
-
-aws::kinesis::protobuf::SetCredentials create_creds_cmd(const std::string& serialized_data) {
-  aws::kinesis::protobuf::Message msg;
-  try {
-    msg = deserialize_msg(serialized_data);
-  } catch (const std::exception& e) {
-    LOG(error) << "Could not deserialize credentials: " << e.what();
-    throw 1;
-  }
-  if (!msg.has_set_credentials()) {
-    LOG(error) << "Message is not a SetCredentials message";
-    throw 1;
-  }
-  return msg.set_credentials();
-}
-
-std::shared_ptr<aws::auth::MutableStaticCredentialsProvider> create_creds(const aws::kinesis::protobuf::SetCredentials& sc) {
-    return std::make_shared<CredsProvider>(sc.credentials().akid(),
-                                           sc.credentials().secret_key(),
-                                           sc.credentials().has_token() ?
-                                               sc.credentials().token() : "");
-}
 
 std::string get_region(const aws::kinesis::core::Configuration& config) {
   if (!config.region().empty()) {
@@ -276,20 +243,8 @@ std::pair<
     std::shared_ptr<aws::auth::MutableStaticCredentialsProvider>>
 get_creds_providers() {
 
-  auto kinesis_creds_cmd = create_creds_cmd(options.kinesis_credentials);
-  auto kinesis_creds_provider = create_creds(kinesis_creds_cmd);
-
-  std::shared_ptr<CredsProvider> cw_creds_provider;
-  if (options.cloudwatch_credentials.empty()) {
-      cw_creds_provider = create_creds(kinesis_creds_cmd);
-  } else {
-      cw_creds_provider = create_creds(create_creds_cmd(options.cloudwatch_credentials));
-  }
-
-  if (!kinesis_creds_provider || !cw_creds_provider) {
-    LOG(error) << "Credentials are required at start up";
-    throw 1;
-  }
+  auto kinesis_creds_provider = std::make_shared<CredsProvider>("", "", "");
+  auto cw_creds_provider = std::make_shared<CredsProvider>("", "", "");
 
   return std::make_pair(kinesis_creds_provider, cw_creds_provider);
 }

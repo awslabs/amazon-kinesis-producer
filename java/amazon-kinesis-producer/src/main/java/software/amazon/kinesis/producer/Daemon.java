@@ -285,6 +285,12 @@ public class Daemon {
      * from the child process.
      */
     private void startLoops() {
+        try {
+            updateCredentials();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.warn("Interrupted while sending initial credentials; the refresh loop will retry");
+        }
         executor.execute(new Runnable() {
             @Override
             public void run() {
@@ -431,16 +437,9 @@ public class Daemon {
     }
     
     private void startChildProcess() throws IOException, InterruptedException {
-        List<String> args = new ArrayList<>(Arrays.asList(pathToExecutable, "-o", outPipe.getAbsolutePath(), "-i",
-                inPipe.getAbsolutePath(), "-c", protobufToHex(config.toProtobufMessage()), "-k",
-                protobufToHex(makeSetCredentialsMessage(config.getCredentialsProvider(), false)), "-t"));
-
-        AwsCredentialsProvider metricsCreds = config.getMetricsCredentialsProvider();
-        if (metricsCreds == null) {
-            metricsCreds = config.getCredentialsProvider();
-        }
-        args.add("-w");
-        args.add(protobufToHex(makeSetCredentialsMessage(metricsCreds, true)));
+        List<String> args = new ArrayList<>(Arrays.asList(pathToExecutable, "-o",
+                outPipe.getAbsolutePath(),
+                "-i", inPipe.getAbsolutePath(), "-c", protobufToHex(config.toProtobufMessage()), "-t"));
         args.add("-l");
         args.add(config.getLogLevel());
 
