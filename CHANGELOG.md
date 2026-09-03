@@ -1,5 +1,14 @@
 ## Changelog
 
+## 1.0.8
+* [#691](https://github.com/awslabs/amazon-kinesis-producer/pull/691) Add UnhealthyDaemon metric emission to CloudWatch when daemon health check triggers restart
+* [#692](https://github.com/awslabs/amazon-kinesis-producer/pull/692) Add queue status logging to improve KPL observability
+* [#697](https://github.com/awslabs/amazon-kinesis-producer/pull/697) Bump com.fasterxml.jackson.core:jackson-databind
+* [#698](https://github.com/awslabs/amazon-kinesis-producer/pull/698) Bump com.fasterxml.jackson.core:jackson-core
+* [#699](https://github.com/awslabs/amazon-kinesis-producer/pull/699) Update debug log for starting native process
+* [#701](https://github.com/awslabs/amazon-kinesis-producer/pull/701) Send credentials over IPC rather than the command line
+* [#702](https://github.com/awslabs/amazon-kinesis-producer/pull/702) Upgrade OpenSSL to 3.5.7 and libcurl to 8.22.0
+
 ## 1.0.7
 * [#674](https://github.com/awslabs/amazon-kinesis-producer/pull/674) Add C++ daemon health check
 * [#681](https://github.com/awslabs/amazon-kinesis-producer/pull/681) Use activity monitoring for health check
