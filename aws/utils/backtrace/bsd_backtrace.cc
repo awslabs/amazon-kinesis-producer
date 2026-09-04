@@ -15,10 +15,10 @@
 
 #include "backtrace.h"
 #include <aws/utils/writer_methods.h>
-#include <execinfo.h>
 #include <unistd.h>
 
 #ifdef BSD_BACKTRACE
+#include <execinfo.h>
 namespace aws {
 namespace utils {
 namespace backtrace {
