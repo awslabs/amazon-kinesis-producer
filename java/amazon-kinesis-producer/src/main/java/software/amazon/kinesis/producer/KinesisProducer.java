@@ -52,10 +52,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.URI;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -75,6 +77,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 /**
  * An interface to the native KPL daemon. This class handles the creation,
  * destruction and use of the child process.
@@ -1334,7 +1337,18 @@ public class KinesisProducer implements IKinesisProducer {
                     String extension = os.equals("windows") ? ".exe" : "";
                     String executableName = "kinesis_producer" + extension;
 
-                    InputStream is = this.getClass().getClassLoader().getResourceAsStream(root + "/" + os + "/" + executableName);
+                    String resource = root + "/" + os + "/" + executableName;
+                    URL binary = BundledResourceResolver.resolve(KinesisProducer.class,
+                            BundledResourceResolver.originOf(KinesisProducer.class), resource);
+                    List<URL> all = Collections.list(KinesisProducer.class.getClassLoader().getResources(resource));
+                    if (all.size() > 1) {
+                        log.warn("Another KPL artifact is present on the classpath and will be ignored: {}. "
+                                        + "Remove it (for example AmazonKinesisProducerLibraryExternalRelease or "
+                                        + "com.amazonaws:amazon-kinesis-producer).",
+                                all.stream().filter(u -> !u.equals(binary)).collect(Collectors.toList()));
+                    }
+                    log.info("Loading native binary from {}", binary);
+                    InputStream is = binary.openStream();
                     String resultFileFormat = "kinesis_producer_%s" + extension;
 
                     File extracted = HashedFileCopier.copyFileFrom(is, tmpDirFile, resultFileFormat);
