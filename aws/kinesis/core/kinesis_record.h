@@ -58,6 +58,14 @@ class KinesisRecord : public SerializableContainer<UserRecord> {
   std::string partition_key() const;
   std::string explicit_hash_key() const;
 
+  // True when this record belongs to a service-routed stream (AUTO or, while
+  // undiscovered, UNKNOWN). The Pipeline freezes this at routing time, sampling
+  // the stream's strategy exactly once, so request assembly never re-samples a
+  // strategy that may have flipped mid-flight. Service-routed records omit the
+  // ExplicitHashKey and omit an absent PartitionKey.
+  bool service_routed() const noexcept { return service_routed_; }
+  void set_service_routed(bool v) noexcept { service_routed_ = v; }
+
  protected:
   void after_add(const std::shared_ptr<UserRecord>& ur) override;
   void after_remove(const std::shared_ptr<UserRecord>& ur) override;
@@ -72,6 +80,7 @@ class KinesisRecord : public SerializableContainer<UserRecord> {
   size_t estimated_size_;
   size_t cached_accurate_size_;
   bool cached_accurate_size_valid_;
+  bool service_routed_ = false;
 };
 
 } //namespace core

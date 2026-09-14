@@ -187,4 +187,87 @@ BOOST_AUTO_TEST_CASE(HashKeyThroughputWithEHK) {
   throughput_test(true);
 }
 
+BOOST_AUTO_TEST_CASE(NullPartitionKey_HashKeyIsZero) {
+  aws::kinesis::protobuf::Message m;
+  m.set_id(kDefaultId);
+  auto put_record = m.mutable_put_record();
+  put_record->set_data(kDefaultData);
+  put_record->set_stream_name(kDefaultStream);
+
+  aws::kinesis::core::UserRecord ur(m);
+
+  BOOST_CHECK_EQUAL(ur.stream(), kDefaultStream);
+  BOOST_CHECK(ur.partition_key().empty());
+  BOOST_CHECK_EQUAL(ur.data(), kDefaultData);
+  BOOST_CHECK_EQUAL(ur.hash_key(), 0);
+}
+
+BOOST_AUTO_TEST_CASE(NullPartitionKey_WithExplicitHashKey) {
+  std::string explicit_hash_key = "987654321";
+  aws::kinesis::protobuf::Message m;
+  m.set_id(kDefaultId);
+  auto put_record = m.mutable_put_record();
+  put_record->set_data(kDefaultData);
+  put_record->set_stream_name(kDefaultStream);
+  put_record->set_explicit_hash_key(explicit_hash_key);
+
+  aws::kinesis::core::UserRecord ur(m);
+
+  BOOST_CHECK(ur.partition_key().empty());
+  BOOST_CHECK_EQUAL(uint128_to_decimal(ur.hash_key()), explicit_hash_key);
+}
+
+BOOST_AUTO_TEST_CASE(NullPartitionKey_ToPutRecordResult) {
+  aws::kinesis::protobuf::Message m;
+  m.set_id(kDefaultId);
+  auto put_record = m.mutable_put_record();
+  put_record->set_data(kDefaultData);
+  put_record->set_stream_name(kDefaultStream);
+
+  aws::kinesis::core::UserRecord ur(m);
+
+  aws::kinesis::core::Attempt a;
+  a.set_result("shard-0", "123456789");
+  ur.add_attempt(std::move(a));
+
+  aws::kinesis::protobuf::Message m2 = ur.to_put_record_result();
+  BOOST_CHECK(m2.has_put_record_result());
+  auto& prr = m2.put_record_result();
+  BOOST_CHECK_EQUAL(prr.success(), true);
+  BOOST_CHECK_EQUAL(prr.shard_id(), "shard-0");
+  BOOST_CHECK_EQUAL(prr.sequence_number(), "123456789");
+}
+
+BOOST_AUTO_TEST_CASE(NullPartitionKey_Throughput) {
+  size_t N = 250000;
+  std::vector<aws::kinesis::protobuf::Message> messages;
+  messages.reserve(N);
+  for (size_t i = 0; i < N; i++) {
+    aws::kinesis::protobuf::Message m;
+    m.set_id(i);
+    auto put_record = m.mutable_put_record();
+    put_record->set_data(std::string(100, 'x'));
+    put_record->set_stream_name("myStream");
+    messages.push_back(m);
+  }
+
+  std::vector<std::unique_ptr<aws::kinesis::core::UserRecord>> v;
+  v.reserve(N);
+
+  std::chrono::high_resolution_clock::time_point start =
+      std::chrono::high_resolution_clock::now();
+
+  for (size_t i = 0; i < N; i++) {
+    v.push_back(std::make_unique<aws::kinesis::core::UserRecord>(messages[i]));
+  }
+
+  std::chrono::high_resolution_clock::time_point end =
+      std::chrono::high_resolution_clock::now();
+  double seconds =
+      std::chrono::duration_cast<std::chrono::nanoseconds>(end - start)
+          .count() / 1e9;
+  double rate = (double) N / seconds;
+  LOG(info) << "Message conversion rate (no PK): " << rate << " messages/s";
+}
+
 BOOST_AUTO_TEST_SUITE_END()

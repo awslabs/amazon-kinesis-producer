@@ -115,6 +115,11 @@ public class KinesisProducer implements IKinesisProducer {
     private final AtomicLong totalFutureTimeouts = new AtomicLong(0);
     private final GlueSchemaRegistrySerializerInstance glueSchemaRegistrySerializerInstance = new GlueSchemaRegistrySerializerInstance();
     private final Map<Long, SettableFutureTracker> futures = new ConcurrentHashMap<>();
+    // Per-stream RecordDistributionStrategy as last reported by the native daemon
+    // (via StreamStrategyUpdate). Absence means "not yet known"; callers fall back
+    // to the configured default. Used only for the fast-path null-PK check; the
+    // daemon remains the authoritative gate.
+    private final Map<String, StreamStrategy> streamStrategies = new ConcurrentHashMap<>();
     private final PriorityBlockingQueue<SettableFutureTracker> oldestFutureTrackerHeap = new PriorityBlockingQueue<>
             (10, new SettableFutureTrackerComparator());
     private final ScheduledThreadPoolExecutor futureTimeoutExecutor = new ScheduledThreadPoolExecutor(1,
@@ -135,6 +140,36 @@ public class KinesisProducer implements IKinesisProducer {
         public int compare(SettableFutureTracker x, SettableFutureTracker y)
         {
             return Long.compare(x.getTimestamp().toEpochMilli(), y.getTimestamp().toEpochMilli());
+        }
+    }
+
+    /**
+     * A stream's record distribution strategy as known to the producer. UNKNOWN means it has
+     * not been determined yet (no configured default and no StreamStrategyUpdate received).
+     */
+    enum StreamStrategy {
+        UNKNOWN,
+        AUTO,
+        USER_PARTITION_KEY
+    }
+
+    /**
+     * The strategy the producer should assume for a stream right now: the value last reported by
+     * the daemon if present, otherwise the configured default (which may itself be UNKNOWN).
+     */
+    private StreamStrategy effectiveStrategy(String stream) {
+        StreamStrategy known = streamStrategies.get(stream);
+        if (known != null) {
+            return known;
+        }
+        switch (config.getRecordDistributionStrategyDefault()) {
+            case AUTO:
+                return StreamStrategy.AUTO;
+            case USER_PARTITION_KEY:
+                return StreamStrategy.USER_PARTITION_KEY;
+            case UNSET:
+            default:
+                return StreamStrategy.UNKNOWN;
         }
     }
 
@@ -203,6 +238,8 @@ public class KinesisProducer implements IKinesisProducer {
                         onPutRecordResult(m);
                     } else if (m.hasMetricsResponse()) {
                         onMetricsResponse(m);
+                    } else if (m.hasStreamStrategyUpdate()) {
+                        onStreamStrategyUpdate(m.getStreamStrategyUpdate());
                     } else {
                         // clear the future here as well since the native core has exhausted its retries.
                         SettableFutureTracker futureTracker = getFuture(m);
@@ -289,7 +326,25 @@ public class KinesisProducer implements IKinesisProducer {
             
             f.set(userMetrics);
         }
-        
+
+        private void onStreamStrategyUpdate(Messages.StreamStrategyUpdate update) {
+            String stream = update.getStreamName();
+            StreamStrategy strategy;
+            switch (update.getRecordDistributionStrategy()) {
+                case "AUTO":
+                    strategy = StreamStrategy.AUTO;
+                    break;
+                case "USER_PARTITION_KEY":
+                    strategy = StreamStrategy.USER_PARTITION_KEY;
+                    break;
+                default:
+                    strategy = StreamStrategy.UNKNOWN;
+                    break;
+            }
+            streamStrategies.put(stream, strategy);
+            log.debug("Updated RecordDistributionStrategy for stream {} to {}", stream, strategy);
+        }
+
         private SettableFutureTracker getFuture(Message msg) {
             long id = msg.getSourceId();
             SettableFutureTracker futureTracker = getFutureTracker(id);
@@ -632,6 +687,24 @@ public class KinesisProducer implements IKinesisProducer {
     }
 
     /**
+     * Put a record asynchronously without a partition key. Valid only for streams whose
+     * {@code RecordDistributionStrategy} is {@code AUTO}, where the service distributes records
+     * itself. On a {@code USER_PARTITION_KEY} stream the record will fail (synchronously if the
+     * producer already knows the stream's strategy, otherwise via the returned future).
+     *
+     * @param stream
+     *            Stream to put to.
+     * @param data
+     *            Binary data of the record. Maximum size 1MiB.
+     * @return A future for the result of the put.
+     * @see #addUserRecord(String, String, ByteBuffer)
+     */
+    @Override
+    public ListenableFuture<UserRecordResult> addUserRecord(String stream, ByteBuffer data) {
+        return addUserRecord(stream, null, null, data);
+    }
+
+    /**
      * Put a record asynchronously. A {@link ListenableFuture} is returned that
      * can be used to retrieve the result, either by polling or by registering a
      * callback.
@@ -768,17 +841,25 @@ public class KinesisProducer implements IKinesisProducer {
         }
 
         if (partitionKey == null) {
-            throw new IllegalArgumentException("partitionKey cannot be null");
-        }
-        if (partitionKey.length() < 1 || partitionKey.length() > 256) {
-            throw new IllegalArgumentException(
-                    "Invalid partition key. Length must be at least 1 and at most 256, got " + partitionKey.length());
-        }
+            // A null partition key is only valid on AUTO streams, where the service routes
+            // records itself. We reject it up front only when we KNOW the stream is
+            // USER_PARTITION_KEY; otherwise we let it through and the native daemon is the
+            // authoritative gate (it will fail the record if the stream resolves to
+            // USER_PARTITION_KEY). See Decision 6 in the design doc.
+            if (effectiveStrategy(stream) == StreamStrategy.USER_PARTITION_KEY) {
+                throw new IllegalArgumentException("partitionKey cannot be null");
+            }
+        } else {
+            if (partitionKey.length() < 1 || partitionKey.length() > 256) {
+                throw new IllegalArgumentException(
+                        "Invalid partition key. Length must be at least 1 and at most 256, got " + partitionKey.length());
+            }
 
-        try {
-            partitionKey.getBytes("UTF-8");
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Partition key must be valid UTF-8");
+            try {
+                partitionKey.getBytes("UTF-8");
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Partition key must be valid UTF-8");
+            }
         }
 
         BigInteger b = null;
@@ -838,8 +919,10 @@ public class KinesisProducer implements IKinesisProducer {
         }
         PutRecord.Builder pr = PutRecord.newBuilder()
                 .setStreamName(stream)
-                .setPartitionKey(partitionKey)
                 .setData(data != null ? ByteString.copyFrom(data) : ByteString.EMPTY);
+        if (partitionKey != null) {
+            pr.setPartitionKey(partitionKey);
+        }
         if (b != null) {
             pr.setExplicitHashKey(b.toString(10));
         }

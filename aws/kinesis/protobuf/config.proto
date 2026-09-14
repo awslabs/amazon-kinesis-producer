@@ -47,4 +47,6 @@ message Configuration {
   }
   optional ThreadConfig thread_config = 30 [default = PER_REQUEST];
   optional uint32 thread_pool_size = 31 [default = 64];
+  optional uint64 describe_stream_summary_interval = 32 [default = 300000];
+  optional string record_distribution_strategy_default = 33;
 }

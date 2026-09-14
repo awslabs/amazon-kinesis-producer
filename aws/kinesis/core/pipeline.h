@@ -39,11 +39,40 @@ namespace aws {
 namespace kinesis {
 namespace core {
 
+// A stream's record distribution strategy, as discovered via
+// DescribeStreamSummary (or seeded from the customer-configured default).
+// UNKNOWN means the strategy has not been determined yet; it is treated like
+// AUTO for record handling (no aggregation), which is safe for both stream
+// types. A confirmed USER_PARTITION_KEY stream aggregates, as does the
+// LEGACY_AGGREGATE backward-compat fallback (below).
+enum class StreamStrategy {
+  UNKNOWN,
+  AUTO,
+  USER_PARTITION_KEY,
+  // Backward-compat fallback when no default is configured and discovery fails
+  // (e.g. the role lacks kinesis:DescribeStreamSummary after a version bump).
+  // Aggregates like the pre-AUTO KPL so an upgrade never silently loses
+  // aggregation. Unlike USER_PARTITION_KEY it does not reject empty partition
+  // keys and is never reported to Java (the real strategy is still unknown);
+  // background discovery replaces it once it succeeds.
+  LEGACY_AGGREGATE
+};
+
 class Pipeline : boost::noncopyable {
  public:
   using Configuration = aws::kinesis::core::Configuration;
   using TimePoint = std::chrono::steady_clock::time_point;
   using StreamIdGetter = std::function<std::string(const std::string&)>;
+  using StreamStrategyGetter = std::function<StreamStrategy(const std::string&)>;
+  // Test seam: when set, receives the assembled PutRecordsContext instead of
+  // dispatching it to the real KinesisClient. Lets tests observe what would be
+  // sent (e.g. the solo records produced for AUTO streams) without a live
+  // client. Null in production.
+  using PutRecordsHandler =
+      std::function<void(const std::shared_ptr<PutRecordsContext>&)>;
+  // Notifies strategy discovery that a record landed on an unexpected shard.
+  // Receives the stream name. Null in production tests that don't care.
+  using WrongShardCallback = std::function<void(const std::string&)>;
 
   Pipeline(
       std::string region,
@@ -53,12 +82,27 @@ class Pipeline : boost::noncopyable {
       std::shared_ptr<Aws::Kinesis::KinesisClient> kinesis_client,
       std::shared_ptr<aws::metrics::MetricsManager> metrics_manager,
       Retrier::UserRecordCallback finish_user_record_cb,
-      StreamIdGetter stream_id_getter)
+      StreamIdGetter stream_id_getter,
+      // Defaults to USER_PARTITION_KEY so behavior is unchanged when no
+      // DSS-backed getter is supplied. Production and tests inject their own.
+      StreamStrategyGetter stream_strategy_getter =
+          [](const std::string&) { return StreamStrategy::USER_PARTITION_KEY; },
+      // Optional injected ShardMap (tests). When null, the Pipeline creates its
+      // own backed by the KinesisClient, as in production.
+      std::shared_ptr<ShardMap> shard_map = nullptr,
+      // Optional test seam for intercepting the PutRecords send (see
+      // PutRecordsHandler). Null in production.
+      PutRecordsHandler put_records_handler = nullptr,
+      // Notifies strategy discovery of a Wrong Shard event. Null = no-op.
+      WrongShardCallback wrong_shard_cb = nullptr)
       : stream_(std::move(stream)),
         region_(std::move(region)),
         stream_arn_(""),
         stream_id_(""),
         stream_id_getter_(std::move(stream_id_getter)),
+        stream_strategy_getter_(std::move(stream_strategy_getter)),
+        put_records_handler_(std::move(put_records_handler)),
+        wrong_shard_cb_(std::move(wrong_shard_cb)),
         config_(std::move(config)),
         stats_logger_(stream_, config_->record_max_buffered_time()),
         executor_(std::move(executor)),
@@ -66,6 +110,7 @@ class Pipeline : boost::noncopyable {
         metrics_manager_(std::move(metrics_manager)),
         finish_user_record_cb_(std::move(finish_user_record_cb)),
         shard_map_(
+            shard_map ? shard_map :
             std::make_shared<ShardMap>(
                 executor_,
                 [this](auto& req, auto& handler, auto& context) { kinesis_client_->ListShardsAsync(handler, context, req ); },
@@ -104,7 +149,12 @@ class Pipeline : boost::noncopyable {
                 [this](auto& code, auto& msg) {
                   limiter_->add_error(code, msg);
                 },
-                metrics_manager_)),
+                metrics_manager_,
+                [this](const std::string& stream_name) {
+                  if (wrong_shard_cb_) {
+                    wrong_shard_cb_(stream_name);
+                  }
+                })),
         user_records_rcvd_metric_(
             metrics_manager_
                 ->finder()
@@ -150,8 +200,45 @@ class Pipeline : boost::noncopyable {
  private:
 
   void aggregator_put(const std::shared_ptr<UserRecord>& ur) {
-    auto kr = aggregator_->put(ur);
+    // Sample the strategy exactly once per record. Everything downstream (solo
+    // vs aggregated routing here, and request assembly later) keys off this one
+    // snapshot via KinesisRecord::service_routed(), so a strategy flip mid-flight
+    // can never produce a record that is routed one way but assembled the other.
+    StreamStrategy strategy = stream_strategy_getter_(stream_);
+
+    // A null/empty partition key is only valid on an AUTO stream, where the
+    // service routes records itself. The Java client rejects it synchronously
+    // when it already knows the stream is USER_PARTITION_KEY, but a record
+    // submitted while the strategy still looked like AUTO can slip past that
+    // check. If discovery later resolves the stream to USER_PARTITION_KEY, such a
+    // record must not be allowed to succeed: without this gate a retried empty-PK
+    // record would re-enter here, now aggregate (acquiring the aggregated
+    // container's synthetic partition key), and land on the stream, violating the
+    // invariant that a record with no partition key never lands on a
+    // USER_PARTITION_KEY stream. Fail it here instead, matching the Java client's
+    // wording.
+    if (strategy == StreamStrategy::USER_PARTITION_KEY &&
+        ur->partition_key().empty()) {
+      auto now = std::chrono::steady_clock::now();
+      ur->add_attempt(
+          Attempt()
+              .set_start(now)
+              .set_end(now)
+              .set_error("InvalidPartitionKey", "partitionKey cannot be null"));
+      finish_user_record(ur);
+      return;
+    }
+
+    // USER_PARTITION_KEY and the LEGACY_AGGREGATE fallback aggregate; UNKNOWN or
+    // AUTO -> solo (the service routes the record). The solo path reuses
+    // Aggregator's no-shard branch, which clears predicted_shard so the retrier
+    // skips the Wrong Shard comparison.
+    bool aggregate = strategy == StreamStrategy::USER_PARTITION_KEY ||
+                     strategy == StreamStrategy::LEGACY_AGGREGATE;
+    bool service_routed = !aggregate;
+    auto kr = aggregator_->put(ur, /*force_solo=*/service_routed);
     if (kr) {
+      kr->set_service_routed(service_routed);
       limiter_put(kr);
     }
   }
@@ -181,8 +268,19 @@ class Pipeline : boost::noncopyable {
   }
 
   void send_put_records_request(const std::shared_ptr<PutRecordsRequest>& prr) {
-    auto prc = std::make_shared<PutRecordsContext>(stream_, stream_arn_, stream_id_, prr->items());
+    // Per-record assembly (service-routed vs not) is decided by each
+    // KinesisRecord's service_routed() flag, frozen when the record was routed.
+    // We deliberately do not re-sample the stream strategy here: a flip between
+    // routing and assembly must not change how an already-routed record is sent.
+    auto prc = std::make_shared<PutRecordsContext>(
+        stream_, stream_arn_, stream_id_, prr->items());
     prc->set_start(std::chrono::steady_clock::now());
+    if (put_records_handler_) {
+      // Test seam: hand the context to the injected handler instead of the
+      // real client.
+      put_records_handler_(prc);
+      return;
+    }
     kinesis_client_->PutRecordsAsync(
         prc->to_sdk_request(),
         [this](auto /*client*/,
@@ -225,6 +323,9 @@ class Pipeline : boost::noncopyable {
   std::string stream_arn_;
   std::string stream_id_;
   StreamIdGetter stream_id_getter_;
+  StreamStrategyGetter stream_strategy_getter_;
+  PutRecordsHandler put_records_handler_;
+  WrongShardCallback wrong_shard_cb_;
   std::shared_ptr<Configuration> config_;
   aws::utils::processing_statistics_logger stats_logger_;
   std::shared_ptr<aws::utils::Executor> executor_;

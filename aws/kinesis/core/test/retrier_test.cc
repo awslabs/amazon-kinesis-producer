@@ -356,6 +356,41 @@ BOOST_AUTO_TEST_CASE(WrongShard) {
   BOOST_CHECK_EQUAL(count, 1);
 }
 
+// On a Wrong Shard, the retrier notifies the wrong-shard callback with the
+// stream name (wired to strategy re-discovery in production).
+BOOST_AUTO_TEST_CASE(WrongShard_NotifiesCallback) {
+  auto ctx = make_prr_ctx(
+      1,
+      1,
+      success_outcome(R"(
+      {
+        "FailedRecordCount": 0,
+        "Records":[
+          {
+            "SequenceNumber":"1234",
+            "ShardId":"shardId-000000000004"
+          }
+        ]
+      }
+      )"));
+
+  std::vector<std::string> wrong_shard_streams;
+  aws::kinesis::core::Retrier retrier(
+      std::make_shared<aws::kinesis::core::Configuration>(),
+      [&](auto& ur) {},                       // finish
+      [&](auto& ur) {},                       // retry
+      [&](auto) { return boost::none; },      // hashrange
+      [&](auto, auto) {},                     // invalidate
+      aws::kinesis::core::Retrier::ErrorCallback(),
+      std::make_shared<aws::metrics::NullMetricsManager>(),
+      [&](const std::string& stream) { wrong_shard_streams.push_back(stream); });
+
+  retrier.put(ctx);
+
+  BOOST_REQUIRE_EQUAL(wrong_shard_streams.size(), 1u);
+  BOOST_CHECK_EQUAL(wrong_shard_streams[0], "myStream");
+}
+
 
 BOOST_AUTO_TEST_CASE(InvalidateForFirstUserRecordOnly) {
   auto ctx = make_prr_ctx(
@@ -546,6 +581,124 @@ BOOST_AUTO_TEST_CASE(WrongShardAndWrongHashrange) {
     BOOST_CHECK_MESSAGE(shard_map_invalidated,
                         "Shard map should've been invalidated.");
   }
+}
+
+// AUTO and UNKNOWN streams flow through the Pipeline's solo path, which clears
+// predicted_shard. These cases verify the retrier treats such records as
+// successful regardless of which shard the service reports, with no retry and
+// no shard map invalidation.
+
+namespace {
+
+// Builds a PutRecordsContext whose records have NO predicted shard, optionally
+// with no partition key (the full AUTO shape).
+auto make_no_predicted_shard_ctx(Aws::Kinesis::Model::PutRecordsOutcome outcome,
+                                  bool no_pk = false) {
+  auto kr = std::make_shared<aws::kinesis::core::KinesisRecord>();
+  auto ur = no_pk ? aws::kinesis::test::make_user_record_no_pk()
+                  : aws::kinesis::test::make_user_record_with_hashkey();
+  // Note: predicted_shard is intentionally left unset.
+  kr->add(ur);
+  std::vector<std::shared_ptr<aws::kinesis::core::KinesisRecord>> krs{kr};
+  auto ctx = std::make_shared<aws::kinesis::core::PutRecordsContext>(
+      "myStream",
+      "arn:aws:kinesis:us-east-2:123456789012:stream/myStream",
+      "",
+      krs);
+  ctx->set_outcome(outcome);
+  return ctx;
+}
+
+const char* kSuccessShard4 = R"(
+{
+  "FailedRecordCount": 0,
+  "Records":[
+    {
+      "SequenceNumber":"1234",
+      "ShardId":"shardId-000000000004"
+    }
+  ]
+}
+)";
+
+} // namespace
+
+BOOST_AUTO_TEST_CASE(NoPredictedShard_Succeeds) {
+  auto ctx = make_no_predicted_shard_ctx(success_outcome(kSuccessShard4));
+
+  size_t finished = 0;
+  aws::kinesis::core::Retrier retrier(
+      std::make_shared<aws::kinesis::core::Configuration>(),
+      [&](auto& ur) {
+        finished++;
+        auto& attempts = ur->attempts();
+        BOOST_CHECK_EQUAL(attempts.size(), 1);
+        BOOST_CHECK((bool) attempts[0]);
+        BOOST_CHECK_EQUAL(attempts[0].sequence_number(), "1234");
+      },
+      [&](auto& ur) {
+        BOOST_FAIL("Retry should not be called for a record with no predicted shard");
+      },
+      [&](auto) {
+        return boost::none;
+      },
+      [&](auto, auto) {
+        BOOST_FAIL("Shard map invalidate should not be called");
+      });
+
+  retrier.put(ctx);
+  BOOST_CHECK_EQUAL(finished, 1);
+}
+
+BOOST_AUTO_TEST_CASE(NoPredictedShard_ArbitraryShardId) {
+  // Any shard id the service returns is accepted; no "Wrong Shard" path.
+  auto ctx = make_no_predicted_shard_ctx(success_outcome(R"(
+  {
+    "FailedRecordCount": 0,
+    "Records":[
+      {
+        "SequenceNumber":"9999",
+        "ShardId":"shardId-000000000042"
+      }
+    ]
+  }
+  )"));
+
+  size_t finished = 0;
+  aws::kinesis::core::Retrier retrier(
+      std::make_shared<aws::kinesis::core::Configuration>(),
+      [&](auto& ur) {
+        finished++;
+        BOOST_CHECK((bool) ur->attempts()[0]);
+        BOOST_CHECK_EQUAL(ur->attempts()[0].shard_id(), "shardId-000000000042");
+      },
+      [&](auto& ur) { BOOST_FAIL("Retry should not be called"); },
+      [&](auto) { return boost::none; },
+      [&](auto, auto) { BOOST_FAIL("Shard map invalidate should not be called"); });
+
+  retrier.put(ctx);
+  BOOST_CHECK_EQUAL(finished, 1);
+}
+
+BOOST_AUTO_TEST_CASE(NoPredictedShard_EmptyPK) {
+  // Full AUTO shape: no predicted shard and no partition key.
+  auto ctx = make_no_predicted_shard_ctx(success_outcome(kSuccessShard4),
+                                          /*no_pk=*/true);
+
+  size_t finished = 0;
+  aws::kinesis::core::Retrier retrier(
+      std::make_shared<aws::kinesis::core::Configuration>(),
+      [&](auto& ur) {
+        finished++;
+        BOOST_CHECK((bool) ur->attempts()[0]);
+        BOOST_CHECK(ur->partition_key().empty());
+      },
+      [&](auto& ur) { BOOST_FAIL("Retry should not be called"); },
+      [&](auto) { return boost::none; },
+      [&](auto, auto) { BOOST_FAIL("Shard map invalidate should not be called"); });
+
+  retrier.put(ctx);
+  BOOST_CHECK_EQUAL(finished, 1);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

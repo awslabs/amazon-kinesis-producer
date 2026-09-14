@@ -1,6 +1,10 @@
 # Kinesis Producer Library
 
 >[!Important]
+> ### KPL 1.1.0 adds support for service-managed partition keys
+> KPL 1.1.0 adds support for [Service-Managed Partition Keys](https://aws.amazon.com/about-aws/whats-new/2026/09/kinesis/service-managed-partition-keys/), a Kinesis Data Streams feature you opt-into and enable by setting a stream's RecordDistributionStrategy to AUTO. With it enabled, the service assigns each record to a shard. KPL aggregation is not supported on these streams. Sending aggregated records to a stream using service-managed partition keys can cause records to be silently dropped by KCL consumers during deaggregation, with no error surfaced by the producer or consumer. If you use this feature, grant `kinesis:DescribeStreamSummary` to the identity KPL uses, or set `setRecordDistributionStrategyDefault` to AUTO, so KPL does not aggregate for them. By default, `setRecordDistributionStrategyDefault` is UNSET, which allows backward compatibility for customers simply upgrading their KPL version without opting into the new feature. See [New in v1.1.0](#new-in-v110-support-for-service-managed-partition-keys) for details.
+
+>[!Important]
 > ### Amazon Kinesis Producer Library (KPL) 0.x will reach end-of-support on January 30, 2026
 > Amazon Kinesis Producer Library (KPL) 0.x will reach end-of-support on January 30, 2026. Accordingly, the version will enter maintenance mode on April 17, 2025. During maintenance mode, AWS will provide updates only for critical bug fixes and security issues. Major versions in maintenance mode will not receive updates for new features or feature enhancements. If you’re using KPL 0.x, we recommend migrating to the latest version. When migrating from KPL 0.x to 1.x, you can upgrade your current KPL application without any change in your data processing logic. For details about the end-of-support notice and required actions, see the following links:
 > 
@@ -56,6 +60,30 @@ The KPL is an application for ingesting data to your Kinesis Data Streams. As yo
 
 _We recommend performing sufficient testing before applying these changes to production, as every customer has different usage patterns_
 
+## New in v1.1.0: Support for service-managed partition keys
+
+KPL 1.1.0 adds support for [Service-Managed Partition Keys](https://aws.amazon.com/about-aws/whats-new/2026/09/kinesis/service-managed-partition-keys/), a Kinesis Data Streams feature you enable by setting a stream's RecordDistributionStrategy to AUTO. With it enabled, the service assigns each record to a shard rather than using the record's partition key (the USER_PARTITION_KEY behavior).
+
+KPL aggregation is not supported when service-managed partition keys are enabled (RecordDistributionStrategy set to AUTO). KPL aggregation relies on records landing on the shard KPL selects from the partition key, but on an AUTO stream the service places records by its own algorithm. As a result, aggregated records can be silently dropped by KCL consumers during deaggregation, with no error surfaced by the producer or consumer.
+
+* USER_PARTITION_KEY (the existing behavior): No changes.
+* AUTO (service-managed partition keys): The service assigns each record to a shard, so KPL does not aggregate records and sends each record individually. `addUserRecord` also accepts a null or empty partition key for these streams.
+
+To produce correctly to a stream using service-managed partition keys, ensure at least one of the following:
+
+* Grant kinesis:DescribeStreamSummary to the identity KPL uses. This is a new API call in 1.1.0.
+* Set `setRecordDistributionStrategyDefault` to AUTO.
+
+If the default is UNSET and DescribeStreamSummary is not permitted, KPL cannot detect the strategy and falls back to aggregating records, which produces the dropped-record condition mentioned above. This fallback preserves existing behavior for USER_PARTITION_KEY streams.
+
+`setRecordDistributionStrategyDefault` sets the strategy KPL assumes before a stream's actual strategy is known, which determines whether it aggregates from the first record:
+
+* UNSET (the default): KPL discovers the stream's strategy on the first write and aggregates only when the stream is USER_PARTITION_KEY.
+* USER_PARTITION_KEY: KPL aggregates from the first record, without waiting for discovery.
+* AUTO: KPL does not aggregate.
+
+The value applies to the entire producer. KPL discovers each stream's actual strategy by calling DescribeStreamSummary, and the discovered value takes precedence, so the default is a starting assumption rather than a permanent override. `setDescribeStreamSummaryIntervalMs` sets how often KPL re-checks, in milliseconds (default 300000).
+
 ## Required KPL Update – Changes in v0.15.0
 KPL 0.15.0 now incorporates StreamARN in the Kinesis requests, such as PutRecords and ListShards, to take advantage of Kinesis Data Streams (KDS) enhanced availability as the result of service cellularization. Version 0.15.0 adds STS as the new dependency; by using STS, customers can benefit from StreamARN without modifying any code.
 
@@ -71,6 +99,9 @@ If you have further questions [please open a GitHub Issue](https://github.com/aw
 This is a restatement of the [notice published](https://docs.aws.amazon.com/streams/latest/dev/kinesis-kpl-upgrades.html) in the [Amazon Kinesis Data Streams Developer Guide][kinesis-developer-guide]
 
 ## Release Notes
+## 1.1.0
+* [#NNN](https://github.com/awslabs/amazon-kinesis-producer/pull/NNN) Add support for AUTO RecordDistributionStrategy streams
+
 ## 1.0.9
 * [#704](https://github.com/awslabs/amazon-kinesis-producer/pull/704) Load the native binary and CA certificates from the same jar as the KPL Java classes, so a second KPL artifact earlier on the classpath can no longer supply an incompatible native binary. A warning is logged when a second artifact is detected.
 

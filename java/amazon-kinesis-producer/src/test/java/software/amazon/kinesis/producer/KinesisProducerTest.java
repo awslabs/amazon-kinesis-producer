@@ -820,4 +820,71 @@ public class KinesisProducerTest {
         verifyUnhealthyDaemonMetricEmission(0.1, false);
     }
 
+    // ----- CR4: null partition key handling driven by RecordDistributionStrategy default -----
+
+    private KinesisProducer producerWithStrategyDefault(
+            KinesisProducerConfiguration.RecordDistributionStrategyDefault def) {
+        KinesisProducerConfiguration cfg = buildBasicConfiguration()
+                .setRecordDistributionStrategyDefault(def);
+        return new KinesisProducer(cfg);
+    }
+
+    @Test
+    public void addUserRecord_NullPK_UserPartitionKeyDefault_Throws() {
+        KinesisProducer kp = producerWithStrategyDefault(
+                KinesisProducerConfiguration.RecordDistributionStrategyDefault.USER_PARTITION_KEY);
+        try {
+            kp.addUserRecord("stream", null, ByteBuffer.wrap(new byte[] {1, 2, 3}));
+            fail("Expected IllegalArgumentException for null partition key on a USER_PARTITION_KEY stream");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("partitionKey cannot be null"));
+        } finally {
+            kp.destroy();
+        }
+    }
+
+    @Test
+    public void addUserRecord_NullPK_AutoDefault_Allowed() {
+        KinesisProducer kp = producerWithStrategyDefault(
+                KinesisProducerConfiguration.RecordDistributionStrategyDefault.AUTO);
+        try {
+            // Should not throw synchronously; the record is accepted with no partition key.
+            ListenableFuture<UserRecordResult> f =
+                    kp.addUserRecord("stream", null, ByteBuffer.wrap(new byte[] {1, 2, 3}));
+            assertNotNull(f);
+        } finally {
+            kp.destroy();
+        }
+    }
+
+    @Test
+    public void addUserRecord_NullPK_NoDefault_Allowed() {
+        // No default configured: the producer does not yet know the strategy, so it lets the null
+        // through and the daemon is the authoritative gate.
+        KinesisProducer kp = producerWithStrategyDefault(
+                KinesisProducerConfiguration.RecordDistributionStrategyDefault.UNSET);
+        try {
+            ListenableFuture<UserRecordResult> f =
+                    kp.addUserRecord("stream", ByteBuffer.wrap(new byte[] {1, 2, 3}));
+            assertNotNull(f);
+        } finally {
+            kp.destroy();
+        }
+    }
+
+    @Test
+    public void addUserRecord_NonNullPK_LengthStillValidated() {
+        // Strategy default must not bypass the existing non-null PK validation.
+        KinesisProducer kp = producerWithStrategyDefault(
+                KinesisProducerConfiguration.RecordDistributionStrategyDefault.AUTO);
+        try {
+            kp.addUserRecord("stream", "", ByteBuffer.wrap(new byte[] {1, 2, 3}));
+            fail("Expected IllegalArgumentException for empty (non-null) partition key");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Invalid partition key"));
+        } finally {
+            kp.destroy();
+        }
+    }
+
 }

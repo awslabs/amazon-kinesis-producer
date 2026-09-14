@@ -442,6 +442,20 @@ class Configuration : private boost::noncopyable {
     return thread_pool_size_;
   }
 
+  // How often (ms) to refresh each stream's RecordDistributionStrategy via
+  // DescribeStreamSummary, for drift detection.
+  uint64_t describe_stream_summary_interval() const noexcept {
+    return describe_stream_summary_interval_;
+  }
+
+  // Customer-configured default RecordDistributionStrategy ("AUTO",
+  // "USER_PARTITION_KEY", or empty for none). When set, streams start at this
+  // strategy and discovery only corrects drift; when empty, the first write
+  // blocks on a bounded discovery (see StreamStrategyManager).
+  const std::string& record_distribution_strategy_default() const noexcept {
+    return record_distribution_strategy_default_;
+  }
+
   // Enable aggregation. With aggregation, multiple user records are packed
   // into a single KinesisRecord. If disabled, each user record is sent in its
   // own KinesisRecord.
@@ -1101,6 +1115,14 @@ class Configuration : private boost::noncopyable {
       use_thread_pool(false);
     }
 
+    if (c.has_describe_stream_summary_interval()) {
+      describe_stream_summary_interval_ = c.describe_stream_summary_interval();
+    }
+    if (c.has_record_distribution_strategy_default()) {
+      record_distribution_strategy_default_ =
+          c.record_distribution_strategy_default();
+    }
+
     for (auto i = 0; i < c.additional_metric_dims_size(); i++) {
       auto ad = c.additional_metric_dims(i);
       additional_metrics_dims_.push_back(
@@ -1142,6 +1164,8 @@ class Configuration : private boost::noncopyable {
 
   bool use_thread_pool_ = true;
   uint32_t thread_pool_size_ = 64;
+  uint64_t describe_stream_summary_interval_ = 300000;
+  std::string record_distribution_strategy_default_ = "";
 
 
   std::vector<std::tuple<std::string, std::string, std::string>>

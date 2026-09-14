@@ -83,8 +83,21 @@ class PutRecordsContext : public Aws::Client::AsyncCallerContext {
       Aws::Kinesis::Model::PutRecordsRequestEntry e;
       e.SetData(Aws::Utils::ByteBuffer((const unsigned char*) serialized.data(),
                                        serialized.size()));
-      e.SetPartitionKey(kr->partition_key());
-      e.SetExplicitHashKey(kr->explicit_hash_key());
+      if (kr->service_routed()) {
+        // Service-routed streams (AUTO, or UNKNOWN while undiscovered): the
+        // service routes records itself, so PartitionKey is optional. Only set
+        // it if the user provided one; an empty PK means omit the field.
+        // ExplicitHashKey is irrelevant to routing here, so we skip it to save a
+        // few bytes per record (the service accepts it either way). Crucially,
+        // an UNKNOWN-stream record with a null PK must NOT be sent with an empty
+        // PartitionKey plus EHK "0" -- a real (non-AUTO) endpoint rejects that.
+        if (!kr->partition_key().empty()) {
+          e.SetPartitionKey(kr->partition_key());
+        }
+      } else {
+        e.SetPartitionKey(kr->partition_key());
+        e.SetExplicitHashKey(kr->explicit_hash_key());
+      }
       req.AddRecords(std::move(e));
     }
     req.SetStreamName(stream_);

@@ -64,6 +64,9 @@ class Retrier {
   using ShardMapInvalidateCallback = std::function<void (const TimePoint&, const boost::optional<uint64_t>)>;
   using ErrorCallback =
       std::function<void (const std::string&, const std::string&)>;
+  // Notifies that a record landed on a shard other than predicted (a hint the
+  // stream's RecordDistributionStrategy may have changed). Receives the stream.
+  using WrongShardCallback = std::function<void (const std::string&)>;
 
   Retrier(std::shared_ptr<Configuration> config,
           UserRecordCallback finish_cb,
@@ -72,14 +75,16 @@ class Retrier {
           ShardMapInvalidateCallback shard_map_invalidate_cb,
           ErrorCallback error_cb = ErrorCallback(),
           std::shared_ptr<aws::metrics::MetricsManager> metrics_manager =
-              std::make_shared<aws::metrics::NullMetricsManager>())
+              std::make_shared<aws::metrics::NullMetricsManager>(),
+          WrongShardCallback wrong_shard_cb = WrongShardCallback())
       : config_(config),
         finish_cb_(finish_cb),
         retry_cb_(retry_cb),
         shard_map_hashrange_cb_(shard_map_hashrange_cb),
         shard_map_invalidate_cb_(shard_map_invalidate_cb),
         error_cb_(error_cb),
-        metrics_manager_(metrics_manager) {}
+        metrics_manager_(metrics_manager),
+        wrong_shard_cb_(wrong_shard_cb) {}
 
   void put(std::shared_ptr<PutRecordsContext> prc) {
     handle_put_records_result(std::move(prc));
@@ -146,6 +151,7 @@ class Retrier {
   ShardMapInvalidateCallback shard_map_invalidate_cb_;
   ErrorCallback error_cb_;
   std::shared_ptr<aws::metrics::MetricsManager> metrics_manager_;
+  WrongShardCallback wrong_shard_cb_;
   std::shared_ptr<ShardMap> shard_map_;
 };
 
