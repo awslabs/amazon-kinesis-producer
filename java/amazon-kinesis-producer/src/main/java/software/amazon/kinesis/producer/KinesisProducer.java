@@ -1343,8 +1343,8 @@ public class KinesisProducer implements IKinesisProducer {
                     List<URL> all = Collections.list(KinesisProducer.class.getClassLoader().getResources(resource));
                     if (all.size() > 1) {
                         log.warn("Another KPL artifact is present on the classpath and will be ignored: {}. "
-                                        + "Remove it (for example AmazonKinesisProducerLibraryExternalRelease or "
-                                        + "com.amazonaws:amazon-kinesis-producer).",
+                                        + "Remove it (for example an older com.amazonaws:amazon-kinesis-producer "
+                                        + "dependency, possibly pulled in transitively).",
                                 all.stream().filter(u -> !u.equals(binary)).collect(Collectors.toList()));
                     }
                     log.info("Loading native binary from {}", binary);

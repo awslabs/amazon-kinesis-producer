@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,12 +32,10 @@ import org.slf4j.LoggerFactory;
  * KPL release, so a plain classpath search returns whichever KPL jar happens to come first. Matching on the
  * anchor's origin guarantees the Java classes and the resources they load come from the same release.
  */
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 final class BundledResourceResolver {
 
     private static final Logger log = LoggerFactory.getLogger(BundledResourceResolver.class);
-
-    private BundledResourceResolver() {
-    }
 
     /**
      * Returns the URL prefix of the artifact that supplied {@code anchor}, or {@code null} if it cannot be
