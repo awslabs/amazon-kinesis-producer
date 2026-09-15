@@ -17,6 +17,7 @@ package software.amazon.kinesis.producer;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
@@ -104,9 +105,11 @@ class CertificateExtractor {
     }
 
     private void extractAndVerifyCertificates(File destinationPath) throws IOException {
+        String origin = BundledResourceResolver.originOf(certificateSourceClass);
         for (String certificate : CERTIFICATE_FILES) {
-            InputStream certificateSource = certificateSourceClass.getClassLoader()
-                    .getResourceAsStream(CA_CERTS_DIRECTORY_NAME + "/" + certificate);
+            URL certificateUrl = BundledResourceResolver.resolve(certificateSourceClass, origin,
+                    CA_CERTS_DIRECTORY_NAME + "/" + certificate);
+            InputStream certificateSource = certificateUrl.openStream();
 
             File destinationCertificate = new File(destinationPath, certificate);
             log.debug("Extracting certificate '{}' to '{}'", certificate, destinationCertificate);
