@@ -1,4 +1,6 @@
 ## Changelog
+## 1.0.9
+* [#704](https://github.com/awslabs/amazon-kinesis-producer/pull/704) Load the native binary and CA certificates from the same jar as the KPL Java classes, so a second KPL artifact earlier on the classpath can no longer supply an incompatible native binary. A warning is logged when a second artifact is detected.
 
 ## 1.0.8
 * [#691](https://github.com/awslabs/amazon-kinesis-producer/pull/691) Add UnhealthyDaemon metric emission to CloudWatch when daemon health check triggers restart
