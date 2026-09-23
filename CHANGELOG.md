@@ -1,4 +1,7 @@
 ## Changelog
+## 1.1.0
+* [#706](https://github.com/awslabs/amazon-kinesis-producer/pull/706) Add support for AUTO RecordDistributionStrategy streams
+
 ## 1.0.9
 * [#704](https://github.com/awslabs/amazon-kinesis-producer/pull/704) Load the native binary and CA certificates from the same jar as the KPL Java classes, so a second KPL artifact earlier on the classpath can no longer supply an incompatible native binary. A warning is logged when a second artifact is detected.
 
