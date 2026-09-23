@@ -141,4 +141,39 @@ public class KinesisProducerConfigurationTest {
 
         assertNotNull(cfg.getGlueSchemaRegistryCredentialsProvider());
     }
+
+    @Test
+    public void describeStreamSummaryIntervalDefaultsToFiveMinutes() {
+        assertEquals(300000L, new KinesisProducerConfiguration().getDescribeStreamSummaryIntervalMs());
+    }
+
+    @Test
+    public void setDescribeStreamSummaryIntervalFromProperties() {
+        Properties p = new Properties();
+        p.setProperty("DescribeStreamSummaryIntervalMs", "60000");
+        KinesisProducerConfiguration cfg = KinesisProducerConfiguration.fromPropertiesFile(writeFile(p));
+        assertEquals(60000L, cfg.getDescribeStreamSummaryIntervalMs());
+    }
+
+    @Test
+    public void recordDistributionStrategyDefaultDefaultsToUnset() {
+        assertEquals(
+                KinesisProducerConfiguration.RecordDistributionStrategyDefault.UNSET,
+                new KinesisProducerConfiguration().getRecordDistributionStrategyDefault());
+    }
+
+    @Test
+    public void setRecordDistributionStrategyDefaultFromProperties() {
+        Properties p = new Properties();
+        p.setProperty("RecordDistributionStrategyDefault", "AUTO");
+        KinesisProducerConfiguration cfg = KinesisProducerConfiguration.fromPropertiesFile(writeFile(p));
+        assertEquals(
+                KinesisProducerConfiguration.RecordDistributionStrategyDefault.AUTO,
+                cfg.getRecordDistributionStrategyDefault());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setRecordDistributionStrategyDefaultRejectsInvalidValue() {
+        new KinesisProducerConfiguration().setRecordDistributionStrategyDefault("NONSENSE");
+    }
 }

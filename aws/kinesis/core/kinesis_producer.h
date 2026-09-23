@@ -19,6 +19,7 @@
 #include <aws/auth/mutable_static_creds_provider.h>
 #include <aws/kinesis/KinesisClient.h>
 #include <aws/kinesis/core/pipeline.h>
+#include <aws/kinesis/core/stream_strategy_manager.h>
 #include <aws/metrics/metrics_manager.h>
 #include <aws/monitoring/CloudWatchClient.h>
 
@@ -54,6 +55,7 @@ class KinesisProducer : boost::noncopyable {
     create_kinesis_client(ca_path, ca_file);
     create_cw_client(ca_path, ca_file);
     create_metrics_manager();
+    create_stream_strategy_manager();
     report_outstanding();
     message_drainer_ = aws::thread([this] { this->drain_messages(); });
   }
@@ -73,6 +75,8 @@ class KinesisProducer : boost::noncopyable {
   static constexpr const size_t kMessageMaxBatchSize = 16;
 
   void create_metrics_manager();
+
+  void create_stream_strategy_manager();
 
   void create_kinesis_client(const std::string& ca_path, const std::string& ca_file);
 
@@ -96,6 +100,18 @@ class KinesisProducer : boost::noncopyable {
   void on_stream_metadata(
       const aws::kinesis::protobuf::StreamMetadata& metadata);
 
+  // Resolver seam for StreamStrategyManager. Calls DescribeStreamSummary and
+  // maps the stream's RecordDistributionStrategy to a StreamStrategy. Returns
+  // boost::none if the call fails or the field is absent, leaving the stream
+  // UNKNOWN (records flow solo, which is safe).
+  boost::optional<StreamStrategy> resolve_stream_strategy(
+      const std::string& stream);
+
+  // Sends a StreamStrategyUpdate IPC message to Java reporting a stream's
+  // discovered or changed strategy.
+  void send_strategy_update_to_java(const std::string& stream,
+                                    StreamStrategy strategy);
+
   void report_outstanding();
 
   std::string region_;
@@ -116,7 +132,9 @@ class KinesisProducer : boost::noncopyable {
 
   std::unordered_map<std::string, std::string> stream_id_cache_;
   mutable aws::shared_mutex stream_id_cache_mutex_;
-  
+
+  std::shared_ptr<StreamStrategyManager> stream_strategy_manager_;
+
   bool shutdown_;
   aws::thread message_drainer_;
 

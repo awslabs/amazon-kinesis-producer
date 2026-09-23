@@ -348,6 +348,29 @@ public class KinesisProducerConfiguration {
         }
     }
 
+    /**
+     * The default {@code RecordDistributionStrategy} for the streams this producer writes to.
+     * <p>
+     * When set to {@link #AUTO} or {@link #USER_PARTITION_KEY}, the producer assumes that strategy
+     * for every stream immediately and never blocks the first write on stream discovery; a
+     * background check still corrects the behavior if a stream's actual strategy differs. When left
+     * {@link #UNSET}, the producer discovers each stream's strategy on its first write.
+     */
+    public enum RecordDistributionStrategyDefault {
+        /** No default configured. Each stream's strategy is discovered on first write. */
+        UNSET(""),
+        /** Assume service-managed (random) record distribution. Partition key is optional. */
+        AUTO("AUTO"),
+        /** Assume partition-key-based record distribution (the classic behavior). */
+        USER_PARTITION_KEY("USER_PARTITION_KEY");
+
+        final String wireValue;
+
+        RecordDistributionStrategyDefault(String wireValue) {
+            this.wireValue = wireValue;
+        }
+    }
+
     // __GENERATED_CODE__
     private boolean aggregationEnabled = true;
     private long aggregationMaxCount = 4294967295L;
@@ -386,6 +409,9 @@ public class KinesisProducerConfiguration {
     private long stsPort = 443L;
     private ThreadingModel threadingModel = ThreadingModel.PER_REQUEST;
     private int threadPoolSize = 0;
+    private long describeStreamSummaryIntervalMs = 300000L;
+    private RecordDistributionStrategyDefault recordDistributionStrategyDefault =
+            RecordDistributionStrategyDefault.UNSET;
     private String caCertPath = "";
     private String caCertFile = "";
     private String glueSchemaRegistryPropertiesFilePath = "";
@@ -951,6 +977,26 @@ public class KinesisProducerConfiguration {
      */
     public ThreadingModel getThreadingModel() {
         return threadingModel;
+    }
+
+    /**
+     * Returns how often (in milliseconds) the native process refreshes each stream's
+     * {@code RecordDistributionStrategy} via DescribeStreamSummary, for drift detection.
+     *
+     * @return the DescribeStreamSummary refresh interval in milliseconds.
+     */
+    public long getDescribeStreamSummaryIntervalMs() {
+        return describeStreamSummaryIntervalMs;
+    }
+
+    /**
+     * Returns the configured default {@code RecordDistributionStrategy} for this producer's streams.
+     *
+     * @return the {@link RecordDistributionStrategyDefault}; {@link RecordDistributionStrategyDefault#UNSET}
+     *         if none was configured.
+     */
+    public RecordDistributionStrategyDefault getRecordDistributionStrategyDefault() {
+        return recordDistributionStrategyDefault;
     }
 
     /**
@@ -1743,6 +1789,52 @@ public class KinesisProducerConfiguration {
     }
 
     /**
+     * Sets how often (in milliseconds) the native process refreshes each stream's
+     * {@code RecordDistributionStrategy} via DescribeStreamSummary, for drift detection.
+     *
+     * <p><b>Default</b>: 300000 (5 minutes)
+     *
+     * @param val the refresh interval in milliseconds
+     * @return this configuration object
+     */
+    public KinesisProducerConfiguration setDescribeStreamSummaryIntervalMs(long val) {
+        if (val < 1L) {
+            throw new IllegalArgumentException(
+                    "describeStreamSummaryIntervalMs must be at least 1, got " + val);
+        }
+        describeStreamSummaryIntervalMs = val;
+        return this;
+    }
+
+    /**
+     * Sets the default {@code RecordDistributionStrategy} for the streams this producer writes to.
+     * <p>
+     * See {@link RecordDistributionStrategyDefault} for behavior.
+     *
+     * @param val the default strategy to assume
+     * @return this configuration object
+     */
+    public KinesisProducerConfiguration setRecordDistributionStrategyDefault(
+            RecordDistributionStrategyDefault val) {
+        this.recordDistributionStrategyDefault = val;
+        return this;
+    }
+
+    /**
+     * Sets the default {@code RecordDistributionStrategy} from its string name.
+     * <p>
+     * Valid inputs: {@code UNSET}, {@code AUTO}, {@code USER_PARTITION_KEY}.
+     *
+     * @param val the string representation of the default strategy
+     * @return this configuration object
+     * @throws IllegalArgumentException if {@code val} is not a valid strategy name
+     */
+    public KinesisProducerConfiguration setRecordDistributionStrategyDefault(String val) {
+        return setRecordDistributionStrategyDefault(
+                RecordDistributionStrategyDefault.valueOf(val));
+    }
+
+    /**
      * Sets the maximum number of threads that the native process' thread pool will be configured with.
      *
      * See {@link #getThreadPoolSize()} for more information
@@ -1884,8 +1976,13 @@ public class KinesisProducerConfiguration {
                 .setProxyPort(proxyPort)
                 .setProxyUserName(proxyUserName)
                 .setProxyPassword(proxyPassword)
-                .setThreadConfig(threadingModel.threadConfig);
+                .setThreadConfig(threadingModel.threadConfig)
+                .setDescribeStreamSummaryInterval(describeStreamSummaryIntervalMs);
         //@formatter:on
+        if (recordDistributionStrategyDefault != RecordDistributionStrategyDefault.UNSET) {
+            builder = builder.setRecordDistributionStrategyDefault(
+                    recordDistributionStrategyDefault.wireValue);
+        }
         if (threadPoolSize > 0) {
             builder = builder.setThreadPoolSize(threadPoolSize);
         }

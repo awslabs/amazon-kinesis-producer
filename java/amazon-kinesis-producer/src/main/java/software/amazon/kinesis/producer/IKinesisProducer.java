@@ -10,6 +10,14 @@ import com.amazonaws.services.schemaregistry.common.Schema;
 public interface IKinesisProducer {
     ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, ByteBuffer data);
 
+    /**
+     * Put a record without a partition key. Valid only for AUTO streams. Implementations that do
+     * not support partition-key-less puts may throw {@link UnsupportedOperationException}.
+     */
+    default ListenableFuture<UserRecordResult> addUserRecord(String stream, ByteBuffer data) {
+        throw new UnsupportedOperationException("This method is not supported in this IKinesisProducer type");
+    }
+
     ListenableFuture<UserRecordResult> addUserRecord(UserRecord userRecord);
 
     ListenableFuture<UserRecordResult> addUserRecord(String stream, String partitionKey, String explicitHashKey, ByteBuffer data);

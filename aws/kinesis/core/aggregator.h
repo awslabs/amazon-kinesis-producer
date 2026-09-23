@@ -55,11 +55,16 @@ class Aggregator : boost::noncopyable {
         metrics_manager_(metrics_manager),
         reducers_([this](auto) { return this->make_reducer(); }) {}
 
-  std::shared_ptr<KinesisRecord> put(const std::shared_ptr<UserRecord>& ur) {
-    // If shard map is not available, or aggregation is disabled, just send the
-    // record by itself, and do not attempt to aggrgegate.
+  // force_solo bypasses shard lookup and aggregation entirely, wrapping the
+  // record by itself. The Pipeline sets it for AUTO and UNKNOWN streams, whose
+  // records the service routes itself (no shard-based aggregation).
+  std::shared_ptr<KinesisRecord> put(const std::shared_ptr<UserRecord>& ur,
+                                     bool force_solo = false) {
+    // If shard map is not available, aggregation is disabled, or the caller
+    // forces solo, just send the record by itself, and do not attempt to
+    // aggrgegate.
     boost::optional<uint64_t> shard_id;
-    if (config_->aggregation_enabled() && shard_map_) {
+    if (!force_solo && config_->aggregation_enabled() && shard_map_) {
       shard_id = shard_map_->shard_id(ur->hash_key());
     }
     if (!shard_id) {

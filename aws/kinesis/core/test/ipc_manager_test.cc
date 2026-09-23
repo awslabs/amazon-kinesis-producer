@@ -87,18 +87,22 @@ BOOST_AUTO_TEST_CASE(DataIntegrity) {
     wrote.push_back(std::move(data_copy));
   };
 
+  const size_t kMax = aws::kinesis::core::kMaxMessageSize;
+
   for (size_t i = 0; i < 1024; i++) {
     f(i);
   }
 
-  for (size_t i = 2 * 1024 * 1024 - 8; i <= 2 * 1024 * 1024; i++) {
+  // Sizes right up to the limit should be accepted.
+  for (size_t i = kMax - 8; i <= kMax; i++) {
     f(i);
   }
 
-  for (size_t i = 2 * 1024 * 1024 + 1; i < 2 * 1024 * 1024 + 8; i++) {
+  // Sizes past the limit should be rejected.
+  for (size_t i = kMax + 1; i < kMax + 8; i++) {
     try {
       f(i);
-      BOOST_FAIL("Shoudld've failed for data larger than 2MB");
+      BOOST_FAIL("Should've failed for data larger than the max message size");
     } catch (const std::exception& e) {
       // ok
     }

@@ -40,6 +40,12 @@ make_user_record(const std::string& partition_key = "abcd",
 
 std::shared_ptr<aws::kinesis::core::UserRecord> make_user_record_with_hashkey(const std::string& explicit_hash_key = "");
 
+std::shared_ptr<aws::kinesis::core::UserRecord>
+make_user_record_no_pk(const std::string& data = "1234",
+                       uint64_t deadline = 100000,
+                       const std::string& stream = "myStream",
+                       uint64_t source_id = 0);
+
 // Create a pipe with mkfifo, deleting it when the Fifo instance is destroyed
 class Fifo {
  public:

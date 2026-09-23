@@ -35,19 +35,29 @@ message Message {
     MetricsResponse metrics_response  = 8;
     SetCredentials  set_credentials   = 9;
     StreamMetadata  stream_metadata   = 10;
+    StreamStrategyUpdate stream_strategy_update = 11;
   }
 }
 
 message PutRecord {
   required string stream_name          = 1;
-  required string partition_key        = 2;
+  optional string partition_key        = 2;
   optional string explicit_hash_key    = 3;
   required bytes  data                 = 4;
 }
 
 message StreamMetadata {
-  required string stream_name = 1;
-  optional string stream_id   = 2;
+  required string stream_name                   = 1;
+  optional string stream_id                     = 2;
+  optional string record_distribution_strategy  = 3;
+}
+
+// Sent only from the C++ daemon to Java to report a stream's discovered or
+// corrected RecordDistributionStrategy. Distinct from StreamMetadata, which is
+// a Java-to-daemon command (it backs the public setStreamId API).
+message StreamStrategyUpdate {
+  required string stream_name                  = 1;
+  required string record_distribution_strategy = 2;
 }
 
 message Flush {

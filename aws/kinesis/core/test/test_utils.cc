@@ -53,6 +53,22 @@ std::shared_ptr<aws::kinesis::core::UserRecord> make_user_record_with_hashkey(co
       0);
 }
 
+std::shared_ptr<aws::kinesis::core::UserRecord>
+make_user_record_no_pk(const std::string& data,
+                       uint64_t deadline,
+                       const std::string& stream,
+                       uint64_t source_id) {
+  aws::kinesis::protobuf::Message m;
+  m.set_id(source_id);
+  auto put_record = m.mutable_put_record();
+  put_record->set_data(data);
+  put_record->set_stream_name(stream);
+  auto r = std::make_shared<aws::kinesis::core::UserRecord>(m);
+  r->set_deadline_from_now(std::chrono::milliseconds(deadline));
+  r->set_expiration_from_now(std::chrono::milliseconds(deadline * 2));
+  return r;
+}
+
 Fifo::Fifo() {
   auto ts = std::chrono::steady_clock::now().time_since_epoch().count();
 #if !BOOST_OS_WINDOWS

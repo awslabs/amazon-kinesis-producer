@@ -37,7 +37,7 @@ UserRecord::UserRecord(aws::kinesis::protobuf::Message& m)
 
   if (has_explicit_hash_key_) {
     hash_key_ = uint128_t(put_record.explicit_hash_key());
-  } else {
+  } else if (!partition_key_.empty()) {
     auto digest = aws::utils::md5_binary(partition_key_);
     for (int i = 0; i < 16; i++) {
       uint128_t p(digest[i]);
