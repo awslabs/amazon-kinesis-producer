@@ -157,4 +157,52 @@ BOOST_AUTO_TEST_CASE(SinglePublisherMultipleReaders) {
   LOG(info) << "Test Completed";
 }
 
+//
+// Each test reads credentials on a new thread, because the provider caches them in a
+// thread_local that earlier tests on the main thread may already have filled.
+//
+
+BOOST_AUTO_TEST_CASE(WaitsForFirstCredentials) {
+  aws::auth::MutableStaticCredentialsProvider provider(std::chrono::milliseconds(5000));
+
+  Aws::Auth::AWSCredentials creds;
+  std::thread reader([&provider, &creds] {
+      creds = provider.GetAWSCredentials();
+    });
+  std::this_thread::sleep_for(std::chrono::milliseconds(200));
+  provider.set_credentials("first-akid", "first-sk");
+  reader.join();
+
+  BOOST_CHECK_EQUAL(creds.GetAWSAccessKeyId(), "first-akid");
+  BOOST_CHECK_EQUAL(creds.GetAWSSecretKey(), "first-sk");
+}
+
+BOOST_AUTO_TEST_CASE(StopsWaitingAfterFirstCredentialsTimeout) {
+  aws::auth::MutableStaticCredentialsProvider provider(std::chrono::milliseconds(100));
+
+  Aws::Auth::AWSCredentials first;
+  Aws::Auth::AWSCredentials second;
+  std::chrono::steady_clock::duration second_call_time;
+  std::thread reader([&] {
+      first = provider.GetAWSCredentials();
+      auto start = std::chrono::steady_clock::now();
+      second = provider.GetAWSCredentials();
+      second_call_time = std::chrono::steady_clock::now() - start;
+    });
+  reader.join();
+
+  BOOST_CHECK(first.GetAWSAccessKeyId().empty());
+  BOOST_CHECK(second.GetAWSAccessKeyId().empty());
+  BOOST_CHECK(second_call_time < std::chrono::milliseconds(100));
+
+  provider.set_credentials("late-akid", "late-sk");
+  Aws::Auth::AWSCredentials late;
+  std::thread late_reader([&provider, &late] {
+      late = provider.GetAWSCredentials();
+    });
+  late_reader.join();
+
+  BOOST_CHECK_EQUAL(late.GetAWSAccessKeyId(), "late-akid");
+}
+
 BOOST_AUTO_TEST_SUITE_END()

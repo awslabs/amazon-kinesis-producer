@@ -93,6 +93,29 @@ public class KinesisProducerTest {
         }
     }
 
+    private static class SlowFirstCallCredentialsProvider implements AwsCredentialsProvider {
+        private final AwsCredentials creds;
+        private final long firstCallDelayMillis;
+        private final AtomicBoolean firstCall = new AtomicBoolean(true);
+
+        public SlowFirstCallCredentialsProvider(AwsCredentials creds, long firstCallDelayMillis) {
+            this.creds = creds;
+            this.firstCallDelayMillis = firstCallDelayMillis;
+        }
+
+        @Override
+        public AwsCredentials resolveCredentials() {
+            if (firstCall.getAndSet(false)) {
+                try {
+                    Thread.sleep(firstCallDelayMillis);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            return creds;
+        }
+    }
+
     @Before
     public void startServer() {
         mockServer = startClientAndServer(port);
@@ -206,6 +229,46 @@ public class KinesisProducerTest {
 
         assertTrue(counts.get(AKID_C).get() > 1);
         assertTrue(counts.get(AKID_D).get() > 1);
+    }
+
+    @Test
+    public void recordsAddedBeforeCredentialsResolveAreSigned() throws InterruptedException, ExecutionException {
+        final String AKID_E = "AKIAEEEEEEEEEEEEEEEE";
+
+        //
+        // The first credentials lookup takes a second, so every record below is queued
+        // before the daemon can have received any credentials.
+        //
+        final KinesisProducer kp = getProducer(
+                new SlowFirstCallCredentialsProvider(
+                        AwsBasicCredentials.create(AKID_E, StringUtils.repeat("e", 40)), 1000),
+                null);
+
+        for (int i = 0; i < 20; i++) {
+            kp.addUserRecord("streamName", "partitionKey", ByteBuffer.wrap(new byte[0]));
+        }
+        kp.flush();
+
+        kp.flushSync();
+        Thread.sleep(1000);
+        kp.destroy();
+
+        org.mockserver.model.HttpRequest[] recorded = mockServer.retrieveRecordedRequests(request());
+        assertTrue("Expected at least one Kinesis request",
+                Arrays.stream(recorded).anyMatch(r -> r.getHeaders().getValues("x-amz-target").stream()
+                        .anyMatch(t -> t.startsWith("Kinesis_"))));
+
+        Arrays.stream(recorded).forEach(
+                httpRequest -> {
+                    String auth = Stream.of("Authorization", "authorization")
+                            .map(headKey -> httpRequest.getHeaders().getValues(headKey).toString())
+                            .findFirst().get();
+                    if (!auth.contains(AKID_E)) {
+                        fail("Request sent without the expected credentials: target="
+                                + httpRequest.getHeaders().getValues("x-amz-target") + " auth=" + auth);
+                    }
+                }
+        );
     }
 
     @Test
