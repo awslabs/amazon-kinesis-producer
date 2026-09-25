@@ -237,9 +237,14 @@ std::pair<
     std::shared_ptr<aws::auth::MutableStaticCredentialsProvider>,
     std::shared_ptr<aws::auth::MutableStaticCredentialsProvider>>
 get_creds_providers() {
+  //
+  // The Java process sends credentials before any record, so requests normally find them
+  // already set. The wait covers slow credential resolution on the Java side.
+  //
+  const std::chrono::milliseconds first_credentials_timeout(5000);
 
-  auto kinesis_creds_provider = std::make_shared<CredsProvider>("", "", "");
-  auto cw_creds_provider = std::make_shared<CredsProvider>("", "", "");
+  auto kinesis_creds_provider = std::make_shared<CredsProvider>(first_credentials_timeout);
+  auto cw_creds_provider = std::make_shared<CredsProvider>(first_credentials_timeout);
 
   return std::make_pair(kinesis_creds_provider, cw_creds_provider);
 }

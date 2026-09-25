@@ -18,6 +18,8 @@
 
 #include <aws/core/auth/AWSCredentialsProvider.h>
 #include <atomic>
+#include <chrono>
+#include <condition_variable>
 #include <cstdint>
 #include <mutex>
 #include <memory>
@@ -39,14 +41,24 @@ class MutableStaticCredentialsProvider
  public:
   MutableStaticCredentialsProvider(const std::string& akid, const std::string& sk, std::string token = "");
 
+  // Starts without credentials. Until the first set_credentials() call,
+  // GetAWSCredentials() waits for it, for at most first_credentials_timeout,
+  // instead of returning empty credentials that leave requests unsigned.
+  explicit MutableStaticCredentialsProvider(std::chrono::milliseconds first_credentials_timeout);
+
   void set_credentials(const std::string& akid, const std::string& sk, std::string token = "");
 
   Aws::Auth::AWSCredentials GetAWSCredentials() override;
 
  private:
+  void wait_for_first_credentials();
+
   std::mutex update_mutex_;
   std::shared_ptr<VersionedCredentials> creds_;
   std::atomic<std::uint64_t> version_;
+  std::atomic<bool> awaiting_first_credentials_;
+  std::chrono::milliseconds first_credentials_timeout_;
+  std::condition_variable first_credentials_cv_;
 
 };
 

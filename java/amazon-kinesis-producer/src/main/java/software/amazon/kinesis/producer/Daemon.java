@@ -222,17 +222,25 @@ public class Daemon {
      */
     private void sendMessage()  {
         try {
-            Message m = outgoingMessages.take();
-            int size = m.getSerializedSize();
-            lenBuf.rewind();
-            lenBuf.putInt(size);
-            lenBuf.rewind();
-            outChannel.write(lenBuf);
-            m.writeTo(outStream);
-            outStream.flush();
+            writeMessage(outgoingMessages.take());
         } catch (IOException | InterruptedException e) {
             fatalError("Error writing message to daemon", e);
         }
+    }
+
+    /**
+     * Write one message to the child process. Only two callers exist: the connect
+     * thread, before {@link #startLoops()} starts the writer loop, and the writer
+     * loop itself. They never run at the same time, so writes cannot interleave.
+     */
+    private void writeMessage(Message m) throws IOException {
+        int size = m.getSerializedSize();
+        lenBuf.rewind();
+        lenBuf.putInt(size);
+        lenBuf.rewind();
+        outChannel.write(lenBuf);
+        m.writeTo(outStream);
+        outStream.flush();
     }
     
     /**
@@ -459,13 +467,10 @@ public class Daemon {
             public void run() {
                 try {
                     connectToChild();
-                    updateCredentials();
+                    sendInitialCredentials();
                     startLoops();
                 } catch (IOException e) {
                     fatalError("Unexpected error connecting to child process", e, false);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    fatalError("Unexpected error", e);
                 }
             }
         });
@@ -502,11 +507,22 @@ public class Daemon {
     
     private void updateCredentials() throws InterruptedException {
         outgoingMessages.put(makeSetCredentialsMessage(config.getCredentialsProvider(), false));
+        outgoingMessages.put(makeSetCredentialsMessage(metricsCredentialsProvider(), true));
+    }
+
+    /**
+     * Write the first credentials straight to the child, before the writer loop
+     * starts. Records added with {@link #add(Message)} before this point wait in
+     * the queue, so the child always has credentials before it reads a record.
+     */
+    private void sendInitialCredentials() throws IOException {
+        writeMessage(makeSetCredentialsMessage(config.getCredentialsProvider(), false));
+        writeMessage(makeSetCredentialsMessage(metricsCredentialsProvider(), true));
+    }
+
+    private AwsCredentialsProvider metricsCredentialsProvider() {
         AwsCredentialsProvider metricsCreds = config.getMetricsCredentialsProvider();
-        if (metricsCreds == null) {
-            metricsCreds = config.getCredentialsProvider();
-        }
-        outgoingMessages.put(makeSetCredentialsMessage(metricsCreds, true));
+        return metricsCreds != null ? metricsCreds : config.getCredentialsProvider();
     }
     
     private void fatalError(String message) {
