@@ -36,13 +36,13 @@ MutableStaticCredentialsProvider::MutableStaticCredentialsProvider(const std::st
                                                                    const std::string& sk,
                                                                    std::string token) :
   creds_(std::make_shared<VersionedCredentials>(1, akid, sk, token)), version_(1),
-  awaiting_first_credentials_(false), first_credentials_timeout_(0) {
+  awaiting_first_credentials_(false), has_credentials_(true), first_credentials_timeout_(0) {
 }
 
 MutableStaticCredentialsProvider::MutableStaticCredentialsProvider(
     std::chrono::milliseconds first_credentials_timeout) :
   creds_(std::make_shared<VersionedCredentials>(1, "", "", "")), version_(1),
-  awaiting_first_credentials_(true), first_credentials_timeout_(first_credentials_timeout) {
+  awaiting_first_credentials_(false), has_credentials_(false), first_credentials_timeout_(first_credentials_timeout) {
 }
 
 void MutableStaticCredentialsProvider::set_credentials(const std::string& akid, const std::string& sk, std::string token) {
@@ -67,6 +67,7 @@ void MutableStaticCredentialsProvider::set_credentials(const std::string& akid, 
   //
   std::atomic_store(&creds_, new_credentials);
   version_ = next_version;
+  has_credentials_ = true;
 
   //
   // Wake any request that is waiting for the first credentials. The flag changes while
@@ -75,6 +76,13 @@ void MutableStaticCredentialsProvider::set_credentials(const std::string& akid, 
   if (awaiting_first_credentials_) {
     awaiting_first_credentials_ = false;
     first_credentials_cv_.notify_all();
+  }
+}
+
+void MutableStaticCredentialsProvider::enable_first_credentials_wait() {
+  std::lock_guard<std::mutex> lock(update_mutex_);
+  if (!has_credentials_) {
+    awaiting_first_credentials_ = true;
   }
 }
 
@@ -94,7 +102,7 @@ void MutableStaticCredentialsProvider::wait_for_first_credentials() {
   awaiting_first_credentials_ = false;
   LOG(warning) << "No credentials received from the Java process within "
                << first_credentials_timeout_.count()
-               << " ms; requests are sent unsigned until credentials arrive";
+               << " ms; continuing without waiting for them";
 }
 
 Aws::Auth::AWSCredentials MutableStaticCredentialsProvider::GetAWSCredentials() {

@@ -26,6 +26,9 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <aws/core/client/ClientConfiguration.h>
+#include <aws/kinesis/KinesisClient.h>
+#include <aws/monitoring/CloudWatchClient.h>
 #include <aws/utils/logging.h>
 
 struct ResultsCounter {
@@ -164,6 +167,7 @@ BOOST_AUTO_TEST_CASE(SinglePublisherMultipleReaders) {
 
 BOOST_AUTO_TEST_CASE(WaitsForFirstCredentials) {
   aws::auth::MutableStaticCredentialsProvider provider(std::chrono::milliseconds(5000));
+  provider.enable_first_credentials_wait();
 
   Aws::Auth::AWSCredentials creds;
   std::thread reader([&provider, &creds] {
@@ -179,6 +183,7 @@ BOOST_AUTO_TEST_CASE(WaitsForFirstCredentials) {
 
 BOOST_AUTO_TEST_CASE(StopsWaitingAfterFirstCredentialsTimeout) {
   aws::auth::MutableStaticCredentialsProvider provider(std::chrono::milliseconds(100));
+  provider.enable_first_credentials_wait();
 
   Aws::Auth::AWSCredentials first;
   Aws::Auth::AWSCredentials second;
@@ -203,6 +208,41 @@ BOOST_AUTO_TEST_CASE(StopsWaitingAfterFirstCredentialsTimeout) {
   late_reader.join();
 
   BOOST_CHECK_EQUAL(late.GetAWSAccessKeyId(), "late-akid");
+}
+
+//
+// The AWS SDK reads a provider's credentials while it builds a client, which the daemon
+// does before it can receive any credentials. Building the clients must not wait for them.
+//
+BOOST_AUTO_TEST_CASE(BuildingSdkClientsDoesNotWaitForCredentials) {
+  auto provider = std::make_shared<aws::auth::MutableStaticCredentialsProvider>(std::chrono::milliseconds(5000));
+  Aws::Client::ClientConfiguration cfg;
+  cfg.region = "us-west-2";
+
+  auto start = std::chrono::steady_clock::now();
+  Aws::Kinesis::KinesisClient kinesis(provider, cfg);
+  Aws::CloudWatch::CloudWatchClient cloudwatch(provider, cfg);
+  auto build_time = std::chrono::steady_clock::now() - start;
+
+  BOOST_CHECK(build_time < std::chrono::seconds(1));
+}
+
+BOOST_AUTO_TEST_CASE(EnablingTheWaitAfterCredentialsArrivedDoesNotWait) {
+  aws::auth::MutableStaticCredentialsProvider provider(std::chrono::milliseconds(5000));
+  provider.set_credentials("early-akid", "early-sk");
+  provider.enable_first_credentials_wait();
+
+  Aws::Auth::AWSCredentials creds;
+  std::chrono::steady_clock::duration read_time;
+  std::thread reader([&] {
+      auto start = std::chrono::steady_clock::now();
+      creds = provider.GetAWSCredentials();
+      read_time = std::chrono::steady_clock::now() - start;
+    });
+  reader.join();
+
+  BOOST_CHECK_EQUAL(creds.GetAWSAccessKeyId(), "early-akid");
+  BOOST_CHECK(read_time < std::chrono::milliseconds(100));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
