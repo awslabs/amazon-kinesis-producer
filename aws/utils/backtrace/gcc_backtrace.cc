@@ -15,7 +15,6 @@
 
 #include "backtrace.h"
 #include <aws/utils/writer_methods.h>
-#include <execinfo.h>
 #include <unistd.h>
 #include <aws/utils/logging.h>
 #include <aws/utils/writer_methods.h>
@@ -23,7 +22,7 @@
 #include <cstdio>
 
 #ifdef LIB_BACKTRACE
-
+#include <execinfo.h>
 #include <backtrace.h>
 
 namespace {
