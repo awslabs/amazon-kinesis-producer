@@ -271,6 +271,39 @@ public class KinesisProducerTest {
         );
     }
 
+    private boolean anyRequestSignedWith(String akid) {
+        return Arrays.stream(mockServer.retrieveRecordedRequests(request()))
+                .anyMatch(r -> r.getHeaders().getValues("Authorization").toString()
+                        .contains("Credential=" + akid + "/"));
+    }
+
+    @Test
+    public void daemonSendsItsFirstRequestPromptly() throws InterruptedException {
+        final String AKID_F = "AKIAFFFFFFFFFFFFFFFF";
+
+        //
+        // The daemon used to wait for credentials while it built its AWS clients, before it
+        // could handle any message from this process, which delayed its first request.
+        //
+        final KinesisProducer kp = getProducer(
+                StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(AKID_F, StringUtils.repeat("f", 40))),
+                null);
+        final long start = System.nanoTime();
+        kp.addUserRecord("streamName", "partitionKey", ByteBuffer.wrap(new byte[0]));
+        kp.flush();
+
+        long elapsedMillis = 0;
+        while (!anyRequestSignedWith(AKID_F) && elapsedMillis < 15000) {
+            Thread.sleep(50);
+            elapsedMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
+        }
+        kp.flushSync();
+        kp.destroy();
+
+        assertTrue("The first signed request took " + elapsedMillis + " ms", elapsedMillis < 5000);
+    }
+
     @Test
     public void multipleInstances() throws Exception {
         int N = 8;

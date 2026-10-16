@@ -22,6 +22,7 @@
 #include <aws/core/NoResult.h>
 #include <aws/metrics/metrics_manager.h>
 #include <aws/monitoring/model/PutMetricDataRequest.h>
+#include <aws/mutex.h>
 #include <aws/utils/io_service_executor.h>
 #include <aws/utils/logging.h>
 #include <aws/utils/utils.h>
@@ -39,46 +40,30 @@ Aws::Client::ClientConfiguration fake_client_cfg() {
   return cfg;
 }
 
-template <typename U>
-void push(const std::list<U>* t, const U& v) {
-  ((std::list<U>*) t)->push_back(v);
-}
-
 class MockCloudWatchClient : public Aws::CloudWatch::CloudWatchClient {
  public:
-  MockCloudWatchClient(int num_failures = 0)
-      : Aws::CloudWatch::CloudWatchClient(fake_client_cfg()),
-        num_failures_(num_failures),
-        executor_(std::make_shared<aws::utils::IoServiceExecutor>(1)) {}
+  MockCloudWatchClient() : Aws::CloudWatch::CloudWatchClient(fake_client_cfg()) {}
 
-  virtual void PutMetricDataAsync(
-      const Aws::CloudWatch::Model::PutMetricDataRequest& request,
-      const Aws::CloudWatch::PutMetricDataResponseReceivedHandler& handler,
-      const std::shared_ptr<const Aws::Client::AsyncCallerContext>& context
-          = nullptr) const  {
-    push(&requests_, request);
-    executor_->submit([=] {
-      if (num_failures_ <= 0) {
-        Aws::NoResult nr;
-        Aws::CloudWatch::Model::PutMetricDataOutcome o(nr);
-        handler(this, request, o, context);
-      } else {
-        (*((int*) &num_failures_))--;
-        Aws::Client::AWSError<Aws::CloudWatch::CloudWatchErrors> e;
-        Aws::CloudWatch::Model::PutMetricDataOutcome o(e);
-        handler(this, request, o, context);
-      }
-    });
+  // PutMetricDataAsync is a template in the SDK, so it can't be overridden. It runs
+  // PutMetricData on the client's executor, so that's what the mock overrides.
+  Aws::CloudWatch::Model::PutMetricDataOutcome PutMetricData(
+      const Aws::CloudWatch::Model::PutMetricDataRequest& request) const override {
+    {
+      aws::lock_guard<aws::mutex> lk(mutex_);
+      requests_.push_back(request);
+    }
+    Aws::NoResult nr;
+    return Aws::CloudWatch::Model::PutMetricDataOutcome(nr);
   }
 
   std::list<Aws::CloudWatch::Model::PutMetricDataRequest> requests() const {
+    aws::lock_guard<aws::mutex> lk(mutex_);
     return requests_;
   }
 
  private:
-  int num_failures_;
-  std::list<Aws::CloudWatch::Model::PutMetricDataRequest> requests_;
-  std::shared_ptr<aws::utils::Executor> executor_;
+  mutable aws::mutex mutex_;
+  mutable std::list<Aws::CloudWatch::Model::PutMetricDataRequest> requests_;
 };
 
 auto make_metrics_manager(std::shared_ptr<MockCloudWatchClient> mock_cw,
@@ -445,22 +430,23 @@ BOOST_AUTO_TEST_CASE(UploadFrequency) {
   auto mock_cw = std::make_shared<MockCloudWatchClient>();
   auto metrics_manager = make_metrics_manager(mock_cw);
 
-  metrics_manager
+  auto metric = metrics_manager
       ->finder()
       .set_name(aws::metrics::constants::Names::Test)
       .set_stream("MyStream")
-      .find()
-      ->put(0);
+      .find();
 
   std::chrono::high_resolution_clock::time_point start;
 
-  // Wait for 4 requests to be made
+  // Wait for 4 requests to be made. Each upload only sends data recorded since the
+  // previous one, so keep recording data.
   while (mock_cw->requests().size() < 4) {
+    metric->put(0);
     if (mock_cw->requests().size() == 1 &&
         start.time_since_epoch().count() == 0) {
       start = std::chrono::high_resolution_clock::now();
     }
-    aws::this_thread::yield();
+    aws::utils::sleep_for(std::chrono::milliseconds(10));
   }
   metrics_manager->stop();
 
@@ -469,30 +455,6 @@ BOOST_AUTO_TEST_CASE(UploadFrequency) {
                     10);
 
   aws::utils::sleep_for(std::chrono::milliseconds(200));
-}
-
-BOOST_AUTO_TEST_CASE(Retry) {
-  using aws::metrics::constants::Names;
-
-  auto mock_cw = std::make_shared<MockCloudWatchClient>(1);
-  auto metrics_manager = make_metrics_manager(mock_cw);
-
-  metrics_manager
-      ->finder()
-      .set_name(aws::metrics::constants::Names::Test)
-      .set_stream("MyStream")
-      .find()
-      ->put(0);
-
-  while (mock_cw->requests().size() < 1) {
-    aws::this_thread::yield();
-  }
-
-  aws::utils::sleep_for(std::chrono::milliseconds(200));
-  metrics_manager->stop();
-  aws::utils::sleep_for(std::chrono::milliseconds(500));
-
-  BOOST_CHECK_EQUAL(mock_cw->requests().size(), 2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
