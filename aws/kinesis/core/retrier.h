@@ -100,6 +100,12 @@ class Retrier {
  private:
   void handle_put_records_result(std::shared_ptr<PutRecordsContext> prc);
 
+  void handle_successful_kinesis_record(
+      const std::shared_ptr<KinesisRecord>& kr,
+      const Aws::Kinesis::Model::PutRecordsResultEntry& put_result,
+      TimePoint start,
+      TimePoint end);
+
   void retry_not_expired(const std::shared_ptr<KinesisRecord>& kr,
                          TimePoint start,
                          TimePoint end,
@@ -124,14 +130,6 @@ class Retrier {
             const std::string& err_code,
             const std::string& err_msg);
 
-  bool succeed_if_correct_shard(const std::shared_ptr<UserRecord>& ur,
-                                TimePoint start,
-                                TimePoint end,
-                                const std::string& shard_id,
-                                const std::string& sequence_number,
-                                const bool should_invalidate_on_incorrect_shard,
-                                const boost::optional<std::pair<uint128_t, uint128_t>>& hashrange_actual_shard);
-
   void finish_user_record(const std::shared_ptr<UserRecord>& ur,
                           const Attempt& final_attempt);
 
@@ -141,8 +139,7 @@ class Retrier {
 
   void invalidate_cache(const std::shared_ptr<UserRecord>& ur,
                         const TimePoint start,
-                        const uint64_t& actual_shard,
-                        bool should_invalidate_on_incorrect_shard);
+                        const uint64_t& actual_shard);
 
   std::shared_ptr<Configuration> config_;
   UserRecordCallback finish_cb_;

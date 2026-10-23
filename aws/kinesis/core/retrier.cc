@@ -41,6 +41,21 @@ MetricsPutter& MetricsPutter::operator ()(
 
 } //namespace detail
 
+namespace {
+
+// True when hash_key falls within the shard's inclusive hash range. A missing
+// range (boost::none) means the shard is unknown, so the key is not in range.
+bool hash_key_in_range(
+    const boost::optional<std::pair<boost::multiprecision::uint128_t,
+                                    boost::multiprecision::uint128_t>>& range,
+    const boost::multiprecision::uint128_t& hash_key) {
+  return range &&
+         (*range).first <= hash_key &&
+         hash_key <= (*range).second;
+}
+
+} //namespace
+
 void
 Retrier::handle_put_records_result(std::shared_ptr<PutRecordsContext> prc) {
   auto outcome = prc->get_outcome();
@@ -103,20 +118,7 @@ Retrier::handle_put_records_result(std::shared_ptr<PutRecordsContext> prc) {
       }
 
       if (success) {
-        //All the user records in a kinesis record have the same predicted shard.
-        //So either all user records in a kinesis record landed on the correct shard
-        //or none did. So we can invalidate just once per kinesis record.
-        bool should_invalidate_on_incorrect_shard = true;
-        auto hashrange_actual_shard = shard_map_hashrange_cb_(ShardMap::shard_id_from_str(put_result.GetShardId()));
-        for (auto& ur : kr->items()) {  
-          should_invalidate_on_incorrect_shard &= succeed_if_correct_shard(ur,
-                                   start,
-                                   end,
-                                   put_result.GetShardId(),
-                                   put_result.GetSequenceNumber(),
-                                   should_invalidate_on_incorrect_shard,
-                                   hashrange_actual_shard);
-        }
+        handle_successful_kinesis_record(kr, put_result, start, end);
       } else {
         auto& err_code = put_result.GetErrorCode();
         auto& err_msg = put_result.GetErrorMessage();
@@ -127,6 +129,59 @@ Retrier::handle_put_records_result(std::shared_ptr<PutRecordsContext> prc) {
           fail(kr, start, end, err_code, err_msg);
         }
       }
+    }
+  }
+}
+
+void Retrier::handle_successful_kinesis_record(
+    const std::shared_ptr<KinesisRecord>& kr,
+    const Aws::Kinesis::Model::PutRecordsResultEntry& put_result,
+    TimePoint start,
+    TimePoint end) {
+  // All the user records in a kinesis record share the same predicted shard,
+  // so either all of them landed on the correct shard or none did. That lets
+  // us decide for the whole aggregate at once, and invalidate just once.
+  auto actual_shard = ShardMap::shard_id_from_str(put_result.GetShardId());
+  auto hashrange_actual_shard = shard_map_hashrange_cb_(actual_shard);
+
+  // If any sub-record landed outside the shard range, retry the whole
+  // aggregate rather than succeeding the in-range sub-records.
+  bool all_sub_records_in_range = true;
+  for (auto& ur : kr->items()) {
+    if (ur->predicted_shard() && *ur->predicted_shard() != actual_shard &&
+        !hash_key_in_range(hashrange_actual_shard, ur->hash_key())) {
+      all_sub_records_in_range = false;
+      break;
+    }
+  }
+
+  if (!all_sub_records_in_range) {
+    invalidate_cache(kr->items().front(), start, actual_shard);
+    // Lets strategy discovery re-check the stream (it may have become AUTO).
+    if (wrong_shard_cb_) {
+      wrong_shard_cb_(kr->items().front()->stream());
+    }
+    retry_not_expired(kr, start, end, "Wrong Shard",
+                      "Aggregate did not end up in expected shard.");
+  } else {
+    // Every sub-record is in range. They all share one predicted shard,
+    // so if the aggregate landed on a higher-numbered child shard the
+    // parent is now stale: drop it once to help the shard map converge.
+    // AUTO/UNKNOWN records carry no predicted_shard (solo path), so the
+    // guard below skips them and they are simply finished.
+    auto& front = kr->items().front();
+    if (front->predicted_shard() &&
+        *front->predicted_shard() < actual_shard) {
+      invalidate_cache(front, start, actual_shard);
+    }
+    for (auto& ur : kr->items()) {
+      finish_user_record(
+          ur,
+          Attempt()
+              .set_start(start)
+              .set_end(end)
+              .set_result(put_result.GetShardId(),
+                          put_result.GetSequenceNumber()));
     }
   }
 }
@@ -191,66 +246,14 @@ void Retrier::fail(const std::shared_ptr<UserRecord>& ur,
           .set_error(err_code, err_msg));
 }
 
-bool Retrier::succeed_if_correct_shard(const std::shared_ptr<UserRecord>& ur,
-                                       TimePoint start,
-                                       TimePoint end,
-                                       const std::string& shard_id,                                     
-                                       const std::string& sequence_number,
-                                       const bool should_invalidate_on_incorrect_shard,
-                                       const boost::optional<std::pair<uint128_t, uint128_t>>& hashrange_actual_shard) {
-  const uint64_t actual_shard = ShardMap::shard_id_from_str(shard_id);
-  // For AUTO and UNKNOWN streams, predicted_shard is always boost::none because
-  // the Pipeline routes those records through the solo path, which calls
-  // reset_predicted_shard(). The guard below is therefore skipped and the record
-  // succeeds regardless of which shard the service routed it to. Only confirmed
-  // USER_PARTITION_KEY records carry a predicted_shard and reach the comparison.
-  if (ur->predicted_shard() && *ur->predicted_shard() != actual_shard) {
-    // retry if shard is not found or hash key of the user record doesn't fit into the actual shard's hashrange
-    if (!hashrange_actual_shard || 
-        !((*hashrange_actual_shard).first <= ur->hash_key() && (*hashrange_actual_shard).second >= ur->hash_key())) {
-      // invalidate because this is a new shard or shard felt outside of actual shards hashrange.
-      invalidate_cache(ur, start, actual_shard, should_invalidate_on_incorrect_shard);
-
-      // Notify strategy discovery: a persistent Wrong Shard pattern can mean the
-      // stream's RecordDistributionStrategy changed (e.g. to AUTO) and we should
-      // re-check it rather than keep retrying against a stale prediction.
-      if (wrong_shard_cb_) {
-        wrong_shard_cb_(ur->stream());
-      }
-
-      retry_not_expired(ur,
-                        start,
-                        end,
-                        "Wrong Shard",
-                        "Record " + std::to_string(ur->source_id()) + " did not end up in expected shard.");
-      return false;
-    } 
-    // child shard is numbered higher than the ancestor. if we landed on a child shard it means the parent shard can
-    // be removed now from the in-memory map. This will help the shardmap to converge
-    else if (*ur->predicted_shard() < actual_shard) {
-      invalidate_cache(ur, start, actual_shard, should_invalidate_on_incorrect_shard);
-    }
-  }
-  finish_user_record(
-      ur,
-      Attempt()
-          .set_start(start)
-          .set_end(end)
-          .set_result(shard_id, sequence_number));
-  return true;
-}
-
 void Retrier::invalidate_cache(const std::shared_ptr<UserRecord>& ur,
                                const TimePoint start,
-                               const uint64_t& actual_shard,
-                               const bool should_invalidate_on_incorrect_shard) {
-  if (should_invalidate_on_incorrect_shard) {
-    LOG(warning) << "Record " << ur->source_id() << " went to shard " << actual_shard << " instead of the "
-                  << "predicted shard " << *ur->predicted_shard() << "; this "
-                  << "usually means the sharp map has changed.";   
+                               const uint64_t& actual_shard) {
+  LOG(warning) << "Record " << ur->source_id() << " went to shard " << actual_shard << " instead of the "
+                << "predicted shard " << *ur->predicted_shard() << "; this "
+                << "usually means the shard map has changed.";
 
-    shard_map_invalidate_cb_(start, ur->predicted_shard());
-  }
+  shard_map_invalidate_cb_(start, ur->predicted_shard());
 }
 
 void Retrier::finish_user_record(const std::shared_ptr<UserRecord>& ur,
