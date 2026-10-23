@@ -583,6 +583,168 @@ BOOST_AUTO_TEST_CASE(WrongShardAndWrongHashrange) {
   }
 }
 
+// One aggregate, some sub-records inside the landing shard's range and one
+// outside: no sub-record may succeed, the whole aggregate is retried, and the
+// shard map and wrong-shard callback fire once.
+BOOST_AUTO_TEST_CASE(WrongShardMixedHashrange_RetriesWholeAggregate) {
+  auto kr = std::make_shared<aws::kinesis::core::KinesisRecord>();
+  for (const std::string hashkey : {"1", "5", "20"}) {
+    auto ur = aws::kinesis::test::make_user_record_with_hashkey(hashkey);
+    ur->predicted_shard(0);
+    kr->add(ur);
+  }
+  std::vector<std::shared_ptr<aws::kinesis::core::KinesisRecord>> krs{kr};
+  auto ctx = std::make_shared<aws::kinesis::core::PutRecordsContext>(
+      "myStream",
+      "arn:aws:kinesis:us-east-2:123456789012:stream/myStream",
+      "",
+      krs);
+  ctx->set_outcome(success_outcome(R"(
+      {
+        "FailedRecordCount": 0,
+        "Records":[
+          {
+            "SequenceNumber":"1234",
+            "ShardId":"shardId-000000000004"
+          }
+        ]
+      }
+      )"));
+
+  size_t retried = 0;
+  int invalidated = 0;
+  int wrong_shard_calls = 0;
+
+  aws::kinesis::core::Retrier retrier(
+      std::make_shared<aws::kinesis::core::Configuration>(),
+      [&](auto& ur) {
+        BOOST_FAIL("Finish should not be called");
+      },
+      [&](auto& ur) {
+        retried++;
+        BOOST_CHECK_EQUAL(ur->attempts().back().error_code(), "Wrong Shard");
+      },
+      [&](auto) {
+        return std::make_pair(boost::multiprecision::uint128_t(0), boost::multiprecision::uint128_t(10));
+      },
+      [&](auto, auto) { invalidated++; },
+      aws::kinesis::core::Retrier::ErrorCallback(),
+      std::make_shared<aws::metrics::NullMetricsManager>(),
+      [&](const std::string&) { wrong_shard_calls++; });
+
+  retrier.put(ctx);
+
+  BOOST_CHECK_EQUAL(retried, 3);
+  BOOST_CHECK_EQUAL(invalidated, 1);
+  BOOST_CHECK_EQUAL(wrong_shard_calls, 1);
+}
+
+// Aggregate whose sub-records are all in the landed shard's range but whose
+// predicted shard is a lower-numbered ancestor (predicted < actual). The whole
+// aggregate succeeds (no retry), and the stale parent shard is invalidated once
+// to help the shard map converge.
+BOOST_AUTO_TEST_CASE(InRangeLandedOnChildShard_SucceedsAndInvalidatesOnce) {
+  auto kr = std::make_shared<aws::kinesis::core::KinesisRecord>();
+  for (const std::string hashkey : {"1", "5", "9"}) {
+    auto ur = aws::kinesis::test::make_user_record_with_hashkey(hashkey);
+    ur->predicted_shard(2);  // predicted ancestor (2) < actual landed shard (4)
+    kr->add(ur);
+  }
+  std::vector<std::shared_ptr<aws::kinesis::core::KinesisRecord>> krs{kr};
+  auto ctx = std::make_shared<aws::kinesis::core::PutRecordsContext>(
+      "myStream",
+      "arn:aws:kinesis:us-east-2:123456789012:stream/myStream",
+      "",
+      krs);
+  ctx->set_outcome(success_outcome(R"(
+      {
+        "FailedRecordCount": 0,
+        "Records":[
+          {
+            "SequenceNumber":"1234",
+            "ShardId":"shardId-000000000004"
+          }
+        ]
+      }
+      )"));
+
+  size_t finished = 0;
+  int invalidated = 0;
+
+  aws::kinesis::core::Retrier retrier(
+      std::make_shared<aws::kinesis::core::Configuration>(),
+      [&](auto& ur) {
+        finished++;
+        BOOST_CHECK((bool) ur->attempts().back());
+      },
+      [&](auto& ur) {
+        BOOST_FAIL("Retry should not be called");
+      },
+      [&](auto) {
+        return std::make_pair(boost::multiprecision::uint128_t(0),
+                              boost::multiprecision::uint128_t(10));
+      },
+      [&](auto, auto) { invalidated++; });
+
+  retrier.put(ctx);
+
+  BOOST_CHECK_EQUAL(finished, 3);
+  BOOST_CHECK_EQUAL(invalidated, 1);
+}
+
+// Aggregate whose sub-records are all in the landed shard's range but whose
+// predicted shard is a higher-numbered shard (predicted > actual). The whole
+// aggregate succeeds and the shard map is NOT invalidated: the convergence
+// invalidate only fires when the record landed on a higher-numbered child.
+BOOST_AUTO_TEST_CASE(InRangePredictedHigherThanActual_SucceedsNoInvalidate) {
+  auto kr = std::make_shared<aws::kinesis::core::KinesisRecord>();
+  for (const std::string hashkey : {"1", "5", "9"}) {
+    auto ur = aws::kinesis::test::make_user_record_with_hashkey(hashkey);
+    ur->predicted_shard(7);  // predicted (7) > actual landed shard (4)
+    kr->add(ur);
+  }
+  std::vector<std::shared_ptr<aws::kinesis::core::KinesisRecord>> krs{kr};
+  auto ctx = std::make_shared<aws::kinesis::core::PutRecordsContext>(
+      "myStream",
+      "arn:aws:kinesis:us-east-2:123456789012:stream/myStream",
+      "",
+      krs);
+  ctx->set_outcome(success_outcome(R"(
+      {
+        "FailedRecordCount": 0,
+        "Records":[
+          {
+            "SequenceNumber":"1234",
+            "ShardId":"shardId-000000000004"
+          }
+        ]
+      }
+      )"));
+
+  size_t finished = 0;
+  int invalidated = 0;
+
+  aws::kinesis::core::Retrier retrier(
+      std::make_shared<aws::kinesis::core::Configuration>(),
+      [&](auto& ur) {
+        finished++;
+        BOOST_CHECK((bool) ur->attempts().back());
+      },
+      [&](auto& ur) {
+        BOOST_FAIL("Retry should not be called");
+      },
+      [&](auto) {
+        return std::make_pair(boost::multiprecision::uint128_t(0),
+                              boost::multiprecision::uint128_t(10));
+      },
+      [&](auto, auto) { invalidated++; });
+
+  retrier.put(ctx);
+
+  BOOST_CHECK_EQUAL(finished, 3);
+  BOOST_CHECK_EQUAL(invalidated, 0);
+}
+
 // AUTO and UNKNOWN streams flow through the Pipeline's solo path, which clears
 // predicted_shard. These cases verify the retrier treats such records as
 // successful regardless of which shard the service reports, with no retry and
