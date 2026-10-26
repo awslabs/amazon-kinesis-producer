@@ -54,6 +54,13 @@ class KinesisProducer : boost::noncopyable {
         shutdown_(false) {
     create_kinesis_client(ca_path, ca_file);
     create_cw_client(ca_path, ca_file);
+    //
+    // Building a client reads its credentials, before any can arrive from Java, so
+    // requests only start waiting for the first credentials from here. This has to
+    // come before the metrics manager, whose first upload can follow 1 ms later.
+    //
+    kinesis_creds_provider_->enable_first_credentials_wait();
+    cw_creds_provider_->enable_first_credentials_wait();
     create_metrics_manager();
     create_stream_strategy_manager();
     report_outstanding();

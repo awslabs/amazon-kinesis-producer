@@ -41,12 +41,17 @@ class MutableStaticCredentialsProvider
  public:
   MutableStaticCredentialsProvider(const std::string& akid, const std::string& sk, std::string token = "");
 
-  // Starts without credentials. Until the first set_credentials() call,
-  // GetAWSCredentials() waits for it, for at most first_credentials_timeout,
-  // instead of returning empty credentials that leave requests unsigned.
+  // Starts without credentials. Once enable_first_credentials_wait() has been called,
+  // GetAWSCredentials() waits for the first set_credentials() call, for at most
+  // first_credentials_timeout, instead of returning empty credentials.
   explicit MutableStaticCredentialsProvider(std::chrono::milliseconds first_credentials_timeout);
 
   void set_credentials(const std::string& akid, const std::string& sk, std::string token = "");
+
+  // Makes GetAWSCredentials() wait for the first credentials, unless they have already
+  // arrived. Call it only once credentials can arrive: the AWS SDK reads credentials
+  // while it builds a client, and a wait there lasts the whole timeout.
+  void enable_first_credentials_wait();
 
   Aws::Auth::AWSCredentials GetAWSCredentials() override;
 
@@ -57,6 +62,8 @@ class MutableStaticCredentialsProvider
   std::shared_ptr<VersionedCredentials> creds_;
   std::atomic<std::uint64_t> version_;
   std::atomic<bool> awaiting_first_credentials_;
+  // Guarded by update_mutex_
+  bool has_credentials_;
   std::chrono::milliseconds first_credentials_timeout_;
   std::condition_variable first_credentials_cv_;
 
