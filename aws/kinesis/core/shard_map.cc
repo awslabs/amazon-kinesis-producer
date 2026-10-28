@@ -48,8 +48,18 @@ ShardMap::ShardMap(
       backoff_(min_backoff_),
       list_shards_callback_(list_shards_callback) {
   update();
-  std::thread cleanup_thread_(&ShardMap::cleanup, this);
-  cleanup_thread_.detach();
+  cleanup_thread_ = std::thread(&ShardMap::cleanup, this);
+}
+
+ShardMap::~ShardMap() {
+  {
+    std::lock_guard<std::mutex> lock(cleanup_mutex_);
+    stopping_ = true;
+  }
+  cleanup_cv_.notify_all();
+  if (cleanup_thread_.joinable()) {
+    cleanup_thread_.join();
+  }
 }
 
 boost::optional<uint64_t> ShardMap::shard_id(const uint128_t& hash_key) {
@@ -210,8 +220,14 @@ void ShardMap::sort_all_open_shards() {
 
 void ShardMap::cleanup() {
   while (true) {
+    {
+      std::unique_lock<std::mutex> lock(cleanup_mutex_);
+      if (cleanup_cv_.wait_for(lock, closed_shard_ttl_ / 2,
+                               [this] { return stopping_; })) {
+        return;
+      }
+    }
     try {
-      std::this_thread::sleep_for(closed_shard_ttl_ / 2); 
       const auto now = std::chrono::steady_clock::now();   
       // readlock on the main mutex and the state_ check ensures that we are not runing list shards so it's safe to
       // clean up the map.

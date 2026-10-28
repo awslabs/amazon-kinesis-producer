@@ -26,6 +26,8 @@
 #include <aws/metrics/metrics_manager.h>
 #include <aws/mutex.h>
 #include <aws/utils/utils.h>
+#include <condition_variable>
+#include <mutex>
 #include <thread>
 
 namespace aws {
@@ -54,6 +56,8 @@ class ShardMap : boost::noncopyable {
            std::chrono::milliseconds min_backoff = kMinBackoff,
            std::chrono::milliseconds max_backoff = kMaxBackoff,
            std::chrono::milliseconds closed_shard_ttl = kClosedShardTtl);
+
+  virtual ~ShardMap();
 
   virtual boost::optional<uint64_t> shard_id(const uint128_t& hash_key);
   boost::optional<std::pair<uint128_t, uint128_t>> hashrange(const uint64_t& shard_id);
@@ -118,6 +122,12 @@ class ShardMap : boost::noncopyable {
   std::chrono::milliseconds closed_shard_ttl_;
   std::shared_ptr<aws::utils::ScheduledCallback> scheduled_callback_;
   ListShardsCallBack list_shards_callback_;
+
+  // Joined in the destructor so cleanup() never runs on a destroyed ShardMap.
+  std::mutex cleanup_mutex_;
+  std::condition_variable cleanup_cv_;
+  bool stopping_ = false;
+  std::thread cleanup_thread_;
 };
 
 } //namespace core
