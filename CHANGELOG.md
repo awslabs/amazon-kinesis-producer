@@ -1,4 +1,11 @@
 ## Changelog
+## 1.1.1
+* [#712](https://github.com/awslabs/amazon-kinesis-producer/pull/712) Bump com.fasterxml.jackson.core:jackson-databind
+* [#713](https://github.com/awslabs/amazon-kinesis-producer/pull/713) Bump com.fasterxml.jackson.core:jackson-core
+* [#714](https://github.com/awslabs/amazon-kinesis-producer/pull/714) Fix startup delay due to credential wait
+* [#715](https://github.com/awslabs/amazon-kinesis-producer/pull/715) Retry whole aggregate when a sub-record lands on the wrong shard
+* [#716](https://github.com/awslabs/amazon-kinesis-producer/pull/716) Fix first-write delay when DescribeStreamSummary fails
+
 ## 1.1.0
 * [#706](https://github.com/awslabs/amazon-kinesis-producer/pull/706) Add support for AUTO RecordDistributionStrategy streams
 * [#709](https://github.com/awslabs/amazon-kinesis-producer/pull/709) Send credentials to the daemon before any record
