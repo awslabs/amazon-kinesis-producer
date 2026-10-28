@@ -180,6 +180,8 @@ void KinesisProducer::create_stream_strategy_manager() {
   StreamStrategyManager::Timing timing;
   timing.refresh_interval =
       std::chrono::milliseconds(config_->describe_stream_summary_interval());
+  // One blocking attempt on first write; background recovery handles retries.
+  timing.blocking_max_attempts = 1;
 
   auto default_strategy =
       strategy_from_string(config_->record_distribution_strategy_default());
