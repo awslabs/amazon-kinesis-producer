@@ -5,6 +5,10 @@
 * [#714](https://github.com/awslabs/amazon-kinesis-producer/pull/714) Fix startup delay due to credential wait
 * [#715](https://github.com/awslabs/amazon-kinesis-producer/pull/715) Retry whole aggregate when a sub-record lands on the wrong shard
 * [#716](https://github.com/awslabs/amazon-kinesis-producer/pull/716) Fix first-write delay when DescribeStreamSummary fails
+* [#718](https://github.com/awslabs/amazon-kinesis-producer/pull/718) Bump com.google.guava:guava
+* [#719](https://github.com/awslabs/amazon-kinesis-producer/pull/719) Fix ShardMap cleanup thread outliving ShardMap
+* [#720](https://github.com/awslabs/amazon-kinesis-producer/pull/720) Use std::mutex for metrics accumulators
+* [#721](https://github.com/awslabs/amazon-kinesis-producer/pull/721) Skip the SDK's IMDS region lookup when building clients
 
 ## 1.1.0
 * [#706](https://github.com/awslabs/amazon-kinesis-producer/pull/706) Add support for AUTO RecordDistributionStrategy streams
