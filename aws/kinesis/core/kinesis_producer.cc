@@ -104,7 +104,11 @@ make_sdk_client_cfg(const aws::kinesis::core::Configuration& kpl_cfg,
                     const std::string& ca_path,
                     const std::string& ca_file,
                     int retryCount) {
-  Aws::Client::ClientConfiguration cfg;
+  // KPL sets the region itself. Skip the SDK's IMDS region lookup, which
+  // stalls client creation for seconds where IMDS is unreachable (containers).
+  Aws::Client::ClientConfigurationInitValues init;
+  init.shouldDisableIMDS = true;
+  Aws::Client::ClientConfiguration cfg(init);
   cfg.userAgent = user_agent();
   LOG(info) << "Using Region: " << region;
   cfg.region = region;
