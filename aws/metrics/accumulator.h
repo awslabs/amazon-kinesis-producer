@@ -18,6 +18,7 @@
 
 #include <chrono>
 #include <list>
+#include <mutex>
 
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
@@ -40,22 +41,21 @@ using TimePoint = Clock::time_point;
 
 namespace detail {
 
-using Mutex = aws::shared_mutex;
-using ReadLock = aws::shared_lock<Mutex>;
-using WriteLock = aws::unique_lock<Mutex>;
+using Mutex = std::mutex;
+using Lock = std::lock_guard<Mutex>;
 
 template <typename AccumType>
 class ConcurrentAccumulator {
  public:
   template <typename V>
   void operator()(V&& val) {
-    WriteLock lk(mutex_);
+    Lock lk(mutex_);
     accum_(std::forward<decltype(val)>(val));
   }
 
   template <typename Stat>
   decltype(auto) get() {
-    ReadLock lk(mutex_);
+    Lock lk(mutex_);
     return boost::accumulators::extract_result<Stat>(accum_);
   }
 
@@ -73,15 +73,7 @@ class AccumulatorList {
   void operator()(ValType val) {
     auto tp = TimePoint(buckets_since_epoch());
 
-    {
-      ReadLock lk(mutex_);
-      if (!accums_.empty() && accums_.back().first == tp) {
-        (accums_.back().second)(val);
-        return;
-      }
-    }
-
-    WriteLock lk(mutex_);
+    Lock lk(mutex_);
     while (!accums_.empty() &&
            buckets_between(accums_.front().first, tp) > NumBuckets) {
       accums_.pop_front();
@@ -102,7 +94,7 @@ class AccumulatorList {
 
     auto cutoff = TimePoint(buckets_since_epoch() - BucketSize(buckets));
 
-    ReadLock lk(mutex_);
+    Lock lk(mutex_);
 
     if (std::is_same<Stat, boost::accumulators::tag::count>::value ||
         std::is_same<Stat, boost::accumulators::tag::sum>::value) {
