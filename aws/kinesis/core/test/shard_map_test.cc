@@ -606,7 +606,7 @@ BOOST_AUTO_TEST_CASE(Backoff) {
     outcomes_list_shards.push_back(error_outcome<Aws::Kinesis::Model::ListShardsOutcome>());
   }
 
-  Wrapper wrapper(outcomes_list_shards, 0);
+  Wrapper wrapper(outcomes_list_shards, [](const std::string&) { return ""; }, 0);
 
   auto start = std::chrono::high_resolution_clock::now();
 
