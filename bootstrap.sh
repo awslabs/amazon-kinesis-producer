@@ -128,7 +128,11 @@ if [ ! -d "openssl-${OPENSSL_VERSION}" ]; then
   OPTS="threads no-shared no-idea no-camellia no-seed no-bf no-cast no-rc2 no-rc5 no-md2 no-mdc2 no-ssl2 no-ssl3 no-capieng no-dso --prefix=$INSTALL_DIR --libdir=lib"
 
   if [[ $(uname) == 'Darwin' ]]; then
-    OPTS="$OPTS darwin64-x86_64-cc enable-ec_nistp_64_gcc_128"
+    if [[ $(uname -m) == 'arm64' ]]; then
+      OPTS="$OPTS darwin64-arm64-cc enable-ec_nistp_64_gcc_128"
+    else
+      OPTS="$OPTS darwin64-x86_64-cc enable-ec_nistp_64_gcc_128"
+    fi
     silence ./Configure $OPTS
   elif [[ $(uname) == MINGW* ]]; then
     silence ./Configure mingw64 $OPTS
