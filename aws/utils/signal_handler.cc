@@ -19,7 +19,6 @@
 #include "backtrace/backtrace.h"
 
 #include <signal.h>
-#include <execinfo.h>
 #include <unistd.h>
 #include <cstring>
 #include <cstdint>
