@@ -23,25 +23,32 @@ namespace {
   // This makes the most difference when using a thread pool, as the retrieval of the
   // credentials will only require a lock when the credentials version changes.
   //
+  // All providers share this copy, so it records the provider it was loaded from.
+  //
   thread_local aws::auth::VersionedCredentials current_creds;
+
+  // Source of provider ids; starts at 1 so no provider matches an empty copy.
+  std::atomic<std::uint64_t> next_provider_id(1);
 }
 
 using namespace aws::auth;
 
-VersionedCredentials::VersionedCredentials(std::uint64_t version, const std::string& akid, const std::string& sk, const std::string& token) :
-  version_(version), creds_(Aws::Auth::AWSCredentials(akid, sk, token)) {
+VersionedCredentials::VersionedCredentials(std::uint64_t owner_id, std::uint64_t version, const std::string& akid, const std::string& sk, const std::string& token) :
+  owner_id_(owner_id), version_(version), creds_(Aws::Auth::AWSCredentials(akid, sk, token)) {
 }
 
 MutableStaticCredentialsProvider::MutableStaticCredentialsProvider(const std::string& akid,
                                                                    const std::string& sk,
                                                                    std::string token) :
-  creds_(std::make_shared<VersionedCredentials>(1, akid, sk, token)), version_(1),
+  id_(next_provider_id++),
+  creds_(std::make_shared<VersionedCredentials>(id_, 1, akid, sk, token)), version_(1),
   awaiting_first_credentials_(false), has_credentials_(true), first_credentials_timeout_(0) {
 }
 
 MutableStaticCredentialsProvider::MutableStaticCredentialsProvider(
     std::chrono::milliseconds first_credentials_timeout) :
-  creds_(std::make_shared<VersionedCredentials>(1, "", "", "")), version_(1),
+  id_(next_provider_id++),
+  creds_(std::make_shared<VersionedCredentials>(id_, 1, "", "", "")), version_(1),
   awaiting_first_credentials_(false), has_credentials_(false), first_credentials_timeout_(first_credentials_timeout) {
 }
 
@@ -55,7 +62,7 @@ void MutableStaticCredentialsProvider::set_credentials(const std::string& akid, 
   // is protected by a lock we can't get into a scenario where one of the consumers has
   // a mismatched version and credentials.  
   //
-  std::shared_ptr<VersionedCredentials> new_credentials = std::make_shared<VersionedCredentials>(next_version, akid, sk, token);
+  std::shared_ptr<VersionedCredentials> new_credentials = std::make_shared<VersionedCredentials>(id_, next_version, akid, sk, token);
 
   //
   // This update the credentials atomically using the shared_ptr specific atomic operations,
@@ -110,8 +117,8 @@ Aws::Auth::AWSCredentials MutableStaticCredentialsProvider::GetAWSCredentials() 
     wait_for_first_credentials();
   }
   //
-  // Check to see if the credentials have been updated.  If they have load the credentials
-  // and update the thread local.
+  // Check to see if the thread local copy came from another provider, or if the
+  // credentials have been updated.  If so load the credentials and update the thread local.
   //
   // If the credentials are changing rapidly it's possible that the thread will read an
   // old version of the credentials.  Should that occur the next read will update to the
@@ -120,7 +127,7 @@ Aws::Auth::AWSCredentials MutableStaticCredentialsProvider::GetAWSCredentials() 
   // This check still works in the very unlikely event that the next_version value
   // wraps around.  
   //
-  if (current_creds.version_ != version_) {
+  if (current_creds.owner_id_ != id_ || current_creds.version_ != version_) {
     std::shared_ptr<VersionedCredentials> updated = std::atomic_load(&creds_);
     current_creds = *updated;
   }

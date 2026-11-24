@@ -245,4 +245,72 @@ BOOST_AUTO_TEST_CASE(EnablingTheWaitAfterCredentialsArrivedDoesNotWait) {
   BOOST_CHECK(read_time < std::chrono::milliseconds(100));
 }
 
+//
+// The daemon's Kinesis and CloudWatch providers are updated together, so their versions
+// match. A thread that reads both must still get each provider's own credentials.
+//
+BOOST_AUTO_TEST_CASE(ProvidersWithMatchingVersionsReturnTheirOwnCredentialsOnOneThread) {
+  aws::auth::MutableStaticCredentialsProvider kinesis(std::chrono::milliseconds(0));
+  aws::auth::MutableStaticCredentialsProvider metrics(std::chrono::milliseconds(0));
+  kinesis.set_credentials("kinesis-akid", "kinesis-sk");
+  metrics.set_credentials("metrics-akid", "metrics-sk");
+
+  Aws::Auth::AWSCredentials kinesis_first;
+  Aws::Auth::AWSCredentials metrics_creds;
+  Aws::Auth::AWSCredentials kinesis_again;
+  std::thread reader([&] {
+      kinesis_first = kinesis.GetAWSCredentials();
+      metrics_creds = metrics.GetAWSCredentials();
+      kinesis_again = kinesis.GetAWSCredentials();
+    });
+  reader.join();
+
+  BOOST_CHECK_EQUAL(kinesis_first.GetAWSAccessKeyId(), "kinesis-akid");
+  BOOST_CHECK_EQUAL(metrics_creds.GetAWSAccessKeyId(), "metrics-akid");
+  BOOST_CHECK_EQUAL(metrics_creds.GetAWSSecretKey(), "metrics-sk");
+  BOOST_CHECK_EQUAL(kinesis_again.GetAWSAccessKeyId(), "kinesis-akid");
+}
+
+BOOST_AUTO_TEST_CASE(ProvidersCreatedWithCredentialsReturnTheirOwnCredentialsOnOneThread) {
+  aws::auth::MutableStaticCredentialsProvider first("first-akid", "first-sk");
+  aws::auth::MutableStaticCredentialsProvider second("second-akid", "second-sk");
+
+  Aws::Auth::AWSCredentials first_creds;
+  Aws::Auth::AWSCredentials second_creds;
+  std::thread reader([&] {
+      first_creds = first.GetAWSCredentials();
+      second_creds = second.GetAWSCredentials();
+    });
+  reader.join();
+
+  BOOST_CHECK_EQUAL(first_creds.GetAWSAccessKeyId(), "first-akid");
+  BOOST_CHECK_EQUAL(second_creds.GetAWSAccessKeyId(), "second-akid");
+}
+
+BOOST_AUTO_TEST_CASE(ProvidersReturnUpdatedCredentialsAfterAThreadSwitchesBetweenThem) {
+  aws::auth::MutableStaticCredentialsProvider kinesis(std::chrono::milliseconds(0));
+  aws::auth::MutableStaticCredentialsProvider metrics(std::chrono::milliseconds(0));
+  kinesis.set_credentials("kinesis-akid-1", "kinesis-sk-1");
+  metrics.set_credentials("metrics-akid-1", "metrics-sk-1");
+
+  Aws::Auth::AWSCredentials kinesis_before;
+  Aws::Auth::AWSCredentials metrics_before;
+  Aws::Auth::AWSCredentials kinesis_after;
+  Aws::Auth::AWSCredentials metrics_after;
+  std::thread reader([&] {
+      kinesis_before = kinesis.GetAWSCredentials();
+      metrics_before = metrics.GetAWSCredentials();
+      kinesis.set_credentials("kinesis-akid-2", "kinesis-sk-2");
+      metrics.set_credentials("metrics-akid-2", "metrics-sk-2");
+      kinesis_after = kinesis.GetAWSCredentials();
+      metrics_after = metrics.GetAWSCredentials();
+    });
+  reader.join();
+
+  BOOST_CHECK_EQUAL(kinesis_before.GetAWSAccessKeyId(), "kinesis-akid-1");
+  BOOST_CHECK_EQUAL(metrics_before.GetAWSAccessKeyId(), "metrics-akid-1");
+  BOOST_CHECK_EQUAL(kinesis_after.GetAWSAccessKeyId(), "kinesis-akid-2");
+  BOOST_CHECK_EQUAL(metrics_after.GetAWSAccessKeyId(), "metrics-akid-2");
+}
+
 BOOST_AUTO_TEST_SUITE_END()
