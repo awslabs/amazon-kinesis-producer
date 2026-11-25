@@ -17,6 +17,7 @@
 #define AWS_KINESIS_CORE_STREAM_STRATEGY_MANAGER_H_
 
 #include <chrono>
+#include <condition_variable>
 #include <functional>
 #include <string>
 #include <unordered_map>
@@ -188,6 +189,8 @@ class StreamStrategyManager : boost::noncopyable {
   Timing timing_;
 
   mutable aws::shared_mutex mutex_;
+  // Signals the end of a blocking first-write discovery.
+  std::condition_variable_any discovery_done_;
   std::unordered_map<std::string, Entry> streams_;
 };
 

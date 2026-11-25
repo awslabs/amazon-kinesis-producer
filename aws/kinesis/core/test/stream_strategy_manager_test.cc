@@ -13,8 +13,11 @@
  * limitations under the License.
  */
 
+#include <atomic>
 #include <deque>
+#include <future>
 #include <mutex>
+#include <thread>
 
 #include <boost/test/unit_test.hpp>
 
@@ -325,6 +328,91 @@ BOOST_AUTO_TEST_CASE(NoDefault_SecondCallDoesNotRediscover) {
   BOOST_CHECK(mgr.get_or_discover("s") == StreamStrategy::AUTO);
   BOOST_CHECK(mgr.get_or_discover("s") == StreamStrategy::AUTO);
   BOOST_CHECK_EQUAL(resolver->calls, 1);
+}
+
+// Starts a first write whose discovery blocks until released, then checks that
+// a second write waits for it and returns the same strategy.
+void check_second_write_waits(boost::optional<StreamStrategy> resolved,
+                              StreamStrategy expected) {
+  auto executor = std::make_shared<FakeExecutor>();
+  std::promise<void> entered;
+  std::atomic<bool> entered_set{false};
+  std::promise<void> release_promise;
+  auto release = release_promise.get_future().share();
+  StreamStrategyManager mgr(
+      executor, StreamStrategy::UNKNOWN,
+      [&](const std::string&) {
+        if (!entered_set.exchange(true)) {
+          entered.set_value();
+        }
+        release.wait();
+        return resolved;
+      },
+      nullptr, fast_timing());
+
+  auto first = std::async(std::launch::async,
+                          [&] { return mgr.get_or_discover("s"); });
+  entered.get_future().wait();
+
+  std::atomic<bool> second_done{false};
+  auto second = std::async(std::launch::async, [&] {
+    auto s = mgr.get_or_discover("s");
+    second_done = true;
+    return s;
+  });
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  BOOST_CHECK(!second_done);
+
+  release_promise.set_value();
+  BOOST_CHECK(first.get() == expected);
+  BOOST_CHECK(second.get() == expected);
+}
+
+BOOST_AUTO_TEST_CASE(NoDefault_ConcurrentWriteWaitsForDiscovery) {
+  check_second_write_waits(StreamStrategy::USER_PARTITION_KEY,
+                           StreamStrategy::USER_PARTITION_KEY);
+}
+
+BOOST_AUTO_TEST_CASE(NoDefault_ConcurrentWriteWaitsForFallback) {
+  check_second_write_waits(boost::none, StreamStrategy::LEGACY_AGGREGATE);
+}
+
+BOOST_AUTO_TEST_CASE(NoDefault_KnownStreamNotBlockedByOtherDiscovery) {
+  // Stream "a" is already discovered. While "b" is still discovering, writes
+  // to "a" must return at once.
+  auto executor = std::make_shared<FakeExecutor>();
+  std::promise<void> b_entered;
+  std::promise<void> release_b_promise;
+  auto release_b = release_b_promise.get_future().share();
+  StreamStrategyManager mgr(
+      executor, StreamStrategy::UNKNOWN,
+      [&](const std::string& stream) -> boost::optional<StreamStrategy> {
+        if (stream == "b") {
+          b_entered.set_value();
+          release_b.wait();
+        }
+        return StreamStrategy::USER_PARTITION_KEY;
+      },
+      nullptr, fast_timing());
+
+  BOOST_REQUIRE(mgr.get_or_discover("a") == StreamStrategy::USER_PARTITION_KEY);
+
+  auto b = std::async(std::launch::async,
+                      [&] { return mgr.get_or_discover("b"); });
+  b_entered.get_future().wait();
+
+  auto a = std::async(std::launch::async, [&] {
+    return std::make_pair(mgr.get_or_discover("a"), mgr.get_strategy("a"));
+  });
+  bool a_ready = a.wait_for(std::chrono::seconds(5)) ==
+                 std::future_status::ready;
+  // Release "b" before checking, so a failure cannot hang the test.
+  release_b_promise.set_value();
+  BOOST_CHECK(a_ready);
+  auto a_result = a.get();
+  BOOST_CHECK(a_result.first == StreamStrategy::USER_PARTITION_KEY);
+  BOOST_CHECK(a_result.second == StreamStrategy::USER_PARTITION_KEY);
+  BOOST_CHECK(b.get() == StreamStrategy::USER_PARTITION_KEY);
 }
 
 // Wrong Shard: triggers a re-check only after the threshold of consecutive hits.

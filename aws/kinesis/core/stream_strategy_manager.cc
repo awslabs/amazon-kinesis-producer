@@ -48,8 +48,19 @@ StreamStrategy StreamStrategyManager::get_strategy(
 
 StreamStrategy StreamStrategyManager::get_or_discover(
     const std::string& stream) {
-  // Fast path: a default is configured, or the stream is already discovered /
-  // discovery is already underway. Never block in these cases.
+  // Read-only fast path: strategy settled (or a default is set), no write lock.
+  {
+    aws::shared_lock<aws::shared_mutex> lock(mutex_);
+    auto it = streams_.find(stream);
+    if (it != streams_.end() &&
+        (it->second.discovery == DiscoveryState::kDone ||
+         (default_strategy_ != StreamStrategy::UNKNOWN &&
+          it->second.discovery != DiscoveryState::kNotStarted))) {
+      return it->second.strategy;
+    }
+  }
+  // Slow path: first write, or the first discovery is still running. Re-check
+  // under the write lock, then seed the default, claim discovery, or wait.
   {
     aws::unique_lock<aws::shared_mutex> lock(mutex_);
     auto& entry = streams_[stream];
@@ -64,7 +75,11 @@ StreamStrategy StreamStrategyManager::get_or_discover(
       return entry.strategy;
     }
     if (entry.discovery != DiscoveryState::kNotStarted) {
-      // Another first-write already started (or finished) discovery.
+      // Another first-write is discovering: wait for it instead of returning
+      // UNKNOWN, which would send this record solo without its hash key.
+      discovery_done_.wait(lock, [&entry] {
+        return entry.discovery != DiscoveryState::kInProgress;
+      });
       return entry.strategy;
     }
     // No default and not yet discovered: claim the blocking discovery.
@@ -108,6 +123,7 @@ StreamStrategy StreamStrategyManager::get_or_discover(
     entry.strategy = StreamStrategy::LEGACY_AGGREGATE;
     entry.discovery = DiscoveryState::kDone;
   }
+  discovery_done_.notify_all();
   schedule_recovery(stream, 0);
   return StreamStrategy::LEGACY_AGGREGATE;
 }
@@ -169,6 +185,7 @@ StreamStrategy StreamStrategyManager::apply_resolved(const std::string& stream,
     // strategy is now confirmed, so any accumulated count is stale.
     entry.wrong_shard_count = 0;
   }
+  discovery_done_.notify_all();
   if (changed && on_change_) {
     on_change_(stream, resolved);
   }
